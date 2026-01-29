@@ -1,20 +1,34 @@
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank } from "@/components/item";
-import { playTrack } from "@/store/player-store";
+import { playTrack, $tracks, loadTracks, Track } from "@/store/player-store";
+import { useStore } from "@nanostores/react";
 import { SectionTitle } from "@/components/section-title";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState, useLayoutEffect, useCallback, useMemo } from "react";
 import { useNavigation, useRouter } from "expo-router";
-import { Pressable, Text, View, ScrollView, FlatList, LayoutAnimation } from "react-native";
+import { Pressable, View, ScrollView, RefreshControl } from "react-native";
 import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { Ionicons } from "@expo/vector-icons";
+
+const RECENTLY_PLAYED_LIMIT = 8;
+const TOP_SONGS_LIMIT = 25;
+const CHUNK_SIZE = 5;
+
+const chunkArray = <T,>(arr: T[], size: number): T[][] => {
+    const chunks: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) {
+        chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
+};
 
 export default function HomeScreen() {
     const router = useRouter();
     const navigation = useNavigation();
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
-    const [searchQuery, setSearchQuery] = useState("");
+    const [refreshing, setRefreshing] = useState(false);
+    const tracks = useStore($tracks);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -32,41 +46,55 @@ export default function HomeScreen() {
                 </View>
             ),
         });
-    }, [navigation, theme]);
+    }, [navigation, theme, router]);
 
-    const recentMusic = [
-        { title: "Blinding Lights", artist: "The Weeknd" },
-        { title: "Levitating", artist: "Dua Lipa" },
-        { title: "Save Your Tears", artist: "The Weeknd" },
-        { title: "Peaches", artist: "Justin Bieber" },
-        { title: "Good 4 U", artist: "Olivia Rodrigo" },
-        { title: "Midnight City", artist: "M83" },
-        { title: "Starboy", artist: "The Weeknd" },
-        { title: "Instant Destiny", artist: "Tame Impala" },
-        { title: "After Hours", artist: "The Weeknd" },
-        { title: "Stay", artist: "The Kid LAROI" },
-        { title: "Drivers License", artist: "Olivia Rodrigo" },
-        { title: "Kiss Me More", artist: "Doja Cat" },
-        { title: "Heat Waves", artist: "Glass Animals" },
-        { title: "Bad Habits", artist: "Ed Sheeran" },
-        { title: "Montero", artist: "Lil Nas X" },
-    ];
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await loadTracks(true);
+        setRefreshing(false);
+    }, []);
 
-    // Helper to chunk the list for the horizontal columns layout
-    const chunkArray = (arr: any[], size: number) => {
-        const chunks = [];
-        for (let i = 0; i < arr.length; i += size) {
-            chunks.push(arr.slice(i, i + size));
-        }
-        return chunks;
-    };
-
-    const filteredSongs = recentMusic.filter(song =>
-        song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        song.artist.toLowerCase().includes(searchQuery.toLowerCase())
+    const recentlyPlayedTracks = useMemo(() =>
+        tracks.slice(0, RECENTLY_PLAYED_LIMIT),
+        [tracks]
     );
 
-    const topSongsChunks = chunkArray(filteredSongs.slice(0, 25), 5);
+    const topSongsChunks = useMemo(() =>
+        chunkArray(tracks.slice(0, TOP_SONGS_LIMIT), CHUNK_SIZE),
+        [tracks]
+    );
+
+    const renderRecentlyPlayedItem = useCallback((item: Track) => (
+        <Item
+            key={item.id}
+            variant="grid"
+            onPress={() => playTrack(item)}
+        >
+            <ItemImage icon="musical-note" image={item.image} />
+            <ItemContent>
+                <ItemTitle>{item.title}</ItemTitle>
+                <ItemDescription>{item.artist || "Unknown Artist"}</ItemDescription>
+            </ItemContent>
+        </Item>
+    ), []);
+
+    const renderTopSongsChunk = useCallback((chunk: Track[], chunkIndex: number) => (
+        <View key={`chunk-${chunkIndex}`} className="w-[300px]">
+            {chunk.map((music, index) => (
+                <Item
+                    key={music.id}
+                    onPress={() => playTrack(music)}
+                >
+                    <ItemImage icon="musical-note" image={music.image} />
+                    <ItemRank>{chunkIndex * CHUNK_SIZE + index + 1}</ItemRank>
+                    <ItemContent>
+                        <ItemTitle>{music.title}</ItemTitle>
+                        <ItemDescription>{music.artist || "Unknown Artist"}</ItemDescription>
+                    </ItemContent>
+                </Item>
+            ))}
+        </View>
+    ), []);
 
     return (
         <ScrollView
@@ -76,6 +104,9 @@ export default function HomeScreen() {
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+            }
         >
             <View className="pt-6">
                 <SectionTitle
@@ -84,26 +115,14 @@ export default function HomeScreen() {
                     onViewMore={() => router.push("/(main)/(home)/recently-played")}
                 />
 
-                <FlatList
-                    data={recentMusic.slice(0, 8)}
+                <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    keyExtractor={(_, index) => index.toString()}
-                    renderItem={({ item }) => (
-                        <Item
-                            variant="grid"
-                            onPress={() => playTrack({ title: item.title, subtitle: item.artist })}
-                        >
-                            <ItemImage icon="musical-note" />
-                            <ItemContent>
-                                <ItemTitle>{item.title}</ItemTitle>
-                                <ItemDescription>{item.artist}</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                    )}
                     contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
                     className="mb-8"
-                />
+                >
+                    {recentlyPlayedTracks.map(renderRecentlyPlayedItem)}
+                </ScrollView>
 
                 <SectionTitle
                     title="Top Songs"
@@ -111,32 +130,14 @@ export default function HomeScreen() {
                     onViewMore={() => router.push("/(main)/(home)/top-songs")}
                 />
 
-                <FlatList
-                    data={topSongsChunks}
+                <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    keyExtractor={(_, index) => index.toString()}
-                    pagingEnabled={false}
-                    renderItem={({ item: chunk, index: chunkIndex }) => (
-                        <View key={chunkIndex} className="w-[300px]">
-                            {chunk.map((music, index) => (
-                                <Item
-                                    key={index}
-                                    onPress={() => playTrack({ title: music.title, subtitle: music.artist })}
-                                >
-                                    <ItemImage icon="musical-note" />
-                                    <ItemRank>{chunkIndex * 5 + index + 1}</ItemRank>
-                                    <ItemContent>
-                                        <ItemTitle>{music.title}</ItemTitle>
-                                        <ItemDescription>{music.artist}</ItemDescription>
-                                    </ItemContent>
-                                </Item>
-                            ))}
-                        </View>
-                    )}
                     contentContainerStyle={{ paddingHorizontal: 16, gap: 24 }}
                     className="mb-8"
-                />
+                >
+                    {topSongsChunks.map(renderTopSongsChunk)}
+                </ScrollView>
             </View>
         </ScrollView>
     );

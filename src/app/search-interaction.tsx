@@ -1,20 +1,34 @@
-import React, { useState, useLayoutEffect } from "react";
-import { Text, View, ScrollView, Pressable, TextInput } from "react-native";
-import { useNavigation, useRouter } from "expo-router";
+import React, { useState, useLayoutEffect, useCallback, useMemo } from "react";
+import { View, Text, ScrollView, Pressable, TextInput } from "react-native";
+import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
-import { playTrack } from "@/store/player-store";
+import { playTrack, $tracks, Track } from "@/store/player-store";
 import { SearchResults } from "@/components/search/search-results";
-import { RecentSearches } from "@/components/search/recent-searches";
+import { RecentSearches, RecentSearchItem } from "@/components/search/recent-searches";
+import { useStore } from "@nanostores/react";
 
 export default function SearchInteractionScreen() {
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
     const navigation = useNavigation();
     const router = useRouter();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isSearching, setIsSearching] = useState(false);
+    const { query: initialQuery } = useLocalSearchParams<{ query?: string }>();
+    const tracks = useStore($tracks);
+
+    const [searchQuery, setSearchQuery] = useState(initialQuery || "");
+    const [recentSearches, setRecentSearches] = useState<RecentSearchItem[]>([]);
+
+    const isSearching = useMemo(() => searchQuery.trim().length > 0, [searchQuery]);
+
+    const handleSearchChange = useCallback((text: string) => {
+        setSearchQuery(text);
+    }, []);
+
+    const handleCancel = useCallback(() => {
+        router.back();
+    }, [router]);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -29,20 +43,23 @@ export default function SearchInteractionScreen() {
                             placeholder="Artists, songs, lyrics..."
                             placeholderTextColor={theme.muted}
                             value={searchQuery}
-                            onChangeText={(text) => {
-                                setSearchQuery(text);
-                                setIsSearching(text.length > 0);
-                            }}
+                            onChangeText={handleSearchChange}
                             className="flex-1 text-[16px] text-foreground font-medium"
                             selectionColor={theme.accent}
+                            returnKeyType="search"
                         />
+                        {searchQuery.length > 0 && (
+                            <Pressable onPress={() => setSearchQuery("")} className="p-1">
+                                <Ionicons name="close-circle" size={18} color={theme.muted} />
+                            </Pressable>
+                        )}
                     </View>
                 </View>
             ),
             headerBackVisible: false,
             headerLeft: () => null,
             headerRight: () => (
-                <Pressable onPress={() => router.back()} className="mr-1 active:opacity-50">
+                <Pressable onPress={handleCancel} className="mr-1 active:opacity-50">
                     <Text className="text-[17px] font-semibold text-muted">Cancel</Text>
                 </Pressable>
             ),
@@ -51,12 +68,33 @@ export default function SearchInteractionScreen() {
             },
             headerShadowVisible: false,
         });
-    }, [navigation, theme, searchQuery]);
+    }, [navigation, theme, searchQuery, handleSearchChange, handleCancel]);
 
-    const recentSearches = [
-        { id: '1', title: "Midnight City", subtitle: "M83" },
-        { id: '2', title: "Starboy", subtitle: "The Weeknd" },
-    ];
+    const handleClearRecentSearches = useCallback(() => {
+        setRecentSearches([]);
+    }, []);
+
+    const handleRecentItemPress = useCallback((item: RecentSearchItem) => {
+        setSearchQuery(item.title);
+    }, []);
+
+    const handleRemoveRecentItem = useCallback((id: string) => {
+        setRecentSearches(prev => prev.filter(item => item.id !== id));
+    }, []);
+
+    const handleSongPress = useCallback((track: Track) => {
+        const newRecentItem: RecentSearchItem = {
+            id: track.id,
+            title: track.title,
+            subtitle: track.artist || "Unknown Artist",
+            type: 'song',
+        };
+        setRecentSearches(prev => {
+            const filtered = prev.filter(item => item.id !== track.id);
+            return [newRecentItem, ...filtered].slice(0, 10);
+        });
+        playTrack(track);
+    }, []);
 
     return (
         <View className="flex-1 bg-background">
@@ -66,13 +104,16 @@ export default function SearchInteractionScreen() {
                 keyboardShouldPersistTaps="handled"
             >
                 {isSearching ? (
-                    <SearchResults />
+                    <SearchResults
+                        tracks={tracks}
+                        query={searchQuery}
+                    />
                 ) : (
                     <RecentSearches
                         searches={recentSearches}
-                        onClear={() => console.log('Clear recent searches')}
-                        onItemPress={(item) => playTrack({ title: item.title, subtitle: item.subtitle })}
-                        onRemoveItem={(id) => console.log('Remove item', id)}
+                        onClear={handleClearRecentSearches}
+                        onItemPress={handleRecentItemPress}
+                        onRemoveItem={handleRemoveRecentItem}
                     />
                 )}
             </ScrollView>

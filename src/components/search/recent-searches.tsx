@@ -1,27 +1,53 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
-import { playTrack } from "@/store/player-store";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
 
-type RecentSearchItem = {
+export interface RecentSearchItem {
     id: string;
     title: string;
     subtitle: string;
-};
+    type?: 'song' | 'album' | 'artist' | 'playlist';
+}
 
-type RecentSearchesProps = {
+interface RecentSearchesProps {
     searches: RecentSearchItem[];
     onClear: () => void;
     onItemPress: (item: RecentSearchItem) => void;
     onRemoveItem: (id: string) => void;
-};
+}
 
-export const RecentSearches = ({ searches, onClear, onItemPress, onRemoveItem }: RecentSearchesProps) => {
+export const RecentSearches: React.FC<RecentSearchesProps> = ({
+    searches,
+    onClear,
+    onItemPress,
+    onRemoveItem
+}) => {
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+
+    const handleItemPress = useCallback((item: RecentSearchItem) => {
+        onItemPress(item);
+    }, [onItemPress]);
+
+    const handleRemoveItem = useCallback((id: string) => {
+        onRemoveItem(id);
+    }, [onRemoveItem]);
+
+    const getIconForType = (type?: string): keyof typeof Ionicons.glyphMap => {
+        switch (type) {
+            case 'artist': return 'person-outline';
+            case 'album': return 'disc-outline';
+            case 'playlist': return 'list-outline';
+            default: return 'time-outline';
+        }
+    };
+
+    if (searches.length === 0) {
+        return null;
+    }
 
     return (
         <View className="px-4 py-4">
@@ -35,14 +61,14 @@ export const RecentSearches = ({ searches, onClear, onItemPress, onRemoveItem }:
                 {searches.map((item) => (
                     <Item
                         key={item.id}
-                        onPress={() => onItemPress(item)}
+                        onPress={() => handleItemPress(item)}
                     >
-                        <ItemImage icon="time-outline" />
+                        <ItemImage icon={getIconForType(item.type)} />
                         <ItemContent>
                             <ItemTitle>{item.title}</ItemTitle>
                             <ItemDescription>{item.subtitle}</ItemDescription>
                         </ItemContent>
-                        <ItemAction className="p-2" onPress={() => onRemoveItem(item.id)}>
+                        <ItemAction className="p-2" onPress={() => handleRemoveItem(item.id)}>
                             <Ionicons name="close" size={20} color={theme.muted} />
                         </ItemAction>
                     </Item>

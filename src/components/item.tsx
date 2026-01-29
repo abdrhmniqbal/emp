@@ -1,7 +1,6 @@
 import React, { createContext, useContext } from 'react';
-import { View, Text, Pressable, ViewProps, PressableProps, TextProps } from 'react-native';
+import { View, Text, Pressable, ViewProps, PressableProps, TextProps, Image } from 'react-native';
 import { tv, type VariantProps } from 'tailwind-variants';
-import { Card } from 'heroui-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useUniwind } from 'uniwind';
 import { Colors } from '@/constants/colors';
@@ -13,6 +12,7 @@ const itemStyles = tv({
         content: "flex-1 justify-center gap-0.5",
         title: "font-bold text-foreground",
         description: "text-xs text-muted",
+        rank: "text-lg font-bold text-foreground w-8 text-center",
     },
     variants: {
         variant: {
@@ -35,9 +35,19 @@ const itemStyles = tv({
 });
 
 type ItemVariant = VariantProps<typeof itemStyles>;
-type ItemContextType = ItemVariant & { theme: any };
 
-const ItemContext = createContext<ItemContextType>({ variant: 'list', theme: {} });
+interface ThemeColors {
+    foreground: string;
+    muted: string;
+    [key: string]: string;
+}
+
+type ItemContextType = ItemVariant & { theme: ThemeColors };
+
+const ItemContext = createContext<ItemContextType>({
+    variant: 'list',
+    theme: { foreground: '', muted: '' }
+});
 
 type ItemProps = PressableProps & ItemVariant & {
     asChild?: boolean;
@@ -51,7 +61,7 @@ const Item = React.forwardRef<View, ItemProps>(({ className, variant = 'list', c
     return (
         <ItemContext.Provider value={{ variant, theme }}>
             <Pressable
-                ref={ref as any}
+                ref={ref as React.RefObject<View>}
                 className={base({ className })}
                 {...props}
             >
@@ -64,16 +74,24 @@ Item.displayName = "Item";
 
 type ItemImageProps = ViewProps & {
     icon?: keyof typeof Ionicons.glyphMap;
-    // We could add source prop for Image later if needed
+    image?: string;
 };
 
-const ItemImage = React.forwardRef<View, ItemImageProps>(({ className, icon, children, ...props }, ref) => {
+const ItemImage = React.forwardRef<View, ItemImageProps>(({ className, icon, image, children, ...props }, ref) => {
     const { variant, theme } = useContext(ItemContext);
     const { imageContainer } = itemStyles({ variant });
 
     return (
         <View ref={ref} className={imageContainer({ className })} {...props}>
-            {icon ? (
+            {image ? (
+                <View className="w-full h-full overflow-hidden rounded-lg">
+                    <Image
+                        source={{ uri: image }}
+                        className="w-full h-full"
+                        style={{ width: '100%', height: '100%' }}
+                    />
+                </View>
+            ) : icon ? (
                 <Ionicons
                     name={icon}
                     size={variant === 'list' ? 24 : 48}
@@ -123,16 +141,13 @@ const ItemDescription = React.forwardRef<Text, TextProps>(({ className, children
 });
 ItemDescription.displayName = "ItemDescription";
 
-// New component for Rank
 const ItemRank = React.forwardRef<Text, TextProps>(({ className, children, ...props }, ref) => {
-    // Only show rank in list view usually, but we'll let consumer decide or hide via styles
-    // In MusicCard, rank had specific styles: "text-lg font-bold text-foreground w-8 text-center"
-    const { theme } = useContext(ItemContext);
+    const { rank } = itemStyles();
 
     return (
         <Text
             ref={ref}
-            className={`text-lg font-bold text-foreground w-8 text-center ${className}`}
+            className={rank({ className })}
             {...props}
         >
             {children}
@@ -142,9 +157,8 @@ const ItemRank = React.forwardRef<Text, TextProps>(({ className, children, ...pr
 ItemRank.displayName = "ItemRank";
 
 const ItemAction = React.forwardRef<View, PressableProps>((props, ref) => {
-    // Action usually is a Pressable or View depending on content
     return (
-        <Pressable ref={ref as any} className="active:opacity-50" {...props} />
+        <Pressable ref={ref as React.RefObject<View>} className="active:opacity-50" {...props} />
     );
 });
 ItemAction.displayName = "ItemAction";

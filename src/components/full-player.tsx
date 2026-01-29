@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { View, Text, Pressable, Dimensions } from "react-native";
+import { View, Text, Pressable, Dimensions, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useStore } from "@nanostores/react";
-import { $currentTrack, $isPlaying, playNext, playPrevious, togglePlayback } from "@/store/player-store";
+import { $currentTrack, $isPlaying, playNext, playPrevious, togglePlayback, $currentTime, $duration, seekTo } from "@/store/player-store";
 import { $isPlayerExpanded } from "@/store/ui-store";
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -22,11 +22,18 @@ export const FullPlayer = () => {
     const isExpanded = useStore($isPlayerExpanded);
     const currentTrack = useStore($currentTrack);
     const isPlaying = useStore($isPlaying);
+    const currentTimeVal = useStore($currentTime);
+    const durationVal = useStore($duration);
 
-    // Mock progress for UI
-    const currentTime = "0:08";
-    const totalTime = "-3:24";
-    const progressPercent = 5;
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    };
+
+    const currentTime = formatTime(currentTimeVal);
+    const totalTime = formatTime(durationVal);
+    const progressPercent = durationVal > 0 ? (currentTimeVal / durationVal) * 100 : 0;
 
     const translateY = useSharedValue(SCREEN_HEIGHT);
 
@@ -115,9 +122,17 @@ export const FullPlayer = () => {
                         <View className="items-center justify-center flex-1 my-8">
                             <View className="absolute w-full aspect-square bg-purple-500/30 blur-2xl rounded-full scale-0.9" />
                             <View className="w-full aspect-square bg-white rounded-3xl overflow-hidden shadow-2xl elevation-10">
-                                <View className="w-full h-full bg-slate-800 items-center justify-center">
-                                    <Ionicons name="musical-note" size={80} color="white" />
-                                </View>
+                                {currentTrack.image ? (
+                                    <Image
+                                        source={{ uri: currentTrack.image }}
+                                        className="w-full h-full"
+                                        resizeMode="cover"
+                                    />
+                                ) : (
+                                    <View className="w-full h-full bg-slate-800 items-center justify-center">
+                                        <Ionicons name="musical-note" size={80} color="white" />
+                                    </View>
+                                )}
                             </View>
                         </View>
 
@@ -128,7 +143,7 @@ export const FullPlayer = () => {
                                     {currentTrack.title}
                                 </Text>
                                 <Text className="text-lg text-white/60" numberOfLines={1}>
-                                    {currentTrack.subtitle}
+                                    {currentTrack.artist || "Unknown Artist"}
                                 </Text>
                             </View>
                             <Pressable className="active:opacity-50">
@@ -139,7 +154,7 @@ export const FullPlayer = () => {
                         {/* Progress Bar */}
                         <View className="mb-8">
                             <View className="h-1 w-full bg-white/20 rounded-full mb-2 overflow-hidden">
-                                <View style={{ width: `${progressPercent}%` }} className="h-full bg-green-500 rounded-full" />
+                                <View style={{ width: `${progressPercent}%` }} className="h-full bg-accent rounded-full" />
                             </View>
                             <View className="flex-row justify-between">
                                 <Text className="text-xs text-white/50">{currentTime}</Text>

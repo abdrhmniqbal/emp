@@ -1,62 +1,71 @@
-import { View, Text, FlatList, Pressable, useColorScheme } from "react-native";
-import { useState } from "react";
+import { View, Text, FlatList, Pressable, RefreshControl } from "react-native";
+import { useState, useCallback, useMemo } from "react";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank, ItemAction } from "@/components/item";
-import { playTrack } from "@/store/player-store";
+import { playTrack, loadTracks, $tracks, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
 import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
+import { useUniwind } from "uniwind";
+import { useStore } from "@nanostores/react";
+import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 
 const TABS = ["Realtime", "Daily", "Weekly"] as const;
 type TabType = typeof TABS[number];
 
-import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
+const TOP_SONGS_LIMIT = 10;
 
 export default function TopSongsScreen() {
     const [activeTab, setActiveTab] = useState<TabType>("Realtime");
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? "light"];
+    const [refreshing, setRefreshing] = useState(false);
+    const { theme: currentTheme } = useUniwind();
+    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const tracks = useStore($tracks);
 
-    const realtimeSongs = [
-        { title: "Bling-Bang-Bang-Born", artist: "Creepy Nuts" },
-        { title: "Gimo Kou Nen", artist: "Omoinotake" },
-        { title: "Suironteki ni Uchuujin", artist: "Geni wa Jibun ni aru." },
-        { title: "Bankanka", artist: "tuki." },
-        { title: "Michiteyuku", artist: "Fujii Kaze" },
-        { title: "Night Dancer", artist: "Imase" },
-        { title: "Idol", artist: "YOASOBI" },
-        { title: "Stay With Me", artist: "Miki Matsubara" },
-        { title: "First Love", artist: "Hikaru Utada" },
-        { title: "Dry Flower", artist: "Yuuri" },
-    ];
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await loadTracks(true);
+        setRefreshing(false);
+    }, []);
 
-    const dailySongs = [
-        { title: "Idol", artist: "YOASOBI" },
-        { title: "Specialz", artist: "King Gnu" },
-        { title: "Odo", artist: "Ado" },
-        { title: "Kick Back", artist: "Kenshi Yonezu" },
-        { title: "Overdose", artist: "natori" },
-        { title: "Ditto", artist: "NewJeans" },
-        { title: "OMG", artist: "NewJeans" },
-        { title: "Seven", artist: "Jung Kook" },
-        { title: "Pink Venom", artist: "BLACKPINK" },
-        { title: "After Like", artist: "IVE" },
-    ];
+    const currentSongs = useMemo(() => {
+        const shuffled = [...tracks];
+        const seed = activeTab === "Daily" ? 1 : activeTab === "Weekly" ? 2 : 0;
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = (i * (seed + 1)) % (i + 1);
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled.slice(0, TOP_SONGS_LIMIT);
+    }, [tracks, activeTab]);
 
-    const weeklySongs = [
-        { title: "Shinunoga E-Wa", artist: "Fujii Kaze" },
-        { title: "Matsuri", artist: "Fujii Kaze" },
-        { title: "Subtitle", artist: "Official HIGE DANdism" },
-        { title: "Mixed Nuts", artist: "Official HIGE DANdism" },
-        { title: "W/X/Y", artist: "Tani Yuuki" },
-        { title: "Cinderella Boy", artist: "Saucy Dog" },
-        { title: "Betelgeuse", artist: "Yuuri" },
-        { title: "Leo", artist: "Yuuri" },
-        { title: "Dried Flower", artist: "Yuuri" },
-        { title: "Tracing A Dream", artist: "YOASOBI" },
-    ];
+    const handlePlayAll = useCallback(() => {
+        if (currentSongs.length > 0) {
+            playTrack(currentSongs[0]);
+        }
+    }, [currentSongs]);
 
-    const currentSongs = activeTab === "Daily" ? dailySongs : activeTab === "Weekly" ? weeklySongs : realtimeSongs;
+    const handleShuffle = useCallback(() => {
+        if (currentSongs.length > 0) {
+            const randomIndex = Math.floor(Math.random() * currentSongs.length);
+            playTrack(currentSongs[randomIndex]);
+        }
+    }, [currentSongs]);
+
+    const renderItem = useCallback(({ item, index }: { item: Track; index: number }) => (
+        <Item onPress={() => playTrack(item)}>
+            <ItemImage icon="musical-note" image={item.image} />
+            <ItemRank>{index + 1}</ItemRank>
+            <ItemContent>
+                <ItemTitle>{item.title}</ItemTitle>
+                <ItemDescription>{item.artist || "Unknown Artist"}</ItemDescription>
+            </ItemContent>
+            <ItemAction>
+                <Ionicons name="ellipsis-horizontal" size={24} color={theme.muted} />
+            </ItemAction>
+        </Item>
+    ), [theme.muted]);
+
+    const keyExtractor = useCallback((item: Track, index: number) => `${activeTab}-${item.id}-${index}`, [activeTab]);
 
     return (
         <View className="flex-1 bg-background">
@@ -75,14 +84,14 @@ export default function TopSongsScreen() {
             <View className="flex-row px-4 py-4 gap-4">
                 <Button
                     className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                    onPress={() => console.log('Play All')}
+                    onPress={handlePlayAll}
                 >
                     <Ionicons name="play" size={20} color={theme.foreground} />
                     <Text className="text-lg font-bold text-foreground uppercase">Play</Text>
                 </Button>
                 <Button
                     className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                    onPress={() => console.log('Shuffle')}
+                    onPress={handleShuffle}
                 >
                     <Ionicons name="shuffle" size={20} color={theme.foreground} />
                     <Text className="text-lg font-bold text-foreground uppercase">Shuffle</Text>
@@ -97,27 +106,16 @@ export default function TopSongsScreen() {
             >
                 <FlatList
                     data={currentSongs}
-                    keyExtractor={(_, index) => `${activeTab}-${index}`}
-                    renderItem={({ item, index }) => (
-                        <Item
-                            onPress={() => playTrack({ title: item.title, subtitle: item.artist })}
-                        >
-                            <ItemImage icon="musical-note" />
-                            <ItemRank>{index + 1}</ItemRank>
-                            <ItemContent>
-                                <ItemTitle>{item.title}</ItemTitle>
-                                <ItemDescription>{item.artist}</ItemDescription>
-                            </ItemContent>
-                            <ItemAction>
-                                <Ionicons name="ellipsis-horizontal" size={24} color={theme.muted} />
-                            </ItemAction>
-                        </Item>
-                    )}
+                    keyExtractor={keyExtractor}
+                    renderItem={renderItem}
                     contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 160 }}
                     className="flex-1"
                     onScrollBeginDrag={handleScrollStart}
                     onMomentumScrollEnd={handleScrollStop}
                     onScrollEndDrag={handleScrollStop}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+                    }
                 />
             </Animated.View>
         </View>

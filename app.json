@@ -7,6 +7,44 @@
       "output": "static"
     },
     "name": "emp",
-    "slug": "emp"
+    "slug": "emp",
+    "extra": {
+      "eas": {
+        "projectId": "5db0649c-cba6-4a3a-b862-40d8e83f4e2c"
+      }
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.euphony.music-player",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
+    },
+    "android": {
+      "package": "dev.euphony.music_player",
+      "permissions": [
+        "WAKE_LOCK",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_AUDIO_PLAYBACK"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-media-library",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "newArchEnabled": true
+          },
+          "ios": {
+            "newArchEnabled": true
+          }
+        }
+      ],
+      "expo-media-control"
+    ]
   }
 }

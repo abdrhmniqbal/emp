@@ -1,5 +1,5 @@
 import "../global.css";
-import { HeroUINativeProvider } from 'heroui-native';
+import { HeroUINativeProvider, ToastProvider } from 'heroui-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { View } from "react-native";
 import { Stack } from "expo-router";
@@ -8,10 +8,17 @@ import { Colors } from "@/constants/colors";
 import { useUniwind } from "uniwind";
 
 import { FullPlayer } from "@/components/full-player";
+import { ProgressToast } from "@/components/progress-toast";
+import { useEffect } from "react";
+import { loadTracks, setupPlayer } from "@/store/player-store";
 
 export default function Layout() {
   const { theme: currentTheme } = useUniwind();
   const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+
+  useEffect(() => {
+    setupPlayer().then(() => loadTracks());
+  }, []);
 
   const navigationTheme = {
     ...(currentTheme === 'dark' ? DarkTheme : DefaultTheme),
@@ -30,30 +37,35 @@ export default function Layout() {
       <ThemeProvider value={navigationTheme}>
         <View style={{ flex: 1, backgroundColor: theme.background }}>
           <HeroUINativeProvider config={{ devInfo: { stylingPrinciples: false } }}>
-            <View className="flex-1">
-              <Stack screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: theme.background },
-              }}>
-                <Stack.Screen name="(main)" />
-                <Stack.Screen
-                  name="search-interaction"
-                  options={{
-                    animation: 'fade',
-                    title: 'Search',
-                  }}
-                />
-                <Stack.Screen
-                  name="settings"
-                  options={{
-                    headerShown: false,
-                    presentation: 'modal',
-                    animation: 'slide_from_bottom',
-                  }}
-                />
-              </Stack>
-              <FullPlayer />
-            </View>
+            <ToastProvider defaultProps={{
+              placement: "bottom"
+            }}>
+              <View className="flex-1">
+                <Stack screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: theme.background },
+                }}>
+                  <Stack.Screen name="(main)" />
+                  <Stack.Screen
+                    name="search-interaction"
+                    options={{
+                      animation: 'fade',
+                      title: 'Search',
+                    }}
+                  />
+                  <Stack.Screen
+                    name="settings"
+                    options={{
+                      headerShown: false,
+                      presentation: 'modal',
+                      animation: 'slide_from_bottom',
+                    }}
+                  />
+                </Stack>
+                <ProgressToast />
+                <FullPlayer />
+              </View>
+            </ToastProvider>
           </HeroUINativeProvider>
         </View>
       </ThemeProvider>

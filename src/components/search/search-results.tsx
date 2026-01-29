@@ -1,43 +1,114 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
-import { playTrack } from "@/store/player-store";
+import { playTrack, Track } from "@/store/player-store";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
 
-const SEARCH_TABS = ["All", "Song", "Album", "Artist", "Playlist", "Profile"];
+const SEARCH_TABS = ["All", "Song", "Album", "Artist", "Playlist"] as const;
+type SearchTab = typeof SEARCH_TABS[number];
 
-export const SearchResults = () => {
+interface ArtistResult {
+    id: string;
+    name: string;
+    type: string;
+    followerCount: number;
+    isVerified: boolean;
+    image?: string;
+}
+
+interface AlbumResult {
+    id: string;
+    title: string;
+    artist: string;
+    isVerified: boolean;
+    image?: string;
+}
+
+interface SearchResultsProps {
+    tracks: Track[];
+    query: string;
+    onArtistPress?: (artist: ArtistResult) => void;
+    onAlbumPress?: (album: AlbumResult) => void;
+    onSeeMoreSongs?: () => void;
+}
+
+export const SearchResults: React.FC<SearchResultsProps> = ({
+    tracks,
+    query,
+    onArtistPress,
+    onAlbumPress,
+    onSeeMoreSongs,
+}) => {
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
-    const [activeTab, setActiveTab] = useState("All");
+    const [activeTab, setActiveTab] = useState<SearchTab>("All");
 
-    const artistResult = {
-        name: "YOASOBI",
-        type: "Artist",
-        stats: "1,071,644",
-        isVerified: true
+    const filteredTracks = useMemo(() => {
+        if (!query.trim()) return tracks.slice(0, 5);
+        const lowerQuery = query.toLowerCase();
+        return tracks
+            .filter(t =>
+                t.title.toLowerCase().includes(lowerQuery) ||
+                (t.artist?.toLowerCase().includes(lowerQuery))
+            )
+            .slice(0, 5);
+    }, [tracks, query]);
+
+    const artists = useMemo<ArtistResult[]>(() => {
+        const artistMap = new Map<string, ArtistResult>();
+        tracks.forEach(track => {
+            const artistName = track.artist || "Unknown Artist";
+            if (!artistMap.has(artistName) &&
+                (!query.trim() || artistName.toLowerCase().includes(query.toLowerCase()))) {
+                artistMap.set(artistName, {
+                    id: artistName,
+                    name: artistName,
+                    type: "Artist",
+                    followerCount: 0,
+                    isVerified: false,
+                    image: track.image,
+                });
+            }
+        });
+        return Array.from(artistMap.values()).slice(0, 1);
+    }, [tracks, query]);
+
+    const albums = useMemo<AlbumResult[]>(() => {
+        const albumMap = new Map<string, AlbumResult>();
+        tracks.forEach(track => {
+            const albumName = track.album || "Unknown Album";
+            if (!albumMap.has(albumName) &&
+                (!query.trim() || albumName.toLowerCase().includes(query.toLowerCase()))) {
+                albumMap.set(albumName, {
+                    id: albumName,
+                    title: albumName,
+                    artist: track.artist || "Unknown Artist",
+                    isVerified: false,
+                    image: track.image,
+                });
+            }
+        });
+        return Array.from(albumMap.values()).slice(0, 4);
+    }, [tracks, query]);
+
+    const handleTrackPress = useCallback((track: Track) => {
+        playTrack(track);
+    }, []);
+
+    const formatFollowerCount = (count: number): string => {
+        if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+        if (count >= 1000) return `${(count / 1000).toFixed(0)}K`;
+        return count.toString();
     };
 
-    const albumResults = [
-        { title: "YOASOBI Greatest Hits", subtitle: "by LINE MUSIC", isVerified: true },
-        { title: "Monthly Ranking", subtitle: "by LINE MUSIC", isVerified: true },
-        { title: "Idol", subtitle: "YOASOBI", isVerified: false },
-        { title: "The Book 3", subtitle: "YOASOBI", isVerified: false },
-    ];
-
-    const songResults = [
-        { id: '1', title: "Idol", artist: "YOASOBI" },
-        { id: '2', title: "Yuusha", artist: "YOASOBI" },
-        { id: '3', title: "Yoru ni Kakeru", artist: "YOASOBI" },
-        { id: '4', title: "Gunjou", artist: "YOASOBI" },
-        { id: '5', title: "Kaibutsu", artist: "YOASOBI" },
-    ];
+    const showArtists = activeTab === 'All' || activeTab === 'Artist';
+    const showAlbums = activeTab === 'All' || activeTab === 'Album' || activeTab === 'Playlist';
+    const showSongs = activeTab === 'All' || activeTab === 'Song';
 
     return (
         <View>
-            {/* Tabs */}
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -48,11 +119,9 @@ export const SearchResults = () => {
                     <Pressable
                         key={tab}
                         onPress={() => setActiveTab(tab)}
-                        className={`px-4 py-1.5 rounded-full ${activeTab === tab ? 'bg-accent' : 'bg-transparent'
-                            }`}
+                        className={`px-4 py-1.5 rounded-full ${activeTab === tab ? 'bg-accent' : 'bg-transparent'}`}
                     >
-                        <Text className={`font-medium ${activeTab === tab ? 'text-white' : 'text-muted'
-                            }`}>
+                        <Text className={`font-medium ${activeTab === tab ? 'text-white' : 'text-muted'}`}>
                             {tab}
                         </Text>
                     </Pressable>
@@ -60,48 +129,52 @@ export const SearchResults = () => {
             </ScrollView>
 
             <View className="px-4 gap-8">
-                {/* Artist Section */}
-                {(activeTab === 'All' || activeTab === 'Artist') && (
+                {showArtists && artists.length > 0 && (
                     <View>
-                        <Item
-                            variant="list"
-                            className="py-1"
-                            onPress={() => { }}
-                        >
-                            <ItemImage
-                                icon="person"
-                                className="rounded-full w-14 h-14 bg-default"
-                            />
-                            <ItemContent>
-                                <ItemTitle className="text-lg">{artistResult.name}</ItemTitle>
-                                <View className="flex-row items-center gap-1">
-                                    <Text className="text-xs text-muted">{artistResult.type}</Text>
-                                    <Text className="text-xs text-muted">♥ {artistResult.stats}</Text>
-                                </View>
-                            </ItemContent>
-                        </Item>
+                        {artists.map((artist) => (
+                            <Item
+                                key={artist.id}
+                                variant="list"
+                                className="py-1"
+                                onPress={() => onArtistPress?.(artist)}
+                            >
+                                <ItemImage
+                                    icon="person"
+                                    image={artist.image}
+                                    className="rounded-full w-14 h-14 bg-default"
+                                />
+                                <ItemContent>
+                                    <ItemTitle className="text-lg">{artist.name}</ItemTitle>
+                                    <View className="flex-row items-center gap-1">
+                                        <Text className="text-xs text-muted">{artist.type}</Text>
+                                        {artist.followerCount > 0 && (
+                                            <Text className="text-xs text-muted">♥ {formatFollowerCount(artist.followerCount)}</Text>
+                                        )}
+                                    </View>
+                                </ItemContent>
+                            </Item>
+                        ))}
                     </View>
                 )}
 
-                {/* Albums/Playlists Horizontal List */}
-                {(activeTab === 'All' || activeTab === 'Album' || activeTab === 'Playlist') && (
+                {showAlbums && albums.length > 0 && (
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
                         <View className="flex-row gap-4">
-                            {albumResults.map((album, index) => (
+                            {albums.map((album) => (
                                 <Item
-                                    key={index}
+                                    key={album.id}
                                     variant="grid"
                                     className="w-32"
-                                    onPress={() => { }}
+                                    onPress={() => onAlbumPress?.(album)}
                                 >
-                                    <ItemImage icon="musical-note" className="rounded-md" />
+                                    <ItemImage icon="disc" image={album.image} className="rounded-md" />
                                     <ItemContent className="mt-1">
                                         <ItemTitle className="text-sm normal-case" numberOfLines={2}>
                                             {album.title}
                                         </ItemTitle>
                                         <View className="flex-row items-center gap-1">
                                             <Text className="text-xs text-muted" numberOfLines={1}>
-                                                {album.subtitle}
+                                                {album.artist}
                                             </Text>
                                             {album.isVerified && (
                                                 <Ionicons name="checkmark-circle" size={12} color={theme.accent} />
@@ -114,25 +187,26 @@ export const SearchResults = () => {
                     </ScrollView>
                 )}
 
-                {/* Songs List */}
-                {(activeTab === 'All' || activeTab === 'Song') && (
+                {showSongs && filteredTracks.length > 0 && (
                     <View>
                         <View className="flex-row justify-between items-center mb-2">
                             <Text className="text-lg font-bold text-foreground">Songs</Text>
-                            <Pressable>
-                                <Text className="text-xs text-muted">See more</Text>
-                            </Pressable>
+                            {onSeeMoreSongs && (
+                                <Pressable onPress={onSeeMoreSongs}>
+                                    <Text className="text-xs text-muted">See more</Text>
+                                </Pressable>
+                            )}
                         </View>
                         <View className="gap-2">
-                            {songResults.map((song) => (
+                            {filteredTracks.map((song) => (
                                 <Item
                                     key={song.id}
-                                    onPress={() => playTrack({ title: song.title, subtitle: song.artist })}
+                                    onPress={() => handleTrackPress(song)}
                                 >
-                                    <ItemImage icon="musical-note" className="rounded-md" />
+                                    <ItemImage icon="musical-note" image={song.image} className="rounded-md" />
                                     <ItemContent>
                                         <ItemTitle>{song.title}</ItemTitle>
-                                        <ItemDescription>{song.artist}</ItemDescription>
+                                        <ItemDescription>{song.artist || "Unknown Artist"}</ItemDescription>
                                     </ItemContent>
                                     <ItemAction>
                                         <Ionicons name="ellipsis-horizontal" size={20} color={theme.muted} />

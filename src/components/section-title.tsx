@@ -1,18 +1,19 @@
 import React from 'react';
-import { View, Text, Pressable, useColorScheme } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useUniwind } from 'uniwind';
 import { Colors } from '@/constants/colors';
 
 interface SectionTitleProps {
     title: string;
-    subtitle?: string; // New subtitle prop
+    subtitle?: string;
     className?: string;
     onViewMore?: () => void;
 }
 
 export const SectionTitle: React.FC<SectionTitleProps> = ({ title, subtitle, className = "", onViewMore }) => {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'light'];
+    const { theme: currentTheme } = useUniwind();
+    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
 
     return (
         <View className={`${className} mb-4`}>

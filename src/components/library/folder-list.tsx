@@ -1,30 +1,44 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
 
-export type Folder = {
+export interface Folder {
+    id: string;
     name: string;
-    count: string;
-};
+    fileCount: number;
+    path?: string;
+}
 
-export const FolderList = ({ data }: { data: Folder[] }) => {
+interface FolderListProps {
+    data: Folder[];
+    onFolderPress?: (folder: Folder) => void;
+}
+
+export const FolderList: React.FC<FolderListProps> = ({ data, onFolderPress }) => {
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
 
+    const handlePress = useCallback((folder: Folder) => {
+        onFolderPress?.(folder);
+    }, [onFolderPress]);
+
+    const formatFileCount = (count: number) =>
+        `${count} ${count === 1 ? 'file' : 'files'}`;
+
     return (
         <View className="gap-2">
-            {data.map((folder, index) => (
+            {data.map((folder) => (
                 <Item
-                    key={index}
-                    onPress={() => { }}
+                    key={folder.id}
+                    onPress={() => handlePress(folder)}
                 >
                     <ItemImage icon="folder-outline" />
                     <ItemContent>
                         <ItemTitle>{folder.name}</ItemTitle>
-                        <ItemDescription>{folder.count}</ItemDescription>
+                        <ItemDescription>{formatFileCount(folder.fileCount)}</ItemDescription>
                     </ItemContent>
                     <ItemAction>
                         <Ionicons name="chevron-forward" size={24} color={theme.muted} />

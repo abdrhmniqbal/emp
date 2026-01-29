@@ -1,26 +1,40 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View } from "react-native";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription } from "@/components/item";
 
-export type Artist = {
+export interface Artist {
+    id: string;
     name: string;
-    tracks: string;
-};
+    trackCount: number;
+    image?: string;
+}
 
-export const ArtistGrid = ({ data }: { data: Artist[] }) => {
+interface ArtistGridProps {
+    data: Artist[];
+    onArtistPress?: (artist: Artist) => void;
+}
+
+export const ArtistGrid: React.FC<ArtistGridProps> = ({ data, onArtistPress }) => {
+    const handlePress = useCallback((artist: Artist) => {
+        onArtistPress?.(artist);
+    }, [onArtistPress]);
+
+    const formatTrackCount = (count: number) =>
+        `${count} ${count === 1 ? 'track' : 'tracks'}`;
+
     return (
         <View className="flex-row flex-wrap gap-4">
-            {data.map((artist, index) => (
+            {data.map((artist) => (
                 <Item
-                    key={index}
+                    key={artist.id}
                     variant="grid"
                     className="w-[30%] grow"
-                    onPress={() => { }}
+                    onPress={() => handlePress(artist)}
                 >
-                    <ItemImage icon="person" className="w-full aspect-square rounded-full bg-default" />
+                    <ItemImage icon="person" image={artist.image} className="w-full aspect-square rounded-full bg-default" />
                     <ItemContent className="mt-1 items-center">
                         <ItemTitle className="text-sm text-center normal-case" numberOfLines={1}>{artist.name}</ItemTitle>
-                        <ItemDescription className="text-center">{artist.tracks}</ItemDescription>
+                        <ItemDescription className="text-center">{formatTrackCount(artist.trackCount)}</ItemDescription>
                     </ItemContent>
                 </Item>
             ))}

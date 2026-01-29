@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '@nanostores/react';
-import { $currentTrack, $isPlaying, $progress, togglePlayback } from '@/store/player-store';
+import { $currentTrack, $isPlaying, $currentTime, $duration, togglePlayback } from '@/store/player-store';
 import { useUniwind } from 'uniwind';
 import { Colors } from '@/constants/colors';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
@@ -11,7 +11,10 @@ import { $isPlayerExpanded } from '@/store/ui-store';
 export const MiniPlayer = () => {
     const currentTrack = useStore($currentTrack);
     const isPlaying = useStore($isPlaying);
-    const progress = useStore($progress);
+    const currentTime = useStore($currentTime);
+    const duration = useStore($duration);
+
+    const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
@@ -33,7 +36,7 @@ export const MiniPlayer = () => {
                 <View className="absolute top-0 left-0 right-0 h-[2px] bg-default/20">
                     <View
                         style={{
-                            width: `${progress * 100}%`,
+                            width: `${progressPercent}%`,
                             height: '100%',
                             backgroundColor: theme.accent
                         }}
@@ -45,7 +48,14 @@ export const MiniPlayer = () => {
                     <View
                         className="w-11 h-11 rounded-md bg-default items-center justify-center overflow-hidden"
                     >
-                        <Ionicons name="musical-note" size={20} color={theme.foreground} />
+                        {currentTrack.image ? (
+                            <Image
+                                source={{ uri: currentTrack.image }}
+                                className="w-full h-full"
+                            />
+                        ) : (
+                            <Ionicons name="musical-note" size={20} color={theme.foreground} />
+                        )}
                     </View>
 
                     {/* Track Info */}
@@ -54,7 +64,7 @@ export const MiniPlayer = () => {
                             {currentTrack.title}
                         </Text>
                         <Text className="text-[13px] text-muted" numberOfLines={1}>
-                            {currentTrack.subtitle}
+                            {currentTrack.artist || 'Unknown Artist'}
                         </Text>
                     </View>
 

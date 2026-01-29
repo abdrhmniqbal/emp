@@ -1,22 +1,47 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
 
-export type Playlist = {
+export interface Playlist {
+    id: string;
     title: string;
-    count: string;
-};
+    songCount: number;
+    image?: string;
+}
 
-export const PlaylistList = ({ data }: { data: Playlist[] }) => {
+interface PlaylistListProps {
+    data: Playlist[];
+    onPlaylistPress?: (playlist: Playlist) => void;
+    onCreatePlaylist?: () => void;
+}
+
+const GRID_ITEMS = [1, 2, 3, 4] as const;
+
+export const PlaylistList: React.FC<PlaylistListProps> = ({
+    data,
+    onPlaylistPress,
+    onCreatePlaylist
+}) => {
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
 
+    const handlePress = useCallback((playlist: Playlist) => {
+        onPlaylistPress?.(playlist);
+    }, [onPlaylistPress]);
+
+    const handleCreate = useCallback(() => {
+        onCreatePlaylist?.();
+    }, [onCreatePlaylist]);
+
+    const formatSongCount = (count: number) =>
+        `${count} ${count === 1 ? 'song' : 'songs'}`;
+
     return (
         <View className="gap-2">
-            <Item onPress={() => console.log("Create Playlist")}>
+            <Item onPress={handleCreate}>
                 <ItemImage className="bg-default items-center justify-center">
                     <Ionicons name="add" size={32} color={theme.foreground} />
                 </ItemImage>
@@ -24,25 +49,31 @@ export const PlaylistList = ({ data }: { data: Playlist[] }) => {
                     <ItemTitle>New Playlist</ItemTitle>
                 </ItemContent>
             </Item>
-            {data.map((playlist, index) => (
+            {data.map((playlist) => (
                 <Item
-                    key={index}
-                    onPress={() => { }}
+                    key={playlist.id}
+                    onPress={() => handlePress(playlist)}
                 >
                     <ItemImage className="bg-default items-center justify-center overflow-hidden p-1">
-                        <View className="flex-row flex-wrap w-full h-full">
-                            {[1, 2, 3, 4].map((i) => (
-                                <View key={i} className="w-1/2 h-1/2 p-px">
-                                    <View className="w-full h-full bg-muted/20 rounded-sm items-center justify-center">
-                                        <Ionicons name="musical-note" size={10} color={theme.muted} style={{ opacity: 0.5 }} />
+                        {playlist.image ? (
+                            <View className="w-full h-full rounded-lg overflow-hidden">
+                                <View className="w-full h-full bg-default" />
+                            </View>
+                        ) : (
+                            <View className="flex-row flex-wrap w-full h-full">
+                                {GRID_ITEMS.map((i) => (
+                                    <View key={i} className="w-1/2 h-1/2 p-px">
+                                        <View className="w-full h-full bg-muted/20 rounded-sm items-center justify-center">
+                                            <Ionicons name="musical-note" size={10} color={theme.muted} style={{ opacity: 0.5 }} />
+                                        </View>
                                     </View>
-                                </View>
-                            ))}
-                        </View>
+                                ))}
+                            </View>
+                        )}
                     </ItemImage>
                     <ItemContent>
                         <ItemTitle>{playlist.title}</ItemTitle>
-                        <ItemDescription>{playlist.count}</ItemDescription>
+                        <ItemDescription>{formatSongCount(playlist.songCount)}</ItemDescription>
                     </ItemContent>
                     <ItemAction>
                         <Ionicons name="chevron-forward" size={24} color={theme.muted} />
