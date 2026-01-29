@@ -6,18 +6,29 @@ import { Stack } from "expo-router";
 import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { Colors } from "@/constants/colors";
 import { useUniwind } from "uniwind";
+import { useEffect } from "react";
 
 import { FullPlayer } from "@/components/full-player";
-import { ProgressToast } from "@/components/progress-toast";
-import { useEffect } from "react";
-import { loadTracks, setupPlayer } from "@/store/player-store";
+import { IndexingProgress } from "@/components/indexing-progress";
+import { setupPlayer } from "@/store/player-store";
+import { startIndexing, loadTracksFromCache } from "@/utils/media-indexer";
+import { hasExistingLibrary } from "@/utils/database";
 
 export default function Layout() {
   const { theme: currentTheme } = useUniwind();
   const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
 
   useEffect(() => {
-    setupPlayer().then(() => loadTracks());
+    const init = async () => {
+      await setupPlayer();
+
+      loadTracksFromCache();
+
+      const hasLibrary = hasExistingLibrary();
+      startIndexing(!hasLibrary);
+    };
+
+    init();
   }, []);
 
   const navigationTheme = {
@@ -62,13 +73,13 @@ export default function Layout() {
                     }}
                   />
                 </Stack>
-                <ProgressToast />
+                <IndexingProgress />
                 <FullPlayer />
               </View>
             </ToastProvider>
           </HeroUINativeProvider>
         </View>
       </ThemeProvider>
-    </GestureHandlerRootView >
+    </GestureHandlerRootView>
   );
 }

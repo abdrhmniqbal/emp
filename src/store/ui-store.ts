@@ -16,30 +16,3 @@ export const handleScrollStop = () => {
         $barsVisible.set(true);
     }, 150);
 };
-
-export const $loadProgress = atom<{
-    visible: boolean;
-    progress: number;
-    message: string;
-}>({
-    visible: false,
-    progress: 0,
-    message: '',
-});
-
-export const showProgress = (message: string) => {
-    $loadProgress.set({ visible: true, progress: 0, message });
-};
-
-export const updateProgress = (progress: number, message?: string) => {
-    const current = $loadProgress.get();
-    $loadProgress.set({
-        ...current,
-        progress: Math.min(100, Math.max(0, progress)),
-        message: message ?? current.message
-    });
-};
-
-export const hideProgress = () => {
-    $loadProgress.set({ visible: false, progress: 0, message: '' });
-};

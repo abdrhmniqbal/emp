@@ -1,5 +1,5 @@
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank } from "@/components/item";
-import { playTrack, $tracks, loadTracks, Track } from "@/store/player-store";
+import { playTrack, $tracks, Track } from "@/store/player-store";
 import { useStore } from "@nanostores/react";
 import { SectionTitle } from "@/components/section-title";
 import { useUniwind } from "uniwind";
@@ -9,6 +9,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { Pressable, View, ScrollView, RefreshControl } from "react-native";
 import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { Ionicons } from "@expo/vector-icons";
+import { startIndexing, $indexerState } from "@/utils/media-indexer";
 
 const RECENTLY_PLAYED_LIMIT = 8;
 const TOP_SONGS_LIMIT = 25;
@@ -27,7 +28,7 @@ export default function HomeScreen() {
     const navigation = useNavigation();
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
-    const [refreshing, setRefreshing] = useState(false);
+    const indexerState = useStore($indexerState);
     const tracks = useStore($tracks);
 
     useLayoutEffect(() => {
@@ -48,10 +49,8 @@ export default function HomeScreen() {
         });
     }, [navigation, theme, router]);
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        await loadTracks(true);
-        setRefreshing(false);
+    const onRefresh = useCallback(() => {
+        startIndexing(true);
     }, []);
 
     const recentlyPlayedTracks = useMemo(() =>
@@ -105,7 +104,7 @@ export default function HomeScreen() {
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+                <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
             }
         >
             <View className="pt-6">

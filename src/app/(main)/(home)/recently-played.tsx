@@ -1,6 +1,6 @@
 import { View, Text, FlatList, RefreshControl } from "react-native";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
-import { playTrack, Track, loadTracks } from "@/store/player-store";
+import { playTrack, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,23 +9,23 @@ import { useState, useCallback } from "react";
 import { getHistory } from "@/utils/database";
 import { useFocusEffect } from "expo-router";
 import { useUniwind } from "uniwind";
+import { useStore } from "@nanostores/react";
+import { startIndexing, $indexerState } from "@/utils/media-indexer";
 
 export default function RecentlyPlayedScreen() {
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
     const [history, setHistory] = useState<Track[]>([]);
-    const [refreshing, setRefreshing] = useState(false);
+    const indexerState = useStore($indexerState);
 
     const fetchHistory = useCallback(() => {
         const data = getHistory();
         setHistory(data);
     }, []);
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        await loadTracks(true);
+    const onRefresh = useCallback(() => {
+        startIndexing(true);
         fetchHistory();
-        setRefreshing(false);
     }, [fetchHistory]);
 
     useFocusEffect(
@@ -91,7 +91,7 @@ export default function RecentlyPlayedScreen() {
                 onMomentumScrollEnd={handleScrollStop}
                 onScrollEndDrag={handleScrollStop}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+                    <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
                 }
             />
         </View>

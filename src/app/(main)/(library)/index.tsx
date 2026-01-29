@@ -10,10 +10,11 @@ import { FolderList, Folder } from "@/components/library/folder-list";
 import { SongList } from "@/components/library/song-list";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
-import { playTrack, $tracks, loadTracks, Track } from "@/store/player-store";
+import { playTrack, $tracks, Track } from "@/store/player-store";
 import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useStore } from "@nanostores/react";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
+import { startIndexing, $indexerState } from "@/utils/media-indexer";
 
 const TABS = ["Songs", "Albums", "Artists", "Playlists", "Folders", "Favorites"] as const;
 type TabType = typeof TABS[number];
@@ -24,7 +25,7 @@ export default function LibraryScreen() {
     const [activeTab, setActiveTab] = useState<TabType>("Songs");
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
-    const [refreshing, setRefreshing] = useState(false);
+    const indexerState = useStore($indexerState);
     const tracks = useStore($tracks);
 
     useLayoutEffect(() => {
@@ -45,10 +46,8 @@ export default function LibraryScreen() {
         });
     }, [navigation, theme, router]);
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        await loadTracks(true);
-        setRefreshing(false);
+    const onRefresh = useCallback(() => {
+        startIndexing(true);
     }, []);
 
     const albums = useMemo<Album[]>(() => {
@@ -145,7 +144,7 @@ export default function LibraryScreen() {
                 onMomentumScrollEnd={handleScrollStop}
                 onScrollEndDrag={handleScrollStop}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+                    <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
                 }
             >
                 <ScrollView

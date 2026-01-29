@@ -1,12 +1,13 @@
-import React, { useState, useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useLayoutEffect, useCallback, useMemo } from "react";
 import { Text, View, ScrollView, Pressable, RefreshControl } from "react-native";
 import { useNavigation, useRouter } from "expo-router";
 import { Card } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
-import { loadTracks } from "@/store/player-store";
 import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
+import { useStore } from "@nanostores/react";
+import { startIndexing, $indexerState } from "@/utils/media-indexer";
 
 type PatternType = 'circles' | 'waves' | 'grid' | 'diamonds' | 'triangles' | 'rings' | 'pills';
 
@@ -126,12 +127,10 @@ export default function SearchScreen() {
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
     const navigation = useNavigation();
     const router = useRouter();
-    const [refreshing, setRefreshing] = useState(false);
+    const indexerState = useStore($indexerState);
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        await loadTracks(true);
-        setRefreshing(false);
+    const onRefresh = useCallback(() => {
+        startIndexing(true);
     }, []);
 
     useLayoutEffect(() => {
@@ -179,7 +178,7 @@ export default function SearchScreen() {
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+                <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
             }
         >
             <Pressable

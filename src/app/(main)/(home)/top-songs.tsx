@@ -1,7 +1,7 @@
 import { View, Text, FlatList, Pressable, RefreshControl } from "react-native";
 import { useState, useCallback, useMemo } from "react";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank, ItemAction } from "@/components/item";
-import { playTrack, loadTracks, $tracks, Track } from "@/store/player-store";
+import { playTrack, $tracks, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,6 +9,7 @@ import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useUniwind } from "uniwind";
 import { useStore } from "@nanostores/react";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
+import { startIndexing, $indexerState } from "@/utils/media-indexer";
 
 const TABS = ["Realtime", "Daily", "Weekly"] as const;
 type TabType = typeof TABS[number];
@@ -17,15 +18,13 @@ const TOP_SONGS_LIMIT = 10;
 
 export default function TopSongsScreen() {
     const [activeTab, setActiveTab] = useState<TabType>("Realtime");
-    const [refreshing, setRefreshing] = useState(false);
+    const indexerState = useStore($indexerState);
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
     const tracks = useStore($tracks);
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        await loadTracks(true);
-        setRefreshing(false);
+    const onRefresh = useCallback(() => {
+        startIndexing(true);
     }, []);
 
     const currentSongs = useMemo(() => {
@@ -114,7 +113,7 @@ export default function TopSongsScreen() {
                     onMomentumScrollEnd={handleScrollStop}
                     onScrollEndDrag={handleScrollStop}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+                        <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
                     }
                 />
             </Animated.View>
