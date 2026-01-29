@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, Pressable, Dimensions, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useStore } from "@nanostores/react";
-import { $currentTrack, $isPlaying, playNext, playPrevious, togglePlayback, $currentTime, $duration, seekTo } from "@/store/player-store";
+import { $currentTrack, $isPlaying, playNext, playPrevious, togglePlayback, $currentTime, $duration, seekTo, toggleFavorite } from "@/store/player-store";
 import { $isPlayerExpanded } from "@/store/ui-store";
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -146,8 +146,15 @@ export const FullPlayer = () => {
                                     {currentTrack.artist || "Unknown Artist"}
                                 </Text>
                             </View>
-                            <Pressable className="active:opacity-50">
-                                <Ionicons name="heart-outline" size={28} color="white" />
+                            <Pressable
+                                className="active:opacity-50"
+                                onPress={() => toggleFavorite(currentTrack.id)}
+                            >
+                                <Ionicons
+                                    name={currentTrack.isFavorite ? "heart" : "heart-outline"}
+                                    size={28}
+                                    color={currentTrack.isFavorite ? "#ef4444" : "white"}
+                                />
                             </Pressable>
                         </View>
 

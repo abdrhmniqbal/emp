@@ -1,7 +1,7 @@
 import { atom } from 'nanostores';
 import { createAudioPlayer, AudioPlayer, AudioStatus } from 'expo-audio';
 import { MediaControl, PlaybackState, Command } from 'expo-media-control';
-import { initDatabase, addToHistory, incrementPlayCount } from '@/utils/database';
+import { initDatabase, addToHistory, incrementPlayCount, toggleFavoriteDB } from '@/utils/database';
 
 export interface LyricLine {
     time: number;
@@ -25,6 +25,7 @@ export interface Track {
     year?: number;
     filename?: string;
     dateAdded?: number;
+    isFavorite?: boolean;
 }
 
 export const $tracks = atom<Track[]>([]);
@@ -185,4 +186,25 @@ export const seekTo = (seconds: number) => {
             seconds
         );
     }
+};
+
+export const toggleFavorite = (trackId: string) => {
+    const tracks = $tracks.get();
+    const index = tracks.findIndex(t => t.id === trackId);
+    if (index === -1) return;
+
+    const track = tracks[index];
+    const newStatus = !track.isFavorite;
+
+    // Create new array reference for immutability
+    const newTracks = [...tracks];
+    newTracks[index] = { ...track, isFavorite: newStatus };
+    $tracks.set(newTracks);
+
+    const current = $currentTrack.get();
+    if (current?.id === trackId) {
+        $currentTrack.set({ ...current, isFavorite: newStatus });
+    }
+
+    toggleFavoriteDB(trackId, newStatus);
 };

@@ -135,7 +135,7 @@ export default function LibraryScreen() {
     const playlists: Playlist[] = [];
     const folders: Folder[] = [];
 
-    const favorites = sortTracks(tracks, { field: 'dateAdded', order: 'desc' }).slice(0, 10);
+    const favorites = tracks.filter(t => t.isFavorite);
 
     const { sortedData, currentSortOptions } = (() => {
         let data: any[] = [];
