@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
@@ -45,7 +45,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
     const [activeTab, setActiveTab] = useState<SearchTab>("All");
 
-    const filteredTracks = useMemo(() => {
+    const filteredTracks = (() => {
         if (!query.trim()) return tracks.slice(0, 5);
         const lowerQuery = query.toLowerCase();
         return tracks
@@ -54,9 +54,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
                 (t.artist?.toLowerCase().includes(lowerQuery))
             )
             .slice(0, 5);
-    }, [tracks, query]);
+    })();
 
-    const artists = useMemo<ArtistResult[]>(() => {
+    const artists: ArtistResult[] = (() => {
         const artistMap = new Map<string, ArtistResult>();
         tracks.forEach(track => {
             const artistName = track.artist || "Unknown Artist";
@@ -73,9 +73,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
             }
         });
         return Array.from(artistMap.values()).slice(0, 1);
-    }, [tracks, query]);
+    })();
 
-    const albums = useMemo<AlbumResult[]>(() => {
+    const albums: AlbumResult[] = (() => {
         const albumMap = new Map<string, AlbumResult>();
         tracks.forEach(track => {
             const albumName = track.album || "Unknown Album";
@@ -91,7 +91,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
             }
         });
         return Array.from(albumMap.values()).slice(0, 4);
-    }, [tracks, query]);
+    })();
 
     const handleTrackPress = useCallback((track: Track) => {
         playTrack(track);

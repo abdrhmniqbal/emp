@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -72,10 +72,7 @@ export default function SettingsScreen() {
     const router = useRouter();
     const { theme: currentTheme, hasAdaptiveThemes } = useUniwind();
 
-    const currentAppearance = useMemo(() =>
-        hasAdaptiveThemes ? 'System' : (currentTheme === 'dark' ? 'Dark' : 'Light'),
-        [hasAdaptiveThemes, currentTheme]
-    );
+    const currentAppearance = hasAdaptiveThemes ? 'System' : (currentTheme === 'dark' ? 'Dark' : 'Light');
 
     const handleItemPress = useCallback((route?: string) => {
         if (route) {

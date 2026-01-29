@@ -13,6 +13,9 @@
         "projectId": "5db0649c-cba6-4a3a-b862-40d8e83f4e2c"
       }
     },
+    "experiments": {
+      "reactCompiler": true
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.euphony.music-player",

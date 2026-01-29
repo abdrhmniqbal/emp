@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -21,10 +21,7 @@ export default function AppearanceScreen() {
     const { theme: currentTheme, hasAdaptiveThemes } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
 
-    const currentMode = useMemo<ThemeValue>(() =>
-        hasAdaptiveThemes ? "system" : currentTheme as ThemeValue,
-        [hasAdaptiveThemes, currentTheme]
-    );
+    const currentMode: ThemeValue = hasAdaptiveThemes ? "system" : currentTheme as ThemeValue;
 
     const handleThemeChange = useCallback((value: ThemeValue) => {
         Uniwind.setTheme(value);

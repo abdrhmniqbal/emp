@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useState, useLayoutEffect, useCallback } from "react";
 import { View, Text, ScrollView, Pressable, TextInput } from "react-native";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,7 +20,7 @@ export default function SearchInteractionScreen() {
     const [searchQuery, setSearchQuery] = useState(initialQuery || "");
     const [recentSearches, setRecentSearches] = useState<RecentSearchItem[]>([]);
 
-    const isSearching = useMemo(() => searchQuery.trim().length > 0, [searchQuery]);
+    const isSearching = searchQuery.trim().length > 0;
 
     const handleSearchChange = useCallback((text: string) => {
         setSearchQuery(text);

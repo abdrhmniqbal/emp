@@ -4,7 +4,7 @@ import { useStore } from "@nanostores/react";
 import { SectionTitle } from "@/components/section-title";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
-import React, { useState, useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useState, useLayoutEffect, useCallback } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { Pressable, View, ScrollView, RefreshControl } from "react-native";
 import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
@@ -53,15 +53,9 @@ export default function HomeScreen() {
         startIndexing(true);
     }, []);
 
-    const recentlyPlayedTracks = useMemo(() =>
-        tracks.slice(0, RECENTLY_PLAYED_LIMIT),
-        [tracks]
-    );
+    const recentlyPlayedTracks = tracks.slice(0, RECENTLY_PLAYED_LIMIT);
 
-    const topSongsChunks = useMemo(() =>
-        chunkArray(tracks.slice(0, TOP_SONGS_LIMIT), CHUNK_SIZE),
-        [tracks]
-    );
+    const topSongsChunks = chunkArray(tracks.slice(0, TOP_SONGS_LIMIT), CHUNK_SIZE);
 
     const renderRecentlyPlayedItem = useCallback((item: Track) => (
         <Item

@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useState, useLayoutEffect, useCallback } from "react";
 import { Text, ScrollView, View, Pressable, RefreshControl } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -50,7 +50,7 @@ export default function LibraryScreen() {
         startIndexing(true);
     }, []);
 
-    const albums = useMemo<Album[]>(() => {
+    const albums: Album[] = (() => {
         const albumMap = new Map<string, Album>();
         tracks.forEach(track => {
             const albumName = track.album || "Unknown Album";
@@ -64,9 +64,9 @@ export default function LibraryScreen() {
             }
         });
         return Array.from(albumMap.values());
-    }, [tracks]);
+    })();
 
-    const artists = useMemo<Artist[]>(() => {
+    const artists: Artist[] = (() => {
         const artistMap = new Map<string, { name: string; count: number; image?: string }>();
         tracks.forEach(track => {
             const artistName = track.artist || "Unknown Artist";
@@ -83,13 +83,13 @@ export default function LibraryScreen() {
             trackCount: a.count,
             image: a.image,
         }));
-    }, [tracks]);
+    })();
 
-    const playlists = useMemo<Playlist[]>(() => [], []);
-    const folders = useMemo<Folder[]>(() => [], []);
-    const favorites = useMemo(() => tracks.slice(0, 10), [tracks]);
+    const playlists: Playlist[] = [];
+    const folders: Folder[] = [];
+    const favorites = tracks.slice(0, 10);
 
-    const currentData = useMemo(() => {
+    const currentData = (() => {
         switch (activeTab) {
             case "Albums": return albums;
             case "Artists": return artists;
@@ -98,7 +98,7 @@ export default function LibraryScreen() {
             case "Favorites": return favorites;
             default: return tracks;
         }
-    }, [activeTab, albums, artists, playlists, folders, favorites, tracks]);
+    })();
 
     const handlePlayAll = useCallback(() => {
         const songsToPlay = activeTab === "Favorites" ? favorites : tracks;

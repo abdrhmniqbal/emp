@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useLayoutEffect, useCallback } from "react";
 import { Text, View, ScrollView, Pressable, RefreshControl } from "react-native";
 import { useNavigation, useRouter } from "expo-router";
 import { Card } from "heroui-native";
@@ -146,15 +146,9 @@ export default function SearchScreen() {
         });
     }, [navigation, theme, router]);
 
-    const genres = useMemo<Category[]>(() =>
-        GENRES.map((g, i) => ({ ...g, color: getStableColor(i) })),
-        []
-    );
+    const genres: Category[] = GENRES.map((g, i) => ({ ...g, color: getStableColor(i) }));
 
-    const moods = useMemo<Category[]>(() =>
-        MOODS.map((m, i) => ({ ...m, color: getStableColor(i + GENRES.length) })),
-        []
-    );
+    const moods: Category[] = MOODS.map((m, i) => ({ ...m, color: getStableColor(i + GENRES.length) }));
 
     const handleCategoryPress = useCallback((category: Category) => {
         router.push({

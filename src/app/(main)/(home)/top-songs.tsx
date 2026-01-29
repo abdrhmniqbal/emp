@@ -1,5 +1,5 @@
 import { View, Text, FlatList, Pressable, RefreshControl } from "react-native";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank, ItemAction } from "@/components/item";
 import { playTrack, $tracks, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
@@ -27,7 +27,7 @@ export default function TopSongsScreen() {
         startIndexing(true);
     }, []);
 
-    const currentSongs = useMemo(() => {
+    const currentSongs = (() => {
         const shuffled = [...tracks];
         const seed = activeTab === "Daily" ? 1 : activeTab === "Weekly" ? 2 : 0;
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -35,7 +35,7 @@ export default function TopSongsScreen() {
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
         return shuffled.slice(0, TOP_SONGS_LIMIT);
-    }, [tracks, activeTab]);
+    })();
 
     const handlePlayAll = useCallback(() => {
         if (currentSongs.length > 0) {
