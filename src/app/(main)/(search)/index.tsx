@@ -5,7 +5,7 @@ import { Card } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
-import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
+import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useStore } from "@nanostores/react";
 import { startIndexing, $indexerState } from "@/utils/media-indexer";
 
@@ -164,13 +164,15 @@ export default function SearchScreen() {
     return (
         <ScrollView
             className="flex-1 bg-background"
-            contentContainerStyle={{ padding: 20, paddingBottom: 160 }}
+            contentContainerStyle={{ padding: 20, paddingBottom: 200 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentInsetAdjustmentBehavior="automatic"
+            onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
+            scrollEventThrottle={16}
             refreshControl={
                 <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
             }

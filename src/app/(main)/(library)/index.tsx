@@ -11,7 +11,7 @@ import { SongList } from "@/components/library/song-list";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
 import { playTrack, $tracks, Track } from "@/store/player-store";
-import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
+import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useStore } from "@nanostores/react";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { startIndexing, $indexerState } from "@/utils/media-indexer";
@@ -139,10 +139,13 @@ export default function LibraryScreen() {
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 200 }}
                 contentInsetAdjustmentBehavior="automatic"
+                onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
                 onScrollBeginDrag={handleScrollStart}
                 onMomentumScrollEnd={handleScrollStop}
                 onScrollEndDrag={handleScrollStop}
+                scrollEventThrottle={16}
                 refreshControl={
                     <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
                 }

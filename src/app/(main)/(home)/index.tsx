@@ -7,7 +7,7 @@ import { Colors } from "@/constants/colors";
 import React, { useState, useLayoutEffect, useCallback } from "react";
 import { useNavigation, useRouter, useFocusEffect } from "expo-router";
 import { Pressable, View, ScrollView, RefreshControl } from "react-native";
-import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
+import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { Ionicons } from "@expo/vector-icons";
 import { startIndexing, $indexerState } from "@/utils/media-indexer";
 import { getHistory } from "@/utils/database";
@@ -111,11 +111,13 @@ export default function HomeScreen() {
     return (
         <ScrollView
             className="flex-1 bg-background"
-            contentContainerStyle={{ paddingBottom: 160 }}
+            contentContainerStyle={{ paddingBottom: 200 }}
             contentInsetAdjustmentBehavior="automatic"
+            onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
+            scrollEventThrottle={16}
             refreshControl={
                 <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
             }

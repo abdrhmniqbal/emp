@@ -5,7 +5,7 @@ import { playTrack, $tracks, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
-import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
+import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useUniwind } from "uniwind";
 import { useStore } from "@nanostores/react";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
@@ -107,11 +107,13 @@ export default function TopSongsScreen() {
                     data={currentSongs}
                     keyExtractor={keyExtractor}
                     renderItem={renderItem}
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 160 }}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 200 }}
                     className="flex-1"
+                    onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
                     onScrollBeginDrag={handleScrollStart}
                     onMomentumScrollEnd={handleScrollStop}
                     onScrollEndDrag={handleScrollStop}
+                    scrollEventThrottle={16}
                     refreshControl={
                         <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
                     }

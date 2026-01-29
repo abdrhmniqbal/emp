@@ -4,10 +4,11 @@ import { Colors } from "@/constants/colors";
 import { useUniwind } from "uniwind";
 import { MiniPlayer } from "@/components/mini-player";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
-import { View } from "react-native";
 import { useStore } from "@nanostores/react";
 import { $barsVisible } from "@/store/ui-store";
-import Animated, { useAnimatedStyle, withTiming, withDelay } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
+
+const TAB_BAR_HEIGHT = 90;
 
 export default function MainLayout() {
     const { theme: currentTheme } = useUniwind();
@@ -18,7 +19,7 @@ export default function MainLayout() {
         return {
             transform: [
                 {
-                    translateY: withTiming(barsVisible ? 0 : 200, { duration: 300 }),
+                    translateY: withTiming(barsVisible ? 0 : TAB_BAR_HEIGHT + 80, { duration: 250 }),
                 },
             ],
         };
@@ -27,7 +28,17 @@ export default function MainLayout() {
     return (
         <Tabs
             tabBar={(props) => (
-                <Animated.View style={animatedStyle}>
+                <Animated.View
+                    style={[
+                        animatedStyle,
+                        {
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                        },
+                    ]}
+                >
                     <MiniPlayer />
                     <BottomTabBar {...props} />
                 </Animated.View>
@@ -40,7 +51,7 @@ export default function MainLayout() {
                     backgroundColor: theme.background,
                     borderTopWidth: 1,
                     borderTopColor: theme.divider,
-                    height: 90,
+                    height: TAB_BAR_HEIGHT,
                     paddingBottom: 30,
                 },
                 animation: 'shift',

@@ -4,7 +4,7 @@ import { playTrack, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
-import { handleScrollStart, handleScrollStop } from "@/store/ui-store";
+import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useState, useCallback } from "react";
 import { getHistory } from "@/utils/database";
 import { useFocusEffect } from "expo-router";
@@ -91,11 +91,13 @@ export default function RecentlyPlayedScreen() {
                 data={history}
                 keyExtractor={keyExtractor}
                 renderItem={renderItem}
-                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 160 }}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 200 }}
                 className="flex-1"
+                onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
                 onScrollBeginDrag={handleScrollStart}
                 onMomentumScrollEnd={handleScrollStop}
                 onScrollEndDrag={handleScrollStop}
+                scrollEventThrottle={16}
                 refreshControl={
                     <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
                 }
