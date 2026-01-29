@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, Pressable, Dimensions, Image } from "react-native";
+import { View, Text, Pressable, Dimensions, Image, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useStore } from "@nanostores/react";
 import { $currentTrack, $isPlaying, playNext, playPrevious, togglePlayback, $currentTime, $duration, seekTo, toggleFavorite } from "@/store/player-store";
@@ -12,11 +12,13 @@ import Animated, {
     withTiming,
     runOnJS,
     interpolate,
-    Extrapolate
+    useAnimatedProps,
+    useAnimatedReaction,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 export const FullPlayer = () => {
     const isExpanded = useStore($isPlayerExpanded);
@@ -68,6 +70,100 @@ export const FullPlayer = () => {
             transform: [{ translateY: translateY.value }],
         };
     });
+
+    // --- Progress Bar Logic ---
+    const progress = useSharedValue(0);
+    const isSeeking = useSharedValue(false);
+    const barWidth = useSharedValue(0);
+    const pressed = useSharedValue(false);
+    const durationSv = useSharedValue(0);
+
+    // Sync duration shared value
+    useEffect(() => {
+        durationSv.value = durationVal;
+    }, [durationVal]);
+
+    // Sync progress with player state when not seeking
+    useEffect(() => {
+        if (!isSeeking.value && durationVal > 0) {
+            progress.value = currentTimeVal / durationVal;
+        }
+    }, [currentTimeVal, durationVal]);
+
+    const animatedTextProps = useAnimatedProps(() => {
+        const seconds = progress.value * durationSv.value;
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        const text = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        return {
+            text: text,
+        } as any; // Cast to any to avoid type check issues with 'text' prop on TextInput
+    });
+
+    const seekGesture = Gesture.Pan()
+        .onStart((e) => {
+            isSeeking.value = true;
+            pressed.value = true;
+            if (barWidth.value > 0) {
+                progress.value = Math.max(0, Math.min(1, e.x / barWidth.value));
+            }
+        })
+        .onUpdate((e) => {
+            if (barWidth.value > 0) {
+                progress.value = Math.max(0, Math.min(1, e.x / barWidth.value));
+            }
+        })
+        .onEnd(() => {
+            const seekTime = progress.value * durationVal;
+            runOnJS(seekTo)(seekTime);
+            isSeeking.value = false;
+            pressed.value = false;
+        });
+
+    const tapGesture = Gesture.Tap()
+        .onStart((e) => {
+            isSeeking.value = true;
+            pressed.value = true;
+            if (barWidth.value > 0) {
+                progress.value = Math.max(0, Math.min(1, e.x / barWidth.value));
+            }
+        })
+        .onEnd(() => {
+            const seekTime = progress.value * durationVal;
+            runOnJS(seekTo)(seekTime);
+            isSeeking.value = false;
+            pressed.value = false;
+        });
+
+    const progressStyle = useAnimatedStyle(() => ({
+        width: `${progress.value * 100}%`,
+    }));
+
+    // Bar height animation: gets thicker when interacting
+    const barContainerStyle = useAnimatedStyle(() => ({
+        height: withTiming(pressed.value ? 12 : 4, { duration: 200 }),
+    }));
+
+    // Update current time display text while seeking requires a derived value and reaction or a workaround
+    // Simplest is to let the store update `currentTime` naturally after seek, or if we want real-time update during drag:
+    // We can use a Reanimated Text component, but standard Text works fine if we just display the store value. 
+    // However, store value updates only when player updates. During drag, user wants to see drag time.
+    // Let's stick to standard display for now to keep it robust, or do a small JS update.
+
+    const DisplayTime = () => {
+        return (
+            <View className="flex-row justify-between mt-2">
+                <AnimatedTextInput
+                    animatedProps={animatedTextProps}
+                    className="text-xs text-white/50 p-0 font-variant-numeric-tabular-nums"
+                    editable={false}
+                    value={currentTime} // Initial value fallback
+                    style={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                />
+                <Text className="text-xs text-white/50">{totalTime}</Text>
+            </View>
+        );
+    };
 
     if (!currentTrack) return null;
 
@@ -159,14 +255,21 @@ export const FullPlayer = () => {
                         </View>
 
                         {/* Progress Bar */}
-                        <View className="mb-8">
-                            <View className="h-1 w-full bg-white/20 rounded-full mb-2 overflow-hidden">
-                                <View style={{ width: `${progressPercent}%` }} className="h-full bg-accent rounded-full" />
-                            </View>
-                            <View className="flex-row justify-between">
-                                <Text className="text-xs text-white/50">{currentTime}</Text>
-                                <Text className="text-xs text-white/50">{totalTime}</Text>
-                            </View>
+                        <View className="mb-6">
+                            <GestureDetector gesture={Gesture.Simultaneous(seekGesture, tapGesture)}>
+                                <View
+                                    className="py-4" // Hit slop
+                                    onLayout={(e) => { barWidth.value = e.nativeEvent.layout.width; }}
+                                >
+                                    <Animated.View
+                                        style={barContainerStyle}
+                                        className="w-full bg-white/20 rounded-full overflow-hidden"
+                                    >
+                                        <Animated.View style={[progressStyle]} className="h-full bg-accent rounded-full" />
+                                    </Animated.View>
+                                </View>
+                            </GestureDetector>
+                            <DisplayTime />
                         </View>
 
                         {/* Controls */}
