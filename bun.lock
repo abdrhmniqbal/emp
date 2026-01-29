@@ -5,6 +5,7 @@
     "": {
       "name": "emp",
       "dependencies": {
+        "@animatereactnative/marquee": "^0.5.2",
         "@gorhom/bottom-sheet": "^5",
         "@missingcore/audio-metadata": "^1.3.0",
         "@nanostores/react": "^1.0.0",
@@ -45,6 +46,8 @@
   },
   "packages": {
     "@0no-co/graphql.web": ["@0no-co/graphql.web@1.2.0", "", { "peerDependencies": { "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" }, "optionalPeers": ["graphql"] }, "sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw=="],
+
+    "@animatereactnative/marquee": ["@animatereactnative/marquee@0.5.2", "", { "peerDependencies": { "react": "*", "react-native": "*", "react-native-gesture-handler": ">=2.0.0", "react-native-reanimated": ">=2.2.0" } }, "sha512-8VzfT1zc72aiwgL0NrvchgzVEIGVwVnjp93a/nSmw4vLRyhXh/8GSC/e23nJMGps7dxHeU7UrBMJoN2+Z5sYHg=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.10.4", "", { "dependencies": { "@babel/highlight": "^7.10.4" } }, "sha512-vG6SvB6oYEhvgisZNFRmRCUkLz11c7rp+tbNTynGqc6mS1d5ATd/sGyV6W0KZZnXRKMTzZDRgQT3Ou9jhpAfUg=="],
 

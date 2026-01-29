@@ -7,6 +7,7 @@ import { useUniwind } from 'uniwind';
 import { Colors } from '@/constants/colors';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { $isPlayerExpanded } from '@/store/ui-store';
+import { MarqueeText } from './marquee-text';
 
 export const MiniPlayer = () => {
     const currentTrack = useStore($currentTrack);
@@ -59,13 +60,17 @@ export const MiniPlayer = () => {
                     </View>
 
                     {/* Track Info */}
-                    <View className="flex-1">
-                        <Text className="text-[15px] font-bold text-foreground" numberOfLines={1}>
-                            {currentTrack.title}
-                        </Text>
-                        <Text className="text-[13px] text-muted" numberOfLines={1}>
-                            {currentTrack.artist || 'Unknown Artist'}
-                        </Text>
+                    <View className="flex-1 overflow-hidden">
+                        <MarqueeText
+                            text={currentTrack.title}
+                            className="text-[15px] font-bold text-foreground"
+                            speed={0.6}
+                        />
+                        <MarqueeText
+                            text={currentTrack.artist || 'Unknown Artist'}
+                            className="text-[13px] text-muted"
+                            speed={0.5}
+                        />
                     </View>
 
                     {/* Controls */}
