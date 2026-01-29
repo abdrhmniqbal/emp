@@ -13,8 +13,25 @@ import { Colors } from "@/constants/colors";
 import { playTrack, $tracks, Track } from "@/store/player-store";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useStore } from "@nanostores/react";
-import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
+import Animated, {
+    FadeInRight,
+    FadeOutLeft,
+} from "react-native-reanimated";
 import { startIndexing, $indexerState } from "@/utils/media-indexer";
+import {
+    $sortConfig,
+    setSortConfig,
+    sortTracks,
+    sortAlbums,
+    sortArtists,
+    sortGeneric,
+    SONG_SORT_OPTIONS,
+    ALBUM_SORT_OPTIONS,
+    ARTIST_SORT_OPTIONS,
+    PLAYLIST_SORT_OPTIONS,
+    SortField
+} from "@/store/sort-store";
+import { SortSheet } from "@/components/library/sort-sheet";
 
 const TABS = ["Songs", "Albums", "Artists", "Playlists", "Folders", "Favorites"] as const;
 type TabType = typeof TABS[number];
@@ -27,6 +44,15 @@ export default function LibraryScreen() {
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
     const indexerState = useStore($indexerState);
     const tracks = useStore($tracks);
+    const allSortConfigs = useStore($sortConfig);
+    const sortConfig = allSortConfigs[activeTab];
+    const [sortModalVisible, setSortModalVisible] = useState(false);
+
+    const closeSortModal = useCallback(() => {
+        setSortModalVisible(false);
+    }, []);
+
+    const sortedTracks = tracks;
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -51,15 +77,27 @@ export default function LibraryScreen() {
     }, []);
 
     const albums: Album[] = (() => {
-        const albumMap = new Map<string, Album>();
+        const albumMap = new Map<string, Album & { year: number; dateAdded: number; trackCount: number }>();
         tracks.forEach(track => {
             const albumName = track.album || "Unknown Album";
-            if (!albumMap.has(albumName)) {
+            const existing = albumMap.get(albumName);
+
+            const trackYear = track.year || 0;
+            const trackDate = track.dateAdded || 0;
+
+            if (existing) {
+                existing.trackCount++;
+                existing.year = Math.max(existing.year, trackYear);
+                existing.dateAdded = Math.max(existing.dateAdded, trackDate);
+            } else {
                 albumMap.set(albumName, {
                     id: albumName,
                     title: albumName,
                     artist: track.artist || "Unknown Artist",
                     image: track.image,
+                    year: trackYear,
+                    dateAdded: trackDate,
+                    trackCount: 1,
                 });
             }
         });
@@ -67,14 +105,22 @@ export default function LibraryScreen() {
     })();
 
     const artists: Artist[] = (() => {
-        const artistMap = new Map<string, { name: string; count: number; image?: string }>();
+        const artistMap = new Map<string, { name: string; count: number; image?: string; dateAdded: number }>();
         tracks.forEach(track => {
             const artistName = track.artist || "Unknown Artist";
             const existing = artistMap.get(artistName);
+            const trackDate = track.dateAdded || 0;
+
             if (existing) {
                 existing.count++;
+                existing.dateAdded = Math.max(existing.dateAdded, trackDate);
             } else {
-                artistMap.set(artistName, { name: artistName, count: 1, image: track.image });
+                artistMap.set(artistName, {
+                    name: artistName,
+                    count: 1,
+                    image: track.image,
+                    dateAdded: trackDate
+                });
             }
         });
         return Array.from(artistMap.values()).map(a => ({
@@ -82,133 +128,181 @@ export default function LibraryScreen() {
             name: a.name,
             trackCount: a.count,
             image: a.image,
+            dateAdded: a.dateAdded,
         }));
     })();
 
     const playlists: Playlist[] = [];
     const folders: Folder[] = [];
-    const favorites = tracks.slice(0, 10);
 
-    const currentData = (() => {
+    const favorites = sortTracks(tracks, { field: 'dateAdded', order: 'desc' }).slice(0, 10);
+
+    const { sortedData, currentSortOptions } = (() => {
+        let data: any[] = [];
+        let options: { label: string; field: SortField }[] = SONG_SORT_OPTIONS;
+
         switch (activeTab) {
-            case "Albums": return albums;
-            case "Artists": return artists;
-            case "Playlists": return playlists;
-            case "Folders": return folders;
-            case "Favorites": return favorites;
-            default: return tracks;
+            case "Albums":
+                data = sortAlbums(albums, sortConfig);
+                options = ALBUM_SORT_OPTIONS;
+                break;
+            case "Artists":
+                data = sortArtists(artists, sortConfig);
+                options = ARTIST_SORT_OPTIONS;
+                break;
+            case "Playlists":
+                data = sortGeneric(playlists, sortConfig);
+                options = PLAYLIST_SORT_OPTIONS;
+                break;
+            case "Folders":
+                data = folders;
+                options = [];
+                break;
+            case "Favorites":
+                data = sortTracks(favorites, sortConfig);
+                options = SONG_SORT_OPTIONS;
+                break;
+            default:
+                data = sortTracks(sortedTracks, sortConfig);
+                options = SONG_SORT_OPTIONS;
+                break;
         }
+
+        return { sortedData: data, currentSortOptions: options as any[] };
     })();
 
     const handlePlayAll = useCallback(() => {
-        const songsToPlay = activeTab === "Favorites" ? favorites : tracks;
+        const songsToPlay = activeTab === "Favorites" ? favorites : sortedData;
         if (songsToPlay.length > 0) {
             playTrack(songsToPlay[0]);
         }
-    }, [activeTab, favorites, tracks]);
+    }, [activeTab, favorites, sortedData]);
 
     const handleShuffle = useCallback(() => {
-        const songsToPlay = activeTab === "Favorites" ? favorites : tracks;
+        const songsToPlay = activeTab === "Favorites" ? favorites : sortedData;
         if (songsToPlay.length > 0) {
             const randomIndex = Math.floor(Math.random() * songsToPlay.length);
             playTrack(songsToPlay[randomIndex]);
         }
-    }, [activeTab, favorites, tracks]);
+    }, [activeTab, favorites, sortedData]);
 
-    const renderTabContent = useCallback(() => {
-        switch (activeTab) {
-            case "Albums":
-                return <AlbumGrid data={albums} />;
-            case "Artists":
-                return <ArtistGrid data={artists} />;
-            case "Playlists":
-                return <PlaylistList data={playlists} />;
-            case "Folders":
-                return <FolderList data={folders} />;
-            case "Favorites":
-                return <SongList data={favorites} />;
-            default:
-                return <SongList data={tracks} />;
-        }
-    }, [activeTab, albums, artists, playlists, folders, favorites, tracks]);
+    const handleSortSelect = (field: SortField, order?: 'asc' | 'desc') => {
+        setSortConfig(activeTab, field, order);
+        if (!order) setSortModalVisible(false);
+    };
+
+    const getSortLabel = () => {
+        const option = currentSortOptions.find(o => o.field === sortConfig.field);
+        return option?.label || 'Sort';
+    };
+
+
 
     const showPlayButtons = activeTab === "Songs" || activeTab === "Favorites";
 
     return (
-        <View className="flex-1 bg-background">
-            <ScrollView
-                className="flex-1"
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 200 }}
-                contentInsetAdjustmentBehavior="automatic"
-                onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
-                onScrollBeginDrag={handleScrollStart}
-                onMomentumScrollEnd={handleScrollStop}
-                onScrollEndDrag={handleScrollStop}
-                scrollEventThrottle={16}
-                refreshControl={
-                    <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
-                }
-            >
+        <>
+            <View className="flex-1 bg-background">
                 <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 16, gap: 24 }}
-                    className="py-4 grow-0"
+                    className="flex-1"
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 200 }}
+                    contentInsetAdjustmentBehavior="automatic"
+                    onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
+                    onScrollBeginDrag={handleScrollStart}
+                    onMomentumScrollEnd={handleScrollStop}
+                    onScrollEndDrag={handleScrollStop}
+                    scrollEventThrottle={16}
+                    refreshControl={
+                        <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
+                    }
                 >
-                    {TABS.map((tab) => (
-                        <Pressable
-                            key={tab}
-                            onPress={() => setActiveTab(tab)}
-                            className="active:opacity-50 py-2"
-                        >
-                            <Text className={`text-2xl font-bold ${activeTab === tab ? 'text-foreground' : 'text-muted'}`}>
-                                {tab}
-                            </Text>
-                            {activeTab === tab && (
-                                <View className="h-1 bg-accent rounded-full mt-1" />
-                            )}
-                        </Pressable>
-                    ))}
-                </ScrollView>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingHorizontal: 16, gap: 24 }}
+                        className="py-4 grow-0"
+                    >
+                        {TABS.map((tab) => (
+                            <Pressable
+                                key={tab}
+                                onPress={() => setActiveTab(tab)}
+                                className="active:opacity-50 py-2"
+                            >
+                                <Text className={`text-2xl font-bold ${activeTab === tab ? 'text-foreground' : 'text-muted'}`}>
+                                    {tab}
+                                </Text>
+                                {activeTab === tab && (
+                                    <View className="h-1 bg-accent rounded-full mt-1" />
+                                )}
+                            </Pressable>
+                        ))}
+                    </ScrollView>
 
-                <Animated.View
-                    key={activeTab}
-                    entering={FadeInRight.duration(300)}
-                    exiting={FadeOutLeft.duration(300)}
-                    className="px-4 py-4"
-                >
-                    {showPlayButtons && (
-                        <View className="flex-row gap-4 mb-6">
-                            <Button
-                                className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                                onPress={handlePlayAll}
+                    <Animated.View
+                        key={activeTab}
+                        entering={FadeInRight.duration(300)}
+                        exiting={FadeOutLeft.duration(300)}
+                        className="px-4 py-4"
+                    >
+                        {showPlayButtons && (
+                            <View className="flex-row gap-4 mb-6">
+                                <Button
+                                    className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
+                                    onPress={handlePlayAll}
+                                >
+                                    <Ionicons name="play" size={20} color={theme.foreground} />
+                                    <Text className="text-lg font-bold text-foreground uppercase">Play</Text>
+                                </Button>
+                                <Button
+                                    className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
+                                    onPress={handleShuffle}
+                                >
+                                    <Ionicons name="shuffle" size={20} color={theme.foreground} />
+                                    <Text className="text-lg font-bold text-foreground uppercase">Shuffle</Text>
+                                </Button>
+                            </View>
+                        )}
+                        <View className="flex-row items-center justify-between mb-4">
+                            <Text className="text-[20px] font-bold text-foreground">{sortedData.length} {activeTab}</Text>
+                            <Pressable
+                                className="flex-row items-center gap-1 active:opacity-50"
+                                onPress={() => setSortModalVisible(true)}
+                                disabled={currentSortOptions.length === 0}
                             >
-                                <Ionicons name="play" size={20} color={theme.foreground} />
-                                <Text className="text-lg font-bold text-foreground uppercase">Play</Text>
-                            </Button>
-                            <Button
-                                className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                                onPress={handleShuffle}
-                            >
-                                <Ionicons name="shuffle" size={20} color={theme.foreground} />
-                                <Text className="text-lg font-bold text-foreground uppercase">Shuffle</Text>
-                            </Button>
+                                <Text className="text-[15px] font-medium text-muted">{getSortLabel()}</Text>
+                                <Ionicons
+                                    name={sortConfig.order === 'asc' ? 'arrow-up' : 'arrow-down'}
+                                    size={16}
+                                    color={theme.muted}
+                                />
+                            </Pressable>
                         </View>
-                    )}
-                    <View className="flex-row items-center justify-between mb-4">
-                        <Text className="text-[20px] font-bold text-foreground">{currentData.length} {activeTab}</Text>
-                        <Pressable className="flex-row items-center gap-1 active:opacity-50">
-                            <Text className="text-[15px] font-medium text-muted">Recently Added</Text>
-                            <Ionicons name="chevron-down" size={16} color={theme.muted} />
-                        </Pressable>
-                    </View>
 
-                    {renderTabContent()}
-                </Animated.View>
+                        {(() => {
+                            switch (activeTab) {
+                                case "Albums": return <AlbumGrid data={sortedData} />;
+                                case "Artists": return <ArtistGrid data={sortedData} />;
+                                case "Playlists": return <PlaylistList data={sortedData} />;
+                                case "Folders": return <FolderList data={sortedData} />;
+                                case "Favorites": return <SongList data={sortedData} />;
+                                default: return <SongList data={sortedData} />;
+                            }
+                        })()}
+                    </Animated.View>
 
-                <View style={{ height: 160 }} />
-            </ScrollView>
-        </View>
+                    <View style={{ height: 160 }} />
+                </ScrollView>
+            </View>
+
+            <SortSheet
+                visible={sortModalVisible}
+                onClose={closeSortModal}
+                options={currentSortOptions}
+                currentField={sortConfig.field}
+                currentOrder={sortConfig.order}
+                onSelect={handleSortSelect}
+            />
+        </>
     );
 }

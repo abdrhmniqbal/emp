@@ -18,7 +18,10 @@ export const initDatabase = () => {
             scan_time INTEGER DEFAULT 0,
             is_deleted INTEGER DEFAULT 0,
             play_count INTEGER DEFAULT 0,
-            last_played_at INTEGER DEFAULT 0
+            last_played_at INTEGER DEFAULT 0,
+            year INTEGER,
+            filename TEXT,
+            date_added INTEGER DEFAULT 0
         );
         
         CREATE INDEX IF NOT EXISTS idx_tracks_file_hash ON tracks(file_hash);
@@ -76,6 +79,15 @@ const runMigrations = () => {
     if (!columns.has('last_played_at')) {
         db.execSync('ALTER TABLE tracks ADD COLUMN last_played_at INTEGER DEFAULT 0');
     }
+    if (!columns.has('year')) {
+        db.execSync('ALTER TABLE tracks ADD COLUMN year INTEGER');
+    }
+    if (!columns.has('filename')) {
+        db.execSync('ALTER TABLE tracks ADD COLUMN filename TEXT');
+    }
+    if (!columns.has('date_added')) {
+        db.execSync('ALTER TABLE tracks ADD COLUMN date_added INTEGER DEFAULT 0');
+    }
 };
 
 export const addToHistory = (trackId: string) => {
@@ -118,6 +130,9 @@ const mapRowToTrack = (row: any): Track => ({
     isDeleted: row.is_deleted === 1,
     playCount: row.play_count || 0,
     lastPlayedAt: row.last_played_at || 0,
+    year: row.year || undefined,
+    filename: row.filename || undefined,
+    dateAdded: row.date_added || 0,
 });
 
 export const getTracksFromDB = (): Track[] => {
@@ -139,8 +154,8 @@ export const getAllTrackIds = (): string[] => {
 export const upsertTrack = (track: Track) => {
     db.runSync(
         `INSERT OR REPLACE INTO tracks 
-            (id, title, artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (id, title, artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at, year, filename, date_added) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             track.id,
             track.title,
@@ -155,6 +170,9 @@ export const upsertTrack = (track: Track) => {
             track.isDeleted ? 1 : 0,
             track.playCount || 0,
             track.lastPlayedAt || 0,
+            track.year || null,
+            track.filename || null,
+            track.dateAdded || 0,
         ]
     );
 };
@@ -244,8 +262,8 @@ export const batchUpsertTracks = (tracks: Track[]): void => {
         for (const track of tracks) {
             db.runSync(
                 `INSERT OR REPLACE INTO tracks 
-                    (id, title, artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    (id, title, artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at, year, filename, date_added) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     track.id,
                     track.title,
@@ -260,6 +278,9 @@ export const batchUpsertTracks = (tracks: Track[]): void => {
                     track.isDeleted ? 1 : 0,
                     track.playCount || 0,
                     track.lastPlayedAt || 0,
+                    track.year || null,
+                    track.filename || null,
+                    track.dateAdded || 0,
                 ]
             );
         }

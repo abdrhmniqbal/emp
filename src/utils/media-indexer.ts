@@ -19,7 +19,7 @@ import { $tracks, Track } from '@/store/player-store';
 
 const ARTWORK_DIR_NAME = 'artwork';
 const BATCH_SIZE = 10;
-const METADATA_TAGS = ['artist', 'artwork', 'name', 'album'] as const;
+const METADATA_TAGS = ['artist', 'artwork', 'name', 'album', 'year'] as const;
 
 const yieldToUI = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -172,6 +172,9 @@ const processTrack = async (
             fileHash,
             scanTime: Date.now(),
             isDeleted: false,
+            year: metadata.year ? parseInt(metadata.year, 10) : undefined,
+            filename: asset.filename || 'Unknown',
+            dateAdded: asset.creationTime || asset.modificationTime || Date.now(),
         };
 
         return track;

@@ -22,6 +22,9 @@ export interface Track {
     isDeleted?: boolean;
     playCount?: number;
     lastPlayedAt?: number;
+    year?: number;
+    filename?: string;
+    dateAdded?: number;
 }
 
 export const $tracks = atom<Track[]>([]);
