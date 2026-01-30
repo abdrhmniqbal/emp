@@ -43,7 +43,7 @@ export default function ArtistDetailsScreen() {
     const artistImage = artistTracks.find((t) => t.image)?.image;
 
     const albums = (() => {
-        const albumMap = new Map<string, { title: string; image?: string; year?: number; trackCount: number }>();
+        const albumMap = new Map<string, { title: string; artist?: string; albumArtist?: string; image?: string; year?: number; trackCount: number }>();
         artistTracks.forEach((track) => {
             const albumName = track.album || "Unknown Album";
             const existing = albumMap.get(albumName);
@@ -52,6 +52,8 @@ export default function ArtistDetailsScreen() {
             } else {
                 albumMap.set(albumName, {
                     title: albumName,
+                    artist: track.artist,
+                    albumArtist: track.albumArtist,
                     image: track.image,
                     year: track.year,
                     trackCount: 1,

@@ -101,6 +101,7 @@ export default function LibraryScreen() {
                     id: albumName,
                     title: albumName,
                     artist: track.artist || "Unknown Artist",
+                    albumArtist: track.albumArtist,
                     image: track.image,
                     year: trackYear,
                     dateAdded: trackDate,

@@ -9,6 +9,7 @@ export const initDatabase = () => {
             id TEXT PRIMARY KEY,
             title TEXT NOT NULL,
             artist TEXT,
+            album_artist TEXT,
             album TEXT,
             duration REAL,
             uri TEXT NOT NULL,
@@ -94,6 +95,9 @@ const runMigrations = () => {
     if (!columns.has('is_favorite')) {
         db.execSync('ALTER TABLE tracks ADD COLUMN is_favorite INTEGER DEFAULT 0');
     }
+    if (!columns.has('album_artist')) {
+        db.execSync('ALTER TABLE tracks ADD COLUMN album_artist TEXT');
+    }
 
 };
 
@@ -159,6 +163,7 @@ const mapRowToTrack = (row: any): Track => ({
     id: row.id,
     title: row.title,
     artist: row.artist || undefined,
+    albumArtist: row.album_artist || undefined,
     album: row.album || undefined,
     duration: row.duration,
     uri: row.uri,
@@ -194,12 +199,13 @@ export const getAllTrackIds = (): string[] => {
 export const upsertTrack = (track: Track) => {
     db.runSync(
         `INSERT OR REPLACE INTO tracks 
-            (id, title, artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at, year, filename, date_added, is_favorite) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (id, title, artist, album_artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at, year, filename, date_added, is_favorite) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             track.id,
             track.title,
             track.artist || null,
+            track.albumArtist || null,
             track.album || null,
             track.duration,
             track.uri,
@@ -303,12 +309,13 @@ export const batchUpsertTracks = (tracks: Track[]): void => {
         for (const track of tracks) {
             db.runSync(
                 `INSERT OR REPLACE INTO tracks 
-                    (id, title, artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at, year, filename, date_added, is_favorite) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    (id, title, artist, album_artist, album, duration, uri, image, lyrics, file_hash, scan_time, is_deleted, play_count, last_played_at, year, filename, date_added, is_favorite) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     track.id,
                     track.title,
                     track.artist || null,
+                    track.albumArtist || null,
                     track.album || null,
                     track.duration,
                     track.uri,

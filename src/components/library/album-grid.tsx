@@ -6,6 +6,7 @@ export interface Album {
     id: string;
     title: string;
     artist: string;
+    albumArtist?: string;
     image?: string;
     trackCount?: number;
 }
@@ -33,7 +34,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({ data, onAlbumPress, horizo
             <ItemContent className="mt-1">
                 <ItemTitle className="text-sm normal-case" numberOfLines={1}>{album.title}</ItemTitle>
                 <ItemDescription numberOfLines={1}>
-                    {album.artist}{album.trackCount ? ` • ${album.trackCount} tracks` : ""}
+                    {album.albumArtist || album.artist}{album.trackCount ? ` • ${album.trackCount} tracks` : ""}
                 </ItemDescription>
             </ItemContent>
         </Item>
