@@ -1,21 +1,22 @@
 import React, { useEffect } from "react";
-import { View, Text, Pressable, Dimensions, Image, TextInput, Platform } from "react-native";
+import { View, Text, Pressable, Dimensions, Image, TextInput, ScrollView } from "react-native";
 import { getColors } from "react-native-image-colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useStore } from "@nanostores/react";
-import { $currentTrack, $isPlaying, playNext, playPrevious, togglePlayback, $currentTime, $duration, seekTo } from "@/store/player-store";
+import { $currentTrack, $isPlaying, playNext, playPrevious, togglePlayback, playTrack, $currentTime, $duration, seekTo, $tracks, Track } from "@/store/player-store";
+import { $isPlayerExpanded, $showPlayerQueue } from "@/store/ui-store";
 import { useIsFavorite, toggleFavoriteItem } from "@/store/favorites-store";
-import { $isPlayerExpanded } from "@/store/ui-store";
+import { Colors } from "@/constants/colors";
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
-    withSpring,
     withTiming,
     runOnJS,
-    interpolate,
     useAnimatedProps,
-    useAnimatedReaction,
+    FadeIn,
+    FadeOut,
+    Layout,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
@@ -28,6 +29,8 @@ export const FullPlayer = () => {
     const isPlaying = useStore($isPlaying);
     const currentTimeVal = useStore($currentTime);
     const durationVal = useStore($duration);
+    const tracks = useStore($tracks);
+    const showQueue = useStore($showPlayerQueue);
 
     const isCurrentTrackFavorite = useIsFavorite(currentTrack?.id || "");
 
@@ -78,9 +81,11 @@ export const FullPlayer = () => {
 
     const closePlayer = () => {
         $isPlayerExpanded.set(false);
+        $showPlayerQueue.set(false);
     };
 
     const panGesture = Gesture.Pan()
+        .activeOffsetY(20)
         .onUpdate((event) => {
             if (event.translationY > 0) {
                 translateY.value = event.translationY;
@@ -232,29 +237,122 @@ export const FullPlayer = () => {
                             </View>
                         </View>
 
-                        <View className="items-center justify-center flex-1 my-8">
-                            <View className="absolute w-full aspect-square bg-purple-500/30 blur-2xl rounded-full scale-0.9" />
-                            <View className="w-full aspect-square bg-white rounded-3xl overflow-hidden shadow-2xl elevation-10">
-                                {currentTrack.image ? (
-                                    <Image
-                                        source={{ uri: currentTrack.image }}
-                                        className="w-full h-full"
-                                        resizeMode="cover"
-                                    />
-                                ) : (
-                                    <View className="w-full h-full bg-slate-800 items-center justify-center">
-                                        <Ionicons name="musical-note" size={80} color="white" />
-                                    </View>
-                                )}
-                            </View>
-                        </View>
+                        {showQueue ? (
+                            // Queue View
+                            <Animated.View 
+                                entering={FadeIn.duration(200)}
+                                exiting={FadeOut.duration(200)}
+                                layout={Layout.duration(300)}
+                                className="flex-1 my-3 -mx-2 overflow-hidden"
+                            >
+                                <View className="mb-2 px-2">
+                                    <Text className="text-white/60 text-sm">
+                                        {tracks.length} {tracks.length === 1 ? 'song' : 'songs'}
+                                    </Text>
+                                </View>
+                                <View className="flex-1 h-0">
+                                    <ScrollView 
+                                        showsVerticalScrollIndicator={false}
+                                        contentContainerStyle={{ paddingBottom: 20 }}
+                                    >
+                                        <View className="gap-1">
+                                            {(() => {
+                                                if (!currentTrack || tracks.length === 0) return null;
+                                                const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
+                                                const queueTracks = currentIndex === -1 ? tracks : [...tracks.slice(currentIndex), ...tracks.slice(0, currentIndex)];
+                                                
+                                                return queueTracks.map((track) => {
+                                                    const isCurrentTrack = track.id === currentTrack?.id;
+                                                    
+                                                    return (
+                                                        <Pressable
+                                                            key={track.id}
+                                                            onPress={() => playTrack(track)}
+                                                            className={`flex-row items-center py-3 px-2 rounded-xl ${
+                                                                isCurrentTrack ? 'bg-white/10' : 'active:bg-white/5'
+                                                            }`}
+                                                        >
+                                                            <View className={`w-6 h-6 rounded-full border-2 mr-3 items-center justify-center ${
+                                                                isCurrentTrack ? 'border-white/60' : 'border-white/20'
+                                                            }`}>
+                                                                {isCurrentTrack && (
+                                                                    <View className="w-2.5 h-2.5 rounded-full bg-white" />
+                                                                )}
+                                                            </View>
 
-                        <View className="flex-row justify-between items-center mb-6">
+                                                            <View className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 mr-3">
+                                                                {track.image ? (
+                                                                    <Image
+                                                                        source={{ uri: track.image }}
+                                                                        className="w-full h-full"
+                                                                        resizeMode="cover"
+                                                                    />
+                                                                ) : (
+                                                                    <View className="w-full h-full items-center justify-center">
+                                                                        <Ionicons name="musical-note" size={20} color="white" />
+                                                                    </View>
+                                                                )}
+                                                            </View>
+
+                                                            <View className="flex-1 justify-center">
+                                                                <Text 
+                                                                    className={`font-bold text-base ${
+                                                                        isCurrentTrack ? 'text-white' : 'text-white/90'
+                                                                    }`}
+                                                                    numberOfLines={1}
+                                                                >
+                                                                    {track.title}
+                                                                </Text>
+                                                                <Text className="text-white/50 text-sm" numberOfLines={1}>
+                                                                    {track.artist || "Unknown Artist"}
+                                                                </Text>
+                                                            </View>
+
+                                                            <View className="ml-2">
+                                                                <Ionicons name="reorder-three" size={24} color="rgba(255,255,255,0.4)" />
+                                                            </View>
+                                                        </Pressable>
+                                                    );
+                                                });
+                                            })()}
+                                        </View>
+                                    </ScrollView>
+                                </View>
+                            </Animated.View>
+                        ) : (
+                            // Album Art View - Original spacing
+                            <Animated.View 
+                                entering={FadeIn.duration(200)}
+                                exiting={FadeOut.duration(200)}
+                                layout={Layout.duration(300)}
+                                className="items-center justify-center flex-1 my-8"
+                            >
+                                <View className="absolute w-full aspect-square bg-purple-500/30 blur-2xl rounded-full scale-0.9" />
+                                <View className="w-full aspect-square bg-white rounded-3xl overflow-hidden shadow-2xl elevation-10">
+                                    {currentTrack.image ? (
+                                        <Image
+                                            source={{ uri: currentTrack.image }}
+                                            className="w-full h-full"
+                                            resizeMode="cover"
+                                        />
+                                    ) : (
+                                        <View className="w-full h-full bg-slate-800 items-center justify-center">
+                                            <Ionicons name="musical-note" size={80} color="white" />
+                                        </View>
+                                    )}
+                                </View>
+                            </Animated.View>
+                        )}
+
+                        <Animated.View 
+                            layout={Layout.duration(300)}
+                            className={`flex-row justify-between items-center ${showQueue ? 'mb-3' : 'mb-6'}`}
+                        >
                             <View className="flex-1 mr-4">
-                                <Text className="text-2xl font-bold text-white mb-1" numberOfLines={1}>
+                                <Text className={`font-bold text-white mb-1 ${showQueue ? 'text-xl' : 'text-2xl'}`} numberOfLines={1}>
                                     {currentTrack.title}
                                 </Text>
-                                <Text className="text-lg text-white/60" numberOfLines={1}>
+                                <Text className={`text-white/60 ${showQueue ? 'text-base' : 'text-lg'}`} numberOfLines={1}>
                                     {currentTrack.artist || "Unknown Artist"}
                                 </Text>
                             </View>
@@ -274,16 +372,19 @@ export const FullPlayer = () => {
                             >
                                 <Ionicons
                                     name={isCurrentTrackFavorite ? "heart" : "heart-outline"}
-                                    size={28}
+                                    size={showQueue ? 24 : 28}
                                     color={isCurrentTrackFavorite ? "#ef4444" : "white"}
                                 />
                             </Pressable>
-                        </View>
+                        </Animated.View>
 
-                        <View className="mb-6">
+                        <Animated.View 
+                            layout={Layout.duration(300)}
+                            className={showQueue ? 'mb-4' : 'mb-6'}
+                        >
                             <GestureDetector gesture={Gesture.Simultaneous(seekGesture, tapGesture)}>
                                 <View
-                                    className="py-4"
+                                    className={showQueue ? 'py-2' : 'py-4'}
                                     onLayout={(e) => { barWidth.value = e.nativeEvent.layout.width; }}
                                 >
                                     <Animated.View
@@ -295,45 +396,56 @@ export const FullPlayer = () => {
                                 </View>
                             </GestureDetector>
                             <DisplayTime />
-                        </View>
+                        </Animated.View>
 
-                        <View className="flex-row justify-between items-center mb-8">
+                        <Animated.View 
+                            layout={Layout.duration(300)}
+                            className={`flex-row justify-between items-center ${showQueue ? 'mb-6' : 'mb-8'}`}
+                        >
                             <Pressable className="active:opacity-50">
                                 <Ionicons name="repeat" size={24} color="white" style={{ opacity: 0.7 }} />
                             </Pressable>
 
-                            <View className="flex-row items-center gap-8">
+                            <View className={`flex-row items-center ${showQueue ? 'gap-6' : 'gap-8'}`}>
                                 <Pressable onPress={() => playPrevious()} className="active:opacity-50">
-                                    <Ionicons name="play-skip-back" size={36} color="white" />
+                                    <Ionicons name="play-skip-back" size={showQueue ? 32 : 36} color="white" />
                                 </Pressable>
 
                                 <Pressable
-                                    className="w-20 h-20 items-center justify-center active:scale-95 transition-transform"
+                                    className={`items-center justify-center active:scale-95 ${showQueue ? 'w-16 h-16' : 'w-20 h-20'}`}
                                     onPress={() => togglePlayback()}
                                 >
                                     <Ionicons
                                         name={isPlaying ? "pause-circle" : "play-circle"}
-                                        size={80}
+                                        size={showQueue ? 64 : 80}
                                         color="white"
                                     />
                                 </Pressable>
 
                                 <Pressable onPress={() => playNext()} className="active:opacity-50">
-                                    <Ionicons name="play-skip-forward" size={36} color="white" />
+                                    <Ionicons name="play-skip-forward" size={showQueue ? 32 : 36} color="white" />
                                 </Pressable>
                             </View>
 
                             <Pressable className="active:opacity-50">
                                 <Ionicons name="shuffle" size={24} color="white" style={{ opacity: 0.7 }} />
                             </Pressable>
-                        </View>
+                        </Animated.View>
 
                         <View className="flex-row justify-between items-center px-4">
                             <Pressable className="active:opacity-50">
                                 <Ionicons name="chatbubble-outline" size={24} color="white" style={{ opacity: 0.7 }} />
                             </Pressable>
-                            <Pressable className="active:opacity-50">
-                                <Ionicons name="list" size={24} color="white" style={{ opacity: 0.7 }} />
+                            <Pressable 
+                                className="active:opacity-50"
+                                onPress={() => $showPlayerQueue.set(!showQueue)}
+                            >
+                                <Ionicons 
+                                    name="list" 
+                                    size={24} 
+                                    color={showQueue ? Colors.dark.accent : "white"} 
+                                    style={{ opacity: showQueue ? 1 : 0.7 }} 
+                                />
                             </Pressable>
                         </View>
                     </View>

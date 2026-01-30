@@ -2,6 +2,7 @@ import { atom } from 'nanostores';
 
 export const $barsVisible = atom(true);
 export const $isPlayerExpanded = atom(false);
+export const $showPlayerQueue = atom(false);
 
 let lastScrollY = 0;
 let showTimeout: NodeJS.Timeout | null = null;
