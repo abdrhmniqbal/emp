@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
 import { useUniwind } from "uniwind";
@@ -10,9 +10,10 @@ import { EmptyState } from "@/components/empty-state";
 interface SongListProps {
     data: Track[];
     onSongPress?: (track: Track) => void;
+    showNumbers?: boolean;
 }
 
-export const SongList: React.FC<SongListProps> = ({ data, onSongPress }) => {
+export const SongList: React.FC<SongListProps> = ({ data, onSongPress, showNumbers = false }) => {
     const { theme: currentTheme } = useUniwind();
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
 
@@ -30,12 +31,21 @@ export const SongList: React.FC<SongListProps> = ({ data, onSongPress }) => {
 
     return (
         <View className="gap-2">
-            {data.map((music) => (
+            {data.map((music, index) => (
                 <Item
                     key={music.id}
                     onPress={() => handlePress(music)}
                 >
-                    <ItemImage icon="musical-note" image={music.image} />
+                    {showNumbers ? (
+                        <View className="flex-row items-center gap-3">
+                            <ItemImage icon="musical-note" image={music.image} />
+                            <View className="w-8 items-center justify-center">
+                                <Text className="text-lg font-bold text-foreground">{index + 1}</Text>
+                            </View>
+                        </View>
+                    ) : (
+                        <ItemImage icon="musical-note" image={music.image} />
+                    )}
                     <ItemContent>
                         <ItemTitle>{music.title}</ItemTitle>
                         <ItemDescription>{music.artist || "Unknown Artist"}</ItemDescription>

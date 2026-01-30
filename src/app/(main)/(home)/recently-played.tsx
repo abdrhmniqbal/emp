@@ -1,5 +1,4 @@
-import { View, Text, FlatList, RefreshControl } from "react-native";
-import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
+import { View, Text, ScrollView, RefreshControl } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { playTrack, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
@@ -12,6 +11,7 @@ import { useFocusEffect } from "expo-router";
 import { useUniwind } from "uniwind";
 import { useStore } from "@nanostores/react";
 import { startIndexing, $indexerState } from "@/utils/media-indexer";
+import { SongList } from "@/components/library/song-list";
 
 export default function RecentlyPlayedScreen() {
     const { theme: currentTheme } = useUniwind();
@@ -54,48 +54,12 @@ export default function RecentlyPlayedScreen() {
         }
     }, [history]);
 
-    const renderItem = useCallback(({ item }: { item: Track }) => (
-        <Item onPress={() => playTrack(item)}>
-            <ItemImage icon="musical-note" image={item.image} />
-            <ItemContent>
-                <ItemTitle>{item.title}</ItemTitle>
-                <ItemDescription>{item.artist || "Unknown Artist"}</ItemDescription>
-            </ItemContent>
-            <ItemAction>
-                <Ionicons name="ellipsis-horizontal" size={24} color={theme.muted} />
-            </ItemAction>
-        </Item>
-    ), [theme.muted]);
-
-    const keyExtractor = useCallback((item: Track, index: number) => `${item.id}-${index}`, []);
-
     return (
         <View className="flex-1 bg-background">
-            {history.length > 0 && (
-                <View className="flex-row px-4 py-4 gap-4">
-                    <Button
-                        className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                        onPress={handlePlayFirst}
-                    >
-                        <Ionicons name="play" size={20} color={theme.foreground} />
-                        <Text className="text-lg font-bold text-foreground uppercase">Play</Text>
-                    </Button>
-                    <Button
-                        className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                        onPress={handleShuffle}
-                    >
-                        <Ionicons name="shuffle" size={20} color={theme.foreground} />
-                        <Text className="text-lg font-bold text-foreground uppercase">Shuffle</Text>
-                    </Button>
-                </View>
-            )}
-
-            <FlatList
-                data={history}
-                keyExtractor={keyExtractor}
-                renderItem={renderItem}
-                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 200 }}
+            <ScrollView
                 className="flex-1"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 200 }}
                 onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
                 onScrollBeginDrag={handleScrollStart}
                 onMomentumScrollEnd={handleScrollStop}
@@ -104,15 +68,39 @@ export default function RecentlyPlayedScreen() {
                 refreshControl={
                     <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
                 }
-                ListEmptyComponent={
-                    <EmptyState
-                        icon="time-outline"
-                        title="No recently played"
-                        message="Your listening history will appear here once you start playing music."
-                        className="mt-12"
-                    />
-                }
-            />
+            >
+                {history.length > 0 && (
+                    <View className="flex-row px-4 py-4 gap-4">
+                        <Button
+                            className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
+                            onPress={handlePlayFirst}
+                        >
+                            <Ionicons name="play" size={20} color={theme.foreground} />
+                            <Text className="text-lg font-bold text-foreground uppercase">Play</Text>
+                        </Button>
+                        <Button
+                            className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
+                            onPress={handleShuffle}
+                        >
+                            <Ionicons name="shuffle" size={20} color={theme.foreground} />
+                            <Text className="text-lg font-bold text-foreground uppercase">Shuffle</Text>
+                        </Button>
+                    </View>
+                )}
+
+                <View className="px-4">
+                    {history.length === 0 ? (
+                        <EmptyState
+                            icon="time-outline"
+                            title="No recently played"
+                            message="Your listening history will appear here once you start playing music."
+                            className="mt-12"
+                        />
+                    ) : (
+                        <SongList data={history} />
+                    )}
+                </View>
+            </ScrollView>
         </View>
     );
 }

@@ -1,6 +1,5 @@
-import { View, Text, FlatList, Pressable, RefreshControl } from "react-native";
+import { View, Text, ScrollView, Pressable, RefreshControl } from "react-native";
 import { useState, useCallback } from "react";
-import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank, ItemAction } from "@/components/item";
 import { EmptyState } from "@/components/empty-state";
 import { playTrack, $tracks, Track } from "@/store/player-store";
 import { Colors } from "@/constants/colors";
@@ -13,6 +12,7 @@ import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { startIndexing, $indexerState } from "@/utils/media-indexer";
 import { getTopSongs } from "@/utils/database";
 import { useFocusEffect } from "expo-router";
+import { SongList } from "@/components/library/song-list";
 
 const TABS = ["Realtime", "Daily", "Weekly"] as const;
 type TabType = typeof TABS[number];
@@ -62,22 +62,6 @@ export default function TopSongsScreen() {
         }
     }, [currentSongs]);
 
-    const renderItem = useCallback(({ item, index }: { item: Track; index: number }) => (
-        <Item onPress={() => playTrack(item)}>
-            <ItemImage icon="musical-note" image={item.image} />
-            <ItemRank>{index + 1}</ItemRank>
-            <ItemContent>
-                <ItemTitle>{item.title}</ItemTitle>
-                <ItemDescription>{item.artist || "Unknown Artist"}</ItemDescription>
-            </ItemContent>
-            <ItemAction>
-                <Ionicons name="ellipsis-horizontal" size={24} color={theme.muted} />
-            </ItemAction>
-        </Item>
-    ), [theme.muted]);
-
-    const keyExtractor = useCallback((item: Track, index: number) => `${activeTab}-${item.id}-${index}`, [activeTab]);
-
     return (
         <View className="flex-1 bg-background">
             <View className="flex-row px-4 py-4 gap-6">
@@ -92,55 +76,56 @@ export default function TopSongsScreen() {
                 ))}
             </View>
 
-            {currentSongs.length > 0 && (
-                <View className="flex-row px-4 py-4 gap-4">
-                    <Button
-                        className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                        onPress={handlePlayAll}
-                    >
-                        <Ionicons name="play" size={20} color={theme.foreground} />
-                        <Text className="text-lg font-bold text-foreground uppercase">Play</Text>
-                    </Button>
-                    <Button
-                        className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
-                        onPress={handleShuffle}
-                    >
-                        <Ionicons name="shuffle" size={20} color={theme.foreground} />
-                        <Text className="text-lg font-bold text-foreground uppercase">Shuffle</Text>
-                    </Button>
-                </View>
-            )}
-
-            <Animated.View
-                key={activeTab}
-                entering={FadeInRight.duration(300)}
-                exiting={FadeOutLeft.duration(300)}
+            <ScrollView
                 className="flex-1"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 200 }}
+                onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
+                onScrollBeginDrag={handleScrollStart}
+                onMomentumScrollEnd={handleScrollStop}
+                onScrollEndDrag={handleScrollStop}
+                scrollEventThrottle={16}
+                refreshControl={
+                    <RefreshControl refreshing={indexerState.isIndexing} onRefresh={handleRefresh} tintColor={theme.accent} />
+                }
             >
-                <FlatList
-                    data={currentSongs}
-                    keyExtractor={keyExtractor}
-                    renderItem={renderItem}
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 200 }}
-                    className="flex-1"
-                    onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
-                    onScrollBeginDrag={handleScrollStart}
-                    onMomentumScrollEnd={handleScrollStop}
-                    onScrollEndDrag={handleScrollStop}
-                    scrollEventThrottle={16}
-                    refreshControl={
-                        <RefreshControl refreshing={indexerState.isIndexing} onRefresh={handleRefresh} tintColor={theme.accent} />
-                    }
-                    ListEmptyComponent={
+                {currentSongs.length > 0 && (
+                    <View className="flex-row px-4 py-4 gap-4">
+                        <Button
+                            className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
+                            onPress={handlePlayAll}
+                        >
+                            <Ionicons name="play" size={20} color={theme.foreground} />
+                            <Text className="text-lg font-bold text-foreground uppercase">Play</Text>
+                        </Button>
+                        <Button
+                            className="flex-1 h-14 rounded-xl bg-default flex-row items-center justify-center gap-2"
+                            onPress={handleShuffle}
+                        >
+                            <Ionicons name="shuffle" size={20} color={theme.foreground} />
+                            <Text className="text-lg font-bold text-foreground uppercase">Shuffle</Text>
+                        </Button>
+                    </View>
+                )}
+
+                <Animated.View
+                    key={activeTab}
+                    entering={FadeInRight.duration(300)}
+                    exiting={FadeOutLeft.duration(300)}
+                    className="px-4"
+                >
+                    {currentSongs.length === 0 ? (
                         <EmptyState
                             icon="musical-notes-outline"
                             title="No top songs yet"
                             message="Play some music to see your most played tracks here!"
                             className="mt-12"
                         />
-                    }
-                />
-            </Animated.View>
+                    ) : (
+                        <SongList data={currentSongs} showNumbers />
+                    )}
+                </Animated.View>
+            </ScrollView>
         </View>
     );
 }
