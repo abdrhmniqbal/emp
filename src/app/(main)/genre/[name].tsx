@@ -63,7 +63,6 @@ export default function GenreDetailsScreen() {
             const albumList = await getAlbumsByGenre(genreName);
             setAlbums(albumList);
         } catch (e) {
-            console.warn('Failed to load genre data:', e);
             setGenreTrackIds(new Set());
         } finally {
             setIsLoading(false);

@@ -37,7 +37,6 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
       await loadFavorites();
       await loadTracks();
     } catch (e) {
-      console.error('Error loading data:', e);
     }
   }
 

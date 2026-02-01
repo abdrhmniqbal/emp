@@ -119,10 +119,8 @@ export default function SearchScreen() {
     const loadGenres = useCallback(async () => {
         try {
             const genres = await getAllGenres();
-            console.log('Loaded genres:', genres.length, genres);
             setGenreList(genres);
         } catch (error) {
-            console.error('Failed to load genres:', error);
         }
     }, []);
 

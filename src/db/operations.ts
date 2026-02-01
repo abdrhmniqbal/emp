@@ -26,7 +26,6 @@ export async function addToHistory(trackId: string): Promise<void> {
       }
     }
   } catch (e) {
-    console.warn('Failed to add to history:', e);
   }
 }
 
@@ -42,7 +41,6 @@ export async function incrementPlayCount(trackId: string): Promise<void> {
 
     await addToHistory(trackId);
   } catch (e) {
-    console.warn('Failed to increment play count:', e);
   }
 }
 
@@ -87,7 +85,6 @@ export async function addFavorite(entry: FavoriteEntry): Promise<void> {
       } as any)
       .where(eq(table.id, entry.id));
   } catch (e) {
-    console.warn('Failed to add favorite:', e);
   }
 }
 
@@ -103,7 +100,6 @@ export async function removeFavorite(id: string, type: FavoriteType): Promise<vo
       } as any)
       .where(eq(table.id, id));
   } catch (e) {
-    console.warn('Failed to remove favorite:', e);
   }
 }
 
@@ -136,7 +132,6 @@ export async function isFavorite(id: string, type: FavoriteType): Promise<boolea
     
     return !!result;
   } catch (e) {
-    console.warn('Failed to check favorite:', e);
     return false;
   }
 }
@@ -214,7 +209,6 @@ export async function getFavorites(type?: FavoriteType): Promise<FavoriteEntry[]
 
     return favorites;
   } catch (e) {
-    console.warn('Failed to get favorites:', e);
     return [];
   }
 }
@@ -241,7 +235,6 @@ export async function toggleFavoriteDB(trackId: string, isFavoriteValue: boolean
         .where(eq(tracks.id, trackId));
     }
   } catch (e) {
-    console.warn('Failed to toggle favorite:', e);
   }
 }
 
@@ -255,7 +248,6 @@ export async function getAllGenres(): Promise<string[]> {
 
     return result.map(g => g.name);
   } catch (e) {
-    console.warn('Failed to get all genres:', e);
     return [];
   }
 }
@@ -268,25 +260,19 @@ export async function getTopSongsByGenre(genre: string, limit: number = 25): Pro
     });
 
     if (!genreRecord) {
-      console.log('Genre not found:', genre);
       return [];
     }
-
-    console.log('Found genre:', genreRecord.name, 'ID:', genreRecord.id);
 
     // Get track IDs linked to this genre
     const trackGenreLinks = await db.query.trackGenres.findMany({
       where: eq(trackGenres.genreId, genreRecord.id),
     });
 
-    console.log('Track genre links found:', trackGenreLinks.length);
-
     if (trackGenreLinks.length === 0) {
       return [];
     }
 
     const trackIds = trackGenreLinks.map(tg => tg.trackId);
-    console.log('Track IDs:', trackIds.slice(0, 5), '...');
 
     // Fetch tracks by IDs, filter deleted and sort by play count
     const songs = await db.query.tracks.findMany({
@@ -298,13 +284,10 @@ export async function getTopSongsByGenre(genre: string, limit: number = 25): Pro
       limit,
     });
 
-    console.log('Songs found:', songs.length);
     const playedSongs = songs.filter((t: any) => t.playCount && t.playCount > 0);
-    console.log('Songs with plays:', playedSongs.length);
 
     return playedSongs;
   } catch (e) {
-    console.warn('Failed to get top songs by genre:', e);
     return [];
   }
 }
@@ -342,7 +325,6 @@ export async function getAllSongsByGenre(genre: string): Promise<any[]> {
 
     return songs;
   } catch (e) {
-    console.warn('Failed to get all songs by genre:', e);
     return [];
   }
 }
@@ -414,7 +396,6 @@ export async function getAlbumsByGenre(genre: string): Promise<AlbumInfo[]> {
 
     return Array.from(albumMap.values()).sort((a, b) => b.trackCount - a.trackCount);
   } catch (e) {
-    console.warn('Failed to get albums by genre:', e);
     return [];
   }
 }
@@ -457,7 +438,6 @@ export async function getHistory(): Promise<Track[]> {
         discNumber: h.track.discNumber || undefined,
       }));
   } catch (e) {
-    console.warn('Failed to get history:', e);
     return [];
   }
 }
@@ -556,7 +536,6 @@ export async function getTopSongs(
         }));
     }
   } catch (e) {
-    console.warn('Failed to get top songs:', e);
     return [];
   }
 }

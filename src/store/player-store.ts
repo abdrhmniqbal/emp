@@ -74,7 +74,6 @@ export const setupPlayer = async () => {
 
         isPlayerReady = true;
     } catch (e) {
-        console.error("Failed to setup TrackPlayer", e);
     }
 };
 
@@ -143,7 +142,6 @@ export const PlaybackService = async () => {
 
 export const playTrack = async (track: Track) => {
     if (!isPlayerReady) {
-        console.warn("Player not ready");
         return;
     }
 
@@ -180,7 +178,6 @@ export const playTrack = async (track: Track) => {
         await TrackPlayer.play();
         $isPlaying.set(true);
     } catch (e) {
-        console.error("Failed to play track", e);
     }
 };
 
@@ -189,7 +186,6 @@ export const pauseTrack = async () => {
         await TrackPlayer.pause();
         $isPlaying.set(false);
     } catch (e) {
-        console.error("Failed to pause track", e);
     }
 };
 
@@ -198,7 +194,6 @@ export const resumeTrack = async () => {
         await TrackPlayer.play();
         $isPlaying.set(true);
     } catch (e) {
-        console.error("Failed to resume track", e);
     }
 };
 
@@ -276,7 +271,6 @@ export const seekTo = async (seconds: number) => {
     try {
         await TrackPlayer.seekTo(seconds);
     } catch (e) {
-        console.error("Failed to seek", e);
     }
 };
 
@@ -349,6 +343,5 @@ export const loadTracks = async () => {
         
         $tracks.set(trackList);
     } catch (error) {
-        console.error('Failed to load tracks:', error);
     }
 };

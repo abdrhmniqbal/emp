@@ -76,7 +76,6 @@ export const startIndexing = async (forceFullScan = false, showProgress = true) 
             }, 3000);
         }
     } catch (error) {
-        console.error('Indexing error:', error);
         updateState({
             isIndexing: false,
             phase: 'idle',

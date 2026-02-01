@@ -54,7 +54,6 @@ export default function GenreTopSongsScreen() {
                 setGenreTrackIds(new Set());
             }
         } catch (e) {
-            console.warn('Failed to load genre track IDs:', e);
             setGenreTrackIds(new Set());
         } finally {
             setIsLoading(false);

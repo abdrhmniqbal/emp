@@ -64,7 +64,6 @@ export const FullPlayer = () => {
                         setColors({ bg: result.background || '#1a1a1a', primary: result.primary || '#cccccc', secondary: result.detail || '#000000' });
                     }
                 } catch (e) {
-                    console.warn("Failed to extract colors (native module might be missing, try rebuilding):", e);
                 }
             };
             fetchColors();

@@ -39,7 +39,6 @@ export default function GenreAlbumsScreen() {
             const albumList = await getAlbumsByGenre(genreName);
             setAlbums(albumList);
         } catch (e) {
-            console.warn('Failed to load albums:', e);
             setAlbums([]);
         } finally {
             setIsLoading(false);

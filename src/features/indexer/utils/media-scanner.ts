@@ -210,7 +210,6 @@ async function processBatch(
         );
       }
     } catch (error) {
-      console.error("Error processing track:", asset.filename, error);
     }
   }
 

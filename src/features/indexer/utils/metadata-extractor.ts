@@ -67,7 +67,6 @@ export async function extractMetadata(
       artwork: artwork || undefined,
     };
   } catch (error) {
-    console.warn("Failed to extract metadata:", error);
     return {
       title: cleanFilename(filename),
       artists: [],
@@ -136,7 +135,6 @@ export async function saveArtworkToCache(
 
     return artworkPath;
   } catch (error) {
-    console.warn("Failed to save artwork:", error);
     return undefined;
   }
 }
