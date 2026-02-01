@@ -16,8 +16,7 @@ import { setupPlayer, PlaybackService } from "@/store/player-store";
 import { scanMediaLibrary } from "@/features/indexer/utils/media-scanner";
 import { Providers } from "@/components/providers";
 
-// Register playback service for background audio controls
-TrackPlayer.registerPlaybackService(() => PlaybackService);
+let isPlaybackServiceRegistered = false;
 
 export default function Layout() {
   const { theme: currentTheme } = useUniwind();
@@ -26,16 +25,26 @@ export default function Layout() {
 
   useEffect(() => {
     const init = async () => {
+      // Register playback service only once
+      if (!isPlaybackServiceRegistered) {
+        try {
+          TrackPlayer.registerPlaybackService(() => PlaybackService);
+          isPlaybackServiceRegistered = true;
+        } catch {
+          // Already registered, ignore
+        }
+      }
+
       // Setup audio player
       await setupPlayer();
-      
+
       // Request permissions
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status === 'granted') {
         // Scan media library on startup
         scanMediaLibrary(undefined, false);
       }
-      
+
       setIsInitialized(true);
     };
 

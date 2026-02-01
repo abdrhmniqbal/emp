@@ -51,6 +51,11 @@ let currentTrackIndex = -1;
 
 export const setupPlayer = async () => {
     try {
+        // Check if player is already initialized
+        if (isPlayerReady) {
+            return;
+        }
+
         await TrackPlayer.setupPlayer({
             autoHandleInterruptions: true,
         });
@@ -73,7 +78,11 @@ export const setupPlayer = async () => {
         });
 
         isPlayerReady = true;
-    } catch (e) {
+    } catch (e: any) {
+        // If already initialized, mark as ready
+        if (e?.message?.includes('already been initialized')) {
+            isPlayerReady = true;
+        }
     }
 };
 
