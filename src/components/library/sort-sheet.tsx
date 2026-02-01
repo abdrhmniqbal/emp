@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { View, Text, TouchableOpacity, Modal, Pressable } from "react-native";
+import React, { useCallback, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
     useSharedValue,
@@ -11,7 +11,7 @@ import Animated, {
     SlideInDown,
     SlideOutDown
 } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useUniwind } from "uniwind";
 import { Colors } from "@/constants/colors";
 
@@ -43,15 +43,20 @@ export function SortSheet<T extends string>({
     const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
     const translateY = useSharedValue(0);
 
+    useEffect(() => {
+        if (!visible) {
+            translateY.value = 0;
+        }
+    }, [visible, translateY]);
+
     const closeSheet = useCallback(() => {
         translateY.value = 0;
         onClose();
     }, [onClose, translateY]);
 
     const dragGesture = Gesture.Pan()
-        .onStart(() => {
-            // Optional: Haptic feedback here
-        })
+        .activeOffsetY([-10, 10])
+        .failOffsetX([-100, 100])
         .onUpdate((event) => {
             if (event.translationY > 0) {
                 translateY.value = event.translationY;
@@ -59,7 +64,7 @@ export function SortSheet<T extends string>({
         })
         .onEnd((event) => {
             if (event.translationY > 100 || event.velocityY > 500) {
-                translateY.value = withTiming(600, { duration: 200 }, () => {
+                translateY.value = withTiming(400, { duration: 200 }, () => {
                     runOnJS(closeSheet)();
                 });
             } else {
@@ -73,11 +78,9 @@ export function SortSheet<T extends string>({
 
     const handleSelect = (field: T) => {
         if (currentField === field) {
-            // Toggle order
             const newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
             onSelect(field, newOrder);
         } else {
-            // New field, default to asc
             onSelect(field, 'asc');
         }
     };
@@ -89,28 +92,29 @@ export function SortSheet<T extends string>({
             animationType="none"
             onRequestClose={closeSheet}
         >
-            <View style={{ flex: 1 }}>
-                <Animated.View
-                    entering={FadeIn}
-                    exiting={FadeOut}
-                    className="absolute inset-0 bg-black/50"
-                >
-                    <TouchableOpacity
-                        style={{ flex: 1 }}
-                        activeOpacity={1}
-                        onPress={closeSheet}
-                    />
-                </Animated.View>
+            <GestureHandlerRootView className="flex-1">
+                <View className="flex-1">
+                    <Animated.View
+                        entering={FadeIn}
+                        exiting={FadeOut}
+                        className="absolute inset-0 bg-black/50"
+                    >
+                        <TouchableOpacity
+                            className="flex-1"
+                            activeOpacity={1}
+                            onPress={closeSheet}
+                        />
+                    </Animated.View>
 
-                <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: -20 }}>
                     <GestureDetector gesture={dragGesture}>
                         <Animated.View
                             entering={SlideInDown.duration(300)}
                             exiting={SlideOutDown.duration(250)}
-                            style={[animatedStyle]}
+                            className="absolute bottom-0 left-0 right-0"
+                            style={animatedStyle}
                         >
-                            <View className="bg-surface-secondary rounded-t-3xl p-6 pb-20">
-                                <View className="h-6 -mt-4 mb-2 items-center justify-center">
+                            <View className="bg-surface-secondary rounded-t-3xl p-6">
+                                <View className="h-8 -mt-4 mb-2 items-center justify-center">
                                     <View className="w-12 h-1.5 bg-divider rounded-full" />
                                 </View>
 
@@ -127,7 +131,7 @@ export function SortSheet<T extends string>({
                                             </Text>
 
                                             {currentField === option.field && (
-                                                <View className=" p-2 rounded-full">
+                                                <View className="p-2 rounded-full">
                                                     <Ionicons
                                                         name={currentOrder === 'asc' ? "arrow-up" : "arrow-down"}
                                                         size={24}
@@ -138,12 +142,12 @@ export function SortSheet<T extends string>({
                                         </TouchableOpacity>
                                     ))}
                                 </View>
+                                <View className="h-8" />
                             </View>
                         </Animated.View>
                     </GestureDetector>
                 </View>
-            </View>
+            </GestureHandlerRootView>
         </Modal>
     );
 }
-
