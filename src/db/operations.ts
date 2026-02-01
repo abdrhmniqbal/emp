@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
-import { tracks, playHistory, artists, albums, playlists } from "@/db/schema";
-import { eq, desc, sql, and } from "drizzle-orm";
+import { tracks, playHistory, artists, albums, playlists, genres, trackGenres } from "@/db/schema";
+import { eq, desc, sql, and, inArray } from "drizzle-orm";
 import type { Track } from "@/store/player-store";
 
 // Play History Operations
@@ -248,19 +248,12 @@ export async function toggleFavoriteDB(trackId: string, isFavoriteValue: boolean
 // Genre Operations
 export async function getAllGenres(): Promise<string[]> {
   try {
-    const result = await db.query.tracks.findMany({
-      where: eq(tracks.isDeleted, 0),
+    // Query the genres table directly - genres are stored separately
+    const result = await db.query.genres.findMany({
+      orderBy: (genres, { asc }) => [asc(genres.name)],
     });
 
-    // Extract unique genres
-    const genres = new Set<string>();
-    result.forEach((track: any) => {
-      if (track.genre) {
-        genres.add(track.genre);
-      }
-    });
-
-    return Array.from(genres).sort();
+    return result.map(g => g.name);
   } catch (e) {
     console.warn('Failed to get all genres:', e);
     return [];
@@ -269,15 +262,87 @@ export async function getAllGenres(): Promise<string[]> {
 
 export async function getTopSongsByGenre(genre: string, limit: number = 25): Promise<any[]> {
   try {
+    // First find the genre by name
+    const genreRecord = await db.query.genres.findFirst({
+      where: eq(genres.name, genre),
+    });
+
+    if (!genreRecord) {
+      console.log('Genre not found:', genre);
+      return [];
+    }
+
+    console.log('Found genre:', genreRecord.name, 'ID:', genreRecord.id);
+
+    // Get track IDs linked to this genre
+    const trackGenreLinks = await db.query.trackGenres.findMany({
+      where: eq(trackGenres.genreId, genreRecord.id),
+    });
+
+    console.log('Track genre links found:', trackGenreLinks.length);
+
+    if (trackGenreLinks.length === 0) {
+      return [];
+    }
+
+    const trackIds = trackGenreLinks.map(tg => tg.trackId);
+    console.log('Track IDs:', trackIds.slice(0, 5), '...');
+
+    // Fetch tracks by IDs, filter deleted and sort by play count
     const songs = await db.query.tracks.findMany({
-      where: (t: any) => sql`${t.genre} = ${genre} AND ${t.isDeleted} = 0`,
+      where: and(
+        inArray(tracks.id, trackIds),
+        eq(tracks.isDeleted, 0)
+      ),
       orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
       limit,
     });
 
-    return songs.filter((t: any) => t.playCount && t.playCount > 0);
+    console.log('Songs found:', songs.length);
+    const playedSongs = songs.filter((t: any) => t.playCount && t.playCount > 0);
+    console.log('Songs with plays:', playedSongs.length);
+
+    return playedSongs;
   } catch (e) {
     console.warn('Failed to get top songs by genre:', e);
+    return [];
+  }
+}
+
+export async function getAllSongsByGenre(genre: string): Promise<any[]> {
+  try {
+    // First find the genre by name
+    const genreRecord = await db.query.genres.findFirst({
+      where: eq(genres.name, genre),
+    });
+
+    if (!genreRecord) {
+      return [];
+    }
+
+    // Get track IDs linked to this genre
+    const trackGenreLinks = await db.query.trackGenres.findMany({
+      where: eq(trackGenres.genreId, genreRecord.id),
+    });
+
+    if (trackGenreLinks.length === 0) {
+      return [];
+    }
+
+    const trackIds = trackGenreLinks.map(tg => tg.trackId);
+
+    // Fetch all tracks by IDs, filter deleted
+    const songs = await db.query.tracks.findMany({
+      where: and(
+        inArray(tracks.id, trackIds),
+        eq(tracks.isDeleted, 0)
+      ),
+      orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
+    });
+
+    return songs;
+  } catch (e) {
+    console.warn('Failed to get all songs by genre:', e);
     return [];
   }
 }
@@ -287,28 +352,59 @@ export interface AlbumInfo {
   artist?: string;
   image?: string;
   trackCount: number;
+  year?: number;
 }
 
 export async function getAlbumsByGenre(genre: string): Promise<AlbumInfo[]> {
   try {
+    // First find the genre by name
+    const genreRecord = await db.query.genres.findFirst({
+      where: eq(genres.name, genre),
+    });
+
+    if (!genreRecord) {
+      return [];
+    }
+
+    // Get track IDs linked to this genre
+    const trackGenreLinks = await db.query.trackGenres.findMany({
+      where: eq(trackGenres.genreId, genreRecord.id),
+    });
+
+    if (trackGenreLinks.length === 0) {
+      return [];
+    }
+
+    const trackIds = trackGenreLinks.map(tg => tg.trackId);
+
+    // Fetch tracks with their albums and artists
     const tracksInGenre = await db.query.tracks.findMany({
-      where: (t: any) => sql`${t.genre} = ${genre} AND ${t.isDeleted} = 0 AND ${t.albumId} IS NOT NULL`,
+      where: and(
+        inArray(tracks.id, trackIds),
+        eq(tracks.isDeleted, 0),
+        sql`${tracks.albumId} IS NOT NULL`
+      ),
+      with: {
+        album: true,
+        artist: true,
+      },
     });
 
     // Group by album
     const albumMap = new Map<string, AlbumInfo>();
 
-    for (const track of tracksInGenre as any[]) {
-      if (track.albumId) {
-        const albumName = track.album || 'Unknown Album';
-        const key = `${albumName}-${track.artistId || ''}`;
+    for (const track of tracksInGenre) {
+      if (track.albumId && track.album) {
+        const albumName = track.album.title || 'Unknown Album';
+        const key = `${albumName}-${track.album.artistId || ''}`;
 
         if (!albumMap.has(key)) {
           albumMap.set(key, {
             name: albumName,
-            artist: track.artist,
-            image: track.image,
+            artist: track.artist?.name || undefined,
+            image: track.album.artwork || track.artwork || undefined,
             trackCount: 0,
+            year: track.album.year || track.year || undefined,
           });
         }
 

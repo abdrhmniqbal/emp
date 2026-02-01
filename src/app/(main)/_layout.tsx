@@ -102,6 +102,18 @@ export default function MainLayout() {
                     href: null,
                 }}
             />
+            <Tabs.Screen
+                name="genre/albums"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="genre/top-songs"
+                options={{
+                    href: null,
+                }}
+            />
         </Tabs>
     );
 }

@@ -136,9 +136,10 @@ async function processBatch(
             )
           : null;
 
-      // Get or create genres
+      // Get or create genres - use "Unknown" if no genres found
+      const genresToProcess = metadata.genres.length > 0 ? metadata.genres : ["Unknown"];
       const genreIds = await Promise.all(
-        metadata.genres.map((g) => getOrCreateGenre(g))
+        genresToProcess.map((g) => getOrCreateGenre(g))
       );
 
       // Insert track

@@ -117,8 +117,13 @@ export default function SearchScreen() {
     const [genreList, setGenreList] = useState<string[]>([]);
 
     const loadGenres = useCallback(async () => {
-        const genres = await getAllGenres();
-        setGenreList(genres);
+        try {
+            const genres = await getAllGenres();
+            console.log('Loaded genres:', genres.length, genres);
+            setGenreList(genres);
+        } catch (error) {
+            console.error('Failed to load genres:', error);
+        }
     }, []);
 
     useEffect(() => {
@@ -179,7 +184,7 @@ export default function SearchScreen() {
                 {/* Search Button */}
                 <Pressable
                     onPress={handleSearchPress}
-                    className="flex-row items-center bg-surface px-4 py-3 rounded-xl mb-6 active:opacity-70"
+                    className="flex-row items-center bg-default/50 px-4 py-3 rounded-xl mb-6 active:opacity-70"
                 >
                     <Ionicons name="search-outline" size={20} color={theme.muted} />
                     <Text className="text-muted ml-2 text-base">Search for songs, artists, albums...</Text>
