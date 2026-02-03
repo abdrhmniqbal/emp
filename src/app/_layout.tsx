@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { View } from "react-native";
 import { Stack } from "expo-router";
 import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { useUniwind } from "uniwind";
 import { useEffect, useState } from "react";
 import * as MediaLibrary from "expo-media-library";
@@ -20,7 +20,7 @@ let isPlaybackServiceRegistered = false;
 
 export default function Layout() {
   const { theme: currentTheme } = useUniwind();
-  const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+  const theme = useThemeColors();
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {

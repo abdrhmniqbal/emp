@@ -4,8 +4,7 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useStore } from "@nanostores/react";
 import { $tracks, playTrack, Track } from "@/store/player-store";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Button } from "heroui-native";
 import { useIsFavorite, toggleFavoriteItem } from "@/store/favorites-store";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
@@ -35,32 +34,29 @@ function formatDuration(totalSeconds: number): string {
     return `${minutes}m ${seconds}s`;
 }
 
-// Sort tracks by disc number, then track number
 function sortByDiscAndTrack(tracks: Track[]): Track[] {
     return [...tracks].sort((a, b) => {
         const discA = a.discNumber || 1;
         const discB = b.discNumber || 1;
-        
+
         if (discA !== discB) {
             return discA - discB;
         }
-        
+
         const trackA = a.trackNumber || 0;
         const trackB = b.trackNumber || 0;
-        
+
         if (trackA !== trackB) {
             return trackA - trackB;
         }
-        
-        // Fallback to title if track numbers are equal or missing
+
         return a.title.localeCompare(b.title);
     });
 }
 
-// Group tracks by disc number
 function groupTracksByDisc(tracks: Track[]): Map<number, Track[]> {
     const groups = new Map<number, Track[]>();
-    
+
     for (const track of tracks) {
         const discNumber = track.discNumber || 1;
         if (!groups.has(discNumber)) {
@@ -68,7 +64,7 @@ function groupTracksByDisc(tracks: Track[]): Map<number, Track[]> {
         }
         groups.get(discNumber)!.push(track);
     }
-    
+
     return groups;
 }
 
@@ -77,8 +73,7 @@ export default function AlbumDetailsScreen() {
     const navigation = useNavigation();
     const router = useRouter();
     const tracks = useStore($tracks);
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const theme = useThemeColors();
     const allSortConfigs = useStore($sortConfig);
 
     const albumName = decodeURIComponent(name || "");
@@ -105,7 +100,7 @@ export default function AlbumDetailsScreen() {
 
     // Sort configuration for album songs
     const sortConfig = allSortConfigs["AlbumSongs"] || { field: 'title' as SortField, order: 'asc' as const };
-    
+
     // Sort tracks - use disc/track order by default, otherwise use user sort preference
     const sortedTracks = (() => {
         // If user has selected a non-default sort, use that

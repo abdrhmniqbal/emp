@@ -1,10 +1,8 @@
 import { Stack } from "expo-router";
-import { Colors } from "@/constants/colors";
-import { useUniwind } from "uniwind";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 export default function SearchLayout() {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
 
     return (
         <Stack

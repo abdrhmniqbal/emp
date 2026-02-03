@@ -2,16 +2,14 @@ import React, { useState, useLayoutEffect, useCallback } from "react";
 import { View, Text, ScrollView, Pressable, TextInput } from "react-native";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { playTrack, $tracks, Track } from "@/store/player-store";
 import { SearchResults } from "@/components/search/search-results";
 import { RecentSearches, RecentSearchItem } from "@/components/search/recent-searches";
 import { useStore } from "@nanostores/react";
 
 export default function SearchInteractionScreen() {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const navigation = useNavigation();
     const router = useRouter();
     const { query: initialQuery } = useLocalSearchParams<{ query?: string }>();

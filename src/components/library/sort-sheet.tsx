@@ -12,8 +12,7 @@ import Animated, {
     SlideOutDown
 } from "react-native-reanimated";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 export interface SortOption<T extends string> {
     field: T;
@@ -39,8 +38,7 @@ export function SortSheet<T extends string>({
     onSelect,
     title = "Sort By"
 }: SortSheetProps<T>) {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const translateY = useSharedValue(0);
 
     useEffect(() => {

@@ -3,8 +3,7 @@ import { Text, View, ScrollView, Pressable, RefreshControl } from "react-native"
 import { useNavigation, useRouter } from "expo-router";
 import { Card } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useStore } from "@nanostores/react";
 import { startIndexing, $indexerState } from "@/features/indexer";
@@ -108,8 +107,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ title, color, pattern, onPr
 };
 
 export default function SearchScreen() {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const navigation = useNavigation();
     const router = useRouter();
     const indexerState = useStore($indexerState);
@@ -190,7 +188,7 @@ export default function SearchScreen() {
 
                 {/* Browse by Genre Section */}
                 <Text className="text-xl font-bold text-foreground mb-4">Browse by Genre</Text>
-                
+
                 {genres.length > 0 ? (
                     <View className="flex-row flex-wrap justify-between gap-y-4">
                         {genres.map((genre) => (

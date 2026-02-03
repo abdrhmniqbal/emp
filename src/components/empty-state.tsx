@@ -1,7 +1,6 @@
 import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 interface EmptyStateProps {
     icon: keyof typeof Ionicons.glyphMap;
@@ -11,8 +10,7 @@ interface EmptyStateProps {
 }
 
 export const EmptyState = ({ icon, title, message, className = "" }: EmptyStateProps) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
 
     return (
         <View className={`items-center justify-center py-12 px-6 ${className}`}>

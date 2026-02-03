@@ -3,30 +3,20 @@ import { View, ScrollView, RefreshControl, Image, Pressable, Text } from "react-
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { $tracks, playTrack, Track } from "@/store/player-store";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
-import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank } from "@/components/item";
-import { EmptyState } from "@/components/empty-state";
-import { SectionTitle } from "@/components/section-title";
 import { getAlbumsByGenre, AlbumInfo } from "@/db/operations";
 import { db } from "@/db/client";
 import { genres, trackGenres } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { useStore } from "@nanostores/react";
 import { startIndexing, $indexerState } from "@/features/indexer";
+import { ContentSection, MediaCarousel, RankedListCarousel } from "@/components/ui";
 
 const CHUNK_SIZE = 5;
 const PREVIEW_LIMIT = 25;
-
-const chunkArray = <T,>(arr: T[], size: number): T[][] => {
-    const chunks: T[][] = [];
-    for (let i = 0; i < arr.length; i += size) {
-        chunks.push(arr.slice(i, i + size));
-    }
-    return chunks;
-};
+const ALBUM_PREVIEW_LIMIT = 8;
 
 export default function GenreDetailsScreen() {
     const { name } = useLocalSearchParams<{ name: string }>();
@@ -34,8 +24,7 @@ export default function GenreDetailsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const allTracks = useStore($tracks);
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const theme = useThemeColors();
     const indexerState = useStore($indexerState);
 
     const genreName = decodeURIComponent(name || "");
@@ -81,44 +70,26 @@ export default function GenreDetailsScreen() {
 
     const allTopSongs = useMemo(() => {
         if (genreTrackIds.size === 0) return [];
-        
+
         return allTracks
             .filter(t => genreTrackIds.has(t.id) && !t.isDeleted)
             .sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
     }, [allTracks, genreTrackIds]);
 
     const topSongs = allTopSongs.slice(0, PREVIEW_LIMIT);
+    const previewAlbums = albums
+        .sort((a, b) => (b.year || 0) - (a.year || 0))
+        .slice(0, ALBUM_PREVIEW_LIMIT);
 
     const onRefresh = useCallback(async () => {
         startIndexing(true);
         await loadGenreData();
     }, [loadGenreData]);
 
-    const topSongsChunks = chunkArray(topSongs, CHUNK_SIZE);
-
-    const renderTopSongsChunk = (chunk: Track[], chunkIndex: number) => (
-        <View key={`chunk-${chunkIndex}`} className="w-75">
-            {chunk.map((music, index) => (
-                <Item
-                    key={`${music.id}-${chunkIndex}-${index}`}
-                    onPress={() => playTrack(music)}
-                >
-                    <ItemImage icon="musical-note" image={music.image} />
-                    <ItemRank>{chunkIndex * CHUNK_SIZE + index + 1}</ItemRank>
-                    <ItemContent>
-                        <ItemTitle>{music.title}</ItemTitle>
-                        <ItemDescription>{music.artist || "Unknown Artist"}</ItemDescription>
-                    </ItemContent>
-                </Item>
-            ))}
-        </View>
-    );
-
-    const renderAlbumItem = (album: AlbumInfo, index: number) => (
+    const renderAlbumItem = useCallback((album: AlbumInfo, index: number) => (
         <Pressable
-            key={`${album.name}-${index}`}
             onPress={() => router.push(`/album/${encodeURIComponent(album.name)}`)}
-            className="mr-4 active:opacity-70"
+            className="active:opacity-70"
         >
             <View className="w-36 h-36 rounded-lg overflow-hidden bg-surface-secondary mb-2">
                 {album.image ? (
@@ -140,11 +111,11 @@ export default function GenreDetailsScreen() {
                 {album.artist || "Unknown Artist"} · {album.trackCount} songs
             </Text>
         </Pressable>
-    );
+    ), [router, theme.muted]);
 
     return (
         <View className="flex-1 bg-background">
-            <View 
+            <View
                 className="absolute top-0 left-0 right-0 z-50 flex-row items-center justify-between px-4 bg-background"
                 style={{ paddingTop: insets.top + 8, paddingBottom: 12 }}
             >
@@ -173,9 +144,9 @@ export default function GenreDetailsScreen() {
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ 
+                contentContainerStyle={{
                     paddingTop: insets.top + 60,
-                    paddingBottom: 200 
+                    paddingBottom: 200
                 }}
                 onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
                 onScrollBeginDrag={handleScrollStart}
@@ -183,63 +154,47 @@ export default function GenreDetailsScreen() {
                 onScrollEndDrag={handleScrollStop}
                 scrollEventThrottle={16}
                 refreshControl={
-                    <RefreshControl 
-                        refreshing={indexerState.isIndexing || isLoading} 
-                        onRefresh={onRefresh} 
-                        tintColor={theme.accent} 
+                    <RefreshControl
+                        refreshing={indexerState.isIndexing || isLoading}
+                        onRefresh={onRefresh}
+                        tintColor={theme.accent}
                     />
                 }
             >
-                <SectionTitle 
-                    title="Top Songs" 
-                    className="px-4"
+                <ContentSection
+                    title="Top Songs"
+                    data={topSongs}
                     onViewMore={() => router.push(`/genre/top-songs?name=${encodeURIComponent(genreName)}`)}
+                    emptyState={{
+                        icon: "musical-notes-outline",
+                        title: "No top songs",
+                        message: `Play some ${genreName} music to see top songs!`,
+                    }}
+                    renderContent={(data) => (
+                        <RankedListCarousel
+                            data={data}
+                            chunkSize={CHUNK_SIZE}
+                        />
+                    )}
                 />
 
-                {topSongs.length > 0 ? (
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 16, gap: 24 }}
-                        className="mb-8"
-                    >
-                        {topSongsChunks.map(renderTopSongsChunk)}
-                    </ScrollView>
-                ) : (
-                    <EmptyState
-                        icon="musical-notes-outline"
-                        title="No top songs"
-                        message={`Play some ${genreName} music to see top songs!`}
-                        className="mb-8 py-8"
-                    />
-                )}
-
-                <SectionTitle 
-                    title="Recommended Albums" 
-                    className="px-4"
+                <ContentSection
+                    title="Recommended Albums"
+                    data={previewAlbums}
                     onViewMore={() => router.push(`/genre/albums?name=${encodeURIComponent(genreName)}`)}
+                    emptyState={{
+                        icon: "disc-outline",
+                        title: "No albums found",
+                        message: `No albums available in ${genreName}`,
+                    }}
+                    renderContent={(data) => (
+                        <MediaCarousel
+                            data={data}
+                            renderItem={renderAlbumItem}
+                            keyExtractor={(album, index) => `${album.name}-${index}`}
+                        />
+                    )}
                 />
-
-                {albums.length > 0 ? (
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 16 }}
-                        className="mb-8"
-                    >
-                        {albums
-                            .sort((a, b) => (b.year || 0) - (a.year || 0))
-                            .slice(0, 8)
-                            .map(renderAlbumItem)}
-                    </ScrollView>
-                ) : (
-                    <EmptyState
-                        icon="disc-outline"
-                        title="No albums found"
-                        message={`No albums available in ${genreName}`}
-                        className="mb-8 py-8"
-                    />
-                )}
             </ScrollView>
         </View>
     );

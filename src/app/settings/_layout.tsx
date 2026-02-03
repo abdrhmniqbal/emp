@@ -1,12 +1,10 @@
 import { Stack, useRouter } from "expo-router";
 import { Pressable } from "react-native";
-import { Colors } from "@/constants/colors";
-import { useUniwind } from "uniwind";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function SettingsLayout() {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const router = useRouter();
 
     return (

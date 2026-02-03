@@ -4,11 +4,10 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
 import { playTrack, $tracks, Track } from "@/store/player-store";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
-import { useUniwind } from "uniwind";
 import { useStore } from "@nanostores/react";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { startIndexing, $indexerState } from "@/features/indexer";
@@ -23,8 +22,7 @@ export default function GenreTopSongsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const indexerState = useStore($indexerState);
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const theme = useThemeColors();
     const allTracks = useStore($tracks);
 
     const genreName = decodeURIComponent(name || "");
@@ -66,7 +64,7 @@ export default function GenreTopSongsScreen() {
 
     const topSongs = (() => {
         if (genreTrackIds.size === 0) return [];
-        
+
         return allTracks
             .filter(t => genreTrackIds.has(t.id) && !t.isDeleted)
             .sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
@@ -92,7 +90,7 @@ export default function GenreTopSongsScreen() {
 
     return (
         <View className="flex-1 bg-background">
-            <View 
+            <View
                 className="absolute top-0 left-0 right-0 z-50 flex-row items-center justify-between px-4 bg-background"
                 style={{ paddingTop: insets.top + 8, paddingBottom: 12 }}
             >
@@ -121,9 +119,9 @@ export default function GenreTopSongsScreen() {
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ 
+                contentContainerStyle={{
                     paddingTop: insets.top + 60,
-                    paddingBottom: 200 
+                    paddingBottom: 200
                 }}
                 onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
                 onScrollBeginDrag={handleScrollStart}
@@ -131,10 +129,10 @@ export default function GenreTopSongsScreen() {
                 onScrollEndDrag={handleScrollStop}
                 scrollEventThrottle={16}
                 refreshControl={
-                    <RefreshControl 
-                        refreshing={indexerState.isIndexing || isLoading} 
-                        onRefresh={handleRefresh} 
-                        tintColor={theme.accent} 
+                    <RefreshControl
+                        refreshing={indexerState.isIndexing || isLoading}
+                        onRefresh={handleRefresh}
+                        tintColor={theme.accent}
                     />
                 }
             >

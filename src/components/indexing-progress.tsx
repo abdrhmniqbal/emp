@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useStore } from '@nanostores/react';
-import { useUniwind } from 'uniwind';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
     useAnimatedStyle,
@@ -26,8 +25,7 @@ const TAB_BAR_HEIGHT = 80;
 const BOTTOM_MARGIN = 16;
 
 export const IndexingProgress: React.FC = () => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const state = useStore($indexerState);
     const currentTrack = useStore($currentTrack);
 

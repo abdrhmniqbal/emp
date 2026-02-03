@@ -1,6 +1,7 @@
 import { atom } from 'nanostores';
 import { scanMediaLibrary } from '@/features/indexer/utils/media-scanner';
 import { loadTracks } from '@/store/player-store';
+import { queryClient } from '@/lib/tanstack-query';
 
 export interface IndexerState {
     isIndexing: boolean;
@@ -63,6 +64,11 @@ export const startIndexing = async (forceFullScan = false, showProgress = true) 
         if (!abortController?.signal.aborted) {
             // Reload tracks from database after indexing completes
             await loadTracks();
+            
+            // Invalidate React Query cache for albums and artists
+            // This will trigger a refetch in the library screen
+            queryClient.invalidateQueries({ queryKey: ['albums'] });
+            queryClient.invalidateQueries({ queryKey: ['artists'] });
             
             updateState({
                 phase: 'complete',

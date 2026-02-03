@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
 import { View, Text } from "react-native";
+import { LegendList, LegendListRenderItemProps } from "@legendapp/list";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { playTrack, Track } from "@/store/player-store";
 import { EmptyState } from "@/components/empty-state";
 
@@ -17,8 +17,7 @@ interface SongListProps {
 }
 
 export const SongList: React.FC<SongListProps> = ({ data, onSongPress, showNumbers = false, hideCover = false, hideArtist = false, getNumber }) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
 
     const handlePress = useCallback((track: Track) => {
         if (onSongPress) {
@@ -28,38 +27,49 @@ export const SongList: React.FC<SongListProps> = ({ data, onSongPress, showNumbe
         }
     }, [onSongPress]);
 
+    const renderItem = useCallback(({ item, index }: LegendListRenderItemProps<Track>) => (
+        <Item
+            onPress={() => handlePress(item)}
+        >
+            {showNumbers ? (
+                <View className="flex-row items-center gap-3">
+                    {!hideCover && <ItemImage icon="musical-note" image={item.image} />}
+                    <View className="w-8 items-center justify-center">
+                        <Text className="text-lg font-bold text-foreground">
+                            {getNumber ? getNumber(item, index) : index + 1}
+                        </Text>
+                    </View>
+                </View>
+            ) : (
+                !hideCover && <ItemImage icon="musical-note" image={item.image} />
+            )}
+            <ItemContent>
+                <ItemTitle>{item.title}</ItemTitle>
+                {!hideArtist && <ItemDescription>{item.artist || "Unknown Artist"}</ItemDescription>}
+            </ItemContent>
+            <ItemAction>
+                <Ionicons name="ellipsis-horizontal" size={24} color={theme.muted} />
+            </ItemAction>
+        </Item>
+    ), [handlePress, showNumbers, hideCover, hideArtist, getNumber, theme.muted]);
+
     if (data.length === 0) {
         return <EmptyState icon="musical-note" title="No Songs" message="Songs you add to your library will appear here." />;
     }
 
     return (
-        <View className="gap-2">
-            {data.map((music, index) => (
-                <Item
-                    key={music.id}
-                    onPress={() => handlePress(music)}
-                >
-                    {showNumbers ? (
-                        <View className="flex-row items-center gap-3">
-                            {!hideCover && <ItemImage icon="musical-note" image={music.image} />}
-                            <View className="w-8 items-center justify-center">
-                                <Text className="text-lg font-bold text-foreground">
-                                    {getNumber ? getNumber(music, index) : index + 1}
-                                </Text>
-                            </View>
-                        </View>
-                    ) : (
-                        !hideCover && <ItemImage icon="musical-note" image={music.image} />
-                    )}
-                    <ItemContent>
-                        <ItemTitle>{music.title}</ItemTitle>
-                        {!hideArtist && <ItemDescription>{music.artist || "Unknown Artist"}</ItemDescription>}
-                    </ItemContent>
-                    <ItemAction>
-                        <Ionicons name="ellipsis-horizontal" size={24} color={theme.muted} />
-                    </ItemAction>
-                </Item>
-            ))}
-        </View>
+        <LegendList
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ gap: 8 }}
+            recycleItems={true}
+            waitForInitialLayout={false}
+            maintainVisibleContentPosition
+            estimatedItemSize={72}
+            drawDistance={500}
+            initialContainerPoolRatio={1}
+        />
     );
 };

@@ -1,7 +1,6 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/colors";
-import { useUniwind } from "uniwind";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { MiniPlayer } from "@/components/mini-player";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import { useStore } from "@nanostores/react";
@@ -11,8 +10,7 @@ import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated"
 const TAB_BAR_HEIGHT = 90;
 
 export default function MainLayout() {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const barsVisible = useStore($barsVisible);
 
     const animatedStyle = useAnimatedStyle(() => {

@@ -3,10 +3,9 @@ import { useState, useCallback, useEffect } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Ionicons } from "@expo/vector-icons";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
-import { useUniwind } from "uniwind";
 import { useStore } from "@nanostores/react";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { startIndexing, $indexerState } from "@/features/indexer";
@@ -19,8 +18,7 @@ export default function GenreAlbumsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const indexerState = useStore($indexerState);
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const theme = useThemeColors();
 
     const genreName = decodeURIComponent(name || "");
 
@@ -67,11 +65,13 @@ export default function GenreAlbumsScreen() {
             artist: album.artist || "Unknown Artist",
             image: album.image,
             trackCount: album.trackCount,
+            year: album.year || 0,
+            dateAdded: 0,
         }));
 
     return (
         <View className="flex-1 bg-background">
-            <View 
+            <View
                 className="absolute top-0 left-0 right-0 z-50 flex-row items-center justify-between px-4 bg-background"
                 style={{ paddingTop: insets.top + 8, paddingBottom: 12 }}
             >
@@ -100,9 +100,9 @@ export default function GenreAlbumsScreen() {
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ 
+                contentContainerStyle={{
                     paddingTop: insets.top + 60,
-                    paddingBottom: 200 
+                    paddingBottom: 200
                 }}
                 onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
                 onScrollBeginDrag={handleScrollStart}
@@ -110,10 +110,10 @@ export default function GenreAlbumsScreen() {
                 onScrollEndDrag={handleScrollStop}
                 scrollEventThrottle={16}
                 refreshControl={
-                    <RefreshControl 
-                        refreshing={indexerState.isIndexing || isLoading} 
-                        onRefresh={handleRefresh} 
-                        tintColor={theme.accent} 
+                    <RefreshControl
+                        refreshing={indexerState.isIndexing || isLoading}
+                        onRefresh={handleRefresh}
+                        tintColor={theme.accent}
                     />
                 }
             >
@@ -130,8 +130,8 @@ export default function GenreAlbumsScreen() {
                             className="mt-12"
                         />
                     ) : (
-                        <AlbumGrid 
-                            data={albumData} 
+                        <AlbumGrid
+                            data={albumData}
                             onAlbumPress={handleAlbumPress}
                         />
                     )}

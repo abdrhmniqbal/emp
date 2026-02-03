@@ -5,6 +5,7 @@
   "dependencies": {
     "@animatereactnative/marquee": "^0.5.2",
     "@gorhom/bottom-sheet": "^5",
+    "@legendapp/list": "^2.0.19",
     "@missingcore/react-native-metadata-retriever": "^2.4.0",
     "@nanostores/react": "^1.0.0",
     "@tanstack/react-pacer": "^0.19.4",

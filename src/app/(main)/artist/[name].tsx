@@ -1,21 +1,20 @@
 import React from "react";
 import { View, Text, ScrollView, Pressable, Image, Dimensions } from "react-native";
-import Animated, { 
-    interpolateColor, 
-    useAnimatedStyle, 
-    interpolate, 
+import Animated, {
+    interpolateColor,
+    useAnimatedStyle,
+    interpolate,
     withTiming,
-    FadeIn, 
-    SlideInRight, 
-    SlideInLeft 
+    FadeIn,
+    SlideInRight,
+    SlideInLeft
 } from "react-native-reanimated";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useStore } from "@nanostores/react";
 import { $tracks, playTrack, Track } from "@/store/player-store";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { LinearGradient } from "expo-linear-gradient";
 import { SectionTitle } from "@/components/section-title";
 import { Button } from "heroui-native";
@@ -33,8 +32,7 @@ export default function ArtistDetailsScreen() {
     const navigation = useNavigation();
     const router = useRouter();
     const tracks = useStore($tracks);
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const theme = useThemeColors();
 
     const artistTracks = tracks.filter(
         (t) => t.artist?.toLowerCase() === name?.toLowerCase()
@@ -196,7 +194,7 @@ export default function ArtistDetailsScreen() {
 
                     <View className="w-[88px] flex-row justify-end gap-3">
                         {artistId && (
-                            <Pressable 
+                            <Pressable
                                 className={`w-10 h-10 rounded-full items-center justify-center active:opacity-50 ${getButtonBackground()}`}
                                 onPress={() => {
                                     toggleFavoriteItem(
@@ -208,10 +206,10 @@ export default function ArtistDetailsScreen() {
                                     );
                                 }}
                             >
-                                <Ionicons 
-                                    name={isArtistFavorite ? "heart" : "heart-outline"} 
-                                    size={22} 
-                                    color={isArtistFavorite ? "#ef4444" : getIconColor()} 
+                                <Ionicons
+                                    name={isArtistFavorite ? "heart" : "heart-outline"}
+                                    size={22}
+                                    color={isArtistFavorite ? "#ef4444" : getIconColor()}
                                 />
                             </Pressable>
                         )}

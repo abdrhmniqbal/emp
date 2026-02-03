@@ -16,7 +16,7 @@ export interface SortConfig {
 }
 
 export const $sortConfig = atom<Record<TabName, SortConfig>>({
-    Songs: { field: 'dateAdded', order: 'desc' },
+    Songs: { field: 'title', order: 'asc' },
     Albums: { field: 'title', order: 'asc' },
     Artists: { field: 'name', order: 'asc' },
     Genres: { field: 'name', order: 'asc' },

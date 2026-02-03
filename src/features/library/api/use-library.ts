@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { db } from "@/db/client";
-import { tracks, artists, albums, genres, trackGenres, playHistory } from "@/db/schema";
-import { eq, desc, asc, like, and, inArray, sql } from "drizzle-orm";
+import { tracks, artists, albums, genres, playHistory } from "@/db/schema";
+import { eq, desc, asc, like, and, sql } from "drizzle-orm";
 import { useDebouncedValue } from "@tanstack/react-pacer/debouncer";
 
 const TRACKS_KEY = "tracks";
@@ -23,68 +23,64 @@ export function useTracks(filters?: TrackFilter) {
   return useQuery({
     queryKey: [TRACKS_KEY, filters],
     queryFn: async () => {
-      let query = db.query.tracks.findMany({
+      const results = await db.query.tracks.findMany({
+        where: and(
+          eq(tracks.isDeleted, 0),
+          filters?.artistId ? eq(tracks.artistId, filters.artistId) : undefined,
+          filters?.albumId ? eq(tracks.albumId, filters.albumId) : undefined,
+          filters?.isFavorite ? eq(tracks.isFavorite, 1) : undefined,
+          filters?.searchQuery ? like(tracks.title, `%${filters.searchQuery}%`) : undefined
+        ),
         with: {
           artist: true,
-          album: {
-            with: {
-              artist: true,
-            },
-          },
+          album: true,
           genres: {
             with: {
               genre: true,
             },
           },
         },
-        where: and(
-          eq(tracks.isDeleted, 0),
-          filters?.artistId ? eq(tracks.artistId, filters.artistId) : undefined,
-          filters?.albumId ? eq(tracks.albumId, filters.albumId) : undefined,
-          filters?.isFavorite ? eq(tracks.isFavorite, 1) : undefined,
-          filters?.searchQuery
-            ? like(tracks.title, `%${filters.searchQuery}%`)
-            : undefined
-        ),
       });
 
-      const results = await query;
-
-      // Filter by genre if needed
-      let filteredResults = results;
-      if (filters?.genreId) {
-        filteredResults = results.filter((track) =>
-          track.genres.some((tg) => tg.genre?.id === filters.genreId)
-        );
-      }
-
-      // Sort results
       const sortField = filters?.sortBy || "title";
       const sortOrder = filters?.sortOrder || "asc";
+      const multiplier = sortOrder === "asc" ? 1 : -1;
 
-      return filteredResults.sort((a, b) => {
-        let comparison = 0;
+      return results.sort((a, b) => {
+        let aVal: string | number | null = null;
+        let bVal: string | number | null = null;
+
         switch (sortField) {
           case "title":
-            comparison = (a.title || "").localeCompare(b.title || "");
+            aVal = a.title.toLowerCase();
+            bVal = b.title.toLowerCase();
             break;
           case "artist":
-            comparison = (a.artist?.name || "").localeCompare(b.artist?.name || "");
+            aVal = a.artist?.name?.toLowerCase() || "";
+            bVal = b.artist?.name?.toLowerCase() || "";
             break;
           case "album":
-            comparison = (a.album?.title || "").localeCompare(b.album?.title || "");
+            aVal = a.album?.title?.toLowerCase() || "";
+            bVal = b.album?.title?.toLowerCase() || "";
             break;
           case "dateAdded":
-            comparison = (a.dateAdded || 0) - (b.dateAdded || 0);
+            aVal = a.dateAdded || 0;
+            bVal = b.dateAdded || 0;
             break;
           case "playCount":
-            comparison = (a.playCount || 0) - (b.playCount || 0);
+            aVal = a.playCount || 0;
+            bVal = b.playCount || 0;
             break;
           case "rating":
-            comparison = (a.rating || 0) - (b.rating || 0);
+            aVal = a.rating || 0;
+            bVal = b.rating || 0;
             break;
         }
-        return sortOrder === "asc" ? comparison : -comparison;
+
+        if (aVal === null || bVal === null) return 0;
+        if (aVal < bVal) return -1 * multiplier;
+        if (aVal > bVal) return 1 * multiplier;
+        return 0;
       });
     },
   });
@@ -185,12 +181,54 @@ export function useIncrementPlayCount() {
   });
 }
 
-export function useArtists() {
+export function useArtists(orderByField: 'name' | 'trackCount' | 'dateAdded' = 'name', order: 'asc' | 'desc' = 'asc') {
   return useQuery({
-    queryKey: [ARTISTS_KEY],
+    queryKey: [ARTISTS_KEY, orderByField, order],
     queryFn: async () => {
-      return db.query.artists.findMany({
-        orderBy: [asc(artists.sortName)],
+      const results = await db.query.artists.findMany({
+        with: {
+          tracks: {
+            where: eq(tracks.isDeleted, 0),
+            columns: { id: true },
+          },
+          albums: {
+            columns: { artwork: true },
+            limit: 1,
+          },
+        },
+      });
+
+      const mapped = results.map((artist) => ({
+        id: artist.id,
+        name: artist.name,
+        sortName: artist.sortName,
+        artwork: artist.artwork,
+        createdAt: artist.createdAt,
+        albumArtwork: artist.albums[0]?.artwork || null,
+        trackCount: artist.tracks.length,
+      }));
+
+      const multiplier = order === 'asc' ? 1 : -1;
+      return mapped.sort((a, b) => {
+        let aVal: string | number;
+        let bVal: string | number;
+        switch (orderByField) {
+          case 'trackCount':
+            aVal = a.trackCount;
+            bVal = b.trackCount;
+            break;
+          case 'dateAdded':
+            aVal = a.createdAt;
+            bVal = b.createdAt;
+            break;
+          case 'name':
+          default:
+            aVal = (a.sortName || a.name).toLowerCase();
+            bVal = (b.sortName || b.name).toLowerCase();
+        }
+        if (aVal < bVal) return -1 * multiplier;
+        if (aVal > bVal) return 1 * multiplier;
+        return 0;
       });
     },
   });
@@ -218,15 +256,56 @@ export function useArtist(id: string) {
   });
 }
 
-export function useAlbums() {
+export function useAlbums(orderByField: 'title' | 'artist' | 'year' | 'trackCount' = 'title', order: 'asc' | 'desc' = 'asc') {
   return useQuery({
-    queryKey: [ALBUMS_KEY],
+    queryKey: [ALBUMS_KEY, orderByField, order],
     queryFn: async () => {
-      return db.query.albums.findMany({
+      const results = await db.query.albums.findMany({
         with: {
           artist: true,
+          tracks: {
+            where: eq(tracks.isDeleted, 0),
+            columns: { id: true },
+          },
         },
-        orderBy: [desc(albums.year)],
+      });
+
+      const mapped = results.map((album) => ({
+        id: album.id,
+        title: album.title,
+        artistId: album.artistId,
+        year: album.year,
+        artwork: album.artwork,
+        createdAt: album.createdAt,
+        artist: album.artist,
+        trackCount: album.tracks.length,
+      }));
+
+      const multiplier = order === 'asc' ? 1 : -1;
+      return mapped.sort((a, b) => {
+        let aVal: string | number | null;
+        let bVal: string | number | null;
+        switch (orderByField) {
+          case 'year':
+            aVal = a.year || 0;
+            bVal = b.year || 0;
+            break;
+          case 'trackCount':
+            aVal = a.trackCount;
+            bVal = b.trackCount;
+            break;
+          case 'artist':
+            aVal = (a.artist?.sortName || a.artist?.name || '').toLowerCase();
+            bVal = (b.artist?.sortName || b.artist?.name || '').toLowerCase();
+            break;
+          case 'title':
+          default:
+            aVal = a.title.toLowerCase();
+            bVal = b.title.toLowerCase();
+        }
+        if (aVal < bVal) return -1 * multiplier;
+        if (aVal > bVal) return 1 * multiplier;
+        return 0;
       });
     },
   });
@@ -272,36 +351,21 @@ export function useGenre(id: string) {
   return useQuery({
     queryKey: [GENRES_KEY, id],
     queryFn: async () => {
-      const genre = await db.query.genres.findFirst({
+      return db.query.genres.findFirst({
         where: eq(genres.id, id),
-      });
-
-      if (!genre) return null;
-
-      // Get tracks for this genre
-      const trackIds = await db
-        .select({ trackId: trackGenres.trackId })
-        .from(trackGenres)
-        .where(eq(trackGenres.genreId, id));
-
-      const trackList = await db.query.tracks.findMany({
-        where: and(
-          inArray(
-            tracks.id,
-            trackIds.map((t) => t.trackId)
-          ),
-          eq(tracks.isDeleted, 0)
-        ),
         with: {
-          artist: true,
-          album: true,
+          tracks: {
+            with: {
+              track: {
+                with: {
+                  artist: true,
+                  album: true,
+                },
+              },
+            },
+          },
         },
       });
-
-      return {
-        ...genre,
-        tracks: trackList,
-      };
     },
   });
 }

@@ -1,21 +1,19 @@
 import { View, Text, ScrollView, RefreshControl } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { playTrack, Track } from "@/store/player-store";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
 import { useState, useCallback } from "react";
 import { getHistory } from "@/db/operations";
 import { useFocusEffect } from "expo-router";
-import { useUniwind } from "uniwind";
 import { useStore } from "@nanostores/react";
 import { startIndexing, $indexerState } from "@/features/indexer";
 import { SongList } from "@/components/library/song-list";
 
 export default function RecentlyPlayedScreen() {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const theme = useThemeColors();
     const [history, setHistory] = useState<Track[]>([]);
     const indexerState = useStore($indexerState);
 

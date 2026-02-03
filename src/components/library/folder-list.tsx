@@ -1,9 +1,8 @@
 import React, { useCallback } from "react";
-import { View } from "react-native";
+import { LegendList, LegendListRenderItemProps } from "@legendapp/list";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { EmptyState } from "@/components/empty-state";
 
 export interface Folder {
@@ -19,8 +18,7 @@ interface FolderListProps {
 }
 
 export const FolderList: React.FC<FolderListProps> = ({ data, onFolderPress }) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
 
     const handlePress = useCallback((folder: Folder) => {
         onFolderPress?.(folder);
@@ -29,27 +27,38 @@ export const FolderList: React.FC<FolderListProps> = ({ data, onFolderPress }) =
     const formatFileCount = (count: number) =>
         `${count} ${count === 1 ? 'file' : 'files'}`;
 
+    const renderItem = useCallback(({ item }: LegendListRenderItemProps<Folder>) => (
+        <Item
+            onPress={() => handlePress(item)}
+        >
+            <ItemImage icon="folder-outline" />
+            <ItemContent>
+                <ItemTitle>{item.name}</ItemTitle>
+                <ItemDescription>{formatFileCount(item.fileCount)}</ItemDescription>
+            </ItemContent>
+            <ItemAction>
+                <Ionicons name="chevron-forward" size={24} color={theme.muted} />
+            </ItemAction>
+        </Item>
+    ), [handlePress, theme.muted]);
+
     if (data.length === 0) {
         return <EmptyState icon="folder" title="No Folders" message="Music folders you add will appear here." />;
     }
 
     return (
-        <View className="gap-2">
-            {data.map((folder) => (
-                <Item
-                    key={folder.id}
-                    onPress={() => handlePress(folder)}
-                >
-                    <ItemImage icon="folder-outline" />
-                    <ItemContent>
-                        <ItemTitle>{folder.name}</ItemTitle>
-                        <ItemDescription>{formatFileCount(folder.fileCount)}</ItemDescription>
-                    </ItemContent>
-                    <ItemAction>
-                        <Ionicons name="chevron-forward" size={24} color={theme.muted} />
-                    </ItemAction>
-                </Item>
-            ))}
-        </View>
+        <LegendList
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ gap: 8 }}
+            recycleItems={true}
+            waitForInitialLayout={false}
+            maintainVisibleContentPosition
+            estimatedItemSize={72}
+            drawDistance={500}
+            initialContainerPoolRatio={1}
+            style={{ flex: 1 }}
+        />
     );
 };

@@ -1,42 +1,13 @@
 import { atom } from 'nanostores';
 import TrackPlayer, { Event, State, Capability } from '@weights-ai/react-native-track-player';
 import { loadFavorites } from '@/store/favorites-store';
-import { 
-  addToHistory, 
-  incrementPlayCount,
-  toggleFavoriteDB 
+import {
+    addToHistory,
+    incrementPlayCount,
+    toggleFavoriteDB
 } from '@/db/operations';
-
-export interface LyricLine {
-    time: number;
-    text: string;
-}
-
-export interface Track {
-    id: string;
-    title: string;
-    artist?: string;
-    artistId?: string;
-    albumArtist?: string;
-    album?: string;
-    albumId?: string;
-    duration: number;
-    uri: string;
-    image?: string;
-    lyrics?: LyricLine[];
-    fileHash?: string;
-    scanTime?: number;
-    isDeleted?: boolean;
-    playCount?: number;
-    lastPlayedAt?: number;
-    year?: number;
-    filename?: string;
-    dateAdded?: number;
-    isFavorite?: boolean;
-    discNumber?: number;
-    trackNumber?: number;
-    genre?: string;
-}
+import type { LyricLine, Track, Album, Artist } from './types';
+export type { LyricLine, Track, Album, Artist };
 
 export const $tracks = atom<Track[]>([]);
 export const $currentTrack = atom<Track | null>(null);
@@ -131,7 +102,7 @@ export const PlaybackService = async () => {
                     image: track.artwork as string | undefined,
                 };
                 $currentTrack.set(currentTrack);
-                
+
                 // Add to history and increment play count
                 addToHistory(currentTrack.id);
                 incrementPlayCount(currentTrack.id);
@@ -157,14 +128,14 @@ export const playTrack = async (track: Track) => {
     try {
         // Reset and add the track
         await TrackPlayer.reset();
-        
+
         // Find current track index in the queue
         const tracks = $tracks.get();
         currentTrackIndex = tracks.findIndex(t => t.id === track.id);
-        
+
         // Add all tracks to the queue starting from the current one
         const queue = tracks.slice(currentTrackIndex).concat(tracks.slice(0, currentTrackIndex));
-        
+
         // Map our Track interface to TrackPlayer's expected format
         await TrackPlayer.add(
             queue.map(t => ({
@@ -179,7 +150,7 @@ export const playTrack = async (track: Track) => {
         );
 
         $currentTrack.set(track);
-        
+
         // Add to history and increment play count
         addToHistory(track.id);
         incrementPlayCount(track.id);
@@ -314,43 +285,24 @@ export const loadTracks = async () => {
         const db = (await import('@/db/client')).db;
         const { tracks } = await import('@/db/schema');
         const { eq } = await import('drizzle-orm');
-        
+        const { transformDBTrackToTrack } = await import('@/utils/transformers');
+
         const dbTracks = await db.query.tracks.findMany({
             where: eq(tracks.isDeleted, 0),
             with: {
                 artist: true,
                 album: true,
+                genres: {
+                    with: {
+                        genre: true,
+                    },
+                },
             },
         });
-        
-        // Transform database tracks to Track interface
-        const trackList: Track[] = dbTracks.map(t => ({
-            id: t.id,
-            title: t.title,
-            artist: t.artist?.name,
-            artistId: t.artistId || undefined,
-            albumArtist: t.artist?.name,
-            album: t.album?.title,
-            albumId: t.albumId || undefined,
-            duration: t.duration,
-            uri: t.uri,
-            image: t.artwork || undefined,
-            lyrics: t.lyrics ? JSON.parse(t.lyrics) : undefined,
-            fileHash: t.fileHash || undefined,
-            scanTime: t.scanTime || undefined,
-            isDeleted: Boolean(t.isDeleted),
-            playCount: t.playCount || 0,
-            lastPlayedAt: t.lastPlayedAt || undefined,
-            year: t.year || undefined,
-            filename: t.filename || undefined,
-            dateAdded: t.dateAdded || undefined,
-            isFavorite: Boolean(t.isFavorite),
-            discNumber: t.discNumber || undefined,
-            trackNumber: t.trackNumber || undefined,
-            genre: undefined, // Would need to fetch from trackGenres
-        }));
-        
+
+        const trackList = dbTracks.map(transformDBTrackToTrack);
         $tracks.set(trackList);
     } catch (error) {
     }
 };
+

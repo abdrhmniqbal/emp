@@ -1,10 +1,7 @@
-import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemRank } from "@/components/item";
-import { EmptyState } from "@/components/empty-state";
+import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription } from "@/components/item";
 import { playTrack, $tracks, Track } from "@/store/player-store";
 import { useStore } from "@nanostores/react";
-import { SectionTitle } from "@/components/section-title";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import React, { useState, useLayoutEffect, useCallback } from "react";
 import { useNavigation, useRouter, useFocusEffect } from "expo-router";
 import { Pressable, View, ScrollView, RefreshControl } from "react-native";
@@ -14,24 +11,16 @@ import { startIndexing, $indexerState } from "@/features/indexer";
 import { getHistory, getTopSongs } from "@/db/operations";
 import { useSwipeNavigation } from "@/hooks/use-swipe-navigation";
 import { GestureDetector } from "react-native-gesture-handler";
+import { ContentSection, MediaCarousel, RankedListCarousel } from "@/components/ui";
 
 const RECENTLY_PLAYED_LIMIT = 8;
 const TOP_SONGS_LIMIT = 25;
 const CHUNK_SIZE = 5;
 
-const chunkArray = <T,>(arr: T[], size: number): T[][] => {
-    const chunks: T[][] = [];
-    for (let i = 0; i < arr.length; i += size) {
-        chunks.push(arr.slice(i, i + size));
-    }
-    return chunks;
-};
-
 export default function HomeScreen() {
     const router = useRouter();
     const navigation = useNavigation();
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const indexerState = useStore($indexerState);
     const tracks = useStore($tracks);
     const { swipeGesture } = useSwipeNavigation('(home)');
@@ -91,17 +80,13 @@ export default function HomeScreen() {
         }, [fetchTopSongs])
     );
 
-    // Combine refresh logic
     const handleRefresh = useCallback(async () => {
         await onRefresh();
         await fetchTopSongs();
     }, [onRefresh, fetchTopSongs]);
 
-    const topSongsChunks = chunkArray(topSongs, CHUNK_SIZE);
-
     const renderRecentlyPlayedItem = useCallback((item: Track, index: number) => (
         <Item
-            key={`${item.id}-${index}`}
             variant="grid"
             onPress={() => playTrack(item)}
         >
@@ -113,89 +98,59 @@ export default function HomeScreen() {
         </Item>
     ), []);
 
-    const renderTopSongsChunk = useCallback((chunk: Track[], chunkIndex: number) => (
-        <View key={`chunk-${chunkIndex}`} className="w-75">
-            {chunk.map((music, index) => (
-                <Item
-                    key={`${music.id}-${chunkIndex}-${index}`}
-                    onPress={() => playTrack(music)}
-                >
-                    <ItemImage icon="musical-note" image={music.image} />
-                    <ItemRank>{chunkIndex * CHUNK_SIZE + index + 1}</ItemRank>
-                    <ItemContent>
-                        <ItemTitle>{music.title}</ItemTitle>
-                        <ItemDescription>{music.artist || "Unknown Artist"}</ItemDescription>
-                    </ItemContent>
-                </Item>
-            ))}
-        </View>
-    ), []);
-
     return (
         <GestureDetector gesture={swipeGesture}>
-        <ScrollView
-            className="flex-1 bg-background"
-            contentContainerStyle={{ paddingBottom: 200 }}
-            contentInsetAdjustmentBehavior="automatic"
-            onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
-            onScrollBeginDrag={handleScrollStart}
-            onMomentumScrollEnd={handleScrollStop}
-            onScrollEndDrag={handleScrollStop}
-            scrollEventThrottle={16}
-            refreshControl={
-                <RefreshControl refreshing={indexerState.isIndexing} onRefresh={handleRefresh} tintColor={theme.accent} />
-            }
-        >
-            <View className="pt-6">
-                <SectionTitle
-                    title="Recently Played"
-                    className="px-4"
-                    onViewMore={() => router.push("/(main)/(home)/recently-played")}
-                />
-
-                {recentlyPlayedTracks.length > 0 ? (
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
-                        className="mb-8"
-                    >
-                        {recentlyPlayedTracks.map((item, index) => renderRecentlyPlayedItem(item, index))}
-                    </ScrollView>
-                ) : (
-                    <EmptyState
-                        icon="time-outline"
-                        title="No recently played"
-                        message="Start playing music!"
-                        className="mb-8 py-8"
+            <ScrollView
+                className="flex-1 bg-background"
+                contentContainerStyle={{ paddingBottom: 200 }}
+                contentInsetAdjustmentBehavior="automatic"
+                onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
+                onScrollBeginDrag={handleScrollStart}
+                onMomentumScrollEnd={handleScrollStop}
+                onScrollEndDrag={handleScrollStop}
+                scrollEventThrottle={16}
+                refreshControl={
+                    <RefreshControl refreshing={indexerState.isIndexing} onRefresh={handleRefresh} tintColor={theme.accent} />
+                }
+            >
+                <View className="pt-6">
+                    <ContentSection
+                        title="Recently Played"
+                        data={recentlyPlayedTracks}
+                        onViewMore={() => router.push("/(main)/(home)/recently-played")}
+                        emptyState={{
+                            icon: "time-outline",
+                            title: "No recently played",
+                            message: "Start playing music!",
+                        }}
+                        renderContent={(data) => (
+                            <MediaCarousel
+                                data={data}
+                                renderItem={renderRecentlyPlayedItem}
+                                keyExtractor={(item, index) => `${item.id}-${index}`}
+                                gap={10}
+                            />
+                        )}
                     />
-                )}
 
-                <SectionTitle
-                    title="Top Songs"
-                    className="px-4"
-                    onViewMore={() => router.push("/(main)/(home)/top-songs")}
-                />
-
-                {topSongs.length > 0 ? (
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 16, gap: 24 }}
-                        className="mb-8"
-                    >
-                        {topSongsChunks.map(renderTopSongsChunk)}
-                    </ScrollView>
-                ) : (
-                    <EmptyState
-                        icon="musical-notes-outline"
-                        title="No top songs"
-                        message="Play more music together!"
-                        className="mb-8 py-8"
+                    <ContentSection
+                        title="Top Songs"
+                        data={topSongs}
+                        onViewMore={() => router.push("/(main)/(home)/top-songs")}
+                        emptyState={{
+                            icon: "musical-notes-outline",
+                            title: "No top songs",
+                            message: "Play more music together!",
+                        }}
+                        renderContent={(data) => (
+                            <RankedListCarousel
+                                data={data}
+                                chunkSize={CHUNK_SIZE}
+                            />
+                        )}
                     />
-                )}
-            </View>
-        </ScrollView>
+                </View>
+            </ScrollView>
         </GestureDetector>
     );
 }

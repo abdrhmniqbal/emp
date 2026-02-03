@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { useUniwind } from "uniwind";
 
 interface SettingItemProps {
@@ -20,8 +20,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
     showChevron = true,
     rightIcon
 }) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
 
     return (
         <Pressable

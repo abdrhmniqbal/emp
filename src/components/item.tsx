@@ -2,8 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { View, Text, Pressable, ViewProps, PressableProps, TextProps, Image } from 'react-native';
 import { tv, type VariantProps } from 'tailwind-variants';
 import { Ionicons } from '@expo/vector-icons';
-import { useUniwind } from 'uniwind';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 const itemStyles = tv({
     slots: {
@@ -54,8 +53,7 @@ type ItemProps = PressableProps & ItemVariant & {
 };
 
 const Item = React.forwardRef<View, ItemProps>(({ className, variant = 'list', children, ...props }, ref) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const { base } = itemStyles({ variant });
 
     return (

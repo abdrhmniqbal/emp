@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
 import { View, Pressable, Image as RNImage } from "react-native";
+import { LegendList, LegendListRenderItemProps } from "@legendapp/list";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { playTrack, Track, $tracks } from "@/store/player-store";
 import { FavoriteEntry, FavoriteType } from "@/db/operations";
 import { useStore } from "@nanostores/react";
@@ -18,16 +18,15 @@ interface FavoritesListProps {
 const GRID_ITEMS = [1, 2, 3, 4] as const;
 
 const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({ favorite }) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
 
     switch (favorite.type) {
         case 'artist':
             return (
                 <ItemImage className="rounded-full overflow-hidden">
                     {favorite.image ? (
-                        <RNImage 
-                            source={{ uri: favorite.image }} 
+                        <RNImage
+                            source={{ uri: favorite.image }}
                             className="w-full h-full"
                             resizeMode="cover"
                         />
@@ -38,14 +37,14 @@ const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({ favorite }) 
                     )}
                 </ItemImage>
             );
-        
+
         case 'playlist':
             return (
                 <ItemImage className="bg-default items-center justify-center overflow-hidden p-1">
                     {favorite.image ? (
                         <View className="w-full h-full rounded-lg overflow-hidden">
-                            <RNImage 
-                                source={{ uri: favorite.image }} 
+                            <RNImage
+                                source={{ uri: favorite.image }}
                                 className="w-full h-full"
                                 resizeMode="cover"
                             />
@@ -63,21 +62,21 @@ const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({ favorite }) 
                     )}
                 </ItemImage>
             );
-        
+
         case 'album':
             return (
-                <ItemImage 
-                    icon="disc" 
+                <ItemImage
+                    icon="disc"
                     image={favorite.image}
                     className="rounded-lg"
                 />
             );
-        
+
         case 'track':
         default:
             return (
-                <ItemImage 
-                    icon="musical-note" 
+                <ItemImage
+                    icon="musical-note"
                     image={favorite.image}
                 />
             );
@@ -100,11 +99,10 @@ const getTypeLabel = (type: FavoriteType): string => {
 };
 
 const TypeBadge: React.FC<{ type: FavoriteType }> = ({ type }) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
-    
+    const theme = useThemeColors();
+
     return (
-        <View 
+        <View
             className="px-2 py-0.5 rounded-full mr-2"
             style={{ backgroundColor: theme.muted + '30' }}
         >
@@ -116,8 +114,7 @@ const TypeBadge: React.FC<{ type: FavoriteType }> = ({ type }) => {
 };
 
 export const FavoritesList: React.FC<FavoritesListProps> = ({ data }) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const tracks = useStore($tracks);
     const router = useRouter();
 
@@ -153,34 +150,45 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({ data }) => {
         toggleFavoriteItem(favorite.id, favorite.type, favorite.name);
     }, []);
 
-    return (
-        <View className="gap-2">
-            {data.map((favorite) => (
-                <Item
-                    key={favorite.id}
-                    onPress={() => handlePress(favorite)}
+    const renderItem = useCallback(({ item }: LegendListRenderItemProps<FavoriteEntry>) => (
+        <Item
+            onPress={() => handlePress(item)}
+        >
+            <FavoriteItemImage favorite={item} />
+            <ItemContent>
+                <ItemTitle>{item.name}</ItemTitle>
+                <View className="flex-row items-center">
+                    <TypeBadge type={item.type} />
+                    <ItemDescription>{item.subtitle || ""}</ItemDescription>
+                </View>
+            </ItemContent>
+            <ItemAction>
+                <Pressable
+                    onPress={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFavorite(item);
+                    }}
+                    className="p-2 active:opacity-50"
                 >
-                    <FavoriteItemImage favorite={favorite} />
-                    <ItemContent>
-                        <ItemTitle>{favorite.name}</ItemTitle>
-                        <View className="flex-row items-center">
-                            <TypeBadge type={favorite.type} />
-                            <ItemDescription>{favorite.subtitle || ""}</ItemDescription>
-                        </View>
-                    </ItemContent>
-                    <ItemAction>
-                        <Pressable 
-                            onPress={(e) => {
-                                e.stopPropagation();
-                                handleRemoveFavorite(favorite);
-                            }}
-                            className="p-2 active:opacity-50"
-                        >
-                            <Ionicons name="heart" size={22} color="#ef4444" />
-                        </Pressable>
-                    </ItemAction>
-                </Item>
-            ))}
-        </View>
+                    <Ionicons name="heart" size={22} color="#ef4444" />
+                </Pressable>
+            </ItemAction>
+        </Item>
+    ), [handlePress, handleRemoveFavorite]);
+
+    return (
+        <LegendList
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ gap: 8 }}
+            recycleItems={true}
+            waitForInitialLayout={false}
+            maintainVisibleContentPosition
+            estimatedItemSize={72}
+            drawDistance={500}
+            initialContainerPoolRatio={1}
+            style={{ flex: 1 }}
+        />
     );
 };

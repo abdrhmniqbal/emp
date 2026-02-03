@@ -3,8 +3,7 @@ import { View, Text, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '@nanostores/react';
 import { $currentTrack, $isPlaying, $currentTime, $duration, togglePlayback } from '@/store/player-store';
-import { useUniwind } from 'uniwind';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { $isPlayerExpanded, $showPlayerQueue } from '@/store/ui-store';
 import { MarqueeText } from './marquee-text';
@@ -17,8 +16,7 @@ export const MiniPlayer = () => {
 
     const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
 
     if (!currentTrack) return null;
 
@@ -85,12 +83,12 @@ export const MiniPlayer = () => {
                         <Pressable onPress={(e) => e.stopPropagation()} className="active:opacity-60">
                             <Ionicons name="play-skip-forward-sharp" size={24} color={theme.foreground} />
                         </Pressable>
-                        <Pressable 
-                            onPress={(e) => { 
-                                e.stopPropagation(); 
+                        <Pressable
+                            onPress={(e) => {
+                                e.stopPropagation();
                                 $showPlayerQueue.set(true);
                                 $isPlayerExpanded.set(true);
-                            }} 
+                            }}
                             className="active:opacity-60"
                         >
                             <Ionicons name="list-sharp" size={22} color={theme.muted} />

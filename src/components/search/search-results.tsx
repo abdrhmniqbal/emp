@@ -3,8 +3,7 @@ import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
 import { playTrack, Track } from "@/store/player-store";
-import { useUniwind } from "uniwind";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 const SEARCH_TABS = ["All", "Song", "Album", "Artist", "Playlist"] as const;
 type SearchTab = typeof SEARCH_TABS[number];
@@ -41,8 +40,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     onAlbumPress,
     onSeeMoreSongs,
 }) => {
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === 'dark' ? 'dark' : 'light'];
+    const theme = useThemeColors();
     const [activeTab, setActiveTab] = useState<SearchTab>("All");
 
     const filteredTracks = (() => {

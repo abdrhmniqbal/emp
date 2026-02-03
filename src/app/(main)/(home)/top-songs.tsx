@@ -2,11 +2,10 @@ import { View, Text, ScrollView, Pressable, RefreshControl } from "react-native"
 import { useState, useCallback } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { playTrack, $tracks, Track } from "@/store/player-store";
-import { Colors } from "@/constants/colors";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Button } from "heroui-native";
 import { Ionicons } from "@expo/vector-icons";
 import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-store";
-import { useUniwind } from "uniwind";
 import { useStore } from "@nanostores/react";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { startIndexing, $indexerState } from "@/features/indexer";
@@ -22,8 +21,7 @@ const TOP_SONGS_LIMIT = 10;
 export default function TopSongsScreen() {
     const [activeTab, setActiveTab] = useState<TabType>("Realtime");
     const indexerState = useStore($indexerState);
-    const { theme: currentTheme } = useUniwind();
-    const theme = Colors[currentTheme === "dark" ? "dark" : "light"];
+    const theme = useThemeColors();
     const tracks = useStore($tracks);
 
     const onRefresh = useCallback(() => {
