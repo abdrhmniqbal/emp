@@ -9,8 +9,7 @@ import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-st
 import { Ionicons } from "@expo/vector-icons";
 import { startIndexing, $indexerState } from "@/features/indexer";
 import { getHistory, getTopSongs } from "@/db/operations";
-import { useSwipeNavigation } from "@/hooks/use-swipe-navigation";
-import { GestureDetector } from "react-native-gesture-handler";
+
 import { ContentSection, MediaCarousel, RankedListCarousel } from "@/components/ui";
 
 const RECENTLY_PLAYED_LIMIT = 8;
@@ -23,7 +22,7 @@ export default function HomeScreen() {
     const theme = useThemeColors();
     const indexerState = useStore($indexerState);
     const tracks = useStore($tracks);
-    const { swipeGesture } = useSwipeNavigation('(home)');
+
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -99,58 +98,56 @@ export default function HomeScreen() {
     ), []);
 
     return (
-        <GestureDetector gesture={swipeGesture}>
-            <ScrollView
-                className="flex-1 bg-background"
-                contentContainerStyle={{ paddingBottom: 200 }}
-                contentInsetAdjustmentBehavior="automatic"
-                onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
-                onScrollBeginDrag={handleScrollStart}
-                onMomentumScrollEnd={handleScrollStop}
-                onScrollEndDrag={handleScrollStop}
-                scrollEventThrottle={16}
-                refreshControl={
-                    <RefreshControl refreshing={indexerState.isIndexing} onRefresh={handleRefresh} tintColor={theme.accent} />
-                }
-            >
-                <View className="pt-6">
-                    <ContentSection
-                        title="Recently Played"
-                        data={recentlyPlayedTracks}
-                        onViewMore={() => router.push("/(main)/(home)/recently-played")}
-                        emptyState={{
-                            icon: "time-outline",
-                            title: "No recently played",
-                            message: "Start playing music!",
-                        }}
-                        renderContent={(data) => (
-                            <MediaCarousel
-                                data={data}
-                                renderItem={renderRecentlyPlayedItem}
-                                keyExtractor={(item, index) => `${item.id}-${index}`}
-                                gap={10}
-                            />
-                        )}
-                    />
+        <ScrollView
+            className="flex-1 bg-background"
+            contentContainerStyle={{ paddingBottom: 200 }}
+            contentInsetAdjustmentBehavior="automatic"
+            onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
+            onScrollBeginDrag={handleScrollStart}
+            onMomentumScrollEnd={handleScrollStop}
+            onScrollEndDrag={handleScrollStop}
+            scrollEventThrottle={16}
+            refreshControl={
+                <RefreshControl refreshing={indexerState.isIndexing} onRefresh={handleRefresh} tintColor={theme.accent} />
+            }
+        >
+            <View className="pt-6">
+                <ContentSection
+                    title="Recently Played"
+                    data={recentlyPlayedTracks}
+                    onViewMore={() => router.push("/(main)/(home)/recently-played")}
+                    emptyState={{
+                        icon: "time-outline",
+                        title: "No recently played",
+                        message: "Start playing music!",
+                    }}
+                    renderContent={(data) => (
+                        <MediaCarousel
+                            data={data}
+                            renderItem={renderRecentlyPlayedItem}
+                            keyExtractor={(item, index) => `${item.id}-${index}`}
+                            gap={10}
+                        />
+                    )}
+                />
 
-                    <ContentSection
-                        title="Top Songs"
-                        data={topSongs}
-                        onViewMore={() => router.push("/(main)/(home)/top-songs")}
-                        emptyState={{
-                            icon: "musical-notes-outline",
-                            title: "No top songs",
-                            message: "Play more music together!",
-                        }}
-                        renderContent={(data) => (
-                            <RankedListCarousel
-                                data={data}
-                                chunkSize={CHUNK_SIZE}
-                            />
-                        )}
-                    />
-                </View>
-            </ScrollView>
-        </GestureDetector>
+                <ContentSection
+                    title="Top Songs"
+                    data={topSongs}
+                    onViewMore={() => router.push("/(main)/(home)/top-songs")}
+                    emptyState={{
+                        icon: "musical-notes-outline",
+                        title: "No top songs",
+                        message: "Play more music together!",
+                    }}
+                    renderContent={(data) => (
+                        <RankedListCarousel
+                            data={data}
+                            chunkSize={CHUNK_SIZE}
+                        />
+                    )}
+                />
+            </View>
+        </ScrollView>
     );
 }

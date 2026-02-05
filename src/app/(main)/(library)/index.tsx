@@ -9,7 +9,7 @@ import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-st
 import { useStore } from "@nanostores/react";
 import { runOnJS } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { useSwipeNavigation } from "@/hooks/use-swipe-navigation";
+
 import { startIndexing, $indexerState } from "@/features/indexer";
 import { useFavorites } from "@/store/favorites-store";
 import {
@@ -70,7 +70,7 @@ export default function LibraryScreen() {
         }
     }, [activeTab]);
 
-    const { swipeGesture: mainTabSwipeGesture } = useSwipeNavigation('(library)');
+
 
     const swipeGesture = Gesture.Pan()
         .activeOffsetX([-20, 20])
@@ -93,7 +93,7 @@ export default function LibraryScreen() {
             }
         });
 
-    const tabSwipeGesture = Gesture.Race(swipeGesture, mainTabSwipeGesture);
+
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -211,7 +211,7 @@ export default function LibraryScreen() {
 
     return (
         <>
-            <GestureDetector gesture={tabSwipeGesture}>
+            <GestureDetector gesture={swipeGesture}>
                 <View className="flex-1 bg-background">
                     <ScrollView
                         className="flex-1"

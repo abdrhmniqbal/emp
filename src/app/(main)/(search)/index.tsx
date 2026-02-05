@@ -8,8 +8,7 @@ import { handleScroll, handleScrollStart, handleScrollStop } from "@/store/ui-st
 import { useStore } from "@nanostores/react";
 import { startIndexing, $indexerState } from "@/features/indexer";
 import { getAllGenres } from "@/db/operations";
-import { useSwipeNavigation } from "@/hooks/use-swipe-navigation";
-import { GestureDetector } from "react-native-gesture-handler";
+
 import { EmptyState } from "@/components/empty-state";
 
 type PatternType = 'circles' | 'waves' | 'grid' | 'diamonds' | 'triangles' | 'rings' | 'pills';
@@ -111,7 +110,7 @@ export default function SearchScreen() {
     const navigation = useNavigation();
     const router = useRouter();
     const indexerState = useStore($indexerState);
-    const { swipeGesture } = useSwipeNavigation('(search)');
+
     const [genreList, setGenreList] = useState<string[]>([]);
 
     const loadGenres = useCallback(async () => {
@@ -161,55 +160,53 @@ export default function SearchScreen() {
     }, [router]);
 
     return (
-        <GestureDetector gesture={swipeGesture}>
-            <ScrollView
-                className="flex-1 bg-background"
-                contentContainerStyle={{ padding: 20, paddingBottom: 200 }}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-                contentInsetAdjustmentBehavior="automatic"
-                onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
-                onScrollBeginDrag={handleScrollStart}
-                onMomentumScrollEnd={handleScrollStop}
-                onScrollEndDrag={handleScrollStop}
-                scrollEventThrottle={16}
-                refreshControl={
-                    <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
-                }
+        <ScrollView
+            className="flex-1 bg-background"
+            contentContainerStyle={{ padding: 20, paddingBottom: 200 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentInsetAdjustmentBehavior="automatic"
+            onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
+            onScrollBeginDrag={handleScrollStart}
+            onMomentumScrollEnd={handleScrollStop}
+            onScrollEndDrag={handleScrollStop}
+            scrollEventThrottle={16}
+            refreshControl={
+                <RefreshControl refreshing={indexerState.isIndexing} onRefresh={onRefresh} tintColor={theme.accent} />
+            }
+        >
+            {/* Search Button */}
+            <Pressable
+                onPress={handleSearchPress}
+                className="flex-row items-center bg-default/50 px-4 py-3 rounded-xl mb-6 active:opacity-70"
             >
-                {/* Search Button */}
-                <Pressable
-                    onPress={handleSearchPress}
-                    className="flex-row items-center bg-default/50 px-4 py-3 rounded-xl mb-6 active:opacity-70"
-                >
-                    <Ionicons name="search-outline" size={20} color={theme.muted} />
-                    <Text className="text-muted ml-2 text-base">Search for songs, artists, albums...</Text>
-                </Pressable>
+                <Ionicons name="search-outline" size={20} color={theme.muted} />
+                <Text className="text-muted ml-2 text-base">Search for songs, artists, albums...</Text>
+            </Pressable>
 
-                {/* Browse by Genre Section */}
-                <Text className="text-xl font-bold text-foreground mb-4">Browse by Genre</Text>
+            {/* Browse by Genre Section */}
+            <Text className="text-xl font-bold text-foreground mb-4">Browse by Genre</Text>
 
-                {genres.length > 0 ? (
-                    <View className="flex-row flex-wrap justify-between gap-y-4">
-                        {genres.map((genre) => (
-                            <CategoryCard
-                                key={genre.id}
-                                title={genre.title}
-                                color={genre.color}
-                                pattern={genre.pattern}
-                                onPress={() => handleGenrePress(genre)}
-                            />
-                        ))}
-                    </View>
-                ) : (
-                    <EmptyState
-                        icon="musical-notes-outline"
-                        title="No genres found"
-                        message="Start playing music to see genres here!"
-                        className="mt-8"
-                    />
-                )}
-            </ScrollView>
-        </GestureDetector>
+            {genres.length > 0 ? (
+                <View className="flex-row flex-wrap justify-between gap-y-4">
+                    {genres.map((genre) => (
+                        <CategoryCard
+                            key={genre.id}
+                            title={genre.title}
+                            color={genre.color}
+                            pattern={genre.pattern}
+                            onPress={() => handleGenrePress(genre)}
+                        />
+                    ))}
+                </View>
+            ) : (
+                <EmptyState
+                    icon="musical-notes-outline"
+                    title="No genres found"
+                    message="Start playing music to see genres here!"
+                    className="mt-8"
+                />
+            )}
+        </ScrollView>
     );
 }
