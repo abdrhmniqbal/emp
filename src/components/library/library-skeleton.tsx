@@ -3,7 +3,6 @@ import { View, Animated, Dimensions } from "react-native";
 import { useUniwind } from "uniwind";
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const GAP = 16;
 
 interface LibrarySkeletonProps {
     type: 'songs' | 'albums' | 'artists';
@@ -53,11 +52,11 @@ const ShimmerView = ({ className }: { className?: string }) => {
 };
 
 const SongSkeleton = () => (
-    <View className="flex-row items-center gap-3 py-2">
-        <View className="w-12 h-12 rounded-md bg-default">
+    <View className="flex-row items-center gap-3 py-2.5">
+        <View className="w-14 h-14 rounded-lg bg-default">
             <ShimmerView className="w-full h-full" />
         </View>
-        <View className="flex-1 gap-2">
+        <View className="flex-1 justify-center gap-0.5">
             <View className="h-4 w-3/4 rounded bg-default">
                 <ShimmerView className="w-full h-full" />
             </View>
@@ -65,41 +64,50 @@ const SongSkeleton = () => (
                 <ShimmerView className="w-full h-full" />
             </View>
         </View>
-        <View className="w-8 h-8 rounded bg-default">
-            <ShimmerView className="w-full h-full" />
-        </View>
     </View>
 );
 
 const AlbumSkeleton = () => {
-    const ITEM_WIDTH = (SCREEN_WIDTH - 32 - GAP) / 2;
+    const GAP = 12;
+    const NUM_COLUMNS = 2;
+    const HORIZONTAL_PADDING = 32;
+    const ITEM_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING - (GAP * (NUM_COLUMNS - 1))) / NUM_COLUMNS;
+    
     return (
         <View style={{ width: ITEM_WIDTH }}>
             <View className="w-full aspect-square rounded-md bg-default">
                 <ShimmerView className="w-full h-full" />
             </View>
-            <View className="mt-2 h-4 w-full rounded bg-default">
-                <ShimmerView className="w-full h-full" />
-            </View>
-            <View className="mt-1 h-3 w-2/3 rounded bg-default">
-                <ShimmerView className="w-full h-full" />
+            <View className="mt-1">
+                <View className="h-4 w-full rounded bg-default">
+                    <ShimmerView className="w-full h-full" />
+                </View>
+                <View className="mt-0.5 h-3 w-2/3 rounded bg-default">
+                    <ShimmerView className="w-full h-full" />
+                </View>
             </View>
         </View>
     );
 };
 
 const ArtistSkeleton = () => {
-    const ITEM_WIDTH = (SCREEN_WIDTH - 32 - GAP * 2) / 3;
+    const GAP = 12;
+    const NUM_COLUMNS = 3;
+    const HORIZONTAL_PADDING = 28;
+    const ITEM_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING - (GAP * (NUM_COLUMNS - 1))) / NUM_COLUMNS;
+    
     return (
         <View style={{ width: ITEM_WIDTH }} className="items-center">
             <View className="w-full aspect-square rounded-full bg-default">
                 <ShimmerView className="w-full h-full" />
             </View>
-            <View className="mt-2 h-4 w-full rounded bg-default">
-                <ShimmerView className="w-full h-full" />
-            </View>
-            <View className="mt-1 h-3 w-2/3 rounded bg-default">
-                <ShimmerView className="w-full h-full" />
+            <View className="mt-1 items-center">
+                <View className="h-4 w-full rounded bg-default">
+                    <ShimmerView className="w-full h-full" />
+                </View>
+                <View className="mt-0.5 h-3 w-2/3 rounded bg-default">
+                    <ShimmerView className="w-full h-full" />
+                </View>
             </View>
         </View>
     );
@@ -113,39 +121,55 @@ export const LibrarySkeleton: React.FC<LibrarySkeletonProps> = ({
         switch (type) {
             case 'songs':
                 return (
-                    <View className="px-4" style={{ gap: 8 }}>
+                    <View style={{ gap: 8 }}>
                         {Array.from({ length: itemCount }).map((_, i) => (
                             <SongSkeleton key={i} />
                         ))}
                     </View>
                 );
-            case 'albums':
+            case 'albums': {
+                const GAP = 12;
+                const NUM_COLUMNS = 2;
+                const rows = [];
+                for (let i = 0; i < itemCount; i += NUM_COLUMNS) {
+                    rows.push(
+                        <View key={i} className="flex-row" style={{ gap: GAP }}>
+                            {Array.from({ length: Math.min(NUM_COLUMNS, itemCount - i) }).map((_, j) => (
+                                <AlbumSkeleton key={i + j} />
+                            ))}
+                        </View>
+                    );
+                }
                 return (
-                    <View
-                        className="px-4 flex-row flex-wrap"
-                        style={{ gap: GAP }}
-                    >
-                        {Array.from({ length: itemCount }).map((_, i) => (
-                            <AlbumSkeleton key={i} />
-                        ))}
+                    <View style={{ gap: GAP }}>
+                        {rows}
                     </View>
                 );
-            case 'artists':
+            }
+            case 'artists': {
+                const GAP = 12;
+                const NUM_COLUMNS = 3;
+                const rows = [];
+                for (let i = 0; i < itemCount; i += NUM_COLUMNS) {
+                    rows.push(
+                        <View key={i} className="flex-row" style={{ gap: GAP }}>
+                            {Array.from({ length: Math.min(NUM_COLUMNS, itemCount - i) }).map((_, j) => (
+                                <ArtistSkeleton key={i + j} />
+                            ))}
+                        </View>
+                    );
+                }
                 return (
-                    <View
-                        className="px-4 flex-row flex-wrap"
-                        style={{ gap: GAP }}
-                    >
-                        {Array.from({ length: itemCount }).map((_, i) => (
-                            <ArtistSkeleton key={i} />
-                        ))}
+                    <View style={{ gap: GAP }}>
+                        {rows}
                     </View>
                 );
+            }
         }
     };
 
     return (
-        <View className="py-4">
+        <View>
             {renderSkeleton()}
         </View>
     );
