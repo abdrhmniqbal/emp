@@ -1,5 +1,5 @@
 import { atom } from 'nanostores';
-import TrackPlayer, { Event, State, Capability } from '@weights-ai/react-native-track-player';
+import TrackPlayer, { Event, State, Capability, RepeatMode } from '@weights-ai/react-native-track-player';
 import { loadFavorites } from '@/store/favorites-store';
 import {
     addToHistory,
@@ -14,6 +14,9 @@ export const $currentTrack = atom<Track | null>(null);
 export const $isPlaying = atom(false);
 export const $currentTime = atom(0);
 export const $duration = atom(0);
+
+export type RepeatModeType = 'off' | 'track' | 'queue';
+export const $repeatMode = atom<RepeatModeType>('off');
 
 let isPlayerReady = false;
 let currentTrackIndex = -1;
@@ -87,11 +90,9 @@ export const PlaybackService = async () => {
 
     // v4 API: Use PlaybackTrackChanged with nextTrack property
     TrackPlayer.addEventListener(Event.PlaybackTrackChanged, async (event) => {
-        // In v4, event.nextTrack is the track ID (string)
         if (event.nextTrack !== undefined && event.nextTrack !== null) {
             const track = await TrackPlayer.getTrack(event.nextTrack);
             if (track) {
-                // Map from TrackPlayer's Track format back to our Track interface
                 const currentTrack: Track = {
                     id: track.id as string,
                     title: track.title as string,
@@ -103,15 +104,10 @@ export const PlaybackService = async () => {
                 };
                 $currentTrack.set(currentTrack);
 
-                // Add to history and increment play count
                 addToHistory(currentTrack.id);
                 incrementPlayCount(currentTrack.id);
             }
         }
-    });
-
-    TrackPlayer.addEventListener(Event.PlaybackQueueEnded, () => {
-        // Optionally handle queue ended - could loop or stop
     });
 
     TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (event) => {
@@ -251,6 +247,32 @@ export const seekTo = async (seconds: number) => {
         await TrackPlayer.seekTo(seconds);
     } catch (e) {
     }
+};
+
+export const setRepeatMode = async (mode: RepeatModeType) => {
+    try {
+        let trackPlayerMode: RepeatMode;
+        switch (mode) {
+            case 'track':
+                trackPlayerMode = RepeatMode.Track;
+                break;
+            case 'queue':
+                trackPlayerMode = RepeatMode.Queue;
+                break;
+            case 'off':
+            default:
+                trackPlayerMode = RepeatMode.Off;
+        }
+        await TrackPlayer.setRepeatMode(trackPlayerMode);
+        $repeatMode.set(mode);
+    } catch (e) {
+    }
+};
+
+export const toggleRepeatMode = async () => {
+    const currentMode = $repeatMode.get();
+    const nextMode: RepeatModeType = currentMode === 'off' ? 'track' : currentMode === 'track' ? 'queue' : 'off';
+    await setRepeatMode(nextMode);
 };
 
 export const toggleFavorite = (trackId: string) => {
