@@ -369,7 +369,7 @@ export default function ArtistDetailsScreen() {
                                 </Pressable>
                             </View>
 
-                            <AlbumGrid data={sortedAlbums} onAlbumPress={handleAlbumPress} />
+                            <AlbumGrid data={sortedAlbums} onAlbumPress={handleAlbumPress} scrollEnabled={false} />
                         </>
                     )}
                 </Animated.View>
