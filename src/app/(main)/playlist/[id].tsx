@@ -14,6 +14,7 @@ import Animated, {
     FadeIn,
 } from "react-native-reanimated";
 import { usePlaylist } from "@/features/library/api/use-library";
+import { useIsFavorite, toggleFavoriteItem } from "@/store/favorites-store";
 
 function formatDuration(totalSeconds: number): string {
     const hours = Math.floor(totalSeconds / 3600);
@@ -34,6 +35,7 @@ export default function PlaylistDetailsScreen() {
 
     const { data: playlist, isLoading } = usePlaylist(id || "");
     const [scrollY, setScrollY] = useState(0);
+    const isFavorite = useIsFavorite(id || "", 'playlist');
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
@@ -78,6 +80,17 @@ export default function PlaylistDetailsScreen() {
             const randomIndex = Math.floor(Math.random() * tracks.length);
             playTrack(tracks[randomIndex], tracks);
         }
+    };
+
+    const handleToggleFavorite = async () => {
+        if (!playlist) return;
+        await toggleFavoriteItem(
+            playlist.id,
+            'playlist',
+            playlist.name,
+            `${tracks.length} songs`,
+            playlist.artwork || (tracks.length > 0 ? tracks[0].image : undefined)
+        );
     };
 
     const scrollProgress = Math.min(Math.max(scrollY / 200, 0), 1);
@@ -156,7 +169,16 @@ export default function PlaylistDetailsScreen() {
                     </View>
 
                     <View className="w-[88px] flex-row justify-end gap-3">
-                        {/* Optional: Edit/Delete/Favorite buttons for playlist */}
+                        <Pressable
+                            onPress={handleToggleFavorite}
+                            className={`w-10 h-10 rounded-full items-center justify-center active:opacity-50 ${getButtonBackground()}`}
+                        >
+                            <Ionicons
+                                name={isFavorite ? "heart" : "heart-outline"}
+                                size={22}
+                                color={isFavorite ? "#ef4444" : getIconColor()}
+                            />
+                        </Pressable>
                         <Pressable className={`w-10 h-10 rounded-full items-center justify-center active:opacity-50 ${getButtonBackground()}`}>
                             <Ionicons name="ellipsis-horizontal" size={22} color={getIconColor()} />
                         </Pressable>

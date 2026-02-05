@@ -54,6 +54,7 @@ export interface FavoriteEntry {
   name: string;
   subtitle?: string;
   image?: string;
+  images?: string[];
   dateAdded: number;
 }
 
@@ -194,15 +195,40 @@ export async function getFavorites(type?: FavoriteType): Promise<FavoriteEntry[]
       const favPlaylists = await db.query.playlists.findMany({
         where: eq(playlists.isFavorite, 1),
         orderBy: [desc(playlists.favoritedAt)],
+        with: {
+          tracks: {
+            with: {
+              track: {
+                with: {
+                  album: true
+                }
+              }
+            },
+            limit: 4
+          }
+        }
       });
-      favorites.push(...favPlaylists.map((p) => ({
-        id: p.id,
-        type: 'playlist' as FavoriteType,
-        name: p.name,
-        subtitle: `${p.trackCount} tracks`,
-        image: p.artwork || undefined,
-        dateAdded: p.favoritedAt || Date.now(),
-      })));
+      favorites.push(...favPlaylists.map((p) => {
+        const images: string[] = [];
+        if (!p.artwork) {
+          p.tracks.forEach(pt => {
+            const artwork = pt.track?.artwork || pt.track?.album?.artwork;
+            if (artwork && !images.includes(artwork)) {
+              images.push(artwork);
+            }
+          });
+        }
+
+        return {
+          id: p.id,
+          type: 'playlist' as FavoriteType,
+          name: p.name,
+          subtitle: `${p.trackCount} tracks`,
+          image: p.artwork || undefined,
+          images: images.length > 0 ? images : undefined,
+          dateAdded: p.favoritedAt || Date.now(),
+        };
+      }));
     }
 
     // Sort all favorites by date added (most recent first)

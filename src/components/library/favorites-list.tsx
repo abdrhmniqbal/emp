@@ -41,24 +41,33 @@ const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({ favorite }) 
 
         case 'playlist':
             return (
-                <ItemImage className="bg-default items-center justify-center overflow-hidden p-1">
+                <ItemImage className="bg-default items-center justify-center overflow-hidden">
                     {favorite.image ? (
-                        <View className="w-full h-full rounded-lg overflow-hidden">
-                            <RNImage
-                                source={{ uri: favorite.image }}
-                                className="w-full h-full"
-                                resizeMode="cover"
-                            />
-                        </View>
-                    ) : (
-                        <View className="flex-row flex-wrap w-full h-full">
-                            {GRID_ITEMS.map((i) => (
-                                <View key={i} className="w-1/2 h-1/2 p-px">
-                                    <View className="w-full h-full bg-muted/20 rounded-sm items-center justify-center">
-                                        <Ionicons name="musical-note" size={10} color={theme.muted} style={{ opacity: 0.5 }} />
-                                    </View>
-                                </View>
+                        <RNImage
+                            source={{ uri: favorite.image }}
+                            className="w-full h-full"
+                            resizeMode="cover"
+                        />
+                    ) : favorite.images && favorite.images.length >= 4 ? (
+                        <View className="flex-row flex-wrap w-full h-full overflow-hidden">
+                            {favorite.images.slice(0, 4).map((img, i) => (
+                                <RNImage
+                                    key={i}
+                                    source={{ uri: img }}
+                                    className="w-1/2 h-1/2"
+                                    resizeMode="cover"
+                                />
                             ))}
+                        </View>
+                    ) : favorite.images && favorite.images.length > 0 ? (
+                        <RNImage
+                            source={{ uri: favorite.images[0] }}
+                            className="w-full h-full"
+                            resizeMode="cover"
+                        />
+                    ) : (
+                        <View className="w-full h-full items-center justify-center bg-muted/20">
+                            <Ionicons name="musical-notes" size={24} color={theme.muted} />
                         </View>
                     )}
                 </ItemImage>
@@ -138,6 +147,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({ data, scrollEnable
                 router.push(`/album/${encodeURIComponent(favorite.name)}`);
                 break;
             case 'playlist':
+                router.push(`/playlist/${favorite.id}`);
                 break;
         }
     }, [tracks, router]);
