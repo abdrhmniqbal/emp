@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '@nanostores/react';
-import { $currentTrack, $isPlaying, $currentTime, $duration, togglePlayback } from '@/store/player-store';
+import { $currentTrack, $isPlaying, $currentTime, $duration, togglePlayback, playNext } from '@/store/player-store';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { $isPlayerExpanded, $showPlayerQueue } from '@/store/ui-store';
@@ -30,18 +30,21 @@ export const MiniPlayer = () => {
                 borderTopColor: theme.divider
             }}
         >
-            <Pressable className="flex-1" onPress={() => $isPlayerExpanded.set(true)}>
-                <View className="absolute top-0 left-0 right-0 h-[2px] bg-default/20">
-                    <View
-                        style={{
-                            width: `${progressPercent}%`,
-                            height: '100%',
-                            backgroundColor: theme.accent
-                        }}
-                    />
-                </View>
+            <View className="absolute top-0 left-0 right-0 h-[2px] bg-default/20">
+                <View
+                    style={{
+                        width: `${progressPercent}%`,
+                        height: '100%',
+                        backgroundColor: theme.accent
+                    }}
+                />
+            </View>
 
-                <View className="flex-1 flex-row items-center px-4 gap-3">
+            <View className="flex-1 flex-row items-center px-4 gap-3">
+                <Pressable
+                    onPress={() => $isPlayerExpanded.set(true)}
+                    className="flex-row items-center flex-1 gap-3 active:opacity-80"
+                >
                     <View
                         className="w-11 h-11 rounded-md bg-default items-center justify-center overflow-hidden"
                     >
@@ -67,31 +70,30 @@ export const MiniPlayer = () => {
                             speed={0.5}
                         />
                     </View>
+                </Pressable>
 
-                    <View className="flex-row items-center gap-5">
-                        <Pressable onPress={(e) => { e.stopPropagation(); togglePlayback(); }} className="active:opacity-60">
-                            <Ionicons
-                                name={isPlaying ? "pause-sharp" : "play-sharp"}
-                                size={28}
-                                color={theme.foreground}
-                            />
-                        </Pressable>
-                        <Pressable onPress={(e) => e.stopPropagation()} className="active:opacity-60">
-                            <Ionicons name="play-skip-forward-sharp" size={24} color={theme.foreground} />
-                        </Pressable>
-                        <Pressable
-                            onPress={(e) => {
-                                e.stopPropagation();
-                                $showPlayerQueue.set(true);
-                                $isPlayerExpanded.set(true);
-                            }}
-                            className="active:opacity-60"
-                        >
-                            <Ionicons name="list-sharp" size={22} color={theme.muted} />
-                        </Pressable>
-                    </View>
+                <View className="flex-row items-center gap-3">
+                    <Pressable onPress={togglePlayback} className="p-2 active:opacity-60">
+                        <Ionicons
+                            name={isPlaying ? "pause-sharp" : "play-sharp"}
+                            size={28}
+                            color={theme.foreground}
+                        />
+                    </Pressable>
+                    <Pressable onPress={playNext} className="p-2 active:opacity-60">
+                        <Ionicons name="play-skip-forward-sharp" size={24} color={theme.foreground} />
+                    </Pressable>
+                    <Pressable
+                        onPress={() => {
+                            $showPlayerQueue.set(true);
+                            $isPlayerExpanded.set(true);
+                        }}
+                        className="p-2 active:opacity-60"
+                    >
+                        <Ionicons name="list-sharp" size={22} color={theme.muted} />
+                    </Pressable>
                 </View>
-            </Pressable>
+            </View>
         </Animated.View>
     );
 };
