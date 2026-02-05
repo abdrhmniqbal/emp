@@ -107,7 +107,7 @@ export default function ArtistDetailsScreen() {
     };
 
     const handleAlbumPress = (album: Album) => {
-        router.push(`/album/${encodeURIComponent(album.title)}`);
+        router.push(`../album/${encodeURIComponent(album.title)}`);
     };
 
     const getSortLabel = () => {

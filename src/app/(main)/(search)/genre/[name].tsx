@@ -70,7 +70,7 @@ export default function GenreDetailsScreen() {
 
     const renderAlbumItem = useCallback((album: AlbumInfo, index: number) => (
         <Pressable
-            onPress={() => router.push(`/album/${encodeURIComponent(album.name)}`)}
+            onPress={() => router.push(`/(main)/(library)/album/${encodeURIComponent(album.name)}`)}
             className="active:opacity-70"
         >
             <View className="w-36 h-36 rounded-lg overflow-hidden bg-surface-secondary mb-2">
@@ -146,7 +146,7 @@ export default function GenreDetailsScreen() {
                 <ContentSection
                     title="Top Songs"
                     data={topSongs}
-                    onViewMore={() => router.push(`/genre/top-songs?name=${encodeURIComponent(genreName)}`)}
+                    onViewMore={() => router.push(`./top-songs?name=${encodeURIComponent(genreName)}`)}
                     emptyState={{
                         icon: "musical-notes-outline",
                         title: "No top songs",
@@ -163,7 +163,7 @@ export default function GenreDetailsScreen() {
                 <ContentSection
                     title="Recommended Albums"
                     data={previewAlbums}
-                    onViewMore={() => router.push(`/genre/albums?name=${encodeURIComponent(genreName)}`)}
+                    onViewMore={() => router.push(`./albums?name=${encodeURIComponent(genreName)}`)}
                     emptyState={{
                         icon: "disc-outline",
                         title: "No albums found",

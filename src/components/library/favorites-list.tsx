@@ -141,13 +141,13 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({ data, scrollEnable
                 }
                 break;
             case 'artist':
-                router.push(`/artist/${encodeURIComponent(favorite.name)}`);
+                router.push(`./artist/${encodeURIComponent(favorite.name)}`);
                 break;
             case 'album':
-                router.push(`/album/${encodeURIComponent(favorite.name)}`);
+                router.push(`./album/${encodeURIComponent(favorite.name)}`);
                 break;
             case 'playlist':
-                router.push(`/playlist/${favorite.id}`);
+                router.push(`./playlist/${favorite.id}`);
                 break;
         }
     }, [tracks, router]);

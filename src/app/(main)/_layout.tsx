@@ -82,50 +82,6 @@ export default function MainLayout() {
                     ),
                 }}
             />
-            <Tabs.Screen
-                name="artist/[name]"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
-                name="album/[name]"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
-                name="genre/[name]"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
-                name="genre/albums"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
-                name="genre/top-songs"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
-                name="playlist/create"
-                options={{
-                    href: null,
-                    tabBarStyle: { display: 'none' },
-                }}
-            />
-            <Tabs.Screen
-                name="playlist/[id]"
-                options={{
-                    href: null,
-                    tabBarStyle: { display: 'none' },
-                }}
-            />
         </Tabs>
     );
 }

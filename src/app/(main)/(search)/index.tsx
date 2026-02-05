@@ -152,7 +152,7 @@ export default function SearchScreen() {
     }));
 
     const handleGenrePress = useCallback((genre: Category) => {
-        router.push(`/genre/${encodeURIComponent(genre.title)}`);
+        router.push(`./genre/${encodeURIComponent(genre.title)}`);
     }, [router]);
 
     const handleSearchPress = useCallback(() => {

@@ -22,6 +22,24 @@ export default function SearchLayout() {
                     headerLargeTitle: true,
                 }}
             />
+            <Stack.Screen
+                name="genre/[name]"
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Stack.Screen
+                name="genre/albums"
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Stack.Screen
+                name="genre/top-songs"
+                options={{
+                    headerShown: false,
+                }}
+            />
         </Stack>
     );
 }

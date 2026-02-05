@@ -53,7 +53,7 @@ export default function GenreAlbumsScreen() {
     }, [loadAlbums]);
 
     const handleAlbumPress = (album: Album) => {
-        router.push(`/album/${encodeURIComponent(album.title)}`);
+        router.push(`/(main)/(library)/album/${encodeURIComponent(album.title)}`);
     };
 
     // Transform AlbumInfo to Album format

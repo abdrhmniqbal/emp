@@ -118,15 +118,15 @@ export default function LibraryScreen() {
     }, []);
 
     const handleArtistPress = useCallback((artist: { id: string; name: string }) => {
-        router.push(`/artist/${encodeURIComponent(artist.name)}`);
+        router.push(`./artist/${encodeURIComponent(artist.name)}`);
     }, [router]);
 
     const handleAlbumPress = useCallback((album: { id: string; title: string }) => {
-        router.push(`/album/${encodeURIComponent(album.title)}`);
+        router.push(`./album/${encodeURIComponent(album.title)}`);
     }, [router]);
 
     const handlePlaylistPress = useCallback((playlist: { id: string }) => {
-        router.push(`/playlist/${playlist.id}`);
+        router.push(`./playlist/${playlist.id}`);
     }, [router]);
 
     const handleSongPress = useCallback((track: Track) => {
@@ -199,7 +199,7 @@ export default function LibraryScreen() {
             case "Artists":
                 return <ArtistsTab sortConfig={sortConfig} onArtistPress={handleArtistPress} />;
             case "Playlists":
-                return <PlaylistList data={playlists} scrollEnabled={false} onCreatePlaylist={() => router.push('/playlist/create')} onPlaylistPress={handlePlaylistPress} />;
+                return <PlaylistList data={playlists} scrollEnabled={false} onCreatePlaylist={() => router.push('./playlist/create')} onPlaylistPress={handlePlaylistPress} />;
             case "Folders":
                 return <FolderList data={folders} />;
             case "Favorites":

@@ -41,6 +41,33 @@ export default function LibraryLayout() {
                     ),
                 }}
             />
+            <Stack.Screen
+                name="artist/[name]"
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Stack.Screen
+                name="album/[name]"
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Stack.Screen
+                name="playlist/[id]"
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Stack.Screen
+                name="playlist/create"
+                options={{
+                    presentation: 'modal',
+                    headerShown: true,
+                    title: "Create Playlist",
+                }}
+            />
+
         </Stack>
     );
 }
