@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { Layout } from "react-native-reanimated";
 import { useStore } from "@nanostores/react";
 import { playNext, playPrevious, togglePlayback, toggleRepeatMode, $repeatMode, RepeatModeType } from "@/store/player-store";
+import { toggleShuffle, $isShuffled } from "@/store/queue-store";
 
 interface PlaybackControlsProps {
     isPlaying: boolean;
@@ -28,6 +29,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ isPlaying, c
     const containerClass = compact ? 'w-16 h-16' : 'w-20 h-20';
     const gapClass = compact ? 'gap-6' : 'gap-8';
     const repeatMode = useStore($repeatMode);
+    const isShuffled = useStore($isShuffled);
 
     return (
         <Animated.View
@@ -64,8 +66,13 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ isPlaying, c
                 </Pressable>
             </View>
 
-            <Pressable className="active:opacity-50">
-                <Ionicons name="shuffle" size={24} color="white" style={{ opacity: 0.7 }} />
+            <Pressable onPress={toggleShuffle} className="active:opacity-50">
+                <Ionicons
+                    name="shuffle"
+                    size={24}
+                    color={isShuffled ? '#22c55e' : 'white'}
+                    style={{ opacity: isShuffled ? 1 : 0.7 }}
+                />
             </Pressable>
         </Animated.View>
     );

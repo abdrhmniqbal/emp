@@ -1,8 +1,10 @@
 import { atom, computed } from 'nanostores';
-import TrackPlayer from '@weights-ai/react-native-track-player';
+import TrackPlayer, { State } from '@weights-ai/react-native-track-player';
 import { Track, $currentTrack } from './player-store';
 
 export const $queue = atom<Track[]>([]);
+export const $originalQueue = atom<Track[]>([]);
+export const $isShuffled = atom<boolean>(false);
 
 export const $queueInfo = computed(
     [$queue, $currentTrack],
@@ -120,4 +122,99 @@ export const moveInQueue = async (fromIndex: number, toIndex: number) => {
     $queue.set(queue);
 
     await TrackPlayer.move(fromIndex, toIndex);
+};
+
+export const toggleShuffle = async () => {
+    const isShuffled = $isShuffled.get();
+    const queue = $queue.get();
+    const currentTrack = $currentTrack.get();
+
+    if (queue.length <= 1) return;
+
+    if (!isShuffled) {
+        // Store original queue before shuffling
+        $originalQueue.set([...queue]);
+
+        // Find current track position
+        const currentIndex = currentTrack
+            ? queue.findIndex(t => t.id === currentTrack.id)
+            : 0;
+
+        // Split queue: keep played + current tracks, shuffle only upcoming
+        const playedAndCurrent = queue.slice(0, currentIndex + 1);
+        const upcoming = queue.slice(currentIndex + 1);
+
+        // Fisher-Yates shuffle for upcoming tracks only
+        for (let i = upcoming.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [upcoming[i], upcoming[j]] = [upcoming[j], upcoming[i]];
+        }
+
+        const shuffledQueue = [...playedAndCurrent, ...upcoming];
+        $queue.set(shuffledQueue);
+        $isShuffled.set(true);
+
+        // Update TrackPlayer queue without interrupting playback
+        // Remove all tracks after current and add shuffled upcoming tracks
+        const tpQueue = await TrackPlayer.getQueue();
+        const currentTpIndex = await TrackPlayer.getCurrentTrack();
+
+        if (currentTpIndex !== null && currentTpIndex !== undefined) {
+            // Remove upcoming tracks from TrackPlayer
+            for (let i = tpQueue.length - 1; i > currentTpIndex; i--) {
+                await TrackPlayer.remove(i);
+            }
+
+            // Add shuffled upcoming tracks
+            for (const track of upcoming) {
+                await TrackPlayer.add({
+                    id: track.id,
+                    url: track.uri,
+                    title: track.title,
+                    artist: track.artist,
+                    album: track.album,
+                    artwork: track.image,
+                    duration: track.duration,
+                });
+            }
+        }
+    } else {
+        // Restore original queue order
+        const originalQueue = $originalQueue.get();
+        const currentIndex = currentTrack
+            ? originalQueue.findIndex(t => t.id === currentTrack.id)
+            : 0;
+
+        // Keep played + current, restore original order for upcoming
+        const playedAndCurrent = originalQueue.slice(0, currentIndex + 1);
+        const originalUpcoming = originalQueue.slice(currentIndex + 1);
+
+        const restoredQueue = [...playedAndCurrent, ...originalUpcoming];
+        $queue.set(restoredQueue);
+        $isShuffled.set(false);
+
+        // Update TrackPlayer queue without interrupting playback
+        const tpQueue = await TrackPlayer.getQueue();
+        const currentTpIndex = await TrackPlayer.getCurrentTrack();
+
+        if (currentTpIndex !== null && currentTpIndex !== undefined) {
+            // Remove all tracks after current
+            for (let i = tpQueue.length - 1; i > currentTpIndex; i--) {
+                await TrackPlayer.remove(i);
+            }
+
+            // Add original upcoming tracks in order
+            for (const track of originalUpcoming) {
+                await TrackPlayer.add({
+                    id: track.id,
+                    url: track.uri,
+                    title: track.title,
+                    artist: track.artist,
+                    album: track.album,
+                    artwork: track.image,
+                    duration: track.duration,
+                });
+            }
+        }
+    }
 };
