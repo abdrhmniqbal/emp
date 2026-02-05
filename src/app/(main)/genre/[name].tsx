@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { View, ScrollView, RefreshControl, Image, Pressable, Text } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -68,13 +68,13 @@ export default function GenreDetailsScreen() {
         });
     }, [navigation]);
 
-    const allTopSongs = useMemo(() => {
+    const allTopSongs = (() => {
         if (genreTrackIds.size === 0) return [];
 
         return allTracks
             .filter(t => genreTrackIds.has(t.id) && !t.isDeleted)
             .sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
-    }, [allTracks, genreTrackIds]);
+    })();
 
     const topSongs = allTopSongs.slice(0, PREVIEW_LIMIT);
     const previewAlbums = albums

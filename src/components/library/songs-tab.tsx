@@ -22,9 +22,7 @@ export const SongsTab = React.memo(({ onSongPress, sortConfig }: SongsTabProps) 
         sortOrder: order,
     });
 
-    const tracks = React.useMemo(() => {
-        return (dbTracks as DBTrack[]).map(transformDBTrackToTrack);
-    }, [dbTracks]);
+    const tracks = (dbTracks as DBTrack[]).map(transformDBTrackToTrack);
 
     const handleSongPress = (track: Track) => {
         onSongPress?.(track);

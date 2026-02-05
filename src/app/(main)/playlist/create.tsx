@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { View, Text, TextInput, Pressable, ScrollView, Image, LayoutAnimation, Platform, UIManager } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -58,9 +58,7 @@ export default function CreatePlaylistScreen() {
         });
     }, []);
 
-    const selectedTracksList = useMemo(() => {
-        return allTracks.filter(t => selectedTracks.has(t.id));
-    }, [allTracks, selectedTracks]);
+    const selectedTracksList = allTracks.filter(t => selectedTracks.has(t.id));
 
     const canSave = name.trim().length > 0;
 

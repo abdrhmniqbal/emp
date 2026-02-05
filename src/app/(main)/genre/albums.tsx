@@ -57,12 +57,13 @@ export default function GenreAlbumsScreen() {
     };
 
     // Transform AlbumInfo to Album format
-    const albumData: Album[] = albums
+    const albumData: Album[] = [...albums]
         .sort((a, b) => (b.year || 0) - (a.year || 0))
         .map((album, index) => ({
             id: `${album.name}-${index}`,
             title: album.name,
             artist: album.artist || "Unknown Artist",
+            albumArtist: album.artist,
             image: album.image,
             trackCount: album.trackCount,
             year: album.year || 0,
@@ -86,14 +87,14 @@ export default function GenreAlbumsScreen() {
                     className="text-lg font-bold text-foreground flex-1 text-center mx-2"
                     numberOfLines={1}
                 >
-                    Recommended Albums
+                    {genreName} Albums
                 </Text>
 
                 <Pressable
                     onPress={() => router.push("/settings")}
                     className="w-10 h-10 rounded-full items-center justify-center active:opacity-50"
                 >
-                    <Ionicons name="settings-outline" size={22} color={theme.foreground} />
+                    <Ionicons name="ellipsis-horizontal" size={22} color={theme.foreground} />
                 </Pressable>
             </View>
 
@@ -120,7 +121,7 @@ export default function GenreAlbumsScreen() {
                 <Animated.View
                     entering={FadeInRight.duration(300)}
                     exiting={FadeOutLeft.duration(300)}
-                    className="px-4 py-4"
+                    className="px-6 py-4"
                 >
                     {albumData.length === 0 ? (
                         <EmptyState
@@ -130,10 +131,22 @@ export default function GenreAlbumsScreen() {
                             className="mt-12"
                         />
                     ) : (
-                        <AlbumGrid
-                            data={albumData}
-                            onAlbumPress={handleAlbumPress}
-                        />
+                        <>
+                            <View className="flex-row items-center justify-between mb-4">
+                                <Text className="text-lg font-bold text-foreground">
+                                    {albumData.length} Albums
+                                </Text>
+                                <Pressable className="flex-row items-center gap-1 active:opacity-50">
+                                    <Text className="text-sm font-medium text-muted">Year</Text>
+                                    <Ionicons name="arrow-down" size={14} color={theme.muted} />
+                                </Pressable>
+                            </View>
+                            <AlbumGrid
+                                data={albumData}
+                                onAlbumPress={handleAlbumPress}
+                                scrollEnabled={false}
+                            />
+                        </>
                     )}
                 </Animated.View>
             </ScrollView>
