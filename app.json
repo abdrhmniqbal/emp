@@ -9,6 +9,16 @@
     },
     "name": "emp",
     "slug": "emp",
+    "splash": {
+      "image": "./android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff",
+      "dark": {
+        "image": "./android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#09090b"
+      }
+    },
     "extra": {
       "eas": {
         "projectId": "5db0649c-cba6-4a3a-b862-40d8e83f4e2c"
