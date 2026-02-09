@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/empty-state";
 export interface Playlist {
     id: string;
     title: string;
-    songCount: number;
+    trackCount: number;
     image?: string;
     images?: string[];
 }
@@ -39,8 +39,8 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         onCreatePlaylist?.();
     };
 
-    const formatSongCount = (count: number) =>
-        `${count} ${count === 1 ? 'song' : 'songs'}`;
+    const formatTrackCount = (count: number) =>
+        `${count} ${count === 1 ? 'track' : 'tracks'}`;
 
     const renderCreateButton = () => (
         <Item key="create" onPress={handleCreate}>
@@ -90,7 +90,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
             </ItemImage>
             <ItemContent>
                 <ItemTitle>{item.title}</ItemTitle>
-                <ItemDescription>{formatSongCount(item.songCount)}</ItemDescription>
+                <ItemDescription>{formatTrackCount(item.trackCount)}</ItemDescription>
             </ItemContent>
             <ItemAction>
                 <Ionicons name="chevron-forward" size={24} color={theme.muted} />

@@ -5,7 +5,7 @@ import { useUniwind } from "uniwind";
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface LibrarySkeletonProps {
-    type: 'songs' | 'albums' | 'artists';
+    type: 'tracks' | 'albums' | 'artists';
     itemCount?: number;
 }
 
@@ -51,7 +51,7 @@ const ShimmerView = ({ className }: { className?: string }) => {
     );
 };
 
-const SongSkeleton = () => (
+const TrackSkeleton = () => (
     <View className="flex-row items-center gap-3 py-2.5">
         <View className="w-14 h-14 rounded-lg bg-default">
             <ShimmerView className="w-full h-full" />
@@ -119,11 +119,11 @@ export const LibrarySkeleton: React.FC<LibrarySkeletonProps> = ({
 }) => {
     const renderSkeleton = () => {
         switch (type) {
-            case 'songs':
+            case 'tracks':
                 return (
                     <View style={{ gap: 8 }}>
                         {Array.from({ length: itemCount }).map((_, i) => (
-                            <SongSkeleton key={i} />
+                            <TrackSkeleton key={i} />
                         ))}
                     </View>
                 );

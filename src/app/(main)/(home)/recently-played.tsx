@@ -1,1 +1,1 @@
-export { default } from "@/features/home/RecentlyPlayedScreen";
+export { default } from "@/modules/history/screens/RecentlyPlayedScreen";

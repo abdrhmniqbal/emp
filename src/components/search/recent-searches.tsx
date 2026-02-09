@@ -8,7 +8,7 @@ export interface RecentSearchItem {
     id: string;
     title: string;
     subtitle: string;
-    type?: 'song' | 'album' | 'artist' | 'playlist';
+    type?: 'track' | 'album' | 'artist' | 'playlist';
 }
 
 interface RecentSearchesProps {

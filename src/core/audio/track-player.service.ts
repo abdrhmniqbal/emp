@@ -1,5 +1,5 @@
-import { TrackPlayer } from '@/features/player/player.service';
-import { PlaybackService, setupPlayer } from '@/features/player/player.store';
+import { TrackPlayer } from '@/modules/player/player.utils';
+import { PlaybackService, setupPlayer } from '@/modules/player/player.store';
 
 let isPlaybackServiceRegistered = false;
 

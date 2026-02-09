@@ -1,1 +1,1 @@
-export { default } from "@/features/search/GenreAlbumsScreen";
+export { default } from "@/modules/search/screens/GenreAlbumsScreen";

@@ -4,11 +4,11 @@ import { LegendList, LegendListRenderItemProps } from "@legendapp/list";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
 import { useThemeColors } from "@/hooks/use-theme-colors";
-import { playTrack, Track, $tracks } from "@/features/player/player.store";
-import { FavoriteEntry, FavoriteType } from "@/db/operations";
+import { playTrack, Track, $tracks } from "@/modules/player/player.store";
+import type { FavoriteEntry, FavoriteType } from "@/modules/favorites/favorites.store";
 import { useStore } from "@nanostores/react";
 import { useRouter } from "expo-router";
-import { toggleFavoriteItem } from "@/features/favorites/favorites.store";
+import { toggleFavoriteItem } from "@/modules/favorites/favorites.store";
 import { EmptyState } from "@/components/empty-state";
 
 interface FavoritesListProps {
@@ -96,7 +96,7 @@ const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({ favorite }) 
 const getTypeLabel = (type: FavoriteType): string => {
     switch (type) {
         case 'track':
-            return 'Song';
+            return 'Track';
         case 'artist':
             return 'Artist';
         case 'album':
@@ -129,7 +129,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({ data, scrollEnable
     const router = useRouter();
 
     if (data.length === 0) {
-        return <EmptyState icon="heart" title="No Favorites" message="Your favorite songs, artists, and albums will appear here." />;
+        return <EmptyState icon="heart" title="No Favorites" message="Your favorite tracks, artists, and albums will appear here." />;
     }
 
     const handlePress = (favorite: FavoriteEntry) => {

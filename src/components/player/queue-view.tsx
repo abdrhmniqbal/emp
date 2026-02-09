@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text, Pressable, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
-import { Track, playTrack } from "@/features/player/player.store";
+import { Track, playTrack } from "@/modules/player/player.store";
 import { useStore } from "@nanostores/react";
-import { $queueInfo, removeFromQueue } from "@/features/player/queue.store";
+import { $queueInfo, removeFromQueue } from "@/modules/player/queue.store";
 
 interface QueueItemProps {
     track: Track;
@@ -89,7 +89,7 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
         >
             <View className="mb-2 px-2 flex-row justify-between items-center">
                 <Text className="text-white/60 text-sm">
-                    Up Next • {upNext.length} {upNext.length === 1 ? 'song' : 'songs'}
+                    Up Next • {upNext.length} {upNext.length === 1 ? 'track' : 'tracks'}
                 </Text>
             </View>
             <View className="flex-1 h-0">

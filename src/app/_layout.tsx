@@ -6,7 +6,7 @@ import { Stack } from "expo-router";
 import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { useUniwind } from "uniwind";
-import { useAppBootstrap } from "@/features/bootstrap/use-app-bootstrap";
+import { useAppBootstrap } from "@/modules/bootstrap/hooks/use-app-bootstrap";
 
 import { FullPlayer } from "@/components/full-player";
 import { IndexingProgress } from "@/components/indexing-progress";

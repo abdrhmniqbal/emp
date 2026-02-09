@@ -3,8 +3,8 @@ import { View, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { Layout } from "react-native-reanimated";
 import { useStore } from "@nanostores/react";
-import { playNext, playPrevious, togglePlayback, toggleRepeatMode, $repeatMode, RepeatModeType } from "@/features/player/player.store";
-import { toggleShuffle, $isShuffled } from "@/features/player/queue.store";
+import { playNext, playPrevious, togglePlayback, toggleRepeatMode, $repeatMode, RepeatModeType } from "@/modules/player/player.store";
+import { toggleShuffle, $isShuffled } from "@/modules/player/queue.store";
 
 interface PlaybackControlsProps {
     isPlaying: boolean;

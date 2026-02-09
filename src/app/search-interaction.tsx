@@ -1,1 +1,1 @@
-export { default } from "@/features/search/SearchInteractionScreen";
+export { default } from "@/modules/search/screens/SearchInteractionScreen";

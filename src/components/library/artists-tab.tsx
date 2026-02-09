@@ -2,8 +2,8 @@ import React from "react";
 import { ArtistGrid, Artist } from "@/components/library/artist-grid";
 import { LibrarySkeleton } from "@/components/library/library-skeleton";
 import { EmptyState } from "@/components/empty-state";
-import { useArtists } from "@/features/library/api/use-library";
-import { SortConfig } from "@/features/library/library-sort.store";
+import { useArtists } from "@/modules/library/library.queries";
+import { SortConfig } from "@/modules/library/library-sort.store";
 
 interface ArtistsTabProps {
     onArtistPress?: (artist: Artist) => void;

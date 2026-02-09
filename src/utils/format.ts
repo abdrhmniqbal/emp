@@ -6,6 +6,3 @@ export const formatDuration = (seconds: number): string => {
 
 export const formatTrackCount = (count: number): string =>
     `${count} ${count === 1 ? "track" : "tracks"}`;
-
-export const formatSongCount = (count: number): string =>
-    `${count} ${count === 1 ? "song" : "songs"}`;

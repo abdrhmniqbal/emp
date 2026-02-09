@@ -2,8 +2,8 @@ import React from "react";
 import { AlbumGrid, Album } from "@/components/library/album-grid";
 import { LibrarySkeleton } from "@/components/library/library-skeleton";
 import { EmptyState } from "@/components/empty-state";
-import { useAlbums } from "@/features/library/api/use-library";
-import { SortConfig } from "@/features/library/library-sort.store";
+import { useAlbums } from "@/modules/library/library.queries";
+import { SortConfig } from "@/modules/library/library-sort.store";
 
 interface AlbumsTabProps {
     onAlbumPress?: (album: Album) => void;

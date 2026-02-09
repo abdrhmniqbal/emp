@@ -42,7 +42,7 @@ export default function HomeLayout() {
                 }}
             />
             <Stack.Screen name="recently-played" options={{ title: "Recently Played" }} />
-            <Stack.Screen name="top-songs" options={{ title: "Top Songs" }} />
+            <Stack.Screen name="top-tracks" options={{ title: "Top Tracks" }} />
         </Stack>
     );
 }

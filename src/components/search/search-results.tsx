@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Item, ItemImage, ItemContent, ItemTitle, ItemDescription, ItemAction } from "@/components/item";
-import { playTrack, Track } from "@/features/player/player.store";
+import { playTrack, Track } from "@/modules/player/player.store";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 
-const SEARCH_TABS = ["All", "Song", "Album", "Artist", "Playlist"] as const;
+const SEARCH_TABS = ["All", "Track", "Album", "Artist", "Playlist"] as const;
 type SearchTab = typeof SEARCH_TABS[number];
 
 interface ArtistResult {
@@ -30,7 +30,7 @@ interface SearchResultsProps {
     query: string;
     onArtistPress?: (artist: ArtistResult) => void;
     onAlbumPress?: (album: AlbumResult) => void;
-    onSeeMoreSongs?: () => void;
+    onSeeMoreTracks?: () => void;
 }
 
 export const SearchResults: React.FC<SearchResultsProps> = ({
@@ -38,7 +38,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     query,
     onArtistPress,
     onAlbumPress,
-    onSeeMoreSongs,
+    onSeeMoreTracks,
 }) => {
     const theme = useThemeColors();
     const [activeTab, setActiveTab] = useState<SearchTab>("All");
@@ -103,7 +103,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
 
     const showArtists = activeTab === 'All' || activeTab === 'Artist';
     const showAlbums = activeTab === 'All' || activeTab === 'Album' || activeTab === 'Playlist';
-    const showSongs = activeTab === 'All' || activeTab === 'Song';
+    const showTracks = activeTab === 'All' || activeTab === 'Track';
 
     return (
         <View>
@@ -185,26 +185,26 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
                     </ScrollView>
                 )}
 
-                {showSongs && filteredTracks.length > 0 && (
+                {showTracks && filteredTracks.length > 0 && (
                     <View>
                         <View className="flex-row justify-between items-center mb-2">
-                            <Text className="text-lg font-bold text-foreground">Songs</Text>
-                            {onSeeMoreSongs && (
-                                <Pressable onPress={onSeeMoreSongs}>
+                            <Text className="text-lg font-bold text-foreground">Tracks</Text>
+                            {onSeeMoreTracks && (
+                                <Pressable onPress={onSeeMoreTracks}>
                                     <Text className="text-xs text-muted">See more</Text>
                                 </Pressable>
                             )}
                         </View>
                         <View className="gap-2">
-                            {filteredTracks.map((song) => (
+                            {filteredTracks.map((track) => (
                                 <Item
-                                    key={song.id}
-                                    onPress={() => handleTrackPress(song)}
+                                    key={track.id}
+                                    onPress={() => handleTrackPress(track)}
                                 >
-                                    <ItemImage icon="musical-note" image={song.image} className="rounded-md" />
+                                    <ItemImage icon="musical-note" image={track.image} className="rounded-md" />
                                     <ItemContent>
-                                        <ItemTitle>{song.title}</ItemTitle>
-                                        <ItemDescription>{song.artist || "Unknown Artist"}</ItemDescription>
+                                        <ItemTitle>{track.title}</ItemTitle>
+                                        <ItemDescription>{track.artist || "Unknown Artist"}</ItemDescription>
                                     </ItemContent>
                                     <ItemAction>
                                         <Ionicons name="ellipsis-horizontal" size={20} color={theme.muted} />

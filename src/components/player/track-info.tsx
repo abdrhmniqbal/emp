@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { Layout } from "react-native-reanimated";
-import { Track } from "@/features/player/player.store";
-import { toggleFavoriteItem } from "@/features/favorites/favorites.store";
-import { useIsFavorite } from "@/features/favorites/favorites.store";
+import { Track } from "@/modules/player/player.store";
+import { toggleFavoriteItem } from "@/modules/favorites/favorites.store";
+import { useIsFavorite } from "@/modules/favorites/favorites.store";
 
 interface TrackInfoProps {
     track: Track;

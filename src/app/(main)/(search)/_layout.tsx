@@ -35,7 +35,7 @@ export default function SearchLayout() {
                 }}
             />
             <Stack.Screen
-                name="genre/top-songs"
+                name="genre/top-tracks"
                 options={{
                     headerShown: false,
                 }}

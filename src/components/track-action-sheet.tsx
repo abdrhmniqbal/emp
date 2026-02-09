@@ -3,9 +3,9 @@ import { View, Text, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheet, Button } from "heroui-native";
 import { useThemeColors } from "@/hooks/use-theme-colors";
-import { playTrack, Track } from "@/features/player/player.store";
-import { playNext, addToQueue } from "@/features/player/queue.store";
-import { toggleFavoriteItem } from "@/features/favorites/favorites.store";
+import { playTrack, Track } from "@/modules/player/player.store";
+import { playNext, addToQueue } from "@/modules/player/queue.store";
+import { toggleFavoriteItem } from "@/modules/favorites/favorites.store";
 
 interface TrackActionSheetProps {
     track: Track | null;

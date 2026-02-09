@@ -1,1 +1,1 @@
-export { default } from "@/features/library/ArtistDetailsScreen";
+export { default } from "@/modules/artists";
