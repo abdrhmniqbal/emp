@@ -71,7 +71,15 @@ export default function HomeLayout() {
           headerLeft: () => <BackButton className="-ml-2" />,
         }}
       />
-      <Stack.Screen name="top-tracks" options={{ title: "Top Tracks" }} />
+      <Stack.Screen
+        name="top-tracks"
+        options={{
+          title: "Top Tracks",
+          headerBackButtonMenuEnabled: false,
+          headerBackVisible: false,
+          headerLeft: () => <BackButton className="-ml-2" />,
+        }}
+      />
     </Stack>
   );
 }

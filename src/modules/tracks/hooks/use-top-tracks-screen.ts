@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 import { startIndexing } from '@/modules/indexer';
 import { playTrack } from '@/modules/player/player.store';
 import type { Track } from '@/modules/player/player.types';
@@ -24,34 +25,26 @@ function tabToPeriod(tab: TopTracksTab): TopTracksPeriod {
 
 export function useTopTracksScreen() {
   const [activeTab, setActiveTab] = useState<TopTracksTab>('Realtime');
-  const [currentTracks, setCurrentTracks] = useState<Track[]>([]);
   const isFocused = useIsFocused();
+  const period = tabToPeriod(activeTab);
+  const { data: currentTracks = [], refetch } = useQuery<Track[]>({
+    queryKey: ['top-tracks-screen', period, TOP_TRACKS_LIMIT],
+    queryFn: () => getTopTracks(period, TOP_TRACKS_LIMIT),
+    enabled: false,
+    initialData: [],
+  });
 
   useEffect(() => {
     if (!isFocused) {
       return;
     }
 
-    let isActive = true;
-
-    async function load() {
-      const tracks = await getTopTracks(tabToPeriod(activeTab), TOP_TRACKS_LIMIT);
-      if (isActive) {
-        setCurrentTracks(tracks);
-      }
-    }
-
-    void load();
-
-    return () => {
-      isActive = false;
-    };
-  }, [activeTab, isFocused]);
+    void refetch();
+  }, [isFocused, period, refetch]);
 
   async function refresh() {
     startIndexing(true);
-    const tracks = await getTopTracks(tabToPeriod(activeTab), TOP_TRACKS_LIMIT);
-    setCurrentTracks(tracks);
+    await refetch();
   }
 
   function playAll() {
