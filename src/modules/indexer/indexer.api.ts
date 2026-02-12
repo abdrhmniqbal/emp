@@ -10,6 +10,11 @@ import {
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { extractMetadata, saveArtworkToCache } from "./metadata.api";
 import type { IndexerScanProgress } from "./indexer.types";
+import {
+  GENRE_COLORS,
+  GENRE_SHAPES,
+  type GenreShape,
+} from "@/modules/genres/genres.constants";
 
 const BATCH_SIZE = 10;
 
@@ -137,6 +142,7 @@ async function processBatch(
       );
 
       // Insert track
+      const now = Date.now();
       await db
         .insert(tracks)
         .values({
@@ -159,13 +165,15 @@ async function processBatch(
           lyrics: metadata.lyrics || null,
           composer: metadata.composer || null,
           comment: metadata.comment || null,
-          dateAdded: asset.creationTime || Date.now(),
-          scanTime: Date.now(),
+          dateAdded: asset.creationTime || now,
+          scanTime: now,
           isDeleted: 0,
           isFavorite: 0,
           playCount: 0,
           rating: null,
           lastPlayedAt: null,
+          createdAt: now,
+          updatedAt: now,
         })
         .onConflictDoUpdate({
           target: tracks.id,
@@ -185,8 +193,9 @@ async function processBatch(
             artwork: artworkPath,
             lyrics: metadata.lyrics || null,
             composer: metadata.composer || null,
-            scanTime: Date.now(),
+            scanTime: now,
             isDeleted: 0,
+            updatedAt: now,
           },
         });
 
@@ -204,6 +213,11 @@ async function processBatch(
         );
       }
     } catch (error) {
+      console.error("Failed to index asset", {
+        assetId: asset.id,
+        filename: asset.filename,
+        error,
+      });
     }
   }
 
@@ -276,13 +290,89 @@ async function getOrCreateGenre(name: string): Promise<string> {
   }
 
   const id = generateId();
-  await db.insert(genres).values({
-    id,
-    name,
-    createdAt: Date.now(),
-  });
+  const { color, shape } = await selectGenreVisuals(name);
+  try {
+    await db.insert(genres).values({
+      id,
+      name,
+      color,
+      shape,
+      createdAt: Date.now(),
+    });
+  } catch {
+    // Backward compatibility for databases that have not applied genre visual columns yet.
+    await db.insert(genres).values({
+      id,
+      name,
+      createdAt: Date.now(),
+    });
+  }
 
   return id;
+}
+
+async function selectGenreVisuals(name: string): Promise<{ color: string; shape: GenreShape }> {
+  let existingVisuals: Array<{ color: string; shape: GenreShape }> = [];
+  try {
+    const rows = await db.query.genres.findMany({
+      columns: {
+        color: true,
+        shape: true,
+      },
+    });
+    existingVisuals = rows.map((row) => ({
+      color: row.color,
+      shape: row.shape as GenreShape,
+    }));
+  } catch {
+    // If columns are missing before migration, return deterministic defaults.
+    const hash = hashString(name);
+    return {
+      color: GENRE_COLORS[hash % GENRE_COLORS.length],
+      shape: GENRE_SHAPES[Math.floor(hash / GENRE_COLORS.length) % GENRE_SHAPES.length],
+    };
+  }
+
+  const usedCombinations = new Set(
+    existingVisuals.map((visual) => `${visual.color}::${visual.shape}`)
+  );
+
+  const colorUsage = new Map<string, number>();
+  const shapeUsage = new Map<GenreShape, number>();
+  for (const color of GENRE_COLORS) {
+    colorUsage.set(color, 0);
+  }
+  for (const shape of GENRE_SHAPES) {
+    shapeUsage.set(shape, 0);
+  }
+  for (const visual of existingVisuals) {
+    colorUsage.set(visual.color, (colorUsage.get(visual.color) ?? 0) + 1);
+    shapeUsage.set(visual.shape, (shapeUsage.get(visual.shape) ?? 0) + 1);
+  }
+
+  // Prioritize unique colors first, then prefer least-used shapes
+  // so both color and shape distribution stay balanced.
+  const colorsByUsage = [...GENRE_COLORS].sort(
+    (a, b) => (colorUsage.get(a) ?? 0) - (colorUsage.get(b) ?? 0)
+  );
+  const shapesByUsage = [...GENRE_SHAPES].sort(
+    (a, b) => (shapeUsage.get(a) ?? 0) - (shapeUsage.get(b) ?? 0)
+  );
+
+  for (const color of colorsByUsage) {
+    for (const shape of shapesByUsage) {
+      const key = `${color}::${shape}`;
+      if (!usedCombinations.has(key)) {
+        return { color, shape };
+      }
+    }
+  }
+
+  // If all combinations are used, deterministic overlap based on the genre name.
+  const hash = hashString(name);
+  const color = GENRE_COLORS[hash % GENRE_COLORS.length];
+  const shape = GENRE_SHAPES[Math.floor(hash / GENRE_COLORS.length) % GENRE_SHAPES.length];
+  return { color, shape };
 }
 
 async function updateArtistCounts(): Promise<void> {
@@ -342,4 +432,12 @@ function generateSortName(name: string): string {
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  }
+  return hash;
 }

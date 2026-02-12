@@ -45,6 +45,8 @@ export const albums = sqliteTable("albums", {
 export const genres = sqliteTable("genres", {
   id: text("id").primaryKey(),
   name: text("name").notNull().unique(),
+  color: text("color").notNull().default("bg-rainbow-lime"),
+  shape: text("shape").notNull().default("circles"),
   trackCount: integer("track_count").default(0),
   createdAt: integer("created_at").notNull().$defaultFn(() => Date.now()),
 }, (table) => ({

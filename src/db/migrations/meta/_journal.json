@@ -15,6 +15,13 @@
       "when": 1769908526600,
       "tag": "0001_burly_nehzno",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1770872894388,
+      "tag": "0002_dark_chameleon",
+      "breakpoints": true
     }
   ]
 }

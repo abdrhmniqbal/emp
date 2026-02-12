@@ -3,7 +3,7 @@ module.exports = function(api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      ['babel-plugin-inline-import', { extensions: ['.sql'] }]
+      ['inline-import', { extensions: ['.sql'] }]
     ]
   };
 };
