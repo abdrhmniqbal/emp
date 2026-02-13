@@ -1,14 +1,16 @@
 import {
   getAlbumsByGenre,
-  getAllGenres,
+  getAllGenreVisuals,
   getAllTracksByGenre,
   getTopTracksByGenre,
+  type GenreVisual,
   type GenreAlbumInfo,
 } from '@/modules/genres/genres.api';
 import type { Track } from '@/modules/player/player.types';
 import type { Album } from '@/components/blocks/album-grid';
+import type { GenreShape } from './genres.constants';
 
-export type PatternType = 'circles' | 'waves' | 'grid' | 'diamonds' | 'triangles' | 'rings' | 'pills';
+export type PatternType = GenreShape;
 
 export interface GenreCategory {
   id: string;
@@ -17,32 +19,81 @@ export interface GenreCategory {
   pattern: PatternType;
 }
 
-const RAINBOW_COLORS = [
-  'bg-rainbow-lime',
-  'bg-rainbow-teal',
-  'bg-rainbow-cyan',
-  'bg-rainbow-blue',
-  'bg-rainbow-indigo',
-  'bg-rainbow-purple',
-  'bg-rainbow-magenta',
-  'bg-rainbow-red',
-  'bg-rainbow-orange',
-  'bg-rainbow-amber',
-] as const;
-
-const PATTERNS: PatternType[] = ['circles', 'waves', 'diamonds', 'triangles', 'rings', 'grid', 'pills'];
-
-export async function fetchGenres(): Promise<string[]> {
-  return getAllGenres();
+export async function fetchGenres(): Promise<GenreVisual[]> {
+  return getAllGenreVisuals();
 }
 
-export function mapGenresToCategories(genres: string[]): GenreCategory[] {
-  return genres.map((genre, index) => ({
-    id: genre,
-    title: genre,
-    color: RAINBOW_COLORS[index % RAINBOW_COLORS.length],
-    pattern: PATTERNS[index % PATTERNS.length],
+export function mapGenresToCategories(genres: GenreVisual[]): GenreCategory[] {
+  const mapped = genres.map((genre) => ({
+    id: genre.name,
+    title: genre.name,
+    color: genre.color,
+    pattern: genre.shape,
   }));
+
+  return arrangeForGrid(mapped, 2);
+}
+
+function arrangeForGrid(categories: GenreCategory[], columns: number): GenreCategory[] {
+  const remaining = [...categories];
+  const arranged: GenreCategory[] = [];
+
+  while (remaining.length > 0) {
+    let bestIndex = 0;
+    let bestScore = Number.POSITIVE_INFINITY;
+
+    for (let i = 0; i < remaining.length; i++) {
+      const candidate = remaining[i];
+      const score = getPlacementScore(candidate, arranged, columns);
+
+      if (score < bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+
+    arranged.push(remaining.splice(bestIndex, 1)[0]);
+  }
+
+  return arranged;
+}
+
+function getPlacementScore(
+  candidate: GenreCategory,
+  arranged: GenreCategory[],
+  columns: number,
+): number {
+  const index = arranged.length;
+  let score = 0;
+
+  // Horizontal neighbor (side-by-side): stronger penalty.
+  if (index % columns !== 0) {
+    const left = arranged[index - 1];
+    if (left) {
+      if (left.color === candidate.color) score += 100;
+      if (left.pattern === candidate.pattern) score += 100;
+    }
+  }
+
+  // Vertical neighbor (above/below): also penalized.
+  if (index >= columns) {
+    const top = arranged[index - columns];
+    if (top) {
+      if (top.color === candidate.color) score += 80;
+      if (top.pattern === candidate.pattern) score += 80;
+    }
+  }
+
+  // Tie-breaker to keep overall distribution balanced.
+  let sameColorCount = 0;
+  let samePatternCount = 0;
+  for (const item of arranged) {
+    if (item.color === candidate.color) sameColorCount++;
+    if (item.pattern === candidate.pattern) samePatternCount++;
+  }
+  score += sameColorCount * 3 + samePatternCount * 3;
+
+  return score;
 }
 
 export async function fetchGenreDetails(genreName: string): Promise<{ topTracks: Track[]; albums: GenreAlbumInfo[] }> {

@@ -69,6 +69,7 @@ export const startIndexing = async (forceFullScan = false, showProgress = true) 
             // This will trigger a refetch in the library screen
             queryClient.invalidateQueries({ queryKey: ['albums'] });
             queryClient.invalidateQueries({ queryKey: ['artists'] });
+            queryClient.invalidateQueries({ queryKey: ['search', 'genres'] });
             
             updateState({
                 phase: 'complete',

@@ -1,4 +1,3 @@
-export { default } from './screens/SearchScreen';
 export * from './search.api';
 export * from './search.utils';
 export * from './hooks/use-search-screen';

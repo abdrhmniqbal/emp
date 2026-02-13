@@ -3,6 +3,7 @@ import { tracks } from "@/db/schema";
 import type { Track } from "@/modules/player/player.types";
 import { asc, desc, eq, sql } from "drizzle-orm";
 import { transformDBTrackToTrack } from "@/utils/transformers";
+import { GENRE_COLORS, GENRE_SHAPES, type GenreShape } from "./genres.constants";
 
 export interface GenreAlbumInfo {
   name: string;
@@ -12,16 +13,62 @@ export interface GenreAlbumInfo {
   year?: number;
 }
 
+export interface GenreVisual {
+  name: string;
+  color: string;
+  shape: GenreShape;
+}
+
 export async function getAllGenres(): Promise<string[]> {
   try {
     const result = await db.query.genres.findMany({
       orderBy: (genres, { asc }) => [asc(genres.name)],
+      columns: {
+        name: true,
+      },
     });
 
     return result.map((g) => g.name);
   } catch {
     return [];
   }
+}
+
+export async function getAllGenreVisuals(): Promise<GenreVisual[]> {
+  try {
+    const result = await db.query.genres.findMany({
+      orderBy: (genres, { asc }) => [asc(genres.name)],
+      columns: {
+        name: true,
+        color: true,
+        shape: true,
+      },
+    });
+
+    return result.map((genre) => ({
+      name: genre.name,
+      color: genre.color,
+      shape: genre.shape as GenreShape,
+    }));
+  } catch {
+    const names = await getAllGenres();
+    return names.map((name) => {
+      const hash = hashString(name);
+      return {
+        name,
+        color: GENRE_COLORS[hash % GENRE_COLORS.length],
+        shape: GENRE_SHAPES[Math.floor(hash / GENRE_COLORS.length) % GENRE_SHAPES.length],
+      };
+    });
+  }
+}
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  }
+  return hash;
 }
 
 export async function getTopTracksByGenre(genre: string, limit = 25): Promise<Track[]> {

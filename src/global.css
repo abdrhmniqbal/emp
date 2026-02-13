@@ -8,7 +8,6 @@
 @layer theme {
   :root {
     @variant light {
-  
       --radius: 0.5rem;
     }
 

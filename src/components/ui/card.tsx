@@ -6,8 +6,8 @@ const cardStyles = tv({
   base: "rounded-xl border",
   variants: {
     tone: {
-      surface: "bg-surface border-divider",
-      default: "bg-default border-divider",
+      surface: "bg-surface border-border",
+      default: "bg-default border-border",
       ghost: "bg-transparent border-transparent",
     },
     padding: {

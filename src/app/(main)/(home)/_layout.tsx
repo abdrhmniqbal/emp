@@ -29,9 +29,6 @@ export default function HomeLayout() {
           title: "EMP",
           headerLargeTitle: true,
           headerTitleAlign: "left",
-          headerTitleStyle: {
-            fontSize: 28,
-          },
           headerRight: () => (
             <View className="flex-row gap-4 -mr-2">
               <Button

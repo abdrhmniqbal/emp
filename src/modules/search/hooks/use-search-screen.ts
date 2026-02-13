@@ -1,42 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { startIndexing } from '@/modules/indexer';
 import { fetchGenres, mapGenresToCategories } from '@/modules/genres/genres.utils';
 
+const SEARCH_GENRES_QUERY_KEY = ['search', 'genres'] as const;
+
 export function useSearchScreen() {
-  const [genreList, setGenreList] = useState<string[]>([]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    async function load() {
-      try {
-        const genres = await fetchGenres();
-        if (isActive) {
-          setGenreList(genres);
-        }
-      } catch {
-        if (isActive) {
-          setGenreList([]);
-        }
-      }
-    }
-
-    void load();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+  const { data, refetch } = useQuery({
+    queryKey: SEARCH_GENRES_QUERY_KEY,
+    queryFn: fetchGenres,
+    refetchOnMount: 'always',
+  });
+  const genreList = data ?? [];
 
   async function refresh() {
-    startIndexing(true);
-
-    try {
-      const genres = await fetchGenres();
-      setGenreList(genres);
-    } catch {
-      setGenreList([]);
-    }
+    await startIndexing(true);
+    await refetch();
   }
 
   return {

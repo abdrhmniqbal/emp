@@ -22,6 +22,7 @@ import {
 } from "@/modules/tracks/hooks/use-top-tracks-screen";
 import { PlaybackActionsRow } from "@/components/blocks";
 import { Tabs } from "heroui-native";
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid";
 
 export default function TopTracksScreen() {
   const indexerState = useStore($indexerState);
@@ -47,12 +48,12 @@ export default function TopTracksScreen() {
         className="px-4 py-4 gap-1.5"
       >
         <Tabs.List className="w-full flex-row px-1">
-            <Tabs.Indicator className="text-surface-foreground bg-surface" />
-            {TOP_TRACKS_TABS.map((tab) => (                
-              <Tabs.Trigger key={tab} value={tab} className="flex-1 py-2">
-                <Tabs.Label className="text-lg">{tab}</Tabs.Label>
-              </Tabs.Trigger>
-            ))}
+          <Tabs.Indicator className="text-surface-foreground bg-surface" />
+          {TOP_TRACKS_TABS.map((tab) => (
+            <Tabs.Trigger key={tab} value={tab} className="flex-1 py-2">
+              <Tabs.Label className="text-lg">{tab}</Tabs.Label>
+            </Tabs.Trigger>
+          ))}
         </Tabs.List>
       </Tabs>
 
@@ -84,7 +85,14 @@ export default function TopTracksScreen() {
         <Animated.View className="px-4" style={contentAnimatedStyle}>
           {currentTracks.length === 0 ? (
             <EmptyState
-              icon="musical-notes-outline"
+              icon={
+                <LocalMusicNoteSolidIcon
+                  fill="none"
+                  width={48}
+                  height={48}
+                  color={theme.muted}
+                />
+              }
               title="No top tracks yet"
               message="Play some music to see your most played tracks here!"
               className="mt-12"

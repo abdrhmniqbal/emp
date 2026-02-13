@@ -7,7 +7,7 @@ export interface ThemeColors {
   default: string;
   muted: string;
   accent: string;
-  divider: string;
+  border: string;
   link: string;
 }
 
@@ -17,7 +17,7 @@ const FALLBACK_LIGHT_THEME: ThemeColors = {
   default: "#f4f4f5",
   muted: "#71717a",
   accent: "#3b82f6",
-  divider: "#e4e4e7",
+  border: "#e4e4e7",
   link: "#2563eb",
 };
 
@@ -27,7 +27,7 @@ const FALLBACK_DARK_THEME: ThemeColors = {
   default: "#27272a",
   muted: "#a1a1aa",
   accent: "#3b82f6",
-  divider: "#27272a",
+  border: "#27272a",
   link: "#3b82f6",
 };
 
@@ -41,13 +41,13 @@ const asColor = (value: string | number | undefined, fallback: string) => {
 
 export function useThemeColors(): ThemeColors {
   const { theme: currentTheme } = useUniwind();
-  const [background, foreground, defaultColor, muted, accent, divider, link] = useCSSVariable([
+  const [background, foreground, defaultColor, muted, accent, border, link] = useCSSVariable([
     "--color-background",
     "--color-foreground",
     "--color-default",
     "--color-muted",
     "--color-accent",
-    "--color-divider",
+    "--color-border",
     "--color-link",
   ]);
 
@@ -60,9 +60,9 @@ export function useThemeColors(): ThemeColors {
       default: asColor(defaultColor, fallbackTheme.default),
       muted: asColor(muted, fallbackTheme.muted),
       accent: asColor(accent, fallbackTheme.accent),
-      divider: asColor(divider, fallbackTheme.divider),
+      border: asColor(border, fallbackTheme.border),
       link: asColor(link, fallbackTheme.link),
     }),
-    [accent, background, defaultColor, divider, fallbackTheme, foreground, link, muted],
+    [accent, background, defaultColor, border, fallbackTheme, foreground, link, muted],
   );
 }
