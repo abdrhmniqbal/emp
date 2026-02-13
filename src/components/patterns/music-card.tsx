@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import type { ReactNode } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { cn } from "tailwind-variants";
 import { Card } from "@/components/ui";
@@ -8,7 +9,7 @@ interface MusicCardProps {
   title: string;
   subtitle: string;
   image?: string;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: keyof typeof Ionicons.glyphMap | ReactNode;
   onPress?: () => void;
   className?: string;
 }
@@ -30,7 +31,11 @@ export function MusicCard({
           <Image source={{ uri: image }} className="h-full w-full" resizeMode="cover" />
         ) : (
           <View className="h-full w-full items-center justify-center bg-surface-secondary">
-            <Ionicons name={icon} size={48} color={theme.muted} />
+            {typeof icon === "string" ? (
+              <Ionicons name={icon} size={48} color={theme.muted} />
+            ) : (
+              icon
+            )}
           </View>
         )}
       </Card>

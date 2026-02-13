@@ -3,6 +3,7 @@ import { useThemeColors } from "@/hooks/use-theme-colors";
 import { View } from "react-native";
 import { Button } from "heroui-native";
 import LocalSettingsIcon from "@/components/icons/local/settings";
+import { BackButton } from "@/components/patterns";
 
 export default function SearchLayout() {
   const theme = useThemeColors();
@@ -46,19 +47,31 @@ export default function SearchLayout() {
       <Stack.Screen
         name="genre/[name]"
         options={{
-          headerShown: false,
+          title: "Genre",
+          headerTitleAlign: "center",
+          headerBackButtonMenuEnabled: false,
+          headerBackVisible: false,
+          headerLeft: () => <BackButton className="-ml-2" />,
         }}
       />
       <Stack.Screen
         name="genre/albums"
         options={{
-          headerShown: false,
+          title: "Recommended Albums",
+          headerTitleAlign: "center",
+          headerBackButtonMenuEnabled: false,
+          headerBackVisible: false,
+          headerLeft: () => <BackButton className="-ml-2" />,
         }}
       />
       <Stack.Screen
         name="genre/top-tracks"
         options={{
-          headerShown: false,
+          title: "Top Tracks",
+          headerTitleAlign: "center",
+          headerBackButtonMenuEnabled: false,
+          headerBackVisible: false,
+          headerLeft: () => <BackButton className="-ml-2" />,
         }}
       />
     </Stack>
