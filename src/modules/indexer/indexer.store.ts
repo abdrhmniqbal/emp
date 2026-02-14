@@ -24,6 +24,8 @@ export const $indexerState = atom<IndexerState>({
 });
 
 let abortController: AbortController | null = null;
+let runToken = 0;
+let completePhaseTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const updateState = (updates: Partial<IndexerState>) => {
     $indexerState.set({ ...$indexerState.get(), ...updates });
@@ -33,7 +35,15 @@ export const startIndexing = async (forceFullScan = false, showProgress = true) 
     const current = $indexerState.get();
     if (current.isIndexing) return;
 
-    abortController = new AbortController();
+    if (completePhaseTimeout) {
+        clearTimeout(completePhaseTimeout);
+        completePhaseTimeout = null;
+    }
+
+    const controller = new AbortController();
+    abortController = controller;
+    runToken += 1;
+    const currentRunToken = runToken;
 
     updateState({
         isIndexing: true,
@@ -48,7 +58,7 @@ export const startIndexing = async (forceFullScan = false, showProgress = true) 
     try {
         await scanMediaLibrary(
             (progress) => {
-                if (abortController?.signal.aborted) return;
+                if (controller.signal.aborted || currentRunToken !== runToken) return;
 
                 updateState({
                     phase: progress.phase === 'scanning' ? 'scanning' : 'processing',
@@ -58,54 +68,81 @@ export const startIndexing = async (forceFullScan = false, showProgress = true) 
                     progress: progress.total > 0 ? (progress.current / progress.total) * 100 : 0,
                 });
             },
-            forceFullScan
+            forceFullScan,
+            controller.signal
         );
 
-        if (!abortController?.signal.aborted) {
-            // Reload tracks from database after indexing completes
-            await loadTracks();
-            
-            // Invalidate React Query cache for albums and artists
-            // This will trigger a refetch in the library screen
-            queryClient.invalidateQueries({ queryKey: ['tracks'] });
-            queryClient.invalidateQueries({ queryKey: ['library', 'tracks'] });
-            queryClient.invalidateQueries({ queryKey: ['albums'] });
-            queryClient.invalidateQueries({ queryKey: ['artists'] });
-            queryClient.invalidateQueries({ queryKey: ['playlists'] });
-            queryClient.invalidateQueries({ queryKey: ['favorites'] });
-            queryClient.invalidateQueries({ queryKey: ['library', 'favorites'] });
-            queryClient.invalidateQueries({ queryKey: ['search', 'genres'] });
-            
-            updateState({
-                phase: 'complete',
-                progress: 100,
-                isIndexing: false,
-            });
-
-            // Reset to idle after 3 seconds
-            setTimeout(() => {
-                updateState({ phase: 'idle' });
-            }, 3000);
+        if (controller.signal.aborted || currentRunToken !== runToken) {
+            return;
         }
+
+        // Reload tracks from database after indexing completes
+        await loadTracks();
+
+        if (controller.signal.aborted || currentRunToken !== runToken) {
+            return;
+        }
+        
+        // Invalidate React Query cache for albums and artists
+        // This will trigger a refetch in the library screen
+        queryClient.invalidateQueries({ queryKey: ['tracks'] });
+        queryClient.invalidateQueries({ queryKey: ['library', 'tracks'] });
+        queryClient.invalidateQueries({ queryKey: ['albums'] });
+        queryClient.invalidateQueries({ queryKey: ['artists'] });
+        queryClient.invalidateQueries({ queryKey: ['playlists'] });
+        queryClient.invalidateQueries({ queryKey: ['favorites'] });
+        queryClient.invalidateQueries({ queryKey: ['library', 'favorites'] });
+        queryClient.invalidateQueries({ queryKey: ['search', 'genres'] });
+        
+        updateState({
+            phase: 'complete',
+            progress: 100,
+            isIndexing: false,
+        });
+
+        // Reset to idle after 3 seconds
+        completePhaseTimeout = setTimeout(() => {
+            if (currentRunToken !== runToken) return;
+            updateState({ phase: 'idle', showProgress: false });
+            completePhaseTimeout = null;
+        }, 3000);
     } catch (error) {
+        if (controller.signal.aborted || currentRunToken !== runToken) {
+            return;
+        }
+
         updateState({
             isIndexing: false,
             phase: 'idle',
+            showProgress: false,
         });
     } finally {
-        abortController = null;
+        if (abortController === controller) {
+            abortController = null;
+        }
     }
 };
 
 export const stopIndexing = () => {
+    runToken += 1;
+
+    if (completePhaseTimeout) {
+        clearTimeout(completePhaseTimeout);
+        completePhaseTimeout = null;
+    }
+
     if (abortController) {
         abortController.abort();
-        updateState({
-            isIndexing: false,
-            phase: 'idle',
-        });
         abortController = null;
     }
+
+    updateState({
+        isIndexing: false,
+        phase: 'idle',
+        showProgress: false,
+        currentFile: '',
+        progress: 0,
+    });
 };
 
 export const pauseIndexing = () => {

@@ -20,19 +20,26 @@ const BATCH_SIZE = 10;
 
 export async function scanMediaLibrary(
   onProgress?: (progress: IndexerScanProgress) => void,
-  forceFullScan = false
+  forceFullScan = false,
+  signal?: AbortSignal
 ): Promise<void> {
+  if (signal?.aborted) return;
+
   // Get all audio assets
   const assets: MediaLibrary.Asset[] = [];
   let hasMore = true;
   let endCursor: string | undefined;
 
   while (hasMore) {
+    if (signal?.aborted) return;
+
     const result = await MediaLibrary.getAssetsAsync({
       mediaType: MediaLibrary.MediaType.audio,
       first: 500,
       after: endCursor,
     });
+
+    if (signal?.aborted) return;
 
     assets.push(...result.assets);
     hasMore = result.hasNextPage;
@@ -50,6 +57,7 @@ export async function scanMediaLibrary(
   const existingTracks = await db.query.tracks.findMany({
     columns: { id: true, fileHash: true },
   });
+  if (signal?.aborted) return;
 
   const existingTrackMap = new Map(existingTracks.map((t) => [t.id, t.fileHash]));
   const currentAssetIds = new Set(assets.map((a) => a.id));
@@ -64,6 +72,7 @@ export async function scanMediaLibrary(
       .update(tracks)
       .set({ isDeleted: 1 })
       .where(inArray(tracks.id, deletedTrackIds));
+    if (signal?.aborted) return;
   }
 
   // Filter assets to process
@@ -81,6 +90,8 @@ export async function scanMediaLibrary(
 
   // Process in batches
   for (let i = 0; i < assetsToProcess.length; i += BATCH_SIZE) {
+    if (signal?.aborted) return;
+
     const batch = assetsToProcess.slice(i, i + BATCH_SIZE);
 
     await processBatch(batch, (asset) => {
@@ -90,8 +101,10 @@ export async function scanMediaLibrary(
         total: assetsToProcess.length,
         currentFile: asset.filename || "Unknown",
       });
-    });
+    }, signal);
   }
+
+  if (signal?.aborted) return;
 
   onProgress?.({
     phase: "complete",
@@ -101,14 +114,18 @@ export async function scanMediaLibrary(
   });
 
   // Cleanup deleted tracks
+  if (signal?.aborted) return;
   await db.delete(tracks).where(eq(tracks.isDeleted, 1));
 }
 
 async function processBatch(
   assets: MediaLibrary.Asset[],
-  onFileStart?: (asset: MediaLibrary.Asset) => void
+  onFileStart?: (asset: MediaLibrary.Asset) => void,
+  signal?: AbortSignal
 ): Promise<void> {
   for (const asset of assets) {
+    if (signal?.aborted) return;
+
     onFileStart?.(asset);
 
     try {
@@ -117,7 +134,9 @@ async function processBatch(
         asset.filename || "",
         asset.duration
       );
+      if (signal?.aborted) return;
       const artworkPath = await saveArtworkToCache(metadata.artwork, asset.id);
+      if (signal?.aborted) return;
 
       // Get or create artist
       const artistId = metadata.artist
@@ -140,6 +159,7 @@ async function processBatch(
       const genreIds = await Promise.all(
         genresToProcess.map((g) => getOrCreateGenre(g))
       );
+      if (signal?.aborted) return;
 
       // Insert track
       const now = Date.now();
@@ -198,12 +218,14 @@ async function processBatch(
             updatedAt: now,
           },
         });
+      if (signal?.aborted) return;
 
       // Link genres
       if (genreIds.length > 0) {
         await db
           .delete(trackGenres)
           .where(eq(trackGenres.trackId, asset.id));
+        if (signal?.aborted) return;
 
         await db.insert(trackGenres).values(
           genreIds.map((genreId) => ({
@@ -211,6 +233,7 @@ async function processBatch(
             genreId,
           }))
         );
+        if (signal?.aborted) return;
       }
     } catch (error) {
       console.error("Failed to index asset", {
@@ -222,8 +245,11 @@ async function processBatch(
   }
 
   // Update denormalized counts
+  if (signal?.aborted) return;
   await updateArtistCounts();
+  if (signal?.aborted) return;
   await updateAlbumCounts();
+  if (signal?.aborted) return;
   await updateGenreCounts();
 }
 
