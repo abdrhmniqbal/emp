@@ -1,1 +1,63 @@
-export { default } from "@/modules/settings/screens/AppearanceScreen";
+import React from "react";
+import { View, Text, ScrollView } from "react-native";
+import { Uniwind, useUniwind } from "uniwind";
+import { useThemeColors } from "@/hooks/use-theme-colors";
+import { PressableFeedback } from "heroui-native";
+import LocalTickIcon from "@/components/icons/local/tick";
+
+type ThemeValue = "light" | "dark" | "system";
+
+interface AppearanceOption {
+  label: string;
+  value: ThemeValue;
+}
+
+const APPEARANCE_OPTIONS: AppearanceOption[] = [
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+  { label: "System", value: "system" },
+];
+
+export default function AppearanceScreen() {
+  const { theme: currentTheme, hasAdaptiveThemes } = useUniwind();
+  const theme = useThemeColors();
+
+  const currentMode: ThemeValue = hasAdaptiveThemes
+    ? "system"
+    : (currentTheme as ThemeValue);
+
+  function handleThemeChange(value: ThemeValue) {
+    Uniwind.setTheme(value);
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-background">
+      <View className="py-2">
+        <View className="px-6 pt-8 pb-3">
+          <Text className="text-[13px] font-medium text-muted uppercase tracking-wider">
+            Theme Mode
+          </Text>
+        </View>
+        {APPEARANCE_OPTIONS.map((option) => (
+          <PressableFeedback
+            key={option.value}
+            onPress={() => handleThemeChange(option.value)}
+            className="flex-row items-center px-6 py-4 active:opacity-70 bg-background"
+          >
+            <Text className="flex-1 text-[17px] text-foreground font-normal">
+              {option.label}
+            </Text>
+            {currentMode === option.value && (
+              <LocalTickIcon
+                fill="none"
+                width={24}
+                height={24}
+                color={theme.accent}
+              />
+            )}
+          </PressableFeedback>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
