@@ -1,30 +1,33 @@
 import React from "react";
-import { View, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View } from "react-native";
 import { $showPlayerQueue } from "@/hooks/scroll-bars.store";
 import { useStore } from "@nanostores/react";
 import { useThemeColors } from "@/hooks/use-theme-colors";
+import { PressableFeedback } from "heroui-native";
+import { cn } from "tailwind-variants";
+import LocalMusicLyricIcon from "@/components/icons/local/music-lyric";
+import LocalRightToLeftListNumberIcon from "@/components/icons/local/right-to-left-list-number";
 
 export const PlayerFooter: React.FC = () => {
-    const showQueue = useStore($showPlayerQueue);
-    const theme = useThemeColors();
+  const showQueue = useStore($showPlayerQueue);
+  const theme = useThemeColors();
 
-    return (
-        <View className="flex-row justify-between items-center px-4">
-            <Pressable className="active:opacity-50">
-                <Ionicons name="chatbubble-outline" size={24} color={theme.foreground} style={{ opacity: 0.7 }} />
-            </Pressable>
-            <Pressable
-                className="active:opacity-50"
-                onPress={() => $showPlayerQueue.set(!showQueue)}
-            >
-                <Ionicons
-                    name="list"
-                    size={24}
-                    color={showQueue ? theme.accent : theme.foreground}
-                    style={{ opacity: showQueue ? 1 : 0.7 }}
-                />
-            </Pressable>
-        </View>
-    );
+  return (
+    <View className="flex-row justify-between items-center">
+      <PressableFeedback className="opacity-60">
+        <LocalMusicLyricIcon fill="none" width={24} height={24} color="white" />
+      </PressableFeedback>
+      <PressableFeedback
+        onPress={() => $showPlayerQueue.set(!showQueue)}
+        className={cn(!showQueue && "opacity-60")}
+      >
+        <LocalRightToLeftListNumberIcon
+          fill="none"
+          width={24}
+          height={24}
+          color={showQueue ? theme.accent : "white"}
+        />
+      </PressableFeedback>
+    </View>
+  );
 };

@@ -16,9 +16,9 @@ import { MarqueeText } from "@/components/ui/marquee-text";
 import LocalPlaySolidIcon from "@/components/icons/local/play-solid";
 import LocalPauseSolidIcon from "@/components/icons/local/pause-solid";
 import LocalNextSolidIcon from "@/components/icons/local/next-solid";
-import LocalQueueSolidIcon from "@/components/icons/local/queue-solid";
 import { PressableFeedback } from "heroui-native";
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid";
+import LocalRightToLeftListNumberIcon from "../icons/local/right-to-left-list-number";
 
 interface MiniPlayerProps {
   bottomOffset?: number;
@@ -132,7 +132,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
             }}
             className="p-2 active:opacity-60"
           >
-            <LocalQueueSolidIcon
+            <LocalRightToLeftListNumberIcon
               fill="none"
               width={24}
               height={24}

@@ -1,79 +1,133 @@
 import React from "react";
-import { View, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View } from "react-native";
 import Animated, { Layout } from "react-native-reanimated";
 import { useStore } from "@nanostores/react";
-import { playNext, playPrevious, togglePlayback, toggleRepeatMode, $repeatMode, RepeatModeType } from "@/modules/player/player.store";
+import {
+  playNext,
+  playPrevious,
+  togglePlayback,
+  toggleRepeatMode,
+  $repeatMode,
+  RepeatModeType,
+} from "@/modules/player/player.store";
 import { toggleShuffle, $isShuffled } from "@/modules/player/queue.store";
+import { PressableFeedback } from "heroui-native";
+import LocalShuffleIcon from "@/components/icons/local/shuffle";
+import { useThemeColors } from "@/hooks/use-theme-colors";
+import LocalNextSolidIcon from "@/components/icons/local/next-solid";
+import LocalPreviousSolidIcon from "@/components/icons/local/previous-solid";
+import { cn } from "@/utils/common";
+import LocalPlayCircleSolidIcon from "@/components/icons/local/play-circle-solid";
+import LocalPauseCircleSolidIcon from "@/components/icons/local/pause-circle-solid";
+import LocalRepeatOneIcon from "@/components/icons/local/repeat-one";
+import LocalRepeatIcon from "@/components/icons/local/repeat";
 
 interface PlaybackControlsProps {
-    isPlaying: boolean;
-    compact?: boolean;
+  isPlaying: boolean;
+  compact?: boolean;
 }
 
 const getRepeatIcon = (mode: RepeatModeType) => {
-    return mode === 'track' ? 'repeat-once' : 'repeat';
+  return mode === "track" ? "repeat-once" : "repeat";
 };
 
-const getRepeatColor = (mode: RepeatModeType) => {
-    return mode === 'off' ? 'white' : '#22c55e';
-};
+export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
+  isPlaying,
+  compact = false,
+}) => {
+  const theme = useThemeColors();
+  const iconSize = compact ? 32 : 36;
+  const playButtonSize = compact ? 64 : 80;
+  const containerClass = compact ? "w-16 h-16" : "w-20 h-20";
+  const gapClass = compact ? "gap-6" : "gap-8";
+  const repeatMode = useStore($repeatMode);
+  const isShuffled = useStore($isShuffled);
 
-const getRepeatOpacity = (mode: RepeatModeType) => {
-    return mode === 'off' ? 0.7 : 1;
-};
+  const getRepeatColor = (mode: RepeatModeType) => {
+    return mode === "off" ? "white" : theme.accent;
+  };
 
-export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ isPlaying, compact = false }) => {
-    const iconSize = compact ? 32 : 36;
-    const playButtonSize = compact ? 64 : 80;
-    const containerClass = compact ? 'w-16 h-16' : 'w-20 h-20';
-    const gapClass = compact ? 'gap-6' : 'gap-8';
-    const repeatMode = useStore($repeatMode);
-    const isShuffled = useStore($isShuffled);
+  return (
+    <Animated.View
+      layout={Layout.duration(300)}
+      className={cn(
+        "flex-row justify-between items-center",
+        compact ? "mb-6" : "mb-8",
+      )}
+    >
+      <PressableFeedback
+        onPress={toggleRepeatMode}
+        className={cn(repeatMode === "off" && "opacity-60")}
+      >
+        {getRepeatIcon(repeatMode) === "repeat-once" ? (
+          <LocalRepeatOneIcon
+            fill="none"
+            width={24}
+            height={24}
+            color={getRepeatColor(repeatMode)}
+          />
+        ) : (
+          <LocalRepeatIcon
+            fill="none"
+            width={24}
+            height={24}
+            color={getRepeatColor(repeatMode)}
+          />
+        )}
+      </PressableFeedback>
 
-    return (
-        <Animated.View
-            layout={Layout.duration(300)}
-            className={`flex-row justify-between items-center ${compact ? 'mb-6' : 'mb-8'}`}
+      <View className={cn("flex-row items-center", gapClass)}>
+        <PressableFeedback onPress={playPrevious}>
+          <LocalPreviousSolidIcon
+            fill="none"
+            width={iconSize}
+            height={iconSize}
+            color="white"
+          />
+        </PressableFeedback>
+
+        <PressableFeedback
+          className={cn("items-center justify-center", containerClass)}
+          onPress={togglePlayback}
         >
-            <Pressable onPress={toggleRepeatMode} className="active:opacity-50">
-                <Ionicons
-                    name={getRepeatIcon(repeatMode) as any}
-                    size={24}
-                    color={getRepeatColor(repeatMode)}
-                    style={{ opacity: getRepeatOpacity(repeatMode) }}
-                />
-            </Pressable>
+          {isPlaying ? (
+            <LocalPauseCircleSolidIcon
+              fill="none"
+              width={playButtonSize}
+              height={playButtonSize}
+              color="white"
+            />
+          ) : (
+            <LocalPlayCircleSolidIcon
+              fill="none"
+              width={playButtonSize}
+              height={playButtonSize}
+              color="white"
+            />
+          )}
+        </PressableFeedback>
 
-            <View className={`flex-row items-center ${gapClass}`}>
-                <Pressable onPress={playPrevious} className="active:opacity-50">
-                    <Ionicons name="play-skip-back" size={iconSize} color="white" />
-                </Pressable>
+        <PressableFeedback onPress={playNext}>
+          <LocalNextSolidIcon
+            fill="none"
+            width={iconSize}
+            height={iconSize}
+            color="white"
+          />
+        </PressableFeedback>
+      </View>
 
-                <Pressable
-                    className={`items-center justify-center active:scale-95 ${containerClass}`}
-                    onPress={togglePlayback}
-                >
-                    <Ionicons
-                        name={isPlaying ? "pause-circle" : "play-circle"}
-                        size={playButtonSize}
-                        color="white"
-                    />
-                </Pressable>
-
-                <Pressable onPress={playNext} className="active:opacity-50">
-                    <Ionicons name="play-skip-forward" size={iconSize} color="white" />
-                </Pressable>
-            </View>
-
-            <Pressable onPress={toggleShuffle} className="active:opacity-50">
-                <Ionicons
-                    name="shuffle"
-                    size={24}
-                    color={isShuffled ? '#22c55e' : 'white'}
-                    style={{ opacity: isShuffled ? 1 : 0.7 }}
-                />
-            </Pressable>
-        </Animated.View>
-    );
+      <PressableFeedback
+        onPress={toggleShuffle}
+        className={cn(!isShuffled && "opacity-60")}
+      >
+        <LocalShuffleIcon
+          fill="none"
+          width={24}
+          height={24}
+          color={isShuffled ? theme.accent : "white"}
+        />
+      </PressableFeedback>
+    </Animated.View>
+  );
 };
