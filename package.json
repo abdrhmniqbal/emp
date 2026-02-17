@@ -21,7 +21,7 @@
     "@monicon/core": "^2.0.7",
     "@monicon/metro": "^2.0.7",
     "@nanostores/react": "^1.0.0",
-    "@shopify/react-native-skia": "^2.4.18",
+    "@shopify/react-native-skia": "^2.4.21",
     "@tanstack/react-pacer": "^0.19.4",
     "@tanstack/react-query": "^5.90.20",
     "@weights-ai/react-native-track-player": "github:MissingCore/react-native-track-player#74325fcbff1af92006d31791bcca493985f94550",
@@ -88,5 +88,8 @@
         ]
       }
     }
-  }
+  },
+  "trustedDependencies": [
+    "@shopify/react-native-skia"
+  ]
 }
