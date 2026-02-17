@@ -1,0 +1,169 @@
+name: Android APK Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-rc.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (example: v1.2.3 or v1.2.3-rc.1)'
+        required: true
+        type: string
+
+jobs:
+  build-apk:
+    name: Build Signed APK and Draft Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_CRED: ${{ secrets.RELEASE_CRED }}
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.21
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Resolve release tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RELEASE_TAG="${{ inputs.tag }}"
+          else
+            RELEASE_TAG="${{ github.ref_name }}"
+          fi
+          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
+          echo "Using tag: ${RELEASE_TAG}"
+
+      - name: Derive app version from tag
+        run: |
+          node <<'NODE'
+          const tag = process.env.RELEASE_TAG || ''
+          const match = tag.match(/^v(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?$/)
+
+          if (!match) {
+            console.error(`Invalid tag format: "${tag}"`)
+            console.error('Expected: vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-rc.N')
+            process.exit(1)
+          }
+
+          const major = Number.parseInt(match[1], 10)
+          const minor = Number.parseInt(match[2], 10)
+          const patch = Number.parseInt(match[3], 10)
+          const rcRaw = match[4] ? Number.parseInt(match[4], 10) : null
+
+          // Keep stable > rc for the same MAJOR.MINOR.PATCH.
+          // Example:
+          // - v1.2.3-rc.1 => 1020301
+          // - v1.2.3      => 1020399
+          const baseCode = major * 1000000 + minor * 10000 + patch * 100
+          const suffix = rcRaw === null ? 99 : Math.min(rcRaw, 98)
+          const versionCode = baseCode + suffix
+          const versionName = tag.slice(1)
+
+          const fs = require('node:fs')
+          fs.appendFileSync(process.env.GITHUB_ENV, `APP_VERSION_NAME=${versionName}\n`)
+          fs.appendFileSync(process.env.GITHUB_ENV, `APP_VERSION_CODE=${versionCode}\n`)
+
+          console.log(`Resolved versionName=${versionName}`)
+          console.log(`Resolved versionCode=${versionCode}`)
+          NODE
+
+      - name: Apply version to app config
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs')
+
+          const versionName = process.env.APP_VERSION_NAME
+          const versionCode = process.env.APP_VERSION_CODE
+
+          // Update Expo app version in app.json
+          const appJsonPath = 'app.json'
+          const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
+          appJson.expo = appJson.expo || {}
+          appJson.expo.version = versionName
+          fs.writeFileSync(appJsonPath, `${JSON.stringify(appJson, null, 2)}\n`)
+
+          // Update native Android version fields
+          const gradlePath = 'android/app/build.gradle'
+          const originalGradle = fs.readFileSync(gradlePath, 'utf8')
+          let nextGradle = originalGradle
+            .replace(/versionCode\s+\d+/, `versionCode ${versionCode}`)
+            .replace(/versionName\s+"[^"]*"/, `versionName "${versionName}"`)
+
+          if (nextGradle === originalGradle) {
+            console.error('Failed to update versionCode/versionName in android/app/build.gradle')
+            process.exit(1)
+          }
+
+          fs.writeFileSync(gradlePath, nextGradle)
+          NODE
+
+      - name: Show resolved versions
+        run: |
+          echo "Tag: ${RELEASE_TAG}"
+          echo "Version name: ${APP_VERSION_NAME}"
+          echo "Version code: ${APP_VERSION_CODE}"
+          grep -n "versionCode\\|versionName" android/app/build.gradle
+
+      - name: Write Android signing config
+        if: ${{ env.RELEASE_CRED != '' }}
+        run: |
+          echo "${RELEASE_CRED}" >> android/gradle.properties
+
+      - name: Decode release keystore
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: keystore.jks
+          fileDir: android/app
+          encodedString: ${{ env.KEYSTORE_BASE64 }}
+
+      - name: Clean generated builds
+        run: rm -rf android/app/build/generated/
+
+      - name: Build release APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+
+      - name: Create GitHub Release draft with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ env.RELEASE_TAG }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: android/app/build/outputs/apk/release/*.apk
+          draft: true
+          prerelease: ${{ contains(env.RELEASE_TAG, '-rc.') }}
+          generate_release_notes: true
