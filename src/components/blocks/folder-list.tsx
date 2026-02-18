@@ -1,7 +1,13 @@
 import * as React from "react"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { Button, PressableFeedback } from "heroui-native"
-import { ScrollView, Text, View } from "react-native"
+import {
+  ScrollView,
+  Text,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native"
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -42,6 +48,7 @@ interface FolderListProps {
   onTrackPress?: (track: Track) => void
   onBackPress?: () => void
   onBreadcrumbPress?: (path: string) => void
+  contentContainerStyle?: StyleProp<ViewStyle>
 }
 
 type FolderListItem =
@@ -56,6 +63,7 @@ export const FolderList: React.FC<FolderListProps> = ({
   onTrackPress,
   onBackPress,
   onBreadcrumbPress,
+  contentContainerStyle,
 }) => {
   const theme = useThemeColors()
 
@@ -163,7 +171,10 @@ export const FolderList: React.FC<FolderListProps> = ({
           ? renderFolderItem(item.folder)
           : renderTrackItem(item.track)
       }
-      contentContainerStyle={{ gap: 8, paddingBottom: 16 }}
+      contentContainerStyle={[
+        { gap: 8, paddingBottom: 16 },
+        contentContainerStyle,
+      ]}
       recycleItems={true}
       initialContainerPoolRatio={3}
       estimatedItemSize={68}

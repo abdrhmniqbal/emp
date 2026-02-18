@@ -1,6 +1,6 @@
 import * as React from "react"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
-import { Dimensions } from "react-native"
+import { Dimensions, type StyleProp, type ViewStyle } from "react-native"
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -26,6 +26,7 @@ interface ArtistGridProps {
   data: Artist[]
   onArtistPress?: (artist: Artist) => void
   scrollEnabled?: boolean
+  contentContainerStyle?: StyleProp<ViewStyle>
 }
 
 const GAP = 12
@@ -39,6 +40,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
   data,
   onArtistPress,
   scrollEnabled = true,
+  contentContainerStyle,
 }) => {
   const theme = useThemeColors()
 
@@ -111,7 +113,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
       keyExtractor={(item) => item.id}
       scrollEnabled={scrollEnabled}
       numColumns={NUM_COLUMNS}
-      contentContainerStyle={{ paddingBottom: 8 }}
+      contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
       style={{ flex: 1, minHeight: 1 }}
       recycleItems={true}
       initialContainerPoolRatio={2.5}

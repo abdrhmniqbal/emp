@@ -14,11 +14,13 @@ import { EmptyState } from "@/components/ui"
 interface TracksTabProps {
   onTrackPress?: (track: Track) => void
   sortConfig?: SortConfig
+  contentBottomPadding?: number
 }
 
 export const TracksTab: React.FC<TracksTabProps> = ({
   onTrackPress,
   sortConfig,
+  contentBottomPadding = 0,
 }) => {
   const theme = useThemeColors()
   const orderByField =
@@ -62,6 +64,10 @@ export const TracksTab: React.FC<TracksTabProps> = ({
   }
 
   return (
-    <TrackList data={tracks} onTrackPress={handleTrackPress} />
+    <TrackList
+      data={tracks}
+      onTrackPress={handleTrackPress}
+      contentContainerStyle={{ paddingBottom: contentBottomPadding }}
+    />
   )
 }

@@ -11,11 +11,13 @@ import { EmptyState } from "@/components/ui"
 interface AlbumsTabProps {
   onAlbumPress?: (album: Album) => void
   sortConfig?: SortConfig
+  contentBottomPadding?: number
 }
 
 export const AlbumsTab: React.FC<AlbumsTabProps> = ({
   onAlbumPress,
   sortConfig,
+  contentBottomPadding = 0,
 }) => {
   const theme = useThemeColors()
   const orderByField =
@@ -66,6 +68,10 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
   }
 
   return (
-    <AlbumGrid data={albums} onAlbumPress={handleAlbumPress} />
+    <AlbumGrid
+      data={albums}
+      onAlbumPress={handleAlbumPress}
+      contentContainerStyle={{ paddingBottom: contentBottomPadding }}
+    />
   )
 }

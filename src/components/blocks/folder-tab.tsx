@@ -1,3 +1,5 @@
+import type { StyleProp, ViewStyle } from "react-native"
+
 import type { Track } from "@/modules/player/player.store"
 import {
   FolderList,
@@ -13,6 +15,7 @@ interface FolderTabProps {
   onBackFolder: () => void
   onNavigateToFolderPath: (path: string) => void
   onTrackPress: (track: Track) => void
+  contentContainerStyle?: StyleProp<ViewStyle>
 }
 
 export function FolderTab({
@@ -23,6 +26,7 @@ export function FolderTab({
   onBackFolder,
   onNavigateToFolderPath,
   onTrackPress,
+  contentContainerStyle,
 }: FolderTabProps) {
   return (
     <FolderList
@@ -37,6 +41,7 @@ export function FolderTab({
       onBackPress={onBackFolder}
       onBreadcrumbPress={onNavigateToFolderPath}
       onTrackPress={onTrackPress}
+      contentContainerStyle={contentContainerStyle}
     />
   )
 }

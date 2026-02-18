@@ -11,11 +11,13 @@ import { EmptyState } from "@/components/ui"
 interface ArtistsTabProps {
   onArtistPress?: (artist: Artist) => void
   sortConfig?: SortConfig
+  contentBottomPadding?: number
 }
 
 export const ArtistsTab: React.FC<ArtistsTabProps> = ({
   onArtistPress,
   sortConfig,
+  contentBottomPadding = 0,
 }) => {
   const theme = useThemeColors()
   const orderByField = sortConfig?.field || "name"
@@ -62,6 +64,10 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
   }
 
   return (
-    <ArtistGrid data={artists} onArtistPress={handleArtistPress} />
+    <ArtistGrid
+      data={artists}
+      onArtistPress={handleArtistPress}
+      contentContainerStyle={{ paddingBottom: contentBottomPadding }}
+    />
   )
 }

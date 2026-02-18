@@ -1,5 +1,6 @@
 import * as React from "react"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
+import type { StyleProp, ViewStyle } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalAddIcon from "@/components/icons/local/add"
@@ -29,6 +30,7 @@ interface PlaylistListProps {
   onPlaylistPress?: (playlist: Playlist) => void
   onCreatePlaylist?: () => void
   scrollEnabled?: boolean
+  contentContainerStyle?: StyleProp<ViewStyle>
 }
 
 export const PlaylistList: React.FC<PlaylistListProps> = ({
@@ -36,6 +38,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
   onPlaylistPress,
   onCreatePlaylist,
   scrollEnabled = true,
+  contentContainerStyle,
 }) => {
   const theme = useThemeColors()
 
@@ -101,7 +104,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         renderItem={() => renderCreateButton()}
         keyExtractor={(item) => item.id}
         scrollEnabled={scrollEnabled}
-        contentContainerStyle={{ gap: 8 }}
+        contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
         recycleItems={true}
         initialContainerPoolRatio={3}
         ListEmptyComponent={
@@ -138,7 +141,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
       }}
       keyExtractor={(item) => item.id}
       scrollEnabled={scrollEnabled}
-      contentContainerStyle={{ gap: 8 }}
+      contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
       recycleItems={true}
       initialContainerPoolRatio={3}
       estimatedItemSize={68}

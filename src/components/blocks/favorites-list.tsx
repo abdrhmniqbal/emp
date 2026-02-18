@@ -4,7 +4,7 @@ import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
 import { Chip, PressableFeedback } from "heroui-native"
-import { View } from "react-native"
+import { View, type StyleProp, type ViewStyle } from "react-native"
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -32,6 +32,7 @@ import {
 interface FavoritesListProps {
   data: FavoriteEntry[]
   scrollEnabled?: boolean
+  contentContainerStyle?: StyleProp<ViewStyle>
 }
 
 const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({
@@ -137,6 +138,7 @@ const TypeBadge: React.FC<{ type: FavoriteType }> = ({ type }) => {
 export const FavoritesList: React.FC<FavoritesListProps> = ({
   data,
   scrollEnabled = true,
+  contentContainerStyle,
 }) => {
   const tracks = useStore($tracks)
   const router = useRouter()
@@ -221,7 +223,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         }
         keyExtractor={(item) => item.id}
         scrollEnabled={scrollEnabled}
-        contentContainerStyle={{ gap: 8 }}
+        contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
         recycleItems={true}
         initialContainerPoolRatio={3}
         estimatedItemSize={68}

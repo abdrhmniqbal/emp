@@ -1,14 +1,18 @@
 import * as React from "react"
+import { useStore } from "@nanostores/react"
 import { Tabs } from "heroui-native"
 import { Text, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "tailwind-variants"
 
+import { MINI_PLAYER_HEIGHT, getTabBarHeight } from "@/constants/layout"
 import {
   LIBRARY_TABS,
   LIBRARY_TAB_SORT_OPTIONS,
   useLibraryScreen,
   type LibraryTab,
 } from "@/modules/library/hooks/use-library-screen"
+import { $currentTrack } from "@/modules/player/player.store"
 import { PlaybackActionsRow } from "@/components/blocks"
 import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
@@ -19,6 +23,13 @@ import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TracksTab } from "@/components/blocks/tracks-tab"
 
 export default function LibraryScreen() {
+  const insets = useSafeAreaInsets()
+  const currentTrack = useStore($currentTrack)
+  const tabBarHeight = getTabBarHeight(insets.bottom)
+  const hasMiniPlayer = currentTrack !== null
+  const libraryListBottomPadding =
+    tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 16
+
   const {
     activeTab,
     setActiveTab,
@@ -54,13 +65,18 @@ export default function LibraryScreen() {
     switch (activeTab) {
       case "Tracks":
         return (
-          <TracksTab sortConfig={sortConfig} onTrackPress={playSingleTrack} />
+          <TracksTab
+            sortConfig={sortConfig}
+            onTrackPress={playSingleTrack}
+            contentBottomPadding={libraryListBottomPadding}
+          />
         )
       case "Albums":
         return (
           <AlbumsTab
             sortConfig={sortConfig}
             onAlbumPress={(album) => openAlbum(album.title)}
+            contentBottomPadding={libraryListBottomPadding}
           />
         )
       case "Artists":
@@ -68,6 +84,7 @@ export default function LibraryScreen() {
           <ArtistsTab
             sortConfig={sortConfig}
             onArtistPress={(artist) => openArtist(artist.name)}
+            contentBottomPadding={libraryListBottomPadding}
           />
         )
       case "Playlists":
@@ -76,6 +93,7 @@ export default function LibraryScreen() {
             data={playlists}
             onCreatePlaylist={openPlaylistForm}
             onPlaylistPress={(playlist) => openPlaylist(playlist.id)}
+            contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
           />
         )
       case "Folders":
@@ -88,10 +106,16 @@ export default function LibraryScreen() {
             onBackFolder={goBackFolder}
             onNavigateToFolderPath={navigateToFolderPath}
             onTrackPress={playFolderTrack}
+            contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
           />
         )
       case "Favorites":
-        return <FavoritesList data={favorites} />
+        return (
+          <FavoritesList
+            data={favorites}
+            contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
+          />
+        )
       default:
         return null
     }
@@ -150,7 +174,7 @@ export default function LibraryScreen() {
           )}
         </View>
 
-        <View className="flex-1 px-4 pb-40">
+        <View className="flex-1 px-4">
           {showPlayButtons && (
             <View className="mb-4">
               <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
