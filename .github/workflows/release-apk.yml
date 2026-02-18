@@ -21,6 +21,7 @@ jobs:
     env:
       RELEASE_CRED: ${{ secrets.RELEASE_CRED }}
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      TARGET_ARCHS: 'armeabi-v7a arm64-v8a x86 x86_64'
 
     steps:
       - name: Checkout
@@ -145,26 +146,57 @@ jobs:
       - name: Clean generated builds
         run: rm -rf android/app/build/generated/
 
-      - name: Build release APK
+      - name: Build release APKs (universal + per ABI)
         run: |
+          set -euo pipefail
+          shopt -s nullglob
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+
+          DIST_DIR="app/build/outputs/apk/dist"
+          RELEASE_DIR="app/build/outputs/apk/release"
+          mkdir -p "${DIST_DIR}"
+          rm -f "${DIST_DIR}"/*.apk
+
+          build_and_copy() {
+            local label="$1"
+            shift
+            ./gradlew clean :app:assembleRelease "$@"
+            local built_apks=(${RELEASE_DIR}/*.apk)
+            if [ "${#built_apks[@]}" -eq 0 ]; then
+              echo "No APK found for ${label} build"
+              exit 1
+            fi
+            local latest_apk
+            latest_apk="$(ls -t ${RELEASE_DIR}/*.apk | head -n1)"
+            cp "${latest_apk}" "${DIST_DIR}/app-release-${label}.apk"
+          }
+
+          # Universal APK (all configured architectures)
+          build_and_copy "universal"
+
+          # ABI-specific APKs
+          for abi in ${TARGET_ARCHS}; do
+            build_and_copy "${abi}" "-PreactNativeArchitectures=${abi}"
+          done
+
+          echo "Generated APKs:"
+          ls -lah "${DIST_DIR}"
 
       - name: Upload APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: android/app/build/outputs/apk/release/*.apk
+          path: android/app/build/outputs/apk/dist/*.apk
 
       - name: Collect release APK files
         id: collect_apk
         run: |
           shopt -s nullglob
-          apks=(android/app/build/outputs/apk/release/*.apk)
+          apks=(android/app/build/outputs/apk/dist/*.apk)
 
           if [ "${#apks[@]}" -eq 0 ]; then
-            echo "No APK files found in android/app/build/outputs/apk/release/"
+            echo "No APK files found in android/app/build/outputs/apk/dist/"
             exit 1
           fi
 

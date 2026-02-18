@@ -77,9 +77,9 @@ What it does:
 2. Supports manual dispatch with `tag` input
 3. Resolves version from tag
 4. Updates `app.json` and `android/app/build.gradle`
-5. Builds `assembleRelease`
-6. Uploads APK artifact
-7. Creates draft GitHub Release with APK attached
+5. Builds universal APK + ABI-specific APKs (`armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64`)
+6. Uploads all APKs as workflow artifact
+7. Creates draft GitHub Release with all APKs attached
 
 ## Tag-Based Versioning
 
