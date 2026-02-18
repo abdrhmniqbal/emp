@@ -301,7 +301,7 @@ export default function ArtistDetailsScreen() {
             onScrollEndDrag={handleScrollStop}
             listHeader={
               <>
-                {renderHeroSection()}
+                <View style={{ marginHorizontal: -24 }}>{renderHeroSection()}</View>
                 <Animated.View entering={SlideInRight.duration(200)} className="pt-4">
                   <View className="mb-6 flex-row items-center justify-between">
                     <View className="flex-row items-center gap-3">
@@ -352,7 +352,7 @@ export default function ArtistDetailsScreen() {
             onScrollEndDrag={handleScrollStop}
             listHeader={
               <>
-                {renderHeroSection()}
+                <View style={{ marginHorizontal: -16 }}>{renderHeroSection()}</View>
                 <Animated.View entering={SlideInRight.duration(200)} className="px-2 pt-4">
                   <View className="mb-6 flex-row items-center justify-between">
                     <View className="flex-row items-center gap-3">
