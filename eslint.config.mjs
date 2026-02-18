@@ -1,8 +1,8 @@
-import path from "node:path"
-import process from "node:process"
-import antfu from "@antfu/eslint-config"
-import expo from "eslint-plugin-expo"
-import tailwind from "eslint-plugin-tailwindcss"
+import path from 'node:path'
+import process from 'node:process'
+import antfu from '@antfu/eslint-config'
+import expo from 'eslint-plugin-expo'
+import tailwind from 'eslint-plugin-tailwindcss'
 
 export default antfu({
   react: true,
@@ -13,18 +13,18 @@ export default antfu({
     tailwindcss: tailwind,
   },
   // android/app/build/intermediates/assets/debug/EXDevMenuApp.android.js
-  ignores: ["android/app/build"],
+  ignores: ['android/app/build', 'src/components/icons'],
   settings: {
     tailwindcss: {
-      callees: ["cn", "cva"],
-      config: path.join(process.cwd(), "src/global.css"),
+      callees: ['cn', 'cva'],
+      config: path.join(process.cwd(), 'src/global.css'),
     },
   },
   rules: {
-    "expo/use-dom-exports": ["error"],
-    "expo/no-env-var-destructuring": ["error"],
-    "expo/no-dynamic-env-var": ["error"],
-    "tailwindcss/no-custom-classname": ["off"],
-    "tailwindcss/classnames-order": ["error"],
+    'expo/use-dom-exports': ['error'],
+    'expo/no-env-var-destructuring': ['error'],
+    'expo/no-dynamic-env-var': ['error'],
+    'tailwindcss/no-custom-classname': ['off'],
+    'tailwindcss/classnames-order': ['error'],
   },
 })
