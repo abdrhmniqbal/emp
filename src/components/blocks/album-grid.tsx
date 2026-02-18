@@ -57,6 +57,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width
 const HORIZONTAL_PADDING = 32
 const ITEM_WIDTH
   = (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
+const HORIZONTAL_ROW_HEIGHT = 208
 
 export const AlbumGrid: React.FC<AlbumGridProps> = ({
   data,
@@ -162,7 +163,8 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
         )}
         keyExtractor={item => item.id}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 4 }}
+        contentContainerStyle={{ paddingTop: 2, paddingBottom: 6 }}
+        style={{ minHeight: HORIZONTAL_ROW_HEIGHT }}
         className={containerClassName}
         recycleItems={true}
         initialContainerPoolRatio={2.5}
