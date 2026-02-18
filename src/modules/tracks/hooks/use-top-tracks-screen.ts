@@ -1,31 +1,31 @@
-import { useEffect, useState } from "react"
-import { useIsFocused } from "@react-navigation/native"
-import { useQuery } from "@tanstack/react-query"
+import type { Track } from '@/modules/player/player.types'
+import { useIsFocused } from '@react-navigation/native'
+import { useQuery } from '@tanstack/react-query'
 
-import { startIndexing } from "@/modules/indexer"
-import { playTrack } from "@/modules/player/player.store"
-import type { Track } from "@/modules/player/player.types"
-import { getTopTracks, type TopTracksPeriod } from "@/modules/tracks/tracks.api"
+import { useEffect, useState } from 'react'
+import { startIndexing } from '@/modules/indexer'
+import { playTrack } from '@/modules/player/player.store'
+import { getTopTracks, type TopTracksPeriod } from '@/modules/tracks/tracks.api'
 
-export const TOP_TRACKS_TABS = ["Realtime", "Daily", "Weekly"] as const
+export const TOP_TRACKS_TABS = ['Realtime', 'Daily', 'Weekly'] as const
 export type TopTracksTab = (typeof TOP_TRACKS_TABS)[number]
 
-const TOP_TRACKS_LIMIT = 10
+const TOP_TRACKS_LIMIT = 50
 
 function tabToPeriod(tab: TopTracksTab): TopTracksPeriod {
-  if (tab === "Daily") {
-    return "day"
+  if (tab === 'Daily') {
+    return 'day'
   }
 
-  if (tab === "Weekly") {
-    return "week"
+  if (tab === 'Weekly') {
+    return 'week'
   }
 
-  return "all"
+  return 'all'
 }
 
 export function useTopTracksScreen() {
-  const [activeTab, setActiveTab] = useState<TopTracksTab>("Realtime")
+  const [activeTab, setActiveTab] = useState<TopTracksTab>('Realtime')
   const isFocused = useIsFocused()
   const period = tabToPeriod(activeTab)
   const {
@@ -34,10 +34,10 @@ export function useTopTracksScreen() {
     isFetching,
     refetch,
   } = useQuery<Track[]>({
-    queryKey: ["top-tracks-screen", period, TOP_TRACKS_LIMIT],
+    queryKey: ['top-tracks-screen', period, TOP_TRACKS_LIMIT],
     queryFn: () => getTopTracks(period, TOP_TRACKS_LIMIT),
     enabled: false,
-    placeholderData: (previousData) => previousData,
+    placeholderData: previousData => previousData,
   })
   const currentTracks = currentTracksData ?? []
 
