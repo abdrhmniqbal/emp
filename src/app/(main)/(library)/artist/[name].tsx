@@ -38,6 +38,7 @@ import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import { PlaybackActionsRow } from "@/components/blocks"
 import { AlbumGrid, type Album } from "@/components/blocks/album-grid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
 import { TrackRow } from "@/components/patterns"
@@ -57,6 +58,7 @@ export default function ArtistDetailsScreen() {
   const [isHeaderSolid, setIsHeaderSolid] = useState(false)
   const {
     name,
+    isLoading,
     artistTracks,
     artistId,
     artistImage,
@@ -80,6 +82,14 @@ export default function ArtistDetailsScreen() {
   } = useArtistDetailsScreen()
 
   const artistName = name || "Unknown Artist"
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background">
+        <LibrarySkeleton type="artist-detail" />
+      </View>
+    )
+  }
 
   function handleBack() {
     if (from === "search") {

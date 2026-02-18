@@ -10,6 +10,7 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useRecentlyPlayedScreen } from "@/modules/history/hooks/use-recently-played-screen"
 import { $indexerState } from "@/modules/indexer"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks"
 import { TrackList } from "@/components/blocks/track-list"
 import { EmptyState } from "@/components/ui"
@@ -17,7 +18,16 @@ import { EmptyState } from "@/components/ui"
 export default function RecentlyPlayedScreen() {
   const theme = useThemeColors()
   const indexerState = useStore($indexerState)
-  const { history, refresh, playFirst, shuffle } = useRecentlyPlayedScreen()
+  const { history, isLoading, refresh, playFirst, shuffle } =
+    useRecentlyPlayedScreen()
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background px-4 pt-4">
+        <LibrarySkeleton type="tracks" itemCount={10} />
+      </View>
+    )
+  }
 
   return (
     <View className="flex-1 bg-background">

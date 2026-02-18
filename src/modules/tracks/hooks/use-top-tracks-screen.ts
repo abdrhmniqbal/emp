@@ -28,12 +28,18 @@ export function useTopTracksScreen() {
   const [activeTab, setActiveTab] = useState<TopTracksTab>("Realtime")
   const isFocused = useIsFocused()
   const period = tabToPeriod(activeTab)
-  const { data: currentTracks = [], refetch } = useQuery<Track[]>({
+  const {
+    data: currentTracksData,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useQuery<Track[]>({
     queryKey: ["top-tracks-screen", period, TOP_TRACKS_LIMIT],
     queryFn: () => getTopTracks(period, TOP_TRACKS_LIMIT),
     enabled: false,
-    initialData: [],
+    placeholderData: (previousData) => previousData,
   })
+  const currentTracks = currentTracksData ?? []
 
   useEffect(() => {
     if (!isFocused) {
@@ -69,6 +75,7 @@ export function useTopTracksScreen() {
     activeTab,
     setActiveTab,
     currentTracks,
+    isLoading: (isLoading || isFetching) && currentTracks.length === 0,
     refresh,
     playAll,
     shuffle,

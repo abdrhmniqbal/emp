@@ -36,7 +36,11 @@ export function useArtistDetailsScreen() {
   const artistName = getSafeRouteName(name)
   const normalizedArtistName = artistName.trim().toLowerCase()
 
-  const { data: artistTracksFromQuery = [] } = useTracksByArtistName(artistName)
+  const {
+    data: artistTracksFromQuery = [],
+    isLoading: isArtistTracksLoading,
+    isFetching: isArtistTracksFetching,
+  } = useTracksByArtistName(artistName)
   const artistTracks =
     artistTracksFromQuery.length > 0
       ? artistTracksFromQuery
@@ -51,6 +55,9 @@ export function useArtistDetailsScreen() {
     "artist",
     artistId || ""
   )
+  const isLoading =
+    (isArtistTracksLoading || isArtistTracksFetching) &&
+    artistTracks.length === 0
 
   const albums = buildArtistAlbums(artistTracks)
   const sortedArtistTracks = sortTracks(
@@ -126,6 +133,7 @@ export function useArtistDetailsScreen() {
 
   return {
     name: artistName,
+    isLoading,
     artistTracks,
     artistId,
     artistImage,

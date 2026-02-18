@@ -15,6 +15,7 @@ import { $indexerState } from "@/modules/indexer"
 import { useSearchScreen } from "@/modules/search/hooks/use-search-screen"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { GenreCard } from "@/components/patterns"
 import { EmptyState } from "@/components/ui"
 
@@ -22,7 +23,7 @@ export default function SearchScreen() {
   const theme = useThemeColors()
   const router = useRouter()
   const indexerState = useStore($indexerState)
-  const { categories, refresh } = useSearchScreen()
+  const { categories, isLoading, refresh } = useSearchScreen()
 
   function handleGenrePress(genre: Category) {
     router.push(`./genre/${encodeURIComponent(genre.title)}`)
@@ -80,7 +81,9 @@ export default function SearchScreen() {
         Browse by Genre
       </Text>
 
-      {categories.length > 0 ? (
+      {isLoading ? (
+        <LibrarySkeleton type="genres" itemCount={8} />
+      ) : categories.length > 0 ? (
         <View className="flex-row flex-wrap justify-between gap-y-4">
           {categories.map((genre) => (
             <GenreCard

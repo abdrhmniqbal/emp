@@ -38,7 +38,11 @@ export function useAlbumDetailsScreen() {
 
   const albumName = getSafeRouteName(name)
   const normalizedAlbumName = albumName.trim().toLowerCase()
-  const { data: albumTracksFromQuery = [] } = useTracksByAlbumName(albumName)
+  const {
+    data: albumTracksFromQuery = [],
+    isLoading: isAlbumTracksLoading,
+    isFetching: isAlbumTracksFetching,
+  } = useTracksByAlbumName(albumName)
   const albumTracks =
     albumTracksFromQuery.length > 0
       ? albumTracksFromQuery
@@ -78,6 +82,8 @@ export function useAlbumDetailsScreen() {
   const tracksByDisc = groupTracksByDisc(sortedTracks)
   const albumId = albumTracks[0]?.albumId
   const { data: isAlbumFavorite = false } = useIsFavorite("album", albumId || "")
+  const isLoading =
+    (isAlbumTracksLoading || isAlbumTracksFetching) && albumTracks.length === 0
 
   function playSelectedTrack(track: Track) {
     playTrack(track, sortedTracks)
@@ -109,6 +115,7 @@ export function useAlbumDetailsScreen() {
 
   return {
     albumInfo,
+    isLoading,
     albumId,
     isAlbumFavorite,
     tracksByDisc,

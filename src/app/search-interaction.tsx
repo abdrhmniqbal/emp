@@ -111,7 +111,7 @@ export default function SearchInteractionScreen() {
   const [recentSearches, setRecentSearches] = useState<RecentSearchItem[]>([])
   const searchQueryRef = useRef(searchQuery)
 
-  const { data: searchResults } = useSearch(searchQuery)
+  const { data: searchResults, isLoading, isFetching } = useSearch(searchQuery)
   const tracks = searchResults?.tracks ?? []
   const artists = searchResults?.artists ?? []
   const albums = searchResults?.albums ?? []
@@ -175,6 +175,7 @@ export default function SearchInteractionScreen() {
           albums={albums}
           playlists={playlists}
           query={searchQuery}
+          isLoading={isLoading || isFetching}
           onArtistPress={(artist) =>
             router.push({
               pathname: "/(main)/(library)/artist/[name]",

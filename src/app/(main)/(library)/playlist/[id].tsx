@@ -19,6 +19,7 @@ import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-ho
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
 import {
   DeletePlaylistDialog,
+  LibrarySkeleton,
   PlaybackActionsRow,
   PlaylistActionsSheet,
 } from "@/components/blocks"
@@ -76,7 +77,11 @@ export default function PlaylistDetailsScreen() {
   }
 
   if (isLoading) {
-    return <View className="flex-1 bg-background" />
+    return (
+      <View className="flex-1 bg-background">
+        <LibrarySkeleton type="playlist-detail" />
+      </View>
+    )
   }
 
   if (!playlist) {

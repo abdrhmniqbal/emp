@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator"
-import { ActivityIndicator, Text, View } from "react-native"
+import { Skeleton } from "heroui-native"
+import { Text, View } from "react-native"
 
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
@@ -51,7 +52,7 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
   if (!success || !ready) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" className="text-primary mb-4" />
+        <Skeleton className="mb-4 h-10 w-10 rounded-full" />
         <Text className="text-foreground">Initializing database...</Text>
       </View>
     )

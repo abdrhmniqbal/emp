@@ -21,6 +21,7 @@ import {
   type TopTracksTab,
 } from "@/modules/tracks/hooks/use-top-tracks-screen"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks"
 import { TrackList } from "@/components/blocks/track-list"
 import { EmptyState } from "@/components/ui"
@@ -28,8 +29,15 @@ import { EmptyState } from "@/components/ui"
 export default function TopTracksScreen() {
   const indexerState = useStore($indexerState)
   const theme = useThemeColors()
-  const { activeTab, setActiveTab, currentTracks, refresh, playAll, shuffle } =
-    useTopTracksScreen()
+  const {
+    activeTab,
+    setActiveTab,
+    currentTracks,
+    isLoading,
+    refresh,
+    playAll,
+    shuffle,
+  } = useTopTracksScreen()
   const contentOpacity = useSharedValue(1)
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
@@ -60,7 +68,11 @@ export default function TopTracksScreen() {
         </Tabs.List>
       </Tabs>
 
-      {currentTracks.length === 0 ? (
+      {isLoading ? (
+        <View className="px-4 pt-2">
+          <LibrarySkeleton type="tracks" itemCount={9} />
+        </View>
+      ) : currentTracks.length === 0 ? (
         <Animated.View className="px-4" style={contentAnimatedStyle}>
           <EmptyState
             icon={

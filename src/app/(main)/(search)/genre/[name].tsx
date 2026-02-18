@@ -15,6 +15,7 @@ import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import {
   ContentSection,
+  LibrarySkeleton,
   MediaCarousel,
   RankedTrackCarousel,
 } from "@/components/blocks"
@@ -31,6 +32,19 @@ export default function GenreDetailsScreen() {
   const genreName = decodeURIComponent(name || "")
   const { topTracks, previewAlbums, isLoading, refresh } =
     useGenreDetailsScreen(genreName)
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background pt-5">
+        <Stack.Screen
+          options={{
+            title: genreName,
+          }}
+        />
+        <LibrarySkeleton type="genre-overview" />
+      </View>
+    )
+  }
 
   function renderAlbumItem(album: GenreAlbumInfo) {
     const subtitle = `${album.artist || "Unknown Artist"} · ${album.trackCount} tracks`

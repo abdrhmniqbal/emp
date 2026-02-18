@@ -214,6 +214,8 @@ export function usePlaylistFormScreen(
   return {
     name,
     description,
+    isFormLoading:
+      isEditMode && (isEditPlaylistLoading || !hasInitializedEditState),
     selectedTracks,
     isTrackSheetOpen,
     searchInputKey,

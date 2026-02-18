@@ -16,6 +16,7 @@ import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import {
   ContentSection,
+  LibrarySkeleton,
   MediaCarousel,
   RankedTrackCarousel,
 } from "@/components/blocks"
@@ -27,7 +28,15 @@ export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
   const indexerState = useStore($indexerState)
-  const { recentlyPlayedTracks, topTracks, refresh } = useHomeScreen()
+  const { recentlyPlayedTracks, topTracks, isLoading, refresh } = useHomeScreen()
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background pt-6">
+        <LibrarySkeleton type="home" />
+      </View>
+    )
+  }
 
   function renderRecentlyPlayedItem(item: Track) {
     return (

@@ -17,6 +17,7 @@ import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-ho
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaylistArtwork } from "@/components/patterns"
 import {
   Item,
@@ -36,6 +37,7 @@ interface SearchResultsProps {
   albums: SearchAlbumResult[]
   playlists: SearchPlaylistResult[]
   query: string
+  isLoading?: boolean
   onArtistPress?: (artist: SearchArtistResult) => void
   onAlbumPress?: (album: SearchAlbumResult) => void
   onPlaylistPress?: (playlist: SearchPlaylistResult) => void
@@ -56,6 +58,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   albums,
   playlists,
   query,
+  isLoading = false,
   onArtistPress,
   onAlbumPress,
   onPlaylistPress,
@@ -335,6 +338,11 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         estimatedItemSize={72}
         drawDistance={220}
       />
+      {isLoading && hasQuery && listData.length === 0 ? (
+        <View className="absolute inset-x-0 top-16 px-4">
+          <LibrarySkeleton type="search-results" />
+        </View>
+      ) : null}
     </View>
   )
 }

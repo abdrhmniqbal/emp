@@ -12,6 +12,7 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useGenreTopTracksScreen } from "@/modules/genres/hooks/use-genre-top-tracks-screen"
 import { $indexerState } from "@/modules/indexer"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks"
 import { TrackList } from "@/components/blocks/track-list"
 import { EmptyState } from "@/components/ui"
@@ -24,6 +25,19 @@ export default function GenreTopTracksScreen() {
   const genreName = decodeURIComponent(name || "")
   const { tracks, isLoading, refresh, playAll, shuffle } =
     useGenreTopTracksScreen(genreName)
+
+  if (isLoading && tracks.length === 0) {
+    return (
+      <View className="flex-1 bg-background px-4 pt-4">
+        <Stack.Screen
+          options={{
+            title: `${genreName} Top Tracks`,
+          }}
+        />
+        <LibrarySkeleton type="tracks" itemCount={8} />
+      </View>
+    )
+  }
 
   return (
     <View className="flex-1 bg-background">

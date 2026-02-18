@@ -26,20 +26,37 @@ const HOME_TOP_TRACKS_QUERY_KEY = [
 export function useHomeScreen() {
   const isFocused = useIsFocused()
   const {
-    data: recentlyPlayedTracks = [],
+    data: recentlyPlayedTracksData,
+    isLoading: isRecentlyPlayedLoading,
+    isFetching: isRecentlyPlayedFetching,
     refetch: refetchRecentlyPlayedTracks,
   } = useQuery<Track[]>({
     queryKey: HOME_RECENTLY_PLAYED_QUERY_KEY,
     queryFn: () => fetchRecentlyPlayedTracks(RECENTLY_PLAYED_LIMIT),
-    initialData: [],
+    placeholderData: (previousData) => previousData,
+    enabled: false,
   })
-  const { data: topTracks = [], refetch: refetchTopTracks } = useQuery<Track[]>(
-    {
-      queryKey: HOME_TOP_TRACKS_QUERY_KEY,
-      queryFn: () => getTopTracks("all", TOP_TRACKS_LIMIT),
-      initialData: [],
-    }
-  )
+  const {
+    data: topTracksData,
+    isLoading: isTopTracksLoading,
+    isFetching: isTopTracksFetching,
+    refetch: refetchTopTracks,
+  } = useQuery<Track[]>({
+    queryKey: HOME_TOP_TRACKS_QUERY_KEY,
+    queryFn: () => getTopTracks("all", TOP_TRACKS_LIMIT),
+    placeholderData: (previousData) => previousData,
+    enabled: false,
+  })
+
+  const recentlyPlayedTracks = recentlyPlayedTracksData ?? []
+  const topTracks = topTracksData ?? []
+  const isLoading =
+    (isRecentlyPlayedLoading ||
+      isRecentlyPlayedFetching ||
+      isTopTracksLoading ||
+      isTopTracksFetching) &&
+    recentlyPlayedTracks.length === 0 &&
+    topTracks.length === 0
 
   useEffect(() => {
     if (!isFocused) {
@@ -59,6 +76,7 @@ export function useHomeScreen() {
   return {
     recentlyPlayedTracks,
     topTracks,
+    isLoading,
     refresh,
   }
 }

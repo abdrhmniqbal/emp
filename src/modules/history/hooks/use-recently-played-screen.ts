@@ -11,12 +11,18 @@ const RECENTLY_PLAYED_QUERY_KEY = ["recently-played-screen"] as const
 
 export function useRecentlyPlayedScreen() {
   const isFocused = useIsFocused()
-  const { data: history = [], refetch: refetchHistory } = useQuery<Track[]>({
+  const {
+    data: historyData,
+    isLoading,
+    isFetching,
+    refetch: refetchHistory,
+  } = useQuery<Track[]>({
     queryKey: RECENTLY_PLAYED_QUERY_KEY,
     queryFn: () => fetchRecentlyPlayedTracks(),
     enabled: false,
-    initialData: [],
+    placeholderData: (previousData) => previousData,
   })
+  const history = historyData ?? []
 
   useEffect(() => {
     if (!isFocused) {
@@ -50,6 +56,7 @@ export function useRecentlyPlayedScreen() {
 
   return {
     history,
+    isLoading: (isLoading || isFetching) && history.length === 0,
     refresh,
     playFirst,
     shuffle,

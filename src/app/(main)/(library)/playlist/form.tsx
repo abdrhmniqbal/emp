@@ -6,6 +6,7 @@ import { View } from "react-native"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { usePlaylistFormScreen } from "@/modules/playlist/hooks/use-playlist-form"
 import LocalTickIcon from "@/components/icons/local/tick"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import {
   PlaylistForm,
   TrackPickerSheetContent,
@@ -20,6 +21,7 @@ export default function PlaylistFormScreen() {
   const {
     name,
     description,
+    isFormLoading,
     selectedTracks,
     isTrackSheetOpen,
     searchInputKey,
@@ -37,6 +39,19 @@ export default function PlaylistFormScreen() {
     handleTrackSheetOpenChange,
     save,
   } = usePlaylistFormScreen(() => router.back(), playlistId)
+
+  if (isFormLoading) {
+    return (
+      <View className="flex-1 bg-background pt-4">
+        <Stack.Screen
+          options={{
+            title: "Edit Playlist",
+          }}
+        />
+        <LibrarySkeleton type="playlist-form" />
+      </View>
+    )
+  }
 
   return (
     <View className="flex-1 bg-background">

@@ -7,6 +7,7 @@ import { Text, View } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 
 import { PlaybackActionsRow } from '@/components/blocks'
+import { LibrarySkeleton } from '@/components/blocks/library-skeleton'
 import { SortSheet } from '@/components/blocks/sort-sheet'
 import { TrackList } from '@/components/blocks/track-list'
 import LocalFavouriteIcon from '@/components/icons/local/favourite'
@@ -42,6 +43,7 @@ export default function AlbumDetailsScreen() {
 
   const {
     albumInfo,
+    isLoading,
     albumId,
     isAlbumFavorite,
     sortedTracks,
@@ -53,6 +55,14 @@ export default function AlbumDetailsScreen() {
     selectSort,
     getSortLabel,
   } = useAlbumDetailsScreen()
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background">
+        <LibrarySkeleton type="album-detail" />
+      </View>
+    )
+  }
 
   function handleSortSelect(field: SortField, order?: 'asc' | 'desc') {
     selectSort(field, order)

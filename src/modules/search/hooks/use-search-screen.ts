@@ -9,7 +9,7 @@ import { startIndexing } from "@/modules/indexer"
 const SEARCH_GENRES_QUERY_KEY = ["search", "genres"] as const
 
 export function useSearchScreen() {
-  const { data, refetch } = useQuery({
+  const { data, refetch, isLoading, isFetching } = useQuery({
     queryKey: SEARCH_GENRES_QUERY_KEY,
     queryFn: fetchGenres,
   })
@@ -22,6 +22,7 @@ export function useSearchScreen() {
 
   return {
     categories: mapGenresToCategories(genreList),
+    isLoading: isLoading || isFetching,
     refresh,
   }
 }

@@ -20,6 +20,7 @@ import {
 } from "@/modules/library/library-sort.store"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { AlbumGrid, type Album } from "@/components/blocks/album-grid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { EmptyState } from "@/components/ui"
 
@@ -40,6 +41,19 @@ export default function GenreAlbumsScreen() {
   const genreName = decodeURIComponent(name || "")
   const { albumData, isLoading, refresh } = useGenreAlbumsScreen(genreName)
   const sortedAlbumData = sortAlbums(albumData, sortConfig) as Album[]
+
+  if (isLoading && sortedAlbumData.length === 0) {
+    return (
+      <View className="flex-1 bg-background px-6 pt-4">
+        <Stack.Screen
+          options={{
+            title: `${genreName.trim()} Albums`,
+          }}
+        />
+        <LibrarySkeleton type="albums" itemCount={8} />
+      </View>
+    )
+  }
 
   function handleAlbumPress(album: Album) {
     router.push(`/(main)/(library)/album/${encodeURIComponent(album.title)}`)

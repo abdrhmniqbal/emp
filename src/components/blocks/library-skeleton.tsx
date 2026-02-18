@@ -1,197 +1,317 @@
 import * as React from "react"
-import { Animated, Dimensions, View } from "react-native"
-import { useUniwind } from "uniwind"
+import { Skeleton } from "heroui-native"
+import { View } from "react-native"
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window")
+type LibrarySkeletonType =
+  | "tracks"
+  | "tracks-compact"
+  | "albums"
+  | "artists"
+  | "genres"
+  | "home"
+  | "search-results"
+  | "genre-overview"
+  | "album-detail"
+  | "artist-detail"
+  | "playlist-detail"
+  | "playlist-form"
 
 interface LibrarySkeletonProps {
-  type: "tracks" | "albums" | "artists"
+  type: LibrarySkeletonType
   itemCount?: number
+  className?: string
 }
 
-function ShimmerView({ className }: { className?: string }) {
-  const shimmerAnim = React.useMemo(() => new Animated.Value(0), [])
-  const { theme } = useUniwind()
-  const isDark = theme === "dark"
+function SectionHeaderSkeleton() {
+  return (
+    <View className="mb-3 flex-row items-center justify-between px-4">
+      <Skeleton className="h-6 w-32 rounded-md" />
+      <Skeleton className="h-4 w-14 rounded-md" />
+    </View>
+  )
+}
 
-  React.useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(shimmerAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shimmerAnim, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
+function PlaybackActionsSkeleton() {
+  return (
+    <View className="mb-4 flex-row gap-3">
+      <Skeleton className="h-10 flex-1 rounded-xl" />
+      <Skeleton className="h-10 flex-1 rounded-xl" />
+    </View>
+  )
+}
+
+function TrackRowSkeleton({
+  showCover = true,
+  showRank = false,
+}: {
+  showCover?: boolean
+  showRank?: boolean
+}) {
+  return (
+    <View className="flex-row items-center gap-3 py-2">
+      {showCover ? <Skeleton className="h-14 w-14 rounded-lg" /> : null}
+      {showRank ? <Skeleton className="h-4 w-5 rounded-sm" /> : null}
+      <View className="flex-1 gap-1">
+        <Skeleton className="h-4 w-3/4 rounded" />
+        <Skeleton className="h-3 w-1/2 rounded" />
+      </View>
+      <Skeleton className="h-6 w-6 rounded-full" />
+    </View>
+  )
+}
+
+function TrackListSkeleton({
+  itemCount = 8,
+  showCover = true,
+  showRank = false,
+}: {
+  itemCount?: number
+  showCover?: boolean
+  showRank?: boolean
+}) {
+  return (
+    <View className="gap-2">
+      {Array.from({ length: itemCount }, (_, index) => (
+        <TrackRowSkeleton
+          key={`track-skeleton-${index}`}
+          showCover={showCover}
+          showRank={showRank}
+        />
+      ))}
+    </View>
+  )
+}
+
+function AlbumGridSkeleton({ itemCount = 8 }: { itemCount?: number }) {
+  const rows = []
+  for (let i = 0; i < itemCount; i += 2) {
+    rows.push(
+      <View key={`album-row-${i}`} className="flex-row justify-between">
+        {Array.from({ length: Math.min(2, itemCount - i) }, (_, offset) => (
+          <View key={`album-card-${i + offset}`} className="w-[48.5%]">
+            <Skeleton className="aspect-square w-full rounded-md" />
+            <View className="mt-2 gap-1">
+              <Skeleton className="h-4 w-full rounded" />
+              <Skeleton className="h-3 w-2/3 rounded" />
+            </View>
+          </View>
+        ))}
+      </View>
     )
-    animation.start()
-    return () => animation.stop()
-  }, [shimmerAnim])
+  }
 
-  const translateX = React.useMemo(
-    () =>
-      shimmerAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [-SCREEN_WIDTH, SCREEN_WIDTH],
-      }),
-    [shimmerAnim]
-  )
+  return <View className="gap-4">{rows}</View>
+}
 
+function ArtistGridSkeleton({ itemCount = 9 }: { itemCount?: number }) {
+  const rows = []
+  for (let i = 0; i < itemCount; i += 3) {
+    rows.push(
+      <View key={`artist-row-${i}`} className="flex-row justify-between">
+        {Array.from({ length: Math.min(3, itemCount - i) }, (_, offset) => (
+          <View key={`artist-card-${i + offset}`} className="w-[31.5%] items-center">
+            <Skeleton className="aspect-square w-full rounded-full" />
+            <View className="mt-2 w-full items-center gap-1">
+              <Skeleton className="h-4 w-5/6 rounded" />
+              <Skeleton className="h-3 w-3/5 rounded" />
+            </View>
+          </View>
+        ))}
+      </View>
+    )
+  }
+
+  return <View className="gap-4">{rows}</View>
+}
+
+function GenreGridSkeleton({ itemCount = 8 }: { itemCount?: number }) {
+  const rows = []
+  for (let i = 0; i < itemCount; i += 2) {
+    rows.push(
+      <View key={`genre-row-${i}`} className="flex-row justify-between">
+        {Array.from({ length: Math.min(2, itemCount - i) }, (_, offset) => (
+          <View key={`genre-card-${i + offset}`} className="w-[47.5%]">
+            <Skeleton className="h-24 w-full rounded-2xl" />
+          </View>
+        ))}
+      </View>
+    )
+  }
+
+  return <View className="gap-4">{rows}</View>
+}
+
+function HomeSkeleton() {
   return (
-    <View className={`overflow-hidden ${className}`}>
-      <Animated.View
-        className="absolute inset-0"
-        style={{
-          transform: [{ translateX }],
-          backgroundColor: isDark
-            ? "rgba(255,255,255,0.05)"
-            : "rgba(0,0,0,0.05)",
-        }}
-      />
+    <View>
+      <SectionHeaderSkeleton />
+      <View className="mb-8 flex-row gap-3 px-4">
+        {Array.from({ length: 3 }, (_, index) => (
+          <View key={`home-media-${index}`} className="w-36">
+            <Skeleton className="h-36 w-full rounded-xl" />
+            <View className="mt-2 gap-1">
+              <Skeleton className="h-4 w-10/12 rounded" />
+              <Skeleton className="h-3 w-2/3 rounded" />
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <SectionHeaderSkeleton />
+      <View className="px-4">
+        <TrackListSkeleton itemCount={6} />
+      </View>
     </View>
   )
 }
 
-function TrackSkeleton() {
+function SearchResultsSkeleton() {
   return (
-    <View className="flex-row items-center gap-3 py-2.5">
-      <View className="h-14 w-14 rounded-lg bg-default">
-        <ShimmerView className="h-full w-full" />
+    <View>
+      <View className="mb-3">
+        <Skeleton className="h-6 w-20 rounded-md" />
       </View>
-      <View className="flex-1 justify-center gap-0.5">
-        <View className="h-4 w-3/4 rounded bg-default">
-          <ShimmerView className="h-full w-full" />
-        </View>
-        <View className="h-3 w-1/2 rounded bg-default">
-          <ShimmerView className="h-full w-full" />
+      <TrackListSkeleton itemCount={7} />
+    </View>
+  )
+}
+
+function GenreOverviewSkeleton() {
+  return (
+    <View>
+      <SectionHeaderSkeleton />
+      <View className="px-4">
+        <TrackListSkeleton itemCount={4} />
+      </View>
+      <View className="mt-8">
+        <SectionHeaderSkeleton />
+      </View>
+      <View className="mt-1 flex-row gap-3 px-4">
+        {Array.from({ length: 2 }, (_, index) => (
+          <View key={`genre-album-preview-${index}`} className="w-36">
+            <Skeleton className="h-36 w-full rounded-xl" />
+            <View className="mt-2 gap-1">
+              <Skeleton className="h-4 w-11/12 rounded" />
+              <Skeleton className="h-3 w-2/3 rounded" />
+            </View>
+          </View>
+        ))}
+      </View>
+    </View>
+  )
+}
+
+function DetailHeaderSkeleton({
+  artworkClassName,
+}: {
+  artworkClassName: string
+}) {
+  return (
+    <View className="mb-6">
+      <View className="flex-row gap-4">
+        <Skeleton className={artworkClassName} />
+        <View className="flex-1 justify-center gap-2">
+          <Skeleton className="h-7 w-4/5 rounded-md" />
+          <Skeleton className="h-4 w-3/5 rounded-md" />
+          <Skeleton className="h-4 w-2/5 rounded-md" />
         </View>
       </View>
     </View>
   )
 }
 
-function AlbumSkeleton() {
-  const GAP = 12
-  const NUM_COLUMNS = 2
-  const HORIZONTAL_PADDING = 32
-  const ITEM_WIDTH =
-    (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
-
+function AlbumDetailSkeleton() {
   return (
-    <View style={{ width: ITEM_WIDTH }}>
-      <View className="aspect-square w-full rounded-md bg-default">
-        <ShimmerView className="h-full w-full" />
-      </View>
-      <View className="mt-1">
-        <View className="h-4 w-full rounded bg-default">
-          <ShimmerView className="h-full w-full" />
-        </View>
-        <View className="mt-0.5 h-3 w-2/3 rounded bg-default">
-          <ShimmerView className="h-full w-full" />
-        </View>
+    <View className="px-4 pt-6">
+      <DetailHeaderSkeleton artworkClassName="h-36 w-36 rounded-lg" />
+      <PlaybackActionsSkeleton />
+      <TrackListSkeleton itemCount={9} showCover={false} showRank />
+    </View>
+  )
+}
+
+function PlaylistDetailSkeleton() {
+  return (
+    <View className="px-4 pt-6">
+      <DetailHeaderSkeleton artworkClassName="h-36 w-36 rounded-lg" />
+      <PlaybackActionsSkeleton />
+      <TrackListSkeleton itemCount={9} />
+    </View>
+  )
+}
+
+function ArtistDetailSkeleton() {
+  return (
+    <View>
+      <Skeleton className="h-80 w-full rounded-none" />
+      <View className="px-4 pt-4">
+        <SectionHeaderSkeleton />
+        <TrackListSkeleton itemCount={4} />
       </View>
     </View>
   )
 }
 
-function ArtistSkeleton() {
-  const GAP = 12
-  const NUM_COLUMNS = 3
-  const HORIZONTAL_PADDING = 28
-  const ITEM_WIDTH =
-    (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
-
+function PlaylistFormSkeleton() {
   return (
-    <View style={{ width: ITEM_WIDTH }} className="items-center">
-      <View className="aspect-square w-full rounded-full bg-default">
-        <ShimmerView className="h-full w-full" />
-      </View>
-      <View className="mt-1 items-center">
-        <View className="h-4 w-full rounded bg-default">
-          <ShimmerView className="h-full w-full" />
+    <View className="px-4 pt-4">
+      <View className="mb-5 gap-4">
+        <View className="gap-2">
+          <View className="flex-row justify-between">
+            <Skeleton className="h-4 w-24 rounded" />
+            <Skeleton className="h-4 w-12 rounded" />
+          </View>
+          <Skeleton className="h-12 w-full rounded-xl" />
         </View>
-        <View className="mt-0.5 h-3 w-2/3 rounded bg-default">
-          <ShimmerView className="h-full w-full" />
+        <View className="gap-2">
+          <View className="flex-row justify-between">
+            <Skeleton className="h-4 w-24 rounded" />
+            <Skeleton className="h-4 w-12 rounded" />
+          </View>
+          <Skeleton className="h-24 w-full rounded-xl" />
+        </View>
+        <View className="flex-row items-center justify-between">
+          <Skeleton className="h-6 w-24 rounded-md" />
+          <Skeleton className="h-9 w-28 rounded-full" />
         </View>
       </View>
+      <TrackListSkeleton itemCount={7} />
     </View>
   )
 }
 
 export const LibrarySkeleton: React.FC<LibrarySkeletonProps> = ({
   type,
-  itemCount = 6,
+  itemCount = 8,
+  className,
 }) => {
-  const trackSkeletonKeys = Array.from(
-    { length: itemCount },
-    (_, index) => `track-skeleton-${index}`
+  return (
+    <View className={className}>
+      {type === "tracks" ? (
+        <TrackListSkeleton itemCount={itemCount} />
+      ) : type === "tracks-compact" ? (
+        <TrackListSkeleton itemCount={itemCount} showCover={false} showRank />
+      ) : type === "albums" ? (
+        <AlbumGridSkeleton itemCount={itemCount} />
+      ) : type === "artists" ? (
+        <ArtistGridSkeleton itemCount={itemCount} />
+      ) : type === "genres" ? (
+        <GenreGridSkeleton itemCount={itemCount} />
+      ) : type === "home" ? (
+        <HomeSkeleton />
+      ) : type === "search-results" ? (
+        <SearchResultsSkeleton />
+      ) : type === "genre-overview" ? (
+        <GenreOverviewSkeleton />
+      ) : type === "album-detail" ? (
+        <AlbumDetailSkeleton />
+      ) : type === "artist-detail" ? (
+        <ArtistDetailSkeleton />
+      ) : type === "playlist-detail" ? (
+        <PlaylistDetailSkeleton />
+      ) : type === "playlist-form" ? (
+        <PlaylistFormSkeleton />
+      ) : null}
+    </View>
   )
-
-  const renderSkeleton = () => {
-    switch (type) {
-      case "tracks":
-        return (
-          <View style={{ gap: 8 }}>
-            {trackSkeletonKeys.map((key) => (
-              <TrackSkeleton key={key} />
-            ))}
-          </View>
-        )
-      case "albums": {
-        const GAP = 12
-        const NUM_COLUMNS = 2
-        const rows = []
-        for (let i = 0; i < itemCount; i += NUM_COLUMNS) {
-          const itemsInRow = Math.min(NUM_COLUMNS, itemCount - i)
-          const albumRowKeys = Array.from(
-            { length: itemsInRow },
-            (_, offset) => `album-skeleton-${i + offset}`
-          )
-          rows.push(
-            <View
-              key={`album-row-${i}`}
-              className="flex-row"
-              style={{ gap: GAP }}
-            >
-              {albumRowKeys.map((key) => (
-                <AlbumSkeleton key={key} />
-              ))}
-            </View>
-          )
-        }
-        return <View style={{ gap: GAP }}>{rows}</View>
-      }
-      case "artists": {
-        const GAP = 12
-        const NUM_COLUMNS = 3
-        const rows = []
-        for (let i = 0; i < itemCount; i += NUM_COLUMNS) {
-          const itemsInRow = Math.min(NUM_COLUMNS, itemCount - i)
-          const artistRowKeys = Array.from(
-            { length: itemsInRow },
-            (_, offset) => `artist-skeleton-${i + offset}`
-          )
-          rows.push(
-            <View
-              key={`artist-row-${i}`}
-              className="flex-row"
-              style={{ gap: GAP }}
-            >
-              {artistRowKeys.map((key) => (
-                <ArtistSkeleton key={key} />
-              ))}
-            </View>
-          )
-        }
-        return <View style={{ gap: GAP }}>{rows}</View>
-      }
-    }
-  }
-
-  return <View>{renderSkeleton()}</View>
 }
