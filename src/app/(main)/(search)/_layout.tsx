@@ -19,6 +19,7 @@ export default function SearchLayout() {
         headerTintColor: theme.foreground,
         headerShadowVisible: false,
         contentStyle: { backgroundColor: theme.background },
+        animation: "default",
       }}
     >
       <Stack.Screen

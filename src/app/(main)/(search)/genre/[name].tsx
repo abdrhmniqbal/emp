@@ -1,7 +1,9 @@
 import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { RefreshControl, ScrollView, View } from "react-native"
+import Animated from "react-native-reanimated"
 
+import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
@@ -97,55 +99,59 @@ export default function GenreDetailsScreen() {
           />
         }
       >
-        <ContentSection
-          title="Top Tracks"
-          data={topTracks}
-          onViewMore={() =>
-            router.push(`./top-tracks?name=${encodeURIComponent(genreName)}`)
-          }
-          emptyState={{
-            icon: (
-              <LocalMusicNoteSolidIcon
-                fill="none"
-                width={48}
-                height={48}
-                color={theme.muted}
-              />
-            ),
-            title: "No top tracks",
-            message: `Play some ${genreName} music to see top tracks!`,
-          }}
-          renderContent={(data) => (
-            <RankedTrackCarousel data={data} chunkSize={CHUNK_SIZE} />
-          )}
-        />
+        <Animated.View entering={screenEnterTransition()}>
+          <ContentSection
+            title="Top Tracks"
+            data={topTracks}
+            onViewMore={() =>
+              router.push(`./top-tracks?name=${encodeURIComponent(genreName)}`)
+            }
+            emptyState={{
+              icon: (
+                <LocalMusicNoteSolidIcon
+                  fill="none"
+                  width={48}
+                  height={48}
+                  color={theme.muted}
+                />
+              ),
+              title: "No top tracks",
+              message: `Play some ${genreName} music to see top tracks!`,
+            }}
+            renderContent={(data) => (
+              <RankedTrackCarousel data={data} chunkSize={CHUNK_SIZE} />
+            )}
+          />
+        </Animated.View>
 
-        <ContentSection
-          title="Recommended Albums"
-          data={previewAlbums}
-          onViewMore={() =>
-            router.push(`./albums?name=${encodeURIComponent(genreName)}`)
-          }
-          emptyState={{
-            icon: (
-              <LocalVynilSolidIcon
-                fill="none"
-                width={48}
-                height={48}
-                color={theme.muted}
+        <Animated.View entering={screenEnterTransition()}>
+          <ContentSection
+            title="Recommended Albums"
+            data={previewAlbums}
+            onViewMore={() =>
+              router.push(`./albums?name=${encodeURIComponent(genreName)}`)
+            }
+            emptyState={{
+              icon: (
+                <LocalVynilSolidIcon
+                  fill="none"
+                  width={48}
+                  height={48}
+                  color={theme.muted}
+                />
+              ),
+              title: "No albums found",
+              message: `No albums available in ${genreName}`,
+            }}
+            renderContent={(data) => (
+              <MediaCarousel
+                data={data}
+                renderItem={renderAlbumItem}
+                keyExtractor={(album, index) => `${album.name}-${index}`}
               />
-            ),
-            title: "No albums found",
-            message: `No albums available in ${genreName}`,
-          }}
-          renderContent={(data) => (
-            <MediaCarousel
-              data={data}
-              renderItem={renderAlbumItem}
-              keyExtractor={(album, index) => `${album.name}-${index}`}
-            />
-          )}
-        />
+            )}
+          />
+        </Animated.View>
       </ScrollView>
     </View>
   )

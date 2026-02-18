@@ -1,13 +1,12 @@
-import { useEffect } from "react"
 import { useStore } from "@nanostores/react"
 import { Tabs } from "heroui-native"
 import { RefreshControl, View } from "react-native"
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated"
+import Animated from "react-native-reanimated"
 
+import {
+  screenEnterTransition,
+  screenExitTransition,
+} from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
@@ -38,18 +37,6 @@ export default function TopTracksScreen() {
     playAll,
     shuffle,
   } = useTopTracksScreen()
-  const contentOpacity = useSharedValue(1)
-
-  const contentAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: contentOpacity.value,
-  }))
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/immutability
-    contentOpacity.value = 0
-
-    contentOpacity.value = withTiming(1, { duration: 220 })
-  }, [activeTab, contentOpacity])
 
   return (
     <View className="flex-1 bg-background">
@@ -69,11 +56,21 @@ export default function TopTracksScreen() {
       </Tabs>
 
       {isLoading ? (
-        <View className="px-4 pt-2">
+        <Animated.View
+          key={`loading-${activeTab}`}
+          entering={screenEnterTransition()}
+          exiting={screenExitTransition()}
+          className="px-4 pt-2"
+        >
           <LibrarySkeleton type="tracks" itemCount={9} />
-        </View>
+        </Animated.View>
       ) : currentTracks.length === 0 ? (
-        <Animated.View className="px-4" style={contentAnimatedStyle}>
+        <Animated.View
+          key={`empty-${activeTab}`}
+          entering={screenEnterTransition()}
+          exiting={screenExitTransition()}
+          className="px-4"
+        >
           <EmptyState
             icon={
               <LocalMusicNoteSolidIcon
@@ -89,31 +86,41 @@ export default function TopTracksScreen() {
           />
         </Animated.View>
       ) : (
-        <TrackList
-          data={currentTracks}
-          showNumbers
-          contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
-          onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
-          onScrollBeginDrag={handleScrollStart}
-          onMomentumScrollEnd={handleScrollStop}
-          onScrollEndDrag={handleScrollStop}
-          refreshControl={
-            <RefreshControl
-              refreshing={indexerState.isIndexing}
-              onRefresh={refresh}
-              tintColor={theme.accent}
-            />
-          }
-          listHeader={
-            <Animated.View style={contentAnimatedStyle}>
-              <PlaybackActionsRow
-                onPlay={playAll}
-                onShuffle={shuffle}
-                className="px-0 py-4"
+        <Animated.View
+          key={`tracks-${activeTab}`}
+          entering={screenEnterTransition()}
+          exiting={screenExitTransition()}
+          className="flex-1"
+        >
+          <TrackList
+            data={currentTracks}
+            showNumbers
+            contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
+            onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
+            onScrollBeginDrag={handleScrollStart}
+            onMomentumScrollEnd={handleScrollStop}
+            onScrollEndDrag={handleScrollStop}
+            refreshControl={
+              <RefreshControl
+                refreshing={indexerState.isIndexing}
+                onRefresh={refresh}
+                tintColor={theme.accent}
               />
-            </Animated.View>
-          }
-        />
+            }
+            listHeader={
+              <Animated.View
+                key={`actions-${activeTab}`}
+                entering={screenEnterTransition()}
+              >
+                <PlaybackActionsRow
+                  onPlay={playAll}
+                  onShuffle={shuffle}
+                  className="px-0 py-4"
+                />
+              </Animated.View>
+            }
+          />
+        </Animated.View>
       )}
     </View>
   )

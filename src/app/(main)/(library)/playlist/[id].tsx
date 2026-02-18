@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import { Text, View } from "react-native"
-import Animated, { FadeIn } from "react-native-reanimated"
+import Animated from "react-native-reanimated"
 
 import {
   handleScroll,
@@ -11,6 +11,7 @@ import {
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
+import { screenEnterTransition } from "@/constants/animations"
 import { usePlaylistDetailsScreen } from "@/modules/playlist/hooks/use-playlist-details-screen"
 import { formatDuration } from "@/modules/playlist/playlist.utils"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
@@ -208,7 +209,7 @@ export default function PlaylistDetailsScreen() {
               </View>
             </View>
 
-            <Animated.View entering={FadeIn.duration(300)}>
+            <Animated.View entering={screenEnterTransition()}>
               <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
             </Animated.View>
           </>

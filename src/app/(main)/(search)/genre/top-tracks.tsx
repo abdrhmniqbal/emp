@@ -1,8 +1,12 @@
 import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { RefreshControl, View } from "react-native"
-import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated"
+import Animated from "react-native-reanimated"
 
+import {
+  screenEnterTransition,
+  screenExitTransition,
+} from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
@@ -48,8 +52,8 @@ export default function GenreTopTracksScreen() {
       />
       {tracks.length === 0 ? (
         <Animated.View
-          entering={FadeInRight.duration(300)}
-          exiting={FadeOutLeft.duration(300)}
+          entering={screenEnterTransition()}
+          exiting={screenExitTransition()}
           className="px-4"
         >
           <EmptyState

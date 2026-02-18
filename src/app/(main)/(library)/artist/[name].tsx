@@ -13,14 +13,15 @@ import {
 } from "react-native"
 import Animated, {
   Extrapolation,
-  FadeIn,
-  SlideInLeft,
-  SlideInRight,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated"
 
+import {
+  screenEnterTransition,
+  screenExitTransition,
+} from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
@@ -73,7 +74,6 @@ export default function ArtistDetailsScreen() {
     popularTracks,
     sortedAlbums,
     activeView,
-    navDirection,
     sortModalVisible,
     setSortModalVisible,
     sortConfig,
@@ -274,11 +274,8 @@ export default function ArtistDetailsScreen() {
 
             <Animated.View
               key={activeView}
-              entering={
-                navDirection === "back"
-                  ? SlideInLeft.duration(200)
-                  : FadeIn.duration(200)
-              }
+              entering={screenEnterTransition()}
+              exiting={screenExitTransition()}
               className="pt-4"
             >
               <View className="px-6">
@@ -335,7 +332,10 @@ export default function ArtistDetailsScreen() {
             listHeader={
               <>
                 <View style={{ marginHorizontal: -24 }}>{renderHeroSection()}</View>
-                <Animated.View entering={SlideInRight.duration(200)} className="pt-4">
+                <Animated.View
+                  entering={screenEnterTransition()}
+                  className="pt-4"
+                >
                   <View className="mb-6 flex-row items-center justify-between">
                     <View className="flex-row items-center gap-3">
                       <Pressable
@@ -387,7 +387,10 @@ export default function ArtistDetailsScreen() {
             listHeader={
               <>
                 <View style={{ marginHorizontal: -16 }}>{renderHeroSection()}</View>
-                <Animated.View entering={SlideInRight.duration(200)} className="px-2 pt-4">
+                <Animated.View
+                  entering={screenEnterTransition()}
+                  className="px-2 pt-4"
+                >
                   <View className="mb-6 flex-row items-center justify-between">
                     <View className="flex-row items-center gap-3">
                       <Pressable

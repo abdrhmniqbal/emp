@@ -2,8 +2,12 @@ import { useState } from "react"
 import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { RefreshControl, Text, View } from "react-native"
-import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated"
+import Animated from "react-native-reanimated"
 
+import {
+  screenEnterTransition,
+  screenExitTransition,
+} from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
@@ -97,8 +101,8 @@ export default function GenreAlbumsScreen() {
 
         {sortedAlbumData.length === 0 ? (
           <Animated.View
-            entering={FadeInRight.duration(300)}
-            exiting={FadeOutLeft.duration(300)}
+            entering={screenEnterTransition()}
+            exiting={screenExitTransition()}
             className="px-6 py-4"
           >
             <EmptyState
@@ -134,8 +138,8 @@ export default function GenreAlbumsScreen() {
             }
             listHeader={
               <Animated.View
-                entering={FadeInRight.duration(300)}
-                exiting={FadeOutLeft.duration(300)}
+                entering={screenEnterTransition()}
+                exiting={screenExitTransition()}
                 className="px-6 py-4"
               >
                 <View className="mb-4 flex-row items-center justify-between">

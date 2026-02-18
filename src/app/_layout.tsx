@@ -128,7 +128,7 @@ export default function Layout() {
                   <Stack.Screen
                     name="search-interaction"
                     options={{
-                      animation: "fade",
+                      animation: "default",
                       title: "Search",
                     }}
                   />

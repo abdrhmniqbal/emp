@@ -4,7 +4,7 @@ import { Button } from 'heroui-native'
 import * as React from 'react'
 import { useState } from 'react'
 import { Text, View } from 'react-native'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 
 import { PlaybackActionsRow } from '@/components/blocks'
 import { LibrarySkeleton } from '@/components/blocks/library-skeleton'
@@ -27,6 +27,7 @@ import {
   type SortField,
   TRACK_SORT_OPTIONS,
 } from '@/modules/library/library-sort.store'
+import { screenEnterTransition } from '@/constants/animations'
 
 const HEADER_COLLAPSE_THRESHOLD = 120
 
@@ -223,7 +224,7 @@ export default function AlbumDetailsScreen() {
                 </View>
               </View>
 
-              <Animated.View entering={FadeIn.duration(300)}>
+              <Animated.View entering={screenEnterTransition()}>
                 <PlaybackActionsRow
                   onPlay={playAllTracks}
                   onShuffle={shuffleTracks}
