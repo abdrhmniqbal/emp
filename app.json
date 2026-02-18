@@ -7,7 +7,7 @@
     "web": {
       "output": "static"
     },
-    "name": "emp",
+    "name": "Music Player",
     "slug": "emp",
     "splash": {
       "image": "./android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png",
@@ -29,13 +29,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "dev.euphony.music-player",
+      "bundleIdentifier": "id.euphony.music.player",
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
-      "package": "dev.euphony.music_player",
+      "package": "id.euphony.music.player",
       "permissions": [
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",
