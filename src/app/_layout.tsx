@@ -31,6 +31,8 @@ import "../global.css"
 const TOAST_OFFSET_ANIMATION_DURATION_MS = 250
 const TOAST_HIDDEN_BOTTOM_GAP = 0
 const TOAST_VISIBLE_BOTTOM_GAP = 0
+const SETTINGS_FOLDER_FILTERS_ACTION_HEIGHT = 56
+const SETTINGS_FOLDER_FILTERS_ACTION_TOP_PADDING = 12
 
 function ToastAnimatedWrapper({
   children,
@@ -72,13 +74,19 @@ export default function Layout() {
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const isMainTabsRoute = segments[0] === "(main)"
+  const isFolderFiltersRoute =
+    segments[0] === "settings" && segments[1] === "folder-filters"
+  const folderFiltersToastOffset = isFolderFiltersRoute
+    ? SETTINGS_FOLDER_FILTERS_ACTION_HEIGHT +
+      Math.max(insets.bottom, SETTINGS_FOLDER_FILTERS_ACTION_TOP_PADDING)
+    : 0
   const toastExtraBottomOffset = isMainTabsRoute
     ? barsVisible
       ? tabBarHeight +
         (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) +
         TOAST_VISIBLE_BOTTOM_GAP
       : TOAST_HIDDEN_BOTTOM_GAP
-    : TOAST_HIDDEN_BOTTOM_GAP
+    : folderFiltersToastOffset
 
   const toastContentWrapper = useCallback(
     (children: ReactNode) => {

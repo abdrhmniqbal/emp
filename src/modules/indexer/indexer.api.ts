@@ -8,6 +8,10 @@ import {
   GENRE_SHAPES,
   type GenreShape,
 } from "@/modules/genres/genres.constants"
+import {
+  ensureFolderFilterConfigLoaded,
+  isAssetAllowedByFolderFilters,
+} from "@/modules/indexer/folder-filters"
 
 import type { IndexerScanProgress } from "./indexer.types"
 import { extractMetadata, saveArtworkToCache } from "./metadata.api"
@@ -42,10 +46,15 @@ export async function scanMediaLibrary(
     endCursor = result.endCursor
   }
 
+  const folderFilterConfig = await ensureFolderFilterConfigLoaded()
+  const scopedAssets = assets.filter((asset) =>
+    isAssetAllowedByFolderFilters(asset.uri, folderFilterConfig)
+  )
+
   onProgress?.({
     phase: "scanning",
     current: 0,
-    total: assets.length,
+    total: scopedAssets.length,
     currentFile: "",
   })
 
@@ -58,7 +67,7 @@ export async function scanMediaLibrary(
   const existingTrackMap = new Map(
     existingTracks.map((t) => [t.id, t.fileHash])
   )
-  const currentAssetIds = new Set(assets.map((a) => a.id))
+  const currentAssetIds = new Set(scopedAssets.map((a) => a.id))
 
   // Find deleted tracks
   const deletedTrackIds = existingTracks
@@ -75,8 +84,8 @@ export async function scanMediaLibrary(
 
   // Filter assets to process
   const assetsToProcess = forceFullScan
-    ? assets
-    : assets.filter((asset) => {
+    ? scopedAssets
+    : scopedAssets.filter((asset) => {
         const existingHash = existingTrackMap.get(asset.id)
         const currentHash = generateFileHash(
           asset.uri,

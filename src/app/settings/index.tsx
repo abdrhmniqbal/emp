@@ -97,6 +97,11 @@ const SETTINGS_SECTIONS: SettingSection[] = [
     title: 'Library',
     items: [
       {
+        id: 'folder-filters',
+        title: 'Folder Filters',
+        route: '/settings/folder-filters',
+      },
+      {
         id: 'force-reindex',
         title: 'Reindex Library',
         description: 'Re-scan all tracks, including unchanged files.',
@@ -138,6 +143,8 @@ export default function SettingsScreen() {
         return indexerState.isIndexing
           ? 'Indexing in progress...'
           : 'Re-scan all tracks, including unchanged files.'
+      case 'folder-filters':
+        return 'Whitelist or blacklist specific folders.'
       default:
         return undefined
     }

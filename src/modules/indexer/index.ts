@@ -1,6 +1,17 @@
 // Indexer feature exports
 export { scanMediaLibrary } from "./indexer.api"
 export {
+  $folderFilterConfig,
+  clearFolderFilters,
+  ensureFolderFilterConfigLoaded,
+  getFolderNameFromPath,
+  getFolderPathFromUri,
+  setAllFolderFiltersMode,
+  setFolderFilterMode,
+  type FolderFilterConfig,
+  type FolderFilterMode,
+} from "./folder-filters"
+export {
   $indexerState,
   forceReindexLibrary,
   type IndexerState,
