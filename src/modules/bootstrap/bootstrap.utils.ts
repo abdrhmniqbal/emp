@@ -7,7 +7,7 @@ import {
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
-import { startIndexing } from "@/modules/indexer"
+import { ensureAutoScanConfigLoaded, startIndexing } from "@/modules/indexer"
 
 export async function bootstrapApp(): Promise<void> {
   registerPlaybackService()
@@ -15,12 +15,17 @@ export async function bootstrapApp(): Promise<void> {
 
   const { status } = await requestMediaLibraryPermission()
   if (status === "granted") {
+    const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
+    if (!isAutoScanEnabled) {
+      return
+    }
+
     const result = await db.select({ value: count() }).from(tracks)
 
     const trackCount = result[0]?.value ?? 0
     const isFreshDatabase = trackCount === 0
 
-    // Always index on app bootstrap; force a full scan only for fresh databases.
+    // Auto-index on app bootstrap when enabled; force a full scan only for fresh databases.
     // Uses indexer store so progress UI is shown.
     void startIndexing(isFreshDatabase, true)
   }

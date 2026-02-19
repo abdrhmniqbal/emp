@@ -1,13 +1,19 @@
 import { useStore } from '@nanostores/react'
 import { useRouter } from 'expo-router'
-import { Button, Dialog, PressableFeedback } from 'heroui-native'
+import { Button, Dialog, PressableFeedback, Switch } from 'heroui-native'
 import * as React from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { useUniwind } from 'uniwind'
 
 import LocalChevronRightIcon from '@/components/icons/local/chevron-right'
 import { useThemeColors } from '@/hooks/use-theme-colors'
-import { $indexerState, forceReindexLibrary } from '@/modules/indexer'
+import {
+  $autoScanEnabled,
+  $indexerState,
+  ensureAutoScanConfigLoaded,
+  forceReindexLibrary,
+  setAutoScanEnabled,
+} from '@/modules/indexer'
 
 interface SettingItemProps {
   title: string
@@ -102,6 +108,11 @@ const SETTINGS_SECTIONS: SettingSection[] = [
         route: '/settings/folder-filters',
       },
       {
+        id: 'auto-scan',
+        title: 'Auto Scan',
+        showChevron: false,
+      },
+      {
         id: 'force-reindex',
         title: 'Reindex Library',
         description: 'Re-scan all tracks, including unchanged files.',
@@ -116,6 +127,7 @@ export default function SettingsScreen() {
   const router = useRouter()
   const { theme: currentTheme, hasAdaptiveThemes } = useUniwind()
   const indexerState = useStore($indexerState)
+  const autoScanEnabled = useStore($autoScanEnabled)
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
 
   const currentAppearance = hasAdaptiveThemes
@@ -123,6 +135,10 @@ export default function SettingsScreen() {
     : currentTheme === 'dark'
       ? 'Dark'
       : 'Light'
+
+  React.useEffect(() => {
+    void ensureAutoScanConfigLoaded()
+  }, [])
 
   function handleItemPress(item: SettingSection['items'][number]) {
     if (item.action === 'forceReindex') {
@@ -145,6 +161,10 @@ export default function SettingsScreen() {
           : 'Re-scan all tracks, including unchanged files.'
       case 'folder-filters':
         return 'Whitelist or blacklist specific folders.'
+      case 'auto-scan':
+        return autoScanEnabled
+          ? 'Re-scan on app launch and when files change.'
+          : 'Scan manually when needed.'
       default:
         return undefined
     }
@@ -169,8 +189,22 @@ export default function SettingsScreen() {
                 key={item.id}
                 title={item.title}
                 description={item.description ?? getItemDescription(item.id)}
-                onPress={() => handleItemPress(item)}
+                onPress={
+                  item.id === 'auto-scan' ? undefined : () => handleItemPress(item)
+                }
                 showChevron={item.showChevron !== false}
+                rightIcon={
+                  item.id === 'auto-scan'
+                    ? (
+                        <Switch
+                          isSelected={autoScanEnabled}
+                          onSelectedChange={(isSelected) => {
+                            void setAutoScanEnabled(isSelected)
+                          }}
+                        />
+                      )
+                    : undefined
+                }
                 isDisabled={item.id === 'force-reindex' && indexerState.isIndexing}
               />
             ))}

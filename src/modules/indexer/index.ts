@@ -1,6 +1,11 @@
 // Indexer feature exports
 export { scanMediaLibrary } from "./indexer.api"
 export {
+  $autoScanEnabled,
+  ensureAutoScanConfigLoaded,
+  setAutoScanEnabled,
+} from "./auto-scan"
+export {
   $folderFilterConfig,
   clearFolderFilters,
   ensureFolderFilterConfigLoaded,
