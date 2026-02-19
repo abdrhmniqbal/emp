@@ -1,0 +1,164 @@
+import { useStore } from '@nanostores/react'
+import Slider from '@react-native-community/slider'
+import { PressableFeedback } from 'heroui-native'
+import * as React from 'react'
+import { ScrollView, Text, View } from 'react-native'
+
+import LocalTickIcon from '@/components/icons/local/tick'
+import { useThemeColors } from '@/hooks/use-theme-colors'
+import {
+  $indexerState,
+  $trackDurationFilterConfig,
+  ensureTrackDurationFilterConfigLoaded,
+  setTrackDurationFilterConfig,
+  startIndexing,
+  type TrackDurationFilterMode,
+} from '@/modules/indexer'
+
+interface DurationOption {
+  label: string
+  value: TrackDurationFilterMode
+  description?: string
+}
+
+const DURATION_OPTIONS: DurationOption[] = [
+  { label: 'No Filter', value: 'off', description: 'Include all tracks.' },
+  {
+    label: 'At Least 30 Seconds',
+    value: 'min30s',
+    description: 'Exclude very short clips.',
+  },
+  {
+    label: 'At Least 1 Minute',
+    value: 'min60s',
+    description: 'Keep normal music lengths.',
+  },
+  {
+    label: 'At Least 2 Minutes',
+    value: 'min120s',
+    description: 'Focus on full-length tracks.',
+  },
+  {
+    label: 'Custom',
+    value: 'custom',
+    description: 'Set your own minimum duration.',
+  },
+]
+
+function formatDuration(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds))
+  if (total < 60) {
+    return `${total}s`
+  }
+
+  const minutes = Math.floor(total / 60)
+  const remainder = total % 60
+  return remainder > 0 ? `${minutes}m ${remainder}s` : `${minutes}m`
+}
+
+export default function TrackDurationFilterScreen() {
+  const theme = useThemeColors()
+  const indexerState = useStore($indexerState)
+  const config = useStore($trackDurationFilterConfig)
+  const [customSliderValue, setCustomSliderValue] = React.useState(
+    config.customMinimumSeconds,
+  )
+
+  React.useEffect(() => {
+    void ensureTrackDurationFilterConfigLoaded()
+  }, [])
+
+  React.useEffect(() => {
+    setCustomSliderValue(config.customMinimumSeconds)
+  }, [config.customMinimumSeconds])
+
+  async function handleModeSelect(mode: TrackDurationFilterMode) {
+    await setTrackDurationFilterConfig({ mode })
+
+    if (mode !== 'custom') {
+      await startIndexing(false, true)
+    }
+  }
+
+  async function handleCustomSlidingComplete(value: number) {
+    await setTrackDurationFilterConfig({
+      mode: 'custom',
+      customMinimumSeconds: value,
+    })
+    await startIndexing(false, true)
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-background">
+      <View className="py-2">
+        <View className="px-6 pt-8 pb-3">
+          <Text className="text-[13px] font-medium tracking-wider text-muted uppercase">
+            Duration Mode
+          </Text>
+        </View>
+        {DURATION_OPTIONS.map(option => (
+          <PressableFeedback
+            key={option.value}
+            onPress={() => {
+              void handleModeSelect(option.value)
+            }}
+            className="flex-row items-center bg-background px-6 py-4 active:opacity-70"
+            isDisabled={indexerState.isIndexing}
+          >
+            <View className="flex-1 gap-0.5 pr-2">
+              <Text className="text-[17px] font-normal text-foreground">
+                {option.label}
+              </Text>
+              {option.description
+                ? (
+                    <Text className="text-[13px] leading-5 text-muted">
+                      {option.description}
+                    </Text>
+                  )
+                : null}
+            </View>
+            {config.mode === option.value && (
+              <LocalTickIcon
+                fill="none"
+                width={24}
+                height={24}
+                color={theme.accent}
+              />
+            )}
+          </PressableFeedback>
+        ))}
+
+        {config.mode === 'custom'
+          ? (
+              <View className="px-6 pt-4 pb-2">
+                <View className="mb-3 flex-row items-center justify-between">
+                  <Text className="text-sm text-muted">Minimum duration</Text>
+                  <Text className="text-sm font-medium text-foreground">
+                    {formatDuration(customSliderValue)}
+                  </Text>
+                </View>
+                <Slider
+                  minimumValue={0}
+                  maximumValue={600}
+                  step={5}
+                  value={customSliderValue}
+                  minimumTrackTintColor={theme.accent}
+                  maximumTrackTintColor={theme.border}
+                  thumbTintColor={theme.accent}
+                  disabled={indexerState.isIndexing}
+                  onValueChange={setCustomSliderValue}
+                  onSlidingComplete={(value) => {
+                    void handleCustomSlidingComplete(value)
+                  }}
+                />
+                <Text className="mt-2 text-xs text-muted">
+                  Changes apply to indexing and remove tracks below this duration on
+                  next scan.
+                </Text>
+              </View>
+            )
+          : null}
+      </View>
+    </ScrollView>
+  )
+}

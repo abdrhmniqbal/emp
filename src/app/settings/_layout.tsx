@@ -57,6 +57,15 @@ export default function SettingsLayout() {
           headerLeft: () => <BackButton className="-ml-2" />,
         }}
       />
+      <Stack.Screen
+        name="track-duration-filter"
+        options={{
+          title: "Track Duration Filter",
+          headerBackButtonMenuEnabled: false,
+          headerBackVisible: false,
+          headerLeft: () => <BackButton className="-ml-2" />,
+        }}
+      />
     </Stack>
   )
 }

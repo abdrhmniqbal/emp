@@ -10,8 +10,11 @@ import { useThemeColors } from '@/hooks/use-theme-colors'
 import {
   $autoScanEnabled,
   $indexerState,
+  $trackDurationFilterConfig,
   ensureAutoScanConfigLoaded,
+  ensureTrackDurationFilterConfigLoaded,
   forceReindexLibrary,
+  getTrackDurationFilterLabel,
   setAutoScanEnabled,
 } from '@/modules/indexer'
 
@@ -108,6 +111,11 @@ const SETTINGS_SECTIONS: SettingSection[] = [
         route: '/settings/folder-filters',
       },
       {
+        id: 'track-duration-filter',
+        title: 'Track Duration Filter',
+        route: '/settings/track-duration-filter',
+      },
+      {
         id: 'auto-scan',
         title: 'Auto Scan',
         showChevron: false,
@@ -128,6 +136,7 @@ export default function SettingsScreen() {
   const { theme: currentTheme, hasAdaptiveThemes } = useUniwind()
   const indexerState = useStore($indexerState)
   const autoScanEnabled = useStore($autoScanEnabled)
+  const trackDurationFilterConfig = useStore($trackDurationFilterConfig)
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
 
   const currentAppearance = hasAdaptiveThemes
@@ -138,6 +147,7 @@ export default function SettingsScreen() {
 
   React.useEffect(() => {
     void ensureAutoScanConfigLoaded()
+    void ensureTrackDurationFilterConfigLoaded()
   }, [])
 
   function handleItemPress(item: SettingSection['items'][number]) {
@@ -161,6 +171,8 @@ export default function SettingsScreen() {
           : 'Re-scan all tracks, including unchanged files.'
       case 'folder-filters':
         return 'Whitelist or blacklist specific folders.'
+      case 'track-duration-filter':
+        return getTrackDurationFilterLabel(trackDurationFilterConfig)
       case 'auto-scan':
         return autoScanEnabled
           ? 'Re-scan on app launch and when files change.'
