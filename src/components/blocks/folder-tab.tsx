@@ -1,4 +1,9 @@
-import type { StyleProp, ViewStyle } from "react-native"
+import type {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  StyleProp,
+  ViewStyle,
+} from "react-native"
 
 import type { Track } from "@/modules/player/player.store"
 import {
@@ -17,6 +22,12 @@ interface FolderTabProps {
   onTrackPress: (track: Track) => void
   contentContainerStyle?: StyleProp<ViewStyle>
   resetScrollKey?: string
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onMomentumScrollEnd?: (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => void
 }
 
 export function FolderTab({
@@ -29,6 +40,10 @@ export function FolderTab({
   onTrackPress,
   contentContainerStyle,
   resetScrollKey,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
+  onMomentumScrollEnd,
 }: FolderTabProps) {
   return (
     <FolderList
@@ -45,6 +60,10 @@ export function FolderTab({
       onTrackPress={onTrackPress}
       contentContainerStyle={contentContainerStyle}
       resetScrollKey={resetScrollKey}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+      onMomentumScrollEnd={onMomentumScrollEnd}
     />
   )
 }

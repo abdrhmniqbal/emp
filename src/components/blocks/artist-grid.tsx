@@ -5,7 +5,13 @@ import {
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import { useEffect, useRef } from "react"
-import { Dimensions, type StyleProp, type ViewStyle } from "react-native"
+import {
+  Dimensions,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native"
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -33,6 +39,12 @@ interface ArtistGridProps {
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
   resetScrollKey?: string
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onMomentumScrollEnd?: (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => void
 }
 
 const GAP = 12
@@ -48,6 +60,10 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
   scrollEnabled = true,
   contentContainerStyle,
   resetScrollKey,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
+  onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
@@ -152,6 +168,11 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
       scrollEnabled={scrollEnabled}
       numColumns={NUM_COLUMNS}
       contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+      onMomentumScrollEnd={onMomentumScrollEnd}
+      scrollEventThrottle={16}
       style={{ flex: 1, minHeight: 1 }}
       recycleItems={true}
       initialContainerPoolRatio={2.5}

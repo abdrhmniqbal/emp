@@ -1,4 +1,5 @@
 import * as React from "react"
+import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
 
 import type { DBTrack } from "@/types/database"
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -15,12 +16,22 @@ interface TracksTabProps {
   onTrackPress?: (track: Track) => void
   sortConfig?: SortConfig
   contentBottomPadding?: number
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onMomentumScrollEnd?: (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => void
 }
 
 export const TracksTab: React.FC<TracksTabProps> = ({
   onTrackPress,
   sortConfig,
   contentBottomPadding = 0,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
+  onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
   const orderByField =
@@ -69,6 +80,10 @@ export const TracksTab: React.FC<TracksTabProps> = ({
       onTrackPress={handleTrackPress}
       contentContainerStyle={{ paddingBottom: contentBottomPadding }}
       resetScrollKey={`${orderByField}-${order}`}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+      onMomentumScrollEnd={onMomentumScrollEnd}
     />
   )
 }

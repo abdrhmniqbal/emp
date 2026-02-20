@@ -4,7 +4,13 @@ import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
 import { Chip, PressableFeedback } from "heroui-native"
-import { View, type StyleProp, type ViewStyle } from "react-native"
+import {
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native"
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -33,6 +39,12 @@ interface FavoritesListProps {
   data: FavoriteEntry[]
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onMomentumScrollEnd?: (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => void
 }
 
 const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({
@@ -139,6 +151,10 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   data,
   scrollEnabled = true,
   contentContainerStyle,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
+  onMomentumScrollEnd,
 }) => {
   const tracks = useStore($tracks)
   const toggleFavoriteMutation = useToggleFavorite()
@@ -232,6 +248,11 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         keyExtractor={(item) => item.id}
         scrollEnabled={scrollEnabled}
         contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        scrollEventThrottle={16}
         recycleItems={true}
         initialContainerPoolRatio={3}
         estimatedItemSize={68}

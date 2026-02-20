@@ -1,4 +1,5 @@
 import * as React from "react"
+import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import type { SortConfig } from "@/modules/library/library-sort.store"
@@ -12,12 +13,22 @@ interface ArtistsTabProps {
   onArtistPress?: (artist: Artist) => void
   sortConfig?: SortConfig
   contentBottomPadding?: number
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onMomentumScrollEnd?: (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => void
 }
 
 export const ArtistsTab: React.FC<ArtistsTabProps> = ({
   onArtistPress,
   sortConfig,
   contentBottomPadding = 0,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
+  onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
   const orderByField = sortConfig?.field || "name"
@@ -69,6 +80,10 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
       onArtistPress={handleArtistPress}
       contentContainerStyle={{ paddingBottom: contentBottomPadding }}
       resetScrollKey={`${orderByField}-${order}`}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+      onMomentumScrollEnd={onMomentumScrollEnd}
     />
   )
 }

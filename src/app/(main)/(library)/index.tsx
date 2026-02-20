@@ -1,11 +1,17 @@
 import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { Tabs } from "heroui-native"
+import type { NativeSyntheticEvent, NativeScrollEvent } from "react-native"
 import { Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "tailwind-variants"
 
 import { MINI_PLAYER_HEIGHT, getTabBarHeight } from "@/constants/layout"
+import {
+  handleScroll,
+  handleScrollStart,
+  handleScrollStop,
+} from "@/hooks/scroll-bars.store"
 import {
   LIBRARY_TABS,
   LIBRARY_TAB_SORT_OPTIONS,
@@ -60,6 +66,9 @@ export default function LibraryScreen() {
 
   const showPlayButtons = activeTab === "Tracks" || activeTab === "Favorites"
   const currentSortOptions = LIBRARY_TAB_SORT_OPTIONS[activeTab]
+  const handleListScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    handleScroll(event.nativeEvent.contentOffset.y)
+  }
 
   function renderTabContent() {
     switch (activeTab) {
@@ -69,6 +78,10 @@ export default function LibraryScreen() {
             sortConfig={sortConfig}
             onTrackPress={playSingleTrack}
             contentBottomPadding={libraryListBottomPadding}
+            onScroll={handleListScroll}
+            onScrollBeginDrag={handleScrollStart}
+            onScrollEndDrag={handleScrollStop}
+            onMomentumScrollEnd={handleScrollStop}
           />
         )
       case "Albums":
@@ -77,6 +90,10 @@ export default function LibraryScreen() {
             sortConfig={sortConfig}
             onAlbumPress={(album) => openAlbum(album.title)}
             contentBottomPadding={libraryListBottomPadding}
+            onScroll={handleListScroll}
+            onScrollBeginDrag={handleScrollStart}
+            onScrollEndDrag={handleScrollStop}
+            onMomentumScrollEnd={handleScrollStop}
           />
         )
       case "Artists":
@@ -85,6 +102,10 @@ export default function LibraryScreen() {
             sortConfig={sortConfig}
             onArtistPress={(artist) => openArtist(artist.name)}
             contentBottomPadding={libraryListBottomPadding}
+            onScroll={handleListScroll}
+            onScrollBeginDrag={handleScrollStart}
+            onScrollEndDrag={handleScrollStop}
+            onMomentumScrollEnd={handleScrollStop}
           />
         )
       case "Playlists":
@@ -95,6 +116,10 @@ export default function LibraryScreen() {
             onPlaylistPress={(playlist) => openPlaylist(playlist.id)}
             contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
             resetScrollKey={`${sortConfig.field}-${sortConfig.order}`}
+            onScroll={handleListScroll}
+            onScrollBeginDrag={handleScrollStart}
+            onScrollEndDrag={handleScrollStop}
+            onMomentumScrollEnd={handleScrollStop}
           />
         )
       case "Folders":
@@ -109,6 +134,10 @@ export default function LibraryScreen() {
             onTrackPress={playFolderTrack}
             contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
             resetScrollKey={`${sortConfig.field}-${sortConfig.order}`}
+            onScroll={handleListScroll}
+            onScrollBeginDrag={handleScrollStart}
+            onScrollEndDrag={handleScrollStop}
+            onMomentumScrollEnd={handleScrollStop}
           />
         )
       case "Favorites":
@@ -116,6 +145,10 @@ export default function LibraryScreen() {
           <FavoritesList
             data={favorites}
             contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
+            onScroll={handleListScroll}
+            onScrollBeginDrag={handleScrollStart}
+            onScrollEndDrag={handleScrollStop}
+            onMomentumScrollEnd={handleScrollStop}
           />
         )
       default:

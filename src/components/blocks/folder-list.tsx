@@ -10,6 +10,8 @@ import {
   ScrollView,
   Text,
   View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   type StyleProp,
   type ViewStyle,
 } from "react-native"
@@ -55,6 +57,12 @@ interface FolderListProps {
   onBreadcrumbPress?: (path: string) => void
   contentContainerStyle?: StyleProp<ViewStyle>
   resetScrollKey?: string
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onMomentumScrollEnd?: (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => void
 }
 
 type FolderListItem =
@@ -71,6 +79,10 @@ export const FolderList: React.FC<FolderListProps> = ({
   onBreadcrumbPress,
   contentContainerStyle,
   resetScrollKey,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
+  onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
@@ -214,6 +226,11 @@ export const FolderList: React.FC<FolderListProps> = ({
         { gap: 8, paddingBottom: 16 },
         contentContainerStyle,
       ]}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+      onMomentumScrollEnd={onMomentumScrollEnd}
+      scrollEventThrottle={16}
       recycleItems={true}
       initialContainerPoolRatio={3}
       estimatedItemSize={68}

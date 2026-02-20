@@ -5,7 +5,12 @@ import {
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import { useEffect, useRef } from "react"
-import type { StyleProp, ViewStyle } from "react-native"
+import type {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  StyleProp,
+  ViewStyle,
+} from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalAddIcon from "@/components/icons/local/add"
@@ -41,6 +46,12 @@ interface PlaylistListProps {
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
   resetScrollKey?: string
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onMomentumScrollEnd?: (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => void
 }
 
 export const PlaylistList: React.FC<PlaylistListProps> = ({
@@ -50,6 +61,10 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
   scrollEnabled = true,
   contentContainerStyle,
   resetScrollKey,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
+  onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
@@ -148,6 +163,11 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         getItemType={(item) => item.rowType}
         scrollEnabled={scrollEnabled}
         contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        scrollEventThrottle={16}
         recycleItems={true}
         initialContainerPoolRatio={3}
         ListEmptyComponent={
@@ -192,6 +212,11 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
       getItemType={(item) => item.rowType}
       scrollEnabled={scrollEnabled}
       contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+      onMomentumScrollEnd={onMomentumScrollEnd}
+      scrollEventThrottle={16}
       recycleItems={true}
       initialContainerPoolRatio={3}
       estimatedItemSize={68}
