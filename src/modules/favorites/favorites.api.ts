@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm"
+import { and, desc, eq, gt } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import { albums, artists, playlists, tracks } from "@/db/schema"
@@ -129,7 +129,7 @@ export async function getFavorites(
 
     if (!type || type === "artist") {
       const favArtists = await db.query.artists.findMany({
-        where: eq(artists.isFavorite, 1),
+        where: and(eq(artists.isFavorite, 1), gt(artists.trackCount, 0)),
         orderBy: [desc(artists.favoritedAt)],
         with: {
           tracks: {
@@ -158,7 +158,7 @@ export async function getFavorites(
 
     if (!type || type === "album") {
       const favAlbums = await db.query.albums.findMany({
-        where: eq(albums.isFavorite, 1),
+        where: and(eq(albums.isFavorite, 1), gt(albums.trackCount, 0)),
         orderBy: [desc(albums.favoritedAt)],
       })
       favorites.push(

@@ -1,6 +1,6 @@
 import { useDebouncedValue } from "@tanstack/react-pacer/debouncer"
 import { useQuery } from "@tanstack/react-query"
-import { and, asc, desc, eq, inArray, like, or } from "drizzle-orm"
+import { and, asc, desc, eq, gt, inArray, like, or } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import {
@@ -43,6 +43,7 @@ export function useArtists(
             : [direction(artists.sortName), direction(artists.name)]
 
       const results = await db.query.artists.findMany({
+        where: gt(artists.trackCount, 0),
         columns: {
           id: true,
           name: true,
@@ -80,9 +81,10 @@ export function useArtist(id: string) {
     queryKey: [ARTISTS_KEY, id],
     queryFn: async () => {
       return db.query.artists.findFirst({
-        where: eq(artists.id, id),
+        where: and(eq(artists.id, id), gt(artists.trackCount, 0)),
         with: {
           albums: {
+            where: gt(albums.trackCount, 0),
             orderBy: [desc(albums.year)],
           },
           tracks: {
@@ -118,6 +120,7 @@ export function useAlbums(
               : [direction(albums.title)]
 
       const results = await db.query.albums.findMany({
+        where: gt(albums.trackCount, 0),
         columns: {
           id: true,
           title: true,
@@ -165,7 +168,7 @@ export function useAlbum(id: string) {
     queryKey: [ALBUMS_KEY, id],
     queryFn: async () => {
       return db.query.albums.findFirst({
-        where: eq(albums.id, id),
+        where: and(eq(albums.id, id), gt(albums.trackCount, 0)),
         with: {
           artist: true,
           tracks: {
@@ -357,7 +360,7 @@ export function useSearch(query: string) {
         const [artistResults, albumResults, playlistResults, titleTrackResults] =
           await Promise.all([
             db.query.artists.findMany({
-              where: like(artists.name, searchTerm),
+              where: and(like(artists.name, searchTerm), gt(artists.trackCount, 0)),
               with: {
                 albums: {
                   columns: {
@@ -370,7 +373,7 @@ export function useSearch(query: string) {
               limit: 10,
             }),
             db.query.albums.findMany({
-              where: like(albums.title, searchTerm),
+              where: and(like(albums.title, searchTerm), gt(albums.trackCount, 0)),
               with: { artist: true },
               orderBy: [asc(albums.title)],
               limit: 10,
