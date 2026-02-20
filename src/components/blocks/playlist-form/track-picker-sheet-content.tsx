@@ -2,7 +2,9 @@ import type { TrackPickerSheetContentProps } from './types'
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { LegendList, type LegendListRenderItemProps } from '@legendapp/list'
 
-import { BottomSheet } from 'heroui-native'
+import { BottomSheet, Button } from 'heroui-native'
+import { Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import LocalMusicNoteSolidIcon from '@/components/icons/local/music-note-solid'
 import { EmptyState } from '@/components/ui'
 
@@ -19,8 +21,14 @@ export function TrackPickerSheetContent({
   filteredTracks,
   selectedTracks,
   onToggleTrack,
+  onApply,
+  onClearSelection,
 }: TrackPickerSheetContentProps) {
   const theme = useThemeColors()
+  const insets = useSafeAreaInsets()
+  const selectedCount = selectedTracks.size
+  const applyLabel
+    = selectedCount === 0 ? 'Apply' : `Apply (${selectedCount})`
 
   return (
     <BottomSheet.Content
@@ -78,6 +86,27 @@ export function TrackPickerSheetContent({
         estimatedItemSize={68}
         drawDistance={180}
       />
+      <View
+        className="border-t border-border/60 px-4 pt-3"
+        style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+      >
+        <View className="mb-2 flex-row items-center justify-between">
+          <Text className="text-sm text-muted">
+            {selectedCount} selected
+          </Text>
+          <Button
+            onPress={onClearSelection}
+            variant="ghost"
+            isDisabled={selectedCount === 0}
+            className="h-8 px-0"
+          >
+            Clear selection
+          </Button>
+        </View>
+        <Button onPress={onApply} variant="primary" className="w-full">
+          {applyLabel}
+        </Button>
+      </View>
     </BottomSheet.Content>
   )
 }

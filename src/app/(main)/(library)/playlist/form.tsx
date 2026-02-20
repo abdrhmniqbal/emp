@@ -22,7 +22,7 @@ export default function PlaylistFormScreen() {
     name,
     description,
     isFormLoading,
-    selectedTracks,
+    draftSelectedTracks,
     isTrackSheetOpen,
     searchInputKey,
     searchQuery,
@@ -35,8 +35,11 @@ export default function PlaylistFormScreen() {
     setDescription,
     setSearchQuery,
     toggleTrack,
+    toggleDraftTrack,
     openTrackSheet,
     handleTrackSheetOpenChange,
+    applyTrackSheetSelection,
+    clearDraftTrackSelection,
     save,
   } = usePlaylistFormScreen(() => router.back(), playlistId)
 
@@ -98,8 +101,10 @@ export default function PlaylistFormScreen() {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             filteredTracks={filteredTracks}
-            selectedTracks={selectedTracks}
-            onToggleTrack={toggleTrack}
+            selectedTracks={draftSelectedTracks}
+            onToggleTrack={toggleDraftTrack}
+            onApply={applyTrackSheetSelection}
+            onClearSelection={clearDraftTrackSelection}
           />
         </BottomSheet.Portal>
       </BottomSheet>

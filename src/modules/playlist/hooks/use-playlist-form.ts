@@ -13,6 +13,7 @@ import {
 } from "@/modules/playlist/playlist.utils"
 
 const SEARCH_DEBOUNCE_MS = 140
+const TRACK_PICKER_LIMIT = 20
 const LIBRARY_TRACKS_QUERY_KEY = ["library", "tracks"] as const
 const PLAYLISTS_QUERY_KEY = ["playlists"] as const
 
@@ -33,6 +34,9 @@ export function usePlaylistFormScreen(
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [selectedTracks, setSelectedTracks] = useState<Set<string>>(
+    () => new Set()
+  )
+  const [draftSelectedTracks, setDraftSelectedTracks] = useState<Set<string>>(
     () => new Set()
   )
   const [isTrackSheetOpen, setIsTrackSheetOpen] = useState(false)
@@ -89,6 +93,7 @@ export function usePlaylistFormScreen(
       setName("")
       setDescription("")
       setSelectedTracks(new Set())
+      setDraftSelectedTracks(new Set())
 
       if (!isEditMode) {
         setHasInitializedEditState(true)
@@ -129,6 +134,13 @@ export function usePlaylistFormScreen(
           )
         )
       )
+      setDraftSelectedTracks(
+        new Set(
+          (playlistToEdit.tracks || []).map(
+            (playlistTrack) => playlistTrack.trackId
+          )
+        )
+      )
       setHasInitializedEditState(true)
     })
 
@@ -150,20 +162,41 @@ export function usePlaylistFormScreen(
     setDescription(clampPlaylistDescription(value))
   }
 
-  function toggleTrack(trackId: string) {
+  function toggleSelectedTrack(trackId: string) {
     setSelectedTracks((prev) => toggleTrackSelection(prev, trackId))
   }
 
+  function toggleDraftTrack(trackId: string) {
+    setDraftSelectedTracks((prev) => toggleTrackSelection(prev, trackId))
+  }
+
   function openTrackSheet() {
+    setDraftSelectedTracks(new Set(selectedTracks))
     setIsTrackSheetOpen(true)
   }
 
   function handleTrackSheetOpenChange(open: boolean) {
-    setIsTrackSheetOpen(open)
-    if (!open) {
-      setSearchQuery("")
-      setSearchInputKey((prev) => prev + 1)
+    if (open) {
+      setDraftSelectedTracks(new Set(selectedTracks))
+      setIsTrackSheetOpen(true)
+      return
     }
+
+    setIsTrackSheetOpen(false)
+    setSearchQuery("")
+    setSearchInputKey((prev) => prev + 1)
+    setDraftSelectedTracks(new Set(selectedTracks))
+  }
+
+  function applyTrackSheetSelection() {
+    setSelectedTracks(new Set(draftSelectedTracks))
+    setIsTrackSheetOpen(false)
+    setSearchQuery("")
+    setSearchInputKey((prev) => prev + 1)
+  }
+
+  function clearDraftTrackSelection() {
+    setDraftSelectedTracks(new Set())
   }
 
   async function save() {
@@ -190,20 +223,45 @@ export function usePlaylistFormScreen(
 
   const normalizedQuery = debouncedSearchQuery.trim().toLowerCase()
   const filteredTracks = useMemo(() => {
+    const sortedTracks = [...allTracks].sort((a, b) => {
+      const aLastPlayed = a.lastPlayedAt ?? 0
+      const bLastPlayed = b.lastPlayedAt ?? 0
+      if (bLastPlayed !== aLastPlayed) {
+        return bLastPlayed - aLastPlayed
+      }
+
+      return a.title.localeCompare(b.title)
+    })
+
     if (normalizedQuery.length === 0) {
-      return allTracks
+      const recentlyPlayedTracks = sortedTracks.filter(
+        (track) => (track.lastPlayedAt ?? 0) > 0
+      )
+
+      if (recentlyPlayedTracks.length >= TRACK_PICKER_LIMIT) {
+        return recentlyPlayedTracks.slice(0, TRACK_PICKER_LIMIT)
+      }
+
+      const remainingTracks = sortedTracks.filter(
+        (track) => (track.lastPlayedAt ?? 0) <= 0
+      )
+      const remainingSlots = TRACK_PICKER_LIMIT - recentlyPlayedTracks.length
+
+      return recentlyPlayedTracks.concat(remainingTracks.slice(0, remainingSlots))
     }
 
-    return allTracks.filter((track) => {
-      const title = track.title.toLowerCase()
-      const artist = (track.artist || "").toLowerCase()
-      const album = (track.album || "").toLowerCase()
-      return (
-        title.includes(normalizedQuery) ||
-        artist.includes(normalizedQuery) ||
-        album.includes(normalizedQuery)
-      )
-    })
+    return sortedTracks
+      .filter((track) => {
+        const title = track.title.toLowerCase()
+        const artist = (track.artist || "").toLowerCase()
+        const album = (track.album || "").toLowerCase()
+        return (
+          title.includes(normalizedQuery) ||
+          artist.includes(normalizedQuery) ||
+          album.includes(normalizedQuery)
+        )
+      })
+      .slice(0, TRACK_PICKER_LIMIT)
   }, [allTracks, normalizedQuery])
 
   const selectedTracksList = useMemo(
@@ -217,6 +275,7 @@ export function usePlaylistFormScreen(
     isFormLoading:
       isEditMode && (isEditPlaylistLoading || !hasInitializedEditState),
     selectedTracks,
+    draftSelectedTracks,
     isTrackSheetOpen,
     searchInputKey,
     searchQuery,
@@ -231,9 +290,12 @@ export function usePlaylistFormScreen(
     setName: updateName,
     setDescription: updateDescription,
     setSearchQuery,
-    toggleTrack,
+    toggleTrack: toggleSelectedTrack,
+    toggleDraftTrack,
     openTrackSheet,
     handleTrackSheetOpenChange,
+    applyTrackSheetSelection,
+    clearDraftTrackSelection,
     save,
   }
 }

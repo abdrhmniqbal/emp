@@ -19,6 +19,8 @@ export interface TrackPickerSheetContentProps {
   filteredTracks: Track[]
   selectedTracks: Set<string>
   onToggleTrack: (trackId: string) => void
+  onApply: () => void
+  onClearSelection: () => void
 }
 
 export interface PlaylistFormProps {
