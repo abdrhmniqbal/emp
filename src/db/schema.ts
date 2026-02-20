@@ -103,6 +103,10 @@ export const tracks = sqliteTable(
     uri: text("uri").notNull(),
     filename: text("filename"),
     fileHash: text("file_hash"),
+    audioBitrate: integer("audio_bitrate"),
+    audioSampleRate: integer("audio_sample_rate"),
+    audioCodec: text("audio_codec"),
+    audioFormat: text("audio_format"),
 
     // Track metadata
     trackNumber: integer("track_number"),

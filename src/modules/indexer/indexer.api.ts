@@ -199,6 +199,10 @@ async function processBatch(
             asset.modificationTime,
             asset.duration
           ),
+          audioBitrate: metadata.bitrate || null,
+          audioSampleRate: metadata.sampleRate || null,
+          audioCodec: metadata.codec || null,
+          audioFormat: metadata.format || null,
           artwork: artworkPath,
           lyrics: metadata.lyrics || null,
           composer: metadata.composer || null,
@@ -228,6 +232,10 @@ async function processBatch(
               asset.modificationTime,
               asset.duration
             ),
+            audioBitrate: metadata.bitrate || null,
+            audioSampleRate: metadata.sampleRate || null,
+            audioCodec: metadata.codec || null,
+            audioFormat: metadata.format || null,
             artwork: artworkPath,
             lyrics: metadata.lyrics || null,
             composer: metadata.composer || null,

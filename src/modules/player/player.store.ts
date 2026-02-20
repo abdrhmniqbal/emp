@@ -36,8 +36,12 @@ const MIN_SESSION_SAVE_INTERVAL_MS = 2000
 let lastPlaybackSessionSavedAt = 0
 
 function mapTrackPlayerTrackToTrack(track: any): Track {
+  const trackId = String(track.id)
+  const existingTrack = $tracks.get().find((item) => item.id === trackId)
+
   return {
-    id: String(track.id),
+    ...existingTrack,
+    id: trackId,
     title: typeof track.title === "string" ? track.title : "Unknown Track",
     artist: track.artist,
     album: track.album,

@@ -14,6 +14,10 @@ export interface Track {
   duration: number
   uri: string
   image?: string
+  audioBitrate?: number
+  audioSampleRate?: number
+  audioCodec?: string
+  audioFormat?: string
   lyrics?: LyricLine[]
   fileHash?: string
   scanTime?: number

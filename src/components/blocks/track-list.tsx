@@ -115,6 +115,7 @@ export const TrackList: React.FC<TrackListProps> = ({
       key={`${item.id}-${index}`}
       track={item}
       onPress={() => handlePress(item)}
+      onLongPress={() => showActionMenu(item)}
       rank={
         showNumbers
           ? getNumber

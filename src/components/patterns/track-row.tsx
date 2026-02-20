@@ -10,6 +10,7 @@ import { MediaItem } from "@/components/ui"
 interface TrackRowProps {
   track: Track
   onPress?: () => void
+  onLongPress?: () => void
   variant?: "list" | "grid"
   leftAction?: ReactNode
   rank?: ReactNode
@@ -25,6 +26,7 @@ interface TrackRowProps {
 export function TrackRow({
   track,
   onPress,
+  onLongPress,
   variant = "list",
   leftAction,
   rank,
@@ -45,6 +47,7 @@ export function TrackRow({
     <MediaItem
       variant={variant}
       onPress={onPress}
+      onLongPress={onLongPress}
       className={`${isCompactNoCoverRow ? "gap-1 py-0" : ""} ${className || ""}`}
     >
       {leftAction ? <View className="py-2 pr-1">{leftAction}</View> : null}

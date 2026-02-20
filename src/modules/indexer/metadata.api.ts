@@ -19,6 +19,10 @@ export interface ExtractedMetadata {
   trackNumber?: number
   discNumber?: number
   duration: number
+  bitrate?: number
+  sampleRate?: number
+  codec?: string
+  format?: string
   composer?: string
   comment?: string
   lyrics?: string
@@ -29,6 +33,10 @@ const ARTWORK_DIR_NAME = "artwork"
 
 // Define the fields we want to extract
 const metadataFields = [
+  "bitrate",
+  "sampleRate",
+  "codecs",
+  "sampleMimeType",
   "title",
   "artist",
   "albumArtist",
@@ -54,6 +62,25 @@ export async function extractMetadata(
     // Get artwork separately
     const artwork = await getArtwork(uri).catch(() => null)
 
+    const bitrate =
+      typeof metadata.bitrate === "number" && Number.isFinite(metadata.bitrate)
+        ? Math.round(metadata.bitrate)
+        : undefined
+    const sampleRate =
+      typeof metadata.sampleRate === "number" &&
+      Number.isFinite(metadata.sampleRate)
+        ? Math.round(metadata.sampleRate)
+        : undefined
+    const codec =
+      typeof metadata.codecs === "string" && metadata.codecs.length > 0
+        ? metadata.codecs
+        : undefined
+    const format =
+      typeof metadata.sampleMimeType === "string" &&
+      metadata.sampleMimeType.length > 0
+        ? metadata.sampleMimeType
+        : undefined
+
     return {
       title: metadata.title || cleanFilename(filename),
       artist: metadata.artist || undefined,
@@ -65,6 +92,10 @@ export async function extractMetadata(
       trackNumber: metadata.trackNumber || undefined,
       discNumber: metadata.discNumber || undefined,
       duration,
+      bitrate,
+      sampleRate,
+      codec,
+      format,
       composer: metadata.composer || undefined,
       comment: metadata.description || undefined,
       lyrics: undefined,
