@@ -8,10 +8,12 @@ import { requestMediaLibraryPermission } from "@/core/storage/media-library.serv
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded, startIndexing } from "@/modules/indexer"
+import { restorePlaybackSession } from "@/modules/player/player.store"
 
 export async function bootstrapApp(): Promise<void> {
   registerPlaybackService()
   await initializeTrackPlayer()
+  await restorePlaybackSession()
 
   const { status } = await requestMediaLibraryPermission()
   if (status === "granted") {

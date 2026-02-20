@@ -2,7 +2,7 @@ import { atom, computed } from "nanostores"
 
 import { TrackPlayer } from "@/modules/player/player.utils"
 
-import { $currentTrack, type Track } from "./player.store"
+import { $currentTrack, persistPlaybackSession, type Track } from "./player.store"
 
 export const $queue = atom<Track[]>([])
 export const $originalQueue = atom<Track[]>([])
@@ -41,6 +41,7 @@ export async function addToQueue(track: Track) {
     artwork: track.image,
     duration: track.duration,
   })
+  await persistPlaybackSession({ force: true })
 }
 
 export async function playNext(track: Track) {
@@ -66,9 +67,7 @@ export async function playNext(track: Track) {
   const tpQueue = await TrackPlayer.getQueue()
   const currentTpTrack = await TrackPlayer.getCurrentTrack()
   const insertIndex =
-    currentTpTrack !== null
-      ? tpQueue.findIndex((t) => t.id === currentTpTrack) + 1
-      : 0
+    currentTpTrack !== null ? Math.min(currentTpTrack + 1, tpQueue.length) : 0
 
   await TrackPlayer.add(
     {
@@ -82,6 +81,7 @@ export async function playNext(track: Track) {
     },
     insertIndex
   )
+  await persistPlaybackSession({ force: true })
 }
 
 export async function removeFromQueue(trackId: string) {
@@ -93,6 +93,7 @@ export async function removeFromQueue(trackId: string) {
   if (index !== -1) {
     await TrackPlayer.remove(index)
   }
+  await persistPlaybackSession({ force: true })
 }
 
 export async function clearQueue() {
@@ -117,10 +118,12 @@ export async function clearQueue() {
       duration: currentTrack.duration,
     })
   }
+  await persistPlaybackSession({ force: true })
 }
 
 export function setQueue(tracks: Track[]) {
   $queue.set(tracks)
+  void persistPlaybackSession({ force: true })
 }
 
 export async function moveInQueue(fromIndex: number, toIndex: number) {
@@ -130,6 +133,7 @@ export async function moveInQueue(fromIndex: number, toIndex: number) {
   $queue.set(queue)
 
   await TrackPlayer.move(fromIndex, toIndex)
+  await persistPlaybackSession({ force: true })
 }
 
 export async function toggleShuffle() {
@@ -185,6 +189,7 @@ export async function toggleShuffle() {
           duration: track.duration,
         })
       }
+      await persistPlaybackSession({ force: true })
     }
   } else {
     // Restore original queue order
@@ -223,6 +228,7 @@ export async function toggleShuffle() {
           duration: track.duration,
         })
       }
+      await persistPlaybackSession({ force: true })
     }
   }
 }
