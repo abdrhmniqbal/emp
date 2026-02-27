@@ -1,6 +1,6 @@
 import * as React from "react"
 import { PressableFeedback } from "heroui-native"
-import { View } from "react-native"
+import { Pressable, View } from "react-native"
 import Animated, { Layout } from "react-native-reanimated"
 import { cn } from "tailwind-variants"
 
@@ -16,11 +16,13 @@ import { MarqueeText } from "@/components/ui"
 interface TrackInfoProps {
   track: Track
   compact?: boolean
+  onPressArtist?: () => void
 }
 
 export const TrackInfo: React.FC<TrackInfoProps> = ({
   track,
   compact = false,
+  onPressArtist,
 }) => {
   const { data: isFavoriteQuery = track.isFavorite ?? false } = useIsFavorite(
     "track",
@@ -33,6 +35,8 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
     compact ? "text-xl" : "text-2xl"
   )
   const artistClassName = cn("text-white/60", compact ? "text-base" : "text-lg")
+  const artistName = track.artist || "Unknown Artist"
+  const isArtistPressable = Boolean(onPressArtist && track.artist?.trim())
 
   return (
     <Animated.View
@@ -41,10 +45,13 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
     >
       <View className="mr-4 flex-1">
         <MarqueeText text={track.title} className={titleClassName} />
-        <MarqueeText
-          text={track.artist || "Unknown Artist"}
-          className={artistClassName}
-        />
+        {isArtistPressable ? (
+          <Pressable onPress={onPressArtist} hitSlop={8}>
+            <MarqueeText text={artistName} className={artistClassName} />
+          </Pressable>
+        ) : (
+          <MarqueeText text={artistName} className={artistClassName} />
+        )}
       </View>
       <PressableFeedback
         onPress={() => {

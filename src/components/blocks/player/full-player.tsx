@@ -1,4 +1,5 @@
 import { useStore } from '@nanostores/react'
+import { useRouter } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as React from 'react'
 import { useEffect } from 'react'
@@ -43,6 +44,7 @@ const OPEN_SPRING_CONFIG = {
 }
 
 export function FullPlayer() {
+  const router = useRouter()
   const isExpanded = useStore($isPlayerExpanded)
   const currentTrack = useStore($currentTrack)
   const isPlaying = useStore($isPlaying)
@@ -70,6 +72,19 @@ export function FullPlayer() {
   const closePlayer = () => {
     $isPlayerExpanded.set(false)
     $showPlayerQueue.set(false)
+  }
+
+  const handleArtistPress = () => {
+    const artistName = currentTrack?.artist?.trim()
+    if (!artistName) {
+      return
+    }
+
+    closePlayer()
+    router.push({
+      pathname: '/(main)/(library)/artist/[name]',
+      params: { name: artistName },
+    })
   }
 
   const panGesture = Gesture.Pan()
@@ -172,7 +187,11 @@ export function FullPlayer() {
                   <AlbumArtView currentTrack={currentTrack} />
                 )}
 
-            <TrackInfo track={currentTrack} compact={showQueue} />
+            <TrackInfo
+              track={currentTrack}
+              compact={showQueue}
+              onPressArtist={handleArtistPress}
+            />
 
             <ProgressBar
               currentTime={currentTimeVal}
