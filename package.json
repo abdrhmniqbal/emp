@@ -19,7 +19,6 @@
     "@legendapp/list": "^2.0.19",
     "@missingcore/react-native-metadata-retriever": "^2.4.0",
     "@nanostores/react": "^1.0.0",
-    "@react-native-community/slider": "^5.1.2",
     "@shopify/react-native-skia": "^2.4.21",
     "@tanstack/react-pacer": "^0.19.4",
     "@tanstack/react-query": "^5.90.20",

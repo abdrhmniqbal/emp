@@ -1,6 +1,5 @@
 import { useStore } from '@nanostores/react'
-import Slider from '@react-native-community/slider'
-import { PressableFeedback } from 'heroui-native'
+import { PressableFeedback, Slider } from 'heroui-native'
 import * as React from 'react'
 import { ScrollView, Text, View } from 'react-native'
 
@@ -54,6 +53,10 @@ function formatDuration(seconds: number): string {
   const minutes = Math.floor(total / 60)
   const remainder = total % 60
   return remainder > 0 ? `${minutes}m ${remainder}s` : `${minutes}m`
+}
+
+function getSliderNumericValue(value: number | number[]): number {
+  return Array.isArray(value) ? (value[0] ?? 0) : value
 }
 
 export default function TrackDurationFilterScreen() {
@@ -138,19 +141,23 @@ export default function TrackDurationFilterScreen() {
                   </Text>
                 </View>
                 <Slider
-                  minimumValue={0}
-                  maximumValue={600}
+                  minValue={0}
+                  maxValue={600}
                   step={5}
                   value={customSliderValue}
-                  minimumTrackTintColor={theme.accent}
-                  maximumTrackTintColor={theme.border}
-                  thumbTintColor={theme.accent}
-                  disabled={indexerState.isIndexing}
-                  onValueChange={setCustomSliderValue}
-                  onSlidingComplete={(value) => {
-                    void handleCustomSlidingComplete(value)
+                  isDisabled={indexerState.isIndexing}
+                  onChange={(value) => {
+                    setCustomSliderValue(getSliderNumericValue(value))
                   }}
-                />
+                  onChangeEnd={(value) => {
+                    void handleCustomSlidingComplete(getSliderNumericValue(value))
+                  }}
+                >
+                  <Slider.Track className="h-2 rounded-full bg-border">
+                    <Slider.Fill className="rounded-full bg-accent" />
+                    <Slider.Thumb />
+                  </Slider.Track>
+                </Slider>
                 <Text className="mt-2 text-xs text-muted">
                   Changes apply to indexing and remove tracks below this duration on
                   next scan.
