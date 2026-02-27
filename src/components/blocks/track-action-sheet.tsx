@@ -2,8 +2,9 @@ import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import { BottomSheet, Button, Card, Chip } from 'heroui-native'
 import * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Linking, Pressable, Text, View } from 'react-native'
+import { open as openFileViewer } from 'react-native-file-viewer-turbo'
 import { cn } from 'tailwind-variants'
 
 import LocalAddIcon from '@/components/icons/local/add'
@@ -26,7 +27,11 @@ import {
   normalizeCodecLabel,
   resolveAudioFormat,
 } from '@/modules/tracks/track-metadata.utils'
+import {
+  resolvePlayableFileUri,
+} from '@/utils/file-path'
 import { formatDuration } from '@/utils/format'
+import { MarqueeText } from '@/components/ui'
 
 interface TrackActionSheetProps {
   track: Track | null
@@ -57,6 +62,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   const isFavorite = track
     ? (favoriteOverrides[track.id] ?? Boolean(isFavoriteData))
     : false
+  const [resolvedFileUri, setResolvedFileUri] = useState<string | null>(null)
 
   const handlePlay = async () => {
     if (track) {
@@ -130,36 +136,18 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       return
     }
 
-    const normalizedUri = track.uri.includes('://')
-      ? track.uri
-      : `file://${track.uri}`
-    const openableUri = encodeURI(normalizedUri)
-
-    const containingFolderUri = (() => {
-      if (!openableUri.startsWith('file://')) {
-        return null
-      }
-
-      const lastSlash = openableUri.lastIndexOf('/')
-      if (lastSlash <= 'file://'.length) {
-        return null
-      }
-
-      return openableUri.slice(0, lastSlash)
-    })()
+    const resolvedUri = await resolvePlayableFileUri(track.uri)
 
     try {
-      if (containingFolderUri) {
-        await Linking.openURL(containingFolderUri)
-      }
-      else {
-        await Linking.openURL(openableUri)
-      }
-
+      await openFileViewer(resolvedUri, {
+        showOpenWithDialog: true,
+        showAppsSuggestions: false,
+      })
       onClose()
     }
     catch {
       try {
+        const openableUri = encodeURI(resolvedUri)
         const canOpenFile = await Linking.canOpenURL(openableUri)
         if (canOpenFile) {
           onClose()
@@ -171,6 +159,28 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       }
     }
   }
+
+  useEffect(() => {
+    let cancelled = false
+
+    const resolvePath = async () => {
+      if (!track?.uri) {
+        setResolvedFileUri(null)
+        return
+      }
+
+      const resolvedUri = await resolvePlayableFileUri(track.uri)
+      if (!cancelled) {
+        setResolvedFileUri(resolvedUri)
+      }
+    }
+
+    void resolvePath()
+
+    return () => {
+      cancelled = true
+    }
+  }, [track?.id, track?.uri])
 
   if (!track)
     return null
@@ -193,6 +203,23 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     }
     catch {
       return uriPart
+    }
+  })()
+  const filePath = (() => {
+    if (!track.uri) {
+      return 'Unknown file'
+    }
+
+    const uri = resolvedFileUri || track.uri
+    const normalizedPath = uri.startsWith('file://')
+      ? uri.slice('file://'.length)
+      : uri
+
+    try {
+      return decodeURIComponent(normalizedPath)
+    }
+    catch {
+      return normalizedPath
     }
   })()
   const lastPlayed = (() => {
@@ -220,7 +247,12 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     { label: 'Format', value: formatLabel },
   ]
 
-  const metadataItems = [
+  const metadataItems: Array<{
+    label: string
+    value: string
+    fullWidth?: boolean
+    onPress?: () => void
+  }> = [
     {
       label: 'Artist',
       value: fallbackArtist,
@@ -255,7 +287,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     },
     {
       label: 'File',
-      value: fileName,
+      value: filePath,
       fullWidth: true,
       onPress: track.uri ? () => { void handleOpenFile() } : undefined,
     },
@@ -427,12 +459,10 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                     <Text className="mb-1 text-xs font-medium text-muted uppercase">
                       {item.label}
                     </Text>
-                    <Text
-                      numberOfLines={item.fullWidth ? 4 : 2}
+                    <MarqueeText
+                      text={item.value}
                       className="text-sm leading-5 text-foreground"
-                    >
-                      {item.value}
-                    </Text>
+                    />
                   </Card>
                 )
 

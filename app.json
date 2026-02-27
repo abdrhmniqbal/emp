@@ -8,7 +8,7 @@
       "output": "static"
     },
     "name": "Euphony Music",
-    "slug": "euphony-music",
+    "slug": "emp",
     "splash": {
       "image": "./android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png",
       "resizeMode": "contain",
@@ -31,7 +31,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "id.euphony.music",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
@@ -42,6 +44,17 @@
         "FOREGROUND_SERVICE_AUDIO_PLAYBACK"
       ]
     },
-    "plugins": ["expo-router", "expo-media-library"]
+    "plugins": [
+      "expo-router",
+      "expo-media-library",
+      [
+        "react-native-file-viewer-turbo",
+        {
+          "mimeTypes": [
+            "*/*"
+          ]
+        }
+      ]
+    ]
   }
 }
