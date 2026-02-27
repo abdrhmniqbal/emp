@@ -24,6 +24,27 @@ interface PlaylistFormPayload {
   trackIds: string[]
 }
 
+function reorderIds(ids: string[], from: number, to: number): string[] {
+  if (
+    from < 0
+    || to < 0
+    || from >= ids.length
+    || to >= ids.length
+    || from === to
+  ) {
+    return ids
+  }
+
+  const next = [...ids]
+  const [moved] = next.splice(from, 1)
+  if (!moved) {
+    return ids
+  }
+
+  next.splice(to, 0, moved)
+  return next
+}
+
 export function usePlaylistFormScreen(
   onSaved: () => void,
   playlistId?: string
@@ -33,9 +54,7 @@ export function usePlaylistFormScreen(
   const queryClient = useQueryClient()
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
-  const [selectedTracks, setSelectedTracks] = useState<Set<string>>(
-    () => new Set()
-  )
+  const [selectedTrackIds, setSelectedTrackIds] = useState<string[]>([])
   const [draftSelectedTracks, setDraftSelectedTracks] = useState<Set<string>>(
     () => new Set()
   )
@@ -74,7 +93,7 @@ export function usePlaylistFormScreen(
   const { data: allTracks = [] } = useQuery<Track[]>({
     queryKey: LIBRARY_TRACKS_QUERY_KEY,
     queryFn: getAllTracks,
-    enabled: isTrackSheetOpen || isEditMode || selectedTracks.size > 0,
+    enabled: isTrackSheetOpen || isEditMode || selectedTrackIds.length > 0,
     staleTime: 5 * 60 * 1000,
     placeholderData: (previousData) => previousData,
   })
@@ -92,7 +111,7 @@ export function usePlaylistFormScreen(
 
       setName("")
       setDescription("")
-      setSelectedTracks(new Set())
+      setSelectedTrackIds([])
       setDraftSelectedTracks(new Set())
 
       if (!isEditMode) {
@@ -127,11 +146,9 @@ export function usePlaylistFormScreen(
 
       setName(clampPlaylistName(playlistToEdit.name))
       setDescription(clampPlaylistDescription(playlistToEdit.description || ""))
-      setSelectedTracks(
-        new Set(
-          (playlistToEdit.tracks || []).map(
-            (playlistTrack) => playlistTrack.trackId
-          )
+      setSelectedTrackIds(
+        (playlistToEdit.tracks || []).map(
+          (playlistTrack) => playlistTrack.trackId
         )
       )
       setDraftSelectedTracks(
@@ -163,7 +180,12 @@ export function usePlaylistFormScreen(
   }
 
   function toggleSelectedTrack(trackId: string) {
-    setSelectedTracks((prev) => toggleTrackSelection(prev, trackId))
+    setSelectedTrackIds((prev) => {
+      if (prev.includes(trackId)) {
+        return prev.filter((id) => id !== trackId)
+      }
+      return [...prev, trackId]
+    })
   }
 
   function toggleDraftTrack(trackId: string) {
@@ -171,13 +193,13 @@ export function usePlaylistFormScreen(
   }
 
   function openTrackSheet() {
-    setDraftSelectedTracks(new Set(selectedTracks))
+    setDraftSelectedTracks(new Set(selectedTrackIds))
     setIsTrackSheetOpen(true)
   }
 
   function handleTrackSheetOpenChange(open: boolean) {
     if (open) {
-      setDraftSelectedTracks(new Set(selectedTracks))
+      setDraftSelectedTracks(new Set(selectedTrackIds))
       setIsTrackSheetOpen(true)
       return
     }
@@ -185,11 +207,20 @@ export function usePlaylistFormScreen(
     setIsTrackSheetOpen(false)
     setSearchQuery("")
     setSearchInputKey((prev) => prev + 1)
-    setDraftSelectedTracks(new Set(selectedTracks))
+    setDraftSelectedTracks(new Set(selectedTrackIds))
   }
 
   function applyTrackSheetSelection() {
-    setSelectedTracks(new Set(draftSelectedTracks))
+    setSelectedTrackIds((prev) => {
+      const draftIds = draftSelectedTracks
+      const previousSet = new Set(prev)
+      const preservedOrder = prev.filter((id) => draftIds.has(id))
+      const appended = allTracks
+        .map((track) => track.id)
+        .filter((id) => draftIds.has(id) && !previousSet.has(id))
+
+      return [...preservedOrder, ...appended]
+    })
     setIsTrackSheetOpen(false)
     setSearchQuery("")
     setSearchInputKey((prev) => prev + 1)
@@ -213,7 +244,7 @@ export function usePlaylistFormScreen(
         id: isEditMode ? normalizedPlaylistId : undefined,
         name,
         description: description.trim().length > 0 ? description : undefined,
-        trackIds: Array.from(selectedTracks),
+        trackIds: selectedTrackIds,
       })
       onSaved()
     } catch {
@@ -266,10 +297,21 @@ export function usePlaylistFormScreen(
       .slice(0, TRACK_PICKER_LIMIT)
   }, [allTracks, normalizedQuery])
 
-  const selectedTracksList = useMemo(
-    () => allTracks.filter((track) => selectedTracks.has(track.id)),
-    [allTracks, selectedTracks]
+  const selectedTracks = useMemo(
+    () => new Set(selectedTrackIds),
+    [selectedTrackIds]
   )
+
+  const selectedTracksList = useMemo(() => {
+    const tracksById = new Map(allTracks.map((track) => [track.id, track]))
+    return selectedTrackIds
+      .map((id) => tracksById.get(id))
+      .filter((track): track is Track => Boolean(track))
+  }, [allTracks, selectedTrackIds])
+
+  function reorderSelectedTracks(from: number, to: number) {
+    setSelectedTrackIds((prev) => reorderIds(prev, from, to))
+  }
 
   return {
     name,
@@ -293,6 +335,7 @@ export function usePlaylistFormScreen(
     setDescription: updateDescription,
     setSearchQuery,
     toggleTrack: toggleSelectedTrack,
+    reorderSelectedTracks,
     toggleDraftTrack,
     openTrackSheet,
     handleTrackSheetOpenChange,

@@ -1,18 +1,73 @@
-import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
-import { Button, Input, TextArea } from "heroui-native"
+import { Button, Input, PressableFeedback, TextArea } from "heroui-native"
+import ReorderableList, { useReorderableDrag } from "react-native-reorderable-list"
 import { Text, View } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
+import type { Track } from "@/modules/player/player.types"
 import {
   MAX_PLAYLIST_DESCRIPTION_LENGTH,
   MAX_PLAYLIST_NAME_LENGTH,
 } from "@/modules/playlist/playlist.utils"
 import LocalAddIcon from "@/components/icons/local/add"
+import LocalCancelIcon from "@/components/icons/local/cancel"
+import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { TrackRow } from "@/components/patterns"
 import { EmptyState } from "@/components/ui"
 
-import { PlaylistTrackRow } from "./playlist-track-row"
 import type { PlaylistFormProps } from "./types"
+
+interface ReorderableSelectedTrackRowProps {
+  track: Track
+  onToggle: (trackId: string) => void
+}
+
+function ReorderableSelectedTrackRow({
+  track,
+  onToggle,
+}: ReorderableSelectedTrackRowProps) {
+  const drag = useReorderableDrag()
+  const theme = useThemeColors()
+
+  return (
+    <TrackRow
+      track={track}
+      className="w-full py-2"
+      leftAction={(
+        <PressableFeedback
+          onPressIn={(event) => {
+            event.stopPropagation()
+            drag()
+          }}
+          className="p-2 opacity-60"
+        >
+          <LocalDragDropVerticalIcon
+            fill="none"
+            width={24}
+            height={24}
+            color={theme.foreground}
+          />
+        </PressableFeedback>
+      )}
+      rightAction={(
+        <PressableFeedback
+          onPress={(event) => {
+            event.stopPropagation()
+            onToggle(track.id)
+          }}
+          className="p-2 opacity-60"
+        >
+          <LocalCancelIcon
+            fill="none"
+            width={24}
+            height={24}
+            color={theme.muted}
+          />
+        </PressableFeedback>
+      )}
+    />
+  )
+}
 
 export function PlaylistForm({
   name,
@@ -21,6 +76,7 @@ export function PlaylistForm({
   setName,
   setDescription,
   toggleTrack,
+  reorderSelectedTracks,
   openTrackSheet,
 }: PlaylistFormProps) {
   const theme = useThemeColors()
@@ -83,14 +139,14 @@ export function PlaylistForm({
   )
 
   return (
-    <LegendList
+    <ReorderableList
       data={selectedTracksList}
-      renderItem={({ item }: LegendListRenderItemProps<(typeof selectedTracksList)[number]>) => (
+      onReorder={({ from, to }) => reorderSelectedTracks(from, to)}
+      renderItem={({ item }) => (
         <View className="mb-2">
-          <PlaylistTrackRow
+          <ReorderableSelectedTrackRow
             track={item}
-            isSelected
-            onPress={() => toggleTrack(item.id)}
+            onToggle={toggleTrack}
           />
         </View>
       )}
@@ -116,10 +172,6 @@ export function PlaylistForm({
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
-      recycleItems={true}
-      initialContainerPoolRatio={3}
-      estimatedItemSize={68}
-      drawDistance={180}
     />
   )
 }

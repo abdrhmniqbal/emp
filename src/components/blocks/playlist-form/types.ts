@@ -30,5 +30,6 @@ export interface PlaylistFormProps {
   setName: (value: string) => void
   setDescription: (value: string) => void
   toggleTrack: (trackId: string) => void
+  reorderSelectedTracks: (from: number, to: number) => void
   openTrackSheet: () => void
 }

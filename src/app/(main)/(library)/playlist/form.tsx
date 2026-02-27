@@ -35,6 +35,7 @@ export default function PlaylistFormScreen() {
     setDescription,
     setSearchQuery,
     toggleTrack,
+    reorderSelectedTracks,
     toggleDraftTrack,
     openTrackSheet,
     handleTrackSheetOpenChange,
@@ -87,6 +88,7 @@ export default function PlaylistFormScreen() {
         setName={setName}
         setDescription={setDescription}
         toggleTrack={toggleTrack}
+        reorderSelectedTracks={reorderSelectedTracks}
         openTrackSheet={openTrackSheet}
       />
 
