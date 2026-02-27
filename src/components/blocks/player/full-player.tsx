@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as React from 'react'
 import { useEffect } from 'react'
-import { Dimensions, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
   Extrapolation,
@@ -42,6 +42,7 @@ const OPEN_SPRING_CONFIG = {
   stiffness: 260,
   mass: 0.9,
 }
+const BACKGROUND_DARKEN_OVERLAY = 'rgba(0, 0, 0, 0.15)'
 
 export function FullPlayer() {
   const router = useRouter()
@@ -162,7 +163,7 @@ export function FullPlayer() {
       >
         <View className="relative flex-1">
           <LinearGradient
-            colors={[colors.bg, colors.secondary, '#000000']}
+            colors={[colors.bg, colors.secondary, '#09090B']}
             locations={[0, 0.6, 1]}
             style={{
               position: 'absolute',
@@ -171,6 +172,10 @@ export function FullPlayer() {
               top: 0,
               bottom: 0,
             }}
+          />
+          <View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFillObject, { backgroundColor: BACKGROUND_DARKEN_OVERLAY }]}
           />
 
           <Animated.View
