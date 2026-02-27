@@ -29,22 +29,21 @@ HeroUI Native is a component library built on **Uniwind (Tailwind CSS for React 
 
 ```tsx
 // DO NOT DO THIS - React web pattern
-import { Button } from "@heroui/react"
+import { Button } from "@heroui/react";
+import "./styles.css"; // CSS files don't work in React Native
 
-import "./styles.css" // CSS files don't work in React Native
-
-;<Button className="bg-blue-500">Click me</Button>
+<Button className="bg-blue-500">Click me</Button>;
 ```
 
 ### CORRECT (Native patterns)
 
 ```tsx
 // DO THIS - Native pattern (Uniwind, React Native components)
-import { Button } from "heroui-native"
+import { Button } from "heroui-native";
 
-;<Button variant="primary" onPress={() => console.log("Pressed!")}>
-  Click me
-</Button>
+<Button variant="primary" onPress={() => console.log("Pressed!")}>
+	Click me
+</Button>;
 ```
 
 **Always fetch Native docs before implementing.** Do not assume React web patterns work.
@@ -137,19 +136,18 @@ npm i react-native-reanimated react-native-gesture-handler react-native-safe-are
 3. **Wrap app with providers:**
 
 ```tsx
-import { HeroUINativeProvider } from "heroui-native"
-import { GestureHandlerRootView } from "react-native-gesture-handler"
-
-import "./global.css"
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { HeroUINativeProvider } from "heroui-native";
+import "./global.css";
 
 export default function Layout() {
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <HeroUINativeProvider>
-        <App />
-      </HeroUINativeProvider>
-    </GestureHandlerRootView>
-  )
+	return (
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<HeroUINativeProvider>
+				<App />
+			</HeroUINativeProvider>
+		</GestureHandlerRootView>
+	);
 }
 ```
 
@@ -172,12 +170,12 @@ HeroUI Native uses **compound component patterns**. Each component has subcompon
 
 ```tsx
 <Card>
-  <Card.Header>
-    <Card.Title>Title</Card.Title>
-    <Card.Description>Description</Card.Description>
-  </Card.Header>
-  <Card.Body>{/* Content */}</Card.Body>
-  <Card.Footer>{/* Actions */}</Card.Footer>
+	<Card.Header>
+		<Card.Title>Title</Card.Title>
+		<Card.Description>Description</Card.Description>
+	</Card.Header>
+	<Card.Body>{/* Content */}</Card.Body>
+	<Card.Footer>{/* Actions */}</Card.Footer>
 </Card>
 ```
 
@@ -214,8 +212,8 @@ HeroUI Native uses CSS variables via Tailwind/Uniwind for theming. Theme colors 
 
 ```css
 @theme {
-  --color-accent: hsl(260, 100%, 70%);
-  --color-accent-foreground: hsl(0, 0%, 100%);
+	--color-accent: hsl(260, 100%, 70%);
+	--color-accent-foreground: hsl(0, 0%, 100%);
 }
 ```
 
@@ -228,18 +226,18 @@ node scripts/get_theme.mjs
 **Access theme colors programmatically:**
 
 ```tsx
-import { useThemeColor } from "heroui-native"
+import { useThemeColor } from "heroui-native";
 
-const accentColor = useThemeColor("accent")
+const accentColor = useThemeColor("accent");
 ```
 
 **Theme switching (Light/Dark Mode):**
 
 ```tsx
-import { Uniwind, useUniwind } from "uniwind"
+import { Uniwind, useUniwind } from "uniwind";
 
-const { theme } = useUniwind()
-Uniwind.setTheme(theme === "light" ? "dark" : "light")
+const { theme } = useUniwind();
+Uniwind.setTheme(theme === "light" ? "dark" : "light");
 ```
 
 For detailed theming, fetch: `https://v3.heroui.com/docs/native/getting-started/theming.mdx`

@@ -15,7 +15,7 @@ Consult these resources as needed:
 references/
   animations.md          Reanimated: entering, exiting, layout, scroll-driven, gestures
   controls.md            Native iOS: Switch, Slider, SegmentedControl, DateTimePicker, Picker
-  form-sheet.md          Form sheets with footers via Stack and react-native-screens
+  form-sheet.md          Form sheets in expo-router: configuration, footers and background interaction. 
   gradients.md           CSS gradients via experimental_backgroundImage (New Arch only)
   icons.md               SF Symbols via expo-image (sf: source), names, animations, weights
   media.md               Camera, audio, video, and file saving
@@ -102,6 +102,7 @@ See `./references/route-structure.md` for detailed route conventions.
 - Use expo-haptics conditionally on iOS to make more delightful experiences
 - Use views with built-in haptics like `<Switch />` from React Native and `@react-native-community/datetimepicker`
 - When a route belongs to a Stack, its first child should almost always be a ScrollView with `contentInsetAdjustmentBehavior="automatic"` set
+- When adding a `ScrollView` to the page it should almost always be the first component inside the route component
 - Prefer `headerSearchBarOptions` in Stack.Screen options to add a search bar
 - Use the `<Text selectable />` prop on text containing data that could be copied
 - Consider formatting large numbers like 1.4M or 38k
@@ -177,9 +178,9 @@ Set the page title in Stack.Screen options:
 Add long press context menus to Link components:
 
 ```tsx
-import { Link } from "expo-router"
+import { Link } from "expo-router";
 
-;<Link href="/settings" asChild>
+<Link href="/settings" asChild>
   <Link.Trigger>
     <Pressable>
       <Card />
@@ -207,7 +208,7 @@ import { Link } from "expo-router"
       />
     </Link.Menu>
   </Link.Menu>
-</Link>
+</Link>;
 ```
 
 ## Link Previews
@@ -270,9 +271,8 @@ app/
 
 ```tsx
 // app/_layout.tsx
-import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs"
-
-import { Theme } from "../components/theme"
+import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
+import { Theme } from "../components/theme";
 
 export default function Layout() {
   return (
@@ -285,7 +285,7 @@ export default function Layout() {
         <NativeTabs.Trigger name="(search)" role="search" />
       </NativeTabs>
     </Theme>
-  )
+  );
 }
 ```
 
@@ -293,12 +293,12 @@ Create a shared group route so both tabs can push common screens:
 
 ```tsx
 // app/(index,search)/_layout.tsx
-import { Stack } from "expo-router/stack"
-import { PlatformColor } from "react-native"
+import { Stack } from "expo-router/stack";
+import { PlatformColor } from "react-native";
 
 export default function Layout({ segment }) {
-  const screen = segment.match(/\((.*)\)/)?.[1]!
-  const titles: Record<string, string> = { index: "Items", search: "Search" }
+  const screen = segment.match(/\((.*)\)/)?.[1]!;
+  const titles: Record<string, string> = { index: "Items", search: "Search" };
 
   return (
     <Stack
@@ -316,6 +316,6 @@ export default function Layout({ segment }) {
       <Stack.Screen name={screen} options={{ title: titles[screen] }} />
       <Stack.Screen name="i/[id]" options={{ headerLargeTitle: false }} />
     </Stack>
-  )
+  );
 }
 ```
