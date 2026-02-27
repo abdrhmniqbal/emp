@@ -265,22 +265,55 @@ export function usePlaylistFormScreen(
         sensitivity: "base",
       })
     })
+    const tracksById = new Map(sortedTracks.map((track) => [track.id, track]))
+    const persistedSelectedIds = selectedTrackIds.filter((id) =>
+      draftSelectedTracks.has(id)
+    )
+    const persistedSelectedSet = new Set(persistedSelectedIds)
+    const newlySelectedIds = sortedTracks
+      .map((track) => track.id)
+      .filter(
+        (id) =>
+          draftSelectedTracks.has(id) && !persistedSelectedSet.has(id)
+      )
+    const selectedTopTracks = [...persistedSelectedIds, ...newlySelectedIds]
+      .map((id) => tracksById.get(id))
+      .filter((track): track is Track => Boolean(track))
+    const maxVisibleCount = Math.max(
+      TRACK_PICKER_LIMIT,
+      selectedTopTracks.length
+    )
+
+    function mergeUniqueById(primary: Track[], secondary: Track[]): Track[] {
+      const merged = [...primary]
+      const seen = new Set(primary.map((track) => track.id))
+      for (const track of secondary) {
+        if (seen.has(track.id)) {
+          continue
+        }
+        merged.push(track)
+        seen.add(track.id)
+      }
+      return merged
+    }
 
     if (normalizedQuery.length === 0) {
       const recentlyPlayedTracks = sortedTracks.filter(
         (track) => (track.lastPlayedAt ?? 0) > 0
       )
-
-      if (recentlyPlayedTracks.length >= TRACK_PICKER_LIMIT) {
-        return recentlyPlayedTracks.slice(0, TRACK_PICKER_LIMIT)
-      }
-
       const remainingTracks = sortedTracks.filter(
         (track) => (track.lastPlayedAt ?? 0) <= 0
       )
-      const remainingSlots = TRACK_PICKER_LIMIT - recentlyPlayedTracks.length
+      const suggestedTracks = recentlyPlayedTracks.length >= TRACK_PICKER_LIMIT
+        ? recentlyPlayedTracks.slice(0, TRACK_PICKER_LIMIT)
+        : recentlyPlayedTracks.concat(
+          remainingTracks.slice(0, TRACK_PICKER_LIMIT - recentlyPlayedTracks.length)
+        )
 
-      return recentlyPlayedTracks.concat(remainingTracks.slice(0, remainingSlots))
+      return mergeUniqueById(selectedTopTracks, suggestedTracks).slice(
+        0,
+        maxVisibleCount
+      )
     }
 
     return sortedTracks
@@ -295,7 +328,7 @@ export function usePlaylistFormScreen(
         )
       })
       .slice(0, TRACK_PICKER_LIMIT)
-  }, [allTracks, normalizedQuery])
+  }, [allTracks, draftSelectedTracks, normalizedQuery, selectedTrackIds])
 
   const selectedTracks = useMemo(
     () => new Set(selectedTrackIds),

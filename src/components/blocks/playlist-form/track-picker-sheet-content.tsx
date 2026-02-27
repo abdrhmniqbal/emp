@@ -12,7 +12,7 @@ import { useThemeColors } from '@/hooks/use-theme-colors'
 import { PlaylistTrackRow } from './playlist-track-row'
 import { SheetSearchInput } from './sheet-search-input'
 
-const TRACK_PICKER_SNAP_POINTS = ['55%', '90%']
+const TRACK_PICKER_SNAP_POINTS = ['72%', '90%']
 
 export function TrackPickerSheetContent({
   inputKey,
@@ -32,6 +32,7 @@ export function TrackPickerSheetContent({
 
   return (
     <BottomSheet.Content
+      index={1}
       snapPoints={TRACK_PICKER_SNAP_POINTS}
       enableOverDrag={false}
       enableDynamicSizing={false}
