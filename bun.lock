@@ -16,6 +16,7 @@
         "@tanstack/react-pacer": "^0.19.4",
         "@tanstack/react-query": "^5.90.20",
         "@weights-ai/react-native-track-player": "github:MissingCore/react-native-track-player#74325fcbff1af92006d31791bcca493985f94550",
+        "@zoontek/react-native-navigation-bar": "^1.1.0",
         "add": "^2.0.6",
         "buffer": "^6.0.3",
         "bun": "^1.3.9",
@@ -862,6 +863,8 @@
     "@weights-ai/react-native-track-player": ["@weights-ai/react-native-track-player@github:MissingCore/react-native-track-player#74325fc", { "peerDependencies": { "react": ">=18", "react-native": ">=0.77", "react-native-windows": ">=0.77", "shaka-player": "^4.7.9" }, "optionalPeers": ["react-native-windows", "shaka-player"] }, "MissingCore-react-native-track-player-74325fc"],
 
     "@xmldom/xmldom": ["@xmldom/xmldom@0.8.11", "", {}, "sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw=="],
+
+    "@zoontek/react-native-navigation-bar": ["@zoontek/react-native-navigation-bar@1.1.0", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-CUIyPiJb00M3xN1F7j1VDMm1+2HiKWxPWnqGgYmhrroLofcsybICI3dR6/64w9cXH7FRxoglOp3z9AResUZ+xQ=="],
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 

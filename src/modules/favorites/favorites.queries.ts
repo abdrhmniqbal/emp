@@ -2,9 +2,9 @@ import {
   type QueryClient,
   useMutation,
   useQuery,
-  useQueryClient,
 } from "@tanstack/react-query"
 
+import { queryClient } from "@/lib/tanstack-query"
 import {
   addFavorite,
   getFavorites,
@@ -37,12 +37,10 @@ export function useFavorites(type?: FavoriteType, options: QueryOptions = {}) {
     enabled: options.enabled ?? true,
     placeholderData: (previousData) => previousData,
     queryFn: () => getFavorites(type),
-  })
+  }, queryClient)
 }
 
 export function useAddFavorite() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       type,
@@ -72,12 +70,10 @@ export function useAddFavorite() {
     onSuccess: async () => {
       await invalidateFavoriteQueries(queryClient)
     },
-  })
+  }, queryClient)
 }
 
 export function useRemoveFavorite() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       type,
@@ -93,7 +89,7 @@ export function useRemoveFavorite() {
     onSuccess: async () => {
       await invalidateFavoriteQueries(queryClient)
     },
-  })
+  }, queryClient)
 }
 
 export function useIsFavorite(type: FavoriteType, itemId: string) {
@@ -104,12 +100,10 @@ export function useIsFavorite(type: FavoriteType, itemId: string) {
     enabled: normalizedItemId.length > 0,
     placeholderData: (previousData) => previousData,
     queryFn: () => isFavorite(normalizedItemId, type),
-  })
+  }, queryClient)
 }
 
 export function useToggleFavorite() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       type,
@@ -167,5 +161,5 @@ export function useToggleFavorite() {
     onSettled: async () => {
       await invalidateFavoriteQueries(queryClient)
     },
-  })
+  }, queryClient)
 }

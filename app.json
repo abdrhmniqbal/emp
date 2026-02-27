@@ -37,6 +37,7 @@
     "plugins": [
       "expo-router",
       "expo-media-library",
+      "@zoontek/react-native-navigation-bar",
       [
         "expo-splash-screen",
         {
