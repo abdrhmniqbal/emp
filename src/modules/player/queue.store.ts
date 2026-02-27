@@ -2,7 +2,12 @@ import { atom, computed } from "nanostores"
 
 import { TrackPlayer } from "@/modules/player/player.utils"
 
-import { $currentTrack, persistPlaybackSession, type Track } from "./player.store"
+import {
+  $currentTrack,
+  persistPlaybackSession,
+  syncCurrentTrackFromPlayer,
+  type Track,
+} from "./player.store"
 
 export const $queue = atom<Track[]>([])
 export const $originalQueue = atom<Track[]>([])
@@ -127,13 +132,33 @@ export function setQueue(tracks: Track[]) {
 }
 
 export async function moveInQueue(fromIndex: number, toIndex: number) {
-  const queue = [...$queue.get()]
+  const previousQueue = $queue.get()
+  if (
+    fromIndex < 0
+    || toIndex < 0
+    || fromIndex >= previousQueue.length
+    || toIndex >= previousQueue.length
+    || fromIndex === toIndex
+  ) {
+    return
+  }
+
+  const queue = [...previousQueue]
   const [moved] = queue.splice(fromIndex, 1)
+  if (!moved) {
+    return
+  }
+
   queue.splice(toIndex, 0, moved)
   $queue.set(queue)
 
-  await TrackPlayer.move(fromIndex, toIndex)
-  await persistPlaybackSession({ force: true })
+  try {
+    await TrackPlayer.move(fromIndex, toIndex)
+    await syncCurrentTrackFromPlayer()
+    await persistPlaybackSession({ force: true })
+  } catch {
+    $queue.set(previousQueue)
+  }
 }
 
 export async function toggleShuffle() {

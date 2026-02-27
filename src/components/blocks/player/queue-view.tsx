@@ -1,15 +1,21 @@
 import * as React from "react"
-import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
+import ReorderableList, { useReorderableDrag } from "react-native-reorderable-list"
 import { Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import { cn } from "tailwind-variants"
 
 import { playTrack, type Track } from "@/modules/player/player.store"
-import { $queueInfo, removeFromQueue } from "@/modules/player/queue.store"
+import {
+  $queue,
+  $queueInfo,
+  moveInQueue,
+  removeFromQueue,
+} from "@/modules/player/queue.store"
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import { TrackRow } from "@/components/patterns"
+import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
 
 interface QueueItemProps {
   track: Track
@@ -25,35 +31,55 @@ export const QueueItem: React.FC<QueueItemProps> = ({
   isPlayedTrack,
   onPress,
   onRemove,
-}) => (
-  <TrackRow
-    track={track}
-    onPress={onPress}
-    className={cn(
-      "rounded-xl px-2",
-      isCurrentTrack ? "bg-white/10" : "active:bg-white/5",
-      isPlayedTrack && "opacity-45"
-    )}
-    imageClassName="h-12 w-12 bg-white/10"
-    titleClassName={isCurrentTrack ? "text-white" : "text-white/90"}
-    descriptionClassName="text-white/50 text-sm"
-    rightAction={
-      <View className="flex-row items-center">
-        {!isCurrentTrack ? (
-          <PressableFeedback
-            onPress={(event) => {
-              event.stopPropagation()
-              onRemove()
-            }}
-            className="p-2 opacity-60"
-          >
-            <LocalCancelIcon fill="none" width={24} height={24} color="white" />
-          </PressableFeedback>
-        ) : null}
-      </View>
-    }
-  />
-)
+}) => {
+  const drag = useReorderableDrag()
+
+  return (
+    <TrackRow
+      track={track}
+      onPress={onPress}
+      leftAction={
+        <PressableFeedback
+          onPressIn={(event) => {
+            event.stopPropagation()
+            drag()
+          }}
+          className="p-2 opacity-60"
+        >
+          <LocalDragDropVerticalIcon
+            fill="none"
+            width={24}
+            height={24}
+            color="white"
+          />
+        </PressableFeedback>
+      }
+      className={cn(
+        "rounded-xl px-2",
+        isCurrentTrack ? "bg-white/10" : "active:bg-white/5",
+        isPlayedTrack && "opacity-45"
+      )}
+      imageClassName="h-12 w-12 bg-white/10"
+      titleClassName={isCurrentTrack ? "text-white" : "text-white/90"}
+      descriptionClassName="text-white/50 text-sm"
+      rightAction={
+        <View className="flex-row items-center">
+          {!isCurrentTrack ? (
+            <PressableFeedback
+              onPress={(event) => {
+                event.stopPropagation()
+                onRemove()
+              }}
+              className="p-2 opacity-60"
+            >
+              <LocalCancelIcon fill="none" width={24} height={24} color="white" />
+            </PressableFeedback>
+          ) : null}
+        </View>
+      }
+    />
+  )
+}
 
 interface QueueViewProps {
   currentTrack: Track | null
@@ -69,6 +95,17 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
     await removeFromQueue(trackId)
   }
 
+  const handleReorder = ({ from, to }: { from: number; to: number }) => {
+    if (from === to) {
+      return
+    }
+    void moveInQueue(from, to)
+  }
+
+  const handlePlayFromQueue = (track: Track) => {
+    void playTrack(track, $queue.get())
+  }
+
   return (
     <Animated.View
       entering={FadeIn.duration(200)}
@@ -82,25 +119,22 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
         </Text>
       </View>
       <View className="flex-1">
-        <LegendList
+        <ReorderableList
           data={queue}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
-          renderItem={({ item, index }: LegendListRenderItemProps<Track>) => (
+          keyExtractor={(item) => item.id}
+          onReorder={handleReorder}
+          renderItem={({ item, index }) => (
             <QueueItem
               track={item}
               isCurrentTrack={item.id === currentTrack.id}
               isPlayedTrack={currentIndex >= 0 && index < currentIndex}
-              onPress={() => playTrack(item, queue)}
+              onPress={() => handlePlayFromQueue(item)}
               onRemove={() => handleRemove(item.id)}
             />
           )}
           style={{ flex: 1, minHeight: 1 }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ gap: 4, paddingBottom: 20 }}
-          recycleItems={true}
-          initialContainerPoolRatio={2.5}
-          estimatedItemSize={72}
-          drawDistance={180}
         />
       </View>
     </Animated.View>

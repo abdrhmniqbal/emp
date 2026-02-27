@@ -36,12 +36,9 @@ const MIN_SESSION_SAVE_INTERVAL_MS = 2000
 let lastPlaybackSessionSavedAt = 0
 
 function mapTrackPlayerTrackToTrack(track: any): Track {
-  const trackId = String(track.id)
-  const existingTrack = $tracks.get().find((item) => item.id === trackId)
-
   return {
-    ...existingTrack,
-    id: trackId,
+    ...$tracks.get().find((item) => item.id === String(track.id)),
+    id: String(track.id),
     title: typeof track.title === "string" ? track.title : "Unknown Track",
     artist: track.artist,
     album: track.album,
@@ -49,6 +46,30 @@ function mapTrackPlayerTrackToTrack(track: any): Track {
     uri: track.url as string,
     image: track.artwork as string | undefined,
   }
+}
+
+export async function syncCurrentTrackFromPlayer(): Promise<void> {
+  try {
+    const activeIndex = await TrackPlayer.getCurrentTrack()
+    if (activeIndex !== null && activeIndex >= 0) {
+      const { $queue } = await import("./queue.store")
+      const queueTrack = $queue.get()[activeIndex]
+      if (queueTrack) {
+        $currentTrack.set(queueTrack)
+        $duration.set(queueTrack.duration || 0)
+        return
+      }
+    }
+
+    const activeTrack = await TrackPlayer.getActiveTrack()
+    if (!activeTrack) {
+      return
+    }
+
+    const mappedTrack = mapTrackPlayerTrackToTrack(activeTrack)
+    $currentTrack.set(mappedTrack)
+    $duration.set(mappedTrack.duration || 0)
+  } catch {}
 }
 
 function mapTrackToTrackPlayerInput(track: Track) {
@@ -272,19 +293,18 @@ export async function PlaybackService() {
     void persistPlaybackSession()
   })
 
-  // v4 API: Use PlaybackTrackChanged with nextTrack property
-  TrackPlayer.addEventListener(Event.PlaybackTrackChanged, async (event) => {
-    if (event.nextTrack !== undefined && event.nextTrack !== null) {
-      const track = await TrackPlayer.getTrack(event.nextTrack)
-      if (track) {
-        const currentTrack = mapTrackPlayerTrackToTrack(track)
-        $currentTrack.set(currentTrack)
-
-        addTrackToHistory(currentTrack.id)
-        incrementTrackPlayCount(currentTrack.id)
-        void persistPlaybackSession({ force: true })
-      }
+  // v4 API: keep UI metadata synced from active track source of truth.
+  TrackPlayer.addEventListener(Event.PlaybackTrackChanged, async () => {
+    const previousTrackId = $currentTrack.get()?.id ?? null
+    await syncCurrentTrackFromPlayer()
+    const currentTrack = $currentTrack.get()
+    if (!currentTrack || currentTrack.id === previousTrackId) {
+      return
     }
+
+    addTrackToHistory(currentTrack.id)
+    incrementTrackPlayCount(currentTrack.id)
+    void persistPlaybackSession({ force: true })
   })
 
   TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (event) => {
@@ -353,20 +373,14 @@ export async function togglePlayback() {
 export async function playNext() {
   try {
     await TrackPlayer.skipToNext()
-    // v4 API: getCurrentTrack() returns the active track index
-    const currentTrackId = await TrackPlayer.getCurrentTrack()
-    if (currentTrackId !== undefined && currentTrackId !== null) {
-      const track = await TrackPlayer.getTrack(currentTrackId)
-      if (track) {
-        $currentTrack.set(mapTrackPlayerTrackToTrack(track))
-        await persistPlaybackSession({ force: true })
-      }
-    }
+    await syncCurrentTrackFromPlayer()
+    await persistPlaybackSession({ force: true })
   } catch {
-    // If at end of queue, wrap to beginning
-    const tracks = $tracks.get()
-    if (tracks.length > 0) {
-      await playTrack(tracks[0])
+    // If at end of queue, wrap to beginning of active playback queue.
+    const { $queue } = await import("./queue.store")
+    const queue = $queue.get()
+    if (queue.length > 0) {
+      await playTrack(queue[0], queue)
     }
   }
 }
@@ -379,15 +393,8 @@ export async function playPrevious() {
       await TrackPlayer.seekTo(0)
     } else {
       await TrackPlayer.skipToPrevious()
-      // v4 API: getCurrentTrack() returns the active track index
-      const currentTrackId = await TrackPlayer.getCurrentTrack()
-      if (currentTrackId !== undefined && currentTrackId !== null) {
-        const track = await TrackPlayer.getTrack(currentTrackId)
-        if (track) {
-          $currentTrack.set(mapTrackPlayerTrackToTrack(track))
-          await persistPlaybackSession({ force: true })
-        }
-      }
+      await syncCurrentTrackFromPlayer()
+      await persistPlaybackSession({ force: true })
     }
   } catch {
     // If at beginning of queue, stay at first track
