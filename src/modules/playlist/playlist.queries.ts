@@ -66,6 +66,74 @@ export function usePlaylistsWithOptions(enabled: boolean) {
   })
 }
 
+export function usePlaylistsForTrack(trackId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: [PLAYLISTS_KEY, "track-membership", trackId ?? ""],
+    enabled,
+    placeholderData: (previousData) => previousData,
+    queryFn: async () => {
+      const [results, membershipRows] = await Promise.all([
+        db.query.playlists.findMany({
+          orderBy: [desc(playlists.createdAt)],
+          with: {
+            tracks: {
+              limit: 10,
+              orderBy: [asc(playlistTracks.position)],
+              with: {
+                track: {
+                  with: {
+                    album: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+        trackId
+          ? db
+              .select({ playlistId: playlistTracks.playlistId })
+              .from(playlistTracks)
+              .where(eq(playlistTracks.trackId, trackId))
+          : Promise.resolve([]),
+      ])
+
+      const playlistIdsWithTrack = new Set(
+        membershipRows.map((row) => row.playlistId)
+      )
+
+      return results.map((playlist) => {
+        const images = new Set<string>()
+
+        if (playlist.artwork) {
+          images.add(playlist.artwork)
+        }
+
+        for (const pt of playlist.tracks) {
+          const t = pt.track
+          const img =
+            t.artwork ||
+            (typeof t.album === "object" && t.album
+              ? (t.album as any).artwork
+              : undefined)
+          if (img) images.add(img)
+          if (images.size >= 4) break
+        }
+
+        return {
+          id: playlist.id,
+          name: playlist.name,
+          title: playlist.name,
+          dateAdded: playlist.createdAt,
+          trackCount: playlist.trackCount || 0,
+          image: playlist.artwork || undefined,
+          images: Array.from(images),
+          hasTrack: playlistIdsWithTrack.has(playlist.id),
+        }
+      })
+    },
+  })
+}
+
 export function usePlaylist(id: string, enabled: boolean = true) {
   return useQuery({
     queryKey: [PLAYLISTS_KEY, id],
@@ -175,6 +243,17 @@ export function useAddTrackToPlaylist() {
       playlistId: string
       trackId: string
     }) => {
+      const existingEntry = await db.query.playlistTracks.findFirst({
+        where: and(
+          eq(playlistTracks.playlistId, playlistId),
+          eq(playlistTracks.trackId, trackId)
+        ),
+      })
+
+      if (existingEntry) {
+        return { playlistId, trackId, skipped: true as const }
+      }
+
       const existingTracks = await db.query.playlistTracks.findMany({
         where: eq(playlistTracks.playlistId, playlistId),
         orderBy: [desc(playlistTracks.position)],
@@ -193,7 +272,7 @@ export function useAddTrackToPlaylist() {
       })
 
       await updatePlaylistStats(playlistId)
-      return { playlistId, trackId }
+      return { playlistId, trackId, skipped: false as const }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

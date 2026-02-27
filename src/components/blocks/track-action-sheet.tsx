@@ -1,6 +1,6 @@
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
-import { BottomSheet, Button, Card, Chip } from 'heroui-native'
+import { BottomSheet, Button, Card, Chip, Toast, useToast } from 'heroui-native'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { Linking, Pressable, Text, View } from 'react-native'
@@ -20,6 +20,10 @@ import {
   useIsFavorite,
   useToggleFavorite,
 } from '@/modules/favorites/favorites.queries'
+import {
+  useAddTrackToPlaylist,
+  useRemoveTrackFromPlaylist,
+} from '@/modules/playlist/playlist.queries'
 import { playTrack, type Track } from '@/modules/player/player.store'
 import { addToQueue, playNext } from '@/modules/player/queue.store'
 import {
@@ -31,6 +35,7 @@ import {
   resolvePlayableFileUri,
 } from '@/utils/file-path'
 import { formatDuration } from '@/utils/format'
+import { PlaylistPickerSheet } from '@/components/blocks/playlist-picker-sheet'
 import { MarqueeText } from '@/components/ui'
 
 interface TrackActionSheetProps {
@@ -49,8 +54,12 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   onAddToPlaylist,
 }) => {
   const router = useRouter()
+  const { toast } = useToast()
   const theme = useThemeColors()
   const toggleFavoriteMutation = useToggleFavorite()
+  const addTrackToPlaylistMutation = useAddTrackToPlaylist()
+  const removeTrackFromPlaylistMutation = useRemoveTrackFromPlaylist()
+  const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
   const [favoriteOverrides, setFavoriteOverrides] = useState<
     Record<string, boolean>
   >({})
@@ -101,10 +110,95 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   }
 
   const handleAddToPlaylist = () => {
-    if (track && onAddToPlaylist) {
+    if (!track) {
+      return
+    }
+
+    if (onAddToPlaylist) {
       onAddToPlaylist(track)
       onClose()
+      return
     }
+
+    setIsPlaylistPickerOpen(true)
+  }
+
+  const showPlaylistToast = (title: string, description?: string) => {
+    toast.show({
+      duration: 1800,
+      component: props => (
+        <Toast {...props} variant="accent" placement="bottom">
+          <Toast.Title className="text-sm font-semibold">{title}</Toast.Title>
+          {description
+            ? (
+                <Toast.Description className="text-xs text-muted">
+                  {description}
+                </Toast.Description>
+              )
+            : null}
+        </Toast>
+      ),
+    })
+  }
+
+  const handleSelectPlaylist = async ({
+    id,
+    name,
+    hasTrack,
+  }: {
+    id: string
+    name: string
+    hasTrack: boolean
+  }) => {
+    if (
+      !track
+      || addTrackToPlaylistMutation.isPending
+      || removeTrackFromPlaylistMutation.isPending
+    ) {
+      return
+    }
+
+    if (hasTrack) {
+      try {
+        await removeTrackFromPlaylistMutation.mutateAsync({
+          playlistId: id,
+          trackId: track.id,
+        })
+        setIsPlaylistPickerOpen(false)
+        onClose()
+        showPlaylistToast('Removed from playlist', name)
+      }
+      catch {
+        showPlaylistToast('Failed to remove track')
+      }
+      return
+    }
+
+    try {
+      const result = await addTrackToPlaylistMutation.mutateAsync({
+        playlistId: id,
+        trackId: track.id,
+      })
+
+      setIsPlaylistPickerOpen(false)
+      onClose()
+
+      if (result.skipped) {
+        showPlaylistToast('Already in playlist', name)
+        return
+      }
+
+      showPlaylistToast('Added to playlist', name)
+    }
+    catch {
+      showPlaylistToast('Failed to add track')
+    }
+  }
+
+  const handleCreatePlaylist = () => {
+    setIsPlaylistPickerOpen(false)
+    onClose()
+    router.push('/(main)/(library)/playlist/form')
   }
 
   const handleOpenArtist = () => {
@@ -181,6 +275,14 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       cancelled = true
     }
   }, [track?.id, track?.uri])
+
+  useEffect(() => {
+    if (isOpen) {
+      return
+    }
+
+    setIsPlaylistPickerOpen(false)
+  }, [isOpen])
 
   if (!track)
     return null
@@ -294,15 +396,16 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   ]
 
   return (
-    <BottomSheet isOpen={isOpen} onOpenChange={open => !open && onClose()}>
-      <BottomSheet.Portal>
-        <BottomSheet.Overlay />
-        <BottomSheet.Content
-          snapPoints={['62%', '92%']}
-          enableDynamicSizing={false}
-          contentContainerClassName="px-5 pt-2 pb-5"
-          backgroundClassName="bg-surface"
-        >
+    <>
+      <BottomSheet isOpen={isOpen} onOpenChange={open => !open && onClose()}>
+        <BottomSheet.Portal>
+          <BottomSheet.Overlay />
+          <BottomSheet.Content
+            snapPoints={['62%', '92%']}
+            enableDynamicSizing={false}
+            contentContainerClassName="px-5 pt-2 pb-5"
+            backgroundClassName="bg-surface"
+          >
           <View className="mb-5 flex-row items-center gap-4">
             <View className="h-[72px] w-[72px] overflow-hidden rounded-xl bg-default">
               {track.image
@@ -412,25 +515,23 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
             </Button>
           </View>
 
-          {onAddToPlaylist && (
-            <Button
-              variant="secondary"
-              onPress={handleAddToPlaylist}
-              className="mb-2 h-11 w-full"
-            >
-              <View className="flex-row items-center gap-2">
-                <LocalPlaylistSolidIcon
-                  fill="none"
-                  width={20}
-                  height={20}
-                  color={theme.foreground}
-                />
-                <Text className="font-semibold text-foreground">
-                  Add to Playlist
-                </Text>
-              </View>
-            </Button>
-          )}
+          <Button
+            variant="secondary"
+            onPress={handleAddToPlaylist}
+            className="mb-2 h-11 w-full"
+          >
+            <View className="flex-row items-center gap-2">
+              <LocalPlaylistSolidIcon
+                fill="none"
+                width={20}
+                height={20}
+                color={theme.foreground}
+              />
+              <Text className="font-semibold text-foreground">
+                Add to Playlist
+              </Text>
+            </View>
+          </Button>
 
           <View className="mt-2 border-t border-border/60 pt-3">
             <View className="mb-3 flex-row flex-wrap gap-2">
@@ -486,9 +587,24 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
               })}
             </View>
           </View>
-        </BottomSheet.Content>
-      </BottomSheet.Portal>
-    </BottomSheet>
+          </BottomSheet.Content>
+        </BottomSheet.Portal>
+      </BottomSheet>
+
+      <PlaylistPickerSheet
+        isOpen={isPlaylistPickerOpen}
+        onOpenChange={setIsPlaylistPickerOpen}
+        trackId={track.id}
+        isSelecting={
+          addTrackToPlaylistMutation.isPending
+          || removeTrackFromPlaylistMutation.isPending
+        }
+        onCreatePlaylist={handleCreatePlaylist}
+        onSelectPlaylist={(playlist) => {
+          void handleSelectPlaylist(playlist)
+        }}
+      />
+    </>
   )
 }
 

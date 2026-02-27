@@ -61,7 +61,7 @@ export function FullPlayer() {
   }, [currentTrack?.image])
 
   useEffect(() => {
-    if (isExpanded) {
+  if (isExpanded) {
       translateY.value = EXPAND_FROM_Y
       translateY.value = withSpring(0, OPEN_SPRING_CONFIG)
     }
