@@ -8,9 +8,13 @@ import LocalMoreHorizontalCircleSolidIcon from '@/components/icons/local/more-ho
 
 interface PlayerHeaderProps {
   onClose: () => void
+  onOpenMore?: () => void
 }
 
-export const PlayerHeader: React.FC<PlayerHeaderProps> = ({ onClose }) => {
+export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
+  onClose,
+  onOpenMore,
+}) => {
   const { showComingSoon } = useComingSoonToast()
 
   return (
@@ -35,7 +39,13 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({ onClose }) => {
       </PressableFeedback>
 
       <PressableFeedback
-        onPress={() => showComingSoon('Cast features')}
+        onPress={() => {
+          if (onOpenMore) {
+            onOpenMore()
+            return
+          }
+          showComingSoon('Cast features')
+        }}
         className="absolute right-0 z-20 p-1"
       >
         <LocalMoreHorizontalCircleSolidIcon

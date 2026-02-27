@@ -17,6 +17,7 @@ export { PlaybackActionsRow } from "./playback-actions-row"
 export {
   AlbumArtView,
   PlaybackControls,
+  PlayerActionSheet,
   PlayerFooter,
   PlayerHeader,
   ProgressBar,

@@ -1,6 +1,7 @@
 export { AlbumArtView } from "./album-art-view"
 export { FullPlayer } from "./full-player"
 export { PlaybackControls } from "./playback-controls"
+export { PlayerActionSheet } from "./player-action-sheet"
 export { PlayerFooter } from "./player-footer"
 export { PlayerHeader } from "./player-header"
 export { ProgressBar } from "./progress-bar"

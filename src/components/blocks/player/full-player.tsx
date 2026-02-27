@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BottomSheet } from 'heroui-native'
 import * as React from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { $isPlayerExpanded, $showPlayerQueue } from '@/hooks/scroll-bars.store'
@@ -20,6 +20,7 @@ import {
 
 import { AlbumArtView } from './album-art-view'
 import { PlaybackControls } from './playback-controls'
+import { PlayerActionSheet } from './player-action-sheet'
 import { PlayerFooter } from './player-footer'
 import { PlayerHeader } from './player-header'
 import { ProgressBar } from './progress-bar'
@@ -38,6 +39,7 @@ export function FullPlayer() {
   const durationVal = useStore($duration)
   const showQueue = useStore($showPlayerQueue)
   const colors = useStore($currentColors)
+  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false)
 
   useEffect(() => {
     updateColorsForImage(currentTrack?.image)
@@ -46,6 +48,7 @@ export function FullPlayer() {
   const closePlayer = () => {
     $isPlayerExpanded.set(false)
     $showPlayerQueue.set(false)
+    setIsActionSheetOpen(false)
   }
 
   const handleArtistPress = () => {
@@ -65,62 +68,74 @@ export function FullPlayer() {
     return null
 
   return (
-    <BottomSheet isOpen={isExpanded} onOpenChange={(open) => !open && closePlayer()}>
-      <BottomSheet.Portal disableFullWindowOverlay>
-        <BottomSheet.Overlay />
-        <BottomSheet.Content
-          index={0}
-          snapPoints={FULL_PLAYER_SNAP_POINTS}
-          enableDynamicSizing={false}
-          topInset={0}
-          bottomInset={0}
-          backgroundClassName="bg-transparent"
-          backgroundStyle={{ borderRadius: 0 }}
-          contentContainerClassName="h-full p-0"
-          handleComponent={() => null}
-          handleHeight={0}
-        >
-          <View className="relative flex-1">
-            <LinearGradient
-              colors={[colors.bg, colors.secondary, '#09090B']}
-              locations={[0, 0.6, 1]}
-              style={StyleSheet.absoluteFillObject}
-            />
-            <View
-              pointerEvents="none"
-              style={[StyleSheet.absoluteFillObject, { backgroundColor: BACKGROUND_DARKEN_OVERLAY }]}
-            />
-
-            <View className="flex-1 justify-between px-6 pt-12 pb-8">
-              <PlayerHeader onClose={closePlayer} />
-
-              {showQueue
-                ? (
-                    <QueueView currentTrack={currentTrack} />
-                  )
-                : (
-                    <AlbumArtView currentTrack={currentTrack} />
-                  )}
-
-              <TrackInfo
-                track={currentTrack}
-                compact={showQueue}
-                onPressArtist={handleArtistPress}
+    <>
+      <BottomSheet isOpen={isExpanded} onOpenChange={(open) => !open && closePlayer()}>
+        <BottomSheet.Portal disableFullWindowOverlay>
+          <BottomSheet.Overlay />
+          <BottomSheet.Content
+            index={0}
+            snapPoints={FULL_PLAYER_SNAP_POINTS}
+            enableDynamicSizing={false}
+            topInset={0}
+            bottomInset={0}
+            backgroundClassName="bg-transparent"
+            backgroundStyle={{ borderRadius: 0 }}
+            contentContainerClassName="h-full p-0"
+            handleComponent={() => null}
+            handleHeight={0}
+          >
+            <View className="relative flex-1">
+              <LinearGradient
+                colors={[colors.bg, colors.secondary, '#09090B']}
+                locations={[0, 0.6, 1]}
+                style={StyleSheet.absoluteFillObject}
+              />
+              <View
+                pointerEvents="none"
+                style={[StyleSheet.absoluteFillObject, { backgroundColor: BACKGROUND_DARKEN_OVERLAY }]}
               />
 
-              <ProgressBar
-                currentTime={currentTimeVal}
-                duration={durationVal}
-                compact={showQueue}
-              />
+              <View className="flex-1 justify-between px-6 pt-12 pb-8">
+                <PlayerHeader
+                  onClose={closePlayer}
+                  onOpenMore={() => setIsActionSheetOpen(true)}
+                />
 
-              <PlaybackControls isPlaying={isPlaying} compact={showQueue} />
+                {showQueue
+                  ? (
+                      <QueueView currentTrack={currentTrack} />
+                    )
+                  : (
+                      <AlbumArtView currentTrack={currentTrack} />
+                    )}
 
-              <PlayerFooter />
+                <TrackInfo
+                  track={currentTrack}
+                  compact={showQueue}
+                  onPressArtist={handleArtistPress}
+                />
+
+                <ProgressBar
+                  currentTime={currentTimeVal}
+                  duration={durationVal}
+                  compact={showQueue}
+                />
+
+                <PlaybackControls isPlaying={isPlaying} compact={showQueue} />
+
+                <PlayerFooter />
+              </View>
             </View>
-          </View>
-        </BottomSheet.Content>
-      </BottomSheet.Portal>
-    </BottomSheet>
+          </BottomSheet.Content>
+        </BottomSheet.Portal>
+      </BottomSheet>
+
+      <PlayerActionSheet
+        visible={isActionSheetOpen}
+        onOpenChange={setIsActionSheetOpen}
+        track={currentTrack}
+        onNavigate={closePlayer}
+      />
+    </>
   )
 }
