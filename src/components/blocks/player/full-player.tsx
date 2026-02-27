@@ -1,37 +1,46 @@
-import * as React from "react"
-import { useEffect } from "react"
-import { useStore } from "@nanostores/react"
-import { LinearGradient } from "expo-linear-gradient"
-import { Dimensions, View } from "react-native"
-import { Gesture, GestureDetector } from "react-native-gesture-handler"
+import { useStore } from '@nanostores/react'
+import { LinearGradient } from 'expo-linear-gradient'
+import * as React from 'react'
+import { useEffect } from 'react'
+import { Dimensions, View } from 'react-native'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
+  Extrapolation,
+  interpolate,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
-} from "react-native-reanimated"
+} from 'react-native-reanimated'
 
-import { $isPlayerExpanded, $showPlayerQueue } from "@/hooks/scroll-bars.store"
+import { $isPlayerExpanded, $showPlayerQueue } from '@/hooks/scroll-bars.store'
 import {
   $currentColors,
   updateColorsForImage,
-} from "@/modules/player/player-colors.store"
+} from '@/modules/player/player-colors.store'
 import {
   $currentTime,
   $currentTrack,
   $duration,
   $isPlaying,
-} from "@/modules/player/player.store"
+} from '@/modules/player/player.store'
 
-import { AlbumArtView } from "./album-art-view"
-import { PlaybackControls } from "./playback-controls"
-import { PlayerFooter } from "./player-footer"
-import { PlayerHeader } from "./player-header"
-import { ProgressBar } from "./progress-bar"
-import { QueueView } from "./queue-view"
-import { TrackInfo } from "./track-info"
+import { AlbumArtView } from './album-art-view'
+import { PlaybackControls } from './playback-controls'
+import { PlayerFooter } from './player-footer'
+import { PlayerHeader } from './player-header'
+import { ProgressBar } from './progress-bar'
+import { QueueView } from './queue-view'
+import { TrackInfo } from './track-info'
 
-const SCREEN_HEIGHT = Dimensions.get("window").height
+const SCREEN_HEIGHT = Dimensions.get('window').height
+const EXPAND_FROM_Y = 72
+const OPEN_SPRING_CONFIG = {
+  damping: 22,
+  stiffness: 260,
+  mass: 0.9,
+}
 
 export function FullPlayer() {
   const isExpanded = useStore($isPlayerExpanded)
@@ -43,8 +52,6 @@ export function FullPlayer() {
   const colors = useStore($currentColors)
 
   const translateY = useSharedValue(SCREEN_HEIGHT)
-  const scale = useSharedValue(0.9)
-  const opacity = useSharedValue(0)
 
   useEffect(() => {
     updateColorsForImage(currentTrack?.image)
@@ -52,15 +59,13 @@ export function FullPlayer() {
 
   useEffect(() => {
     if (isExpanded) {
-      translateY.value = withTiming(0, { duration: 300 })
-      scale.value = withTiming(1, { duration: 350 })
-      opacity.value = withTiming(1, { duration: 200 })
-    } else {
-      translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 })
-      scale.value = withTiming(0.9, { duration: 200 })
-      opacity.value = withTiming(0, { duration: 150 })
+      translateY.value = EXPAND_FROM_Y
+      translateY.value = withSpring(0, OPEN_SPRING_CONFIG)
     }
-  }, [isExpanded, opacity, scale, translateY])
+    else {
+      translateY.value = withTiming(SCREEN_HEIGHT, { duration: 220 })
+    }
+  }, [isExpanded, translateY])
 
   const closePlayer = () => {
     $isPlayerExpanded.set(false)
@@ -77,19 +82,52 @@ export function FullPlayer() {
     .onEnd((event) => {
       if (event.translationY > 100 || event.velocityY > 500) {
         runOnJS(closePlayer)()
-      } else {
-        translateY.value = withTiming(0, { duration: 200 })
+      }
+      else {
+        translateY.value = withSpring(0, OPEN_SPRING_CONFIG)
       }
     })
 
   const animatedStyle = useAnimatedStyle(() => {
+    const progress = interpolate(
+      translateY.value,
+      [EXPAND_FROM_Y, 0],
+      [0, 1],
+      Extrapolation.CLAMP,
+    )
+
     return {
-      transform: [{ translateY: translateY.value }, { scale: scale.value }],
-      opacity: opacity.value,
+      transform: [
+        { translateY: translateY.value },
+        {
+          scale: interpolate(progress, [0, 1], [0.985, 1], Extrapolation.CLAMP),
+        },
+      ],
+      borderRadius: interpolate(progress, [0, 1], [22, 0], Extrapolation.CLAMP),
+      overflow: 'hidden',
     }
   })
 
-  if (!currentTrack) return null
+  const contentAnimatedStyle = useAnimatedStyle(() => {
+    const progress = interpolate(
+      translateY.value,
+      [EXPAND_FROM_Y, 0],
+      [0, 1],
+      Extrapolation.CLAMP,
+    )
+
+    return {
+      opacity: interpolate(progress, [0, 1], [0.65, 1], Extrapolation.CLAMP),
+      transform: [
+        {
+          translateY: interpolate(progress, [0, 1], [18, 0], Extrapolation.CLAMP),
+        },
+      ],
+    }
+  })
+
+  if (!currentTrack)
+    return null
 
   return (
     <GestureDetector gesture={panGesture}>
@@ -97,22 +135,22 @@ export function FullPlayer() {
         style={[
           animatedStyle,
           {
-            position: "absolute",
+            position: 'absolute',
             left: 0,
             right: 0,
             top: 0,
             bottom: 0,
-            backgroundColor: "black",
+            backgroundColor: 'transparent',
             zIndex: 1000,
           },
         ]}
       >
         <View className="relative flex-1">
           <LinearGradient
-            colors={[colors.bg, colors.secondary, "#000000"]}
+            colors={[colors.bg, colors.secondary, '#000000']}
             locations={[0, 0.6, 1]}
             style={{
-              position: "absolute",
+              position: 'absolute',
               left: 0,
               right: 0,
               top: 0,
@@ -120,14 +158,19 @@ export function FullPlayer() {
             }}
           />
 
-          <View className="flex-1 justify-between px-6 pt-12 pb-12">
+          <Animated.View
+            style={contentAnimatedStyle}
+            className="flex-1 justify-between px-6 pt-12 pb-16"
+          >
             <PlayerHeader onClose={closePlayer} />
 
-            {showQueue ? (
-              <QueueView currentTrack={currentTrack} />
-            ) : (
-              <AlbumArtView currentTrack={currentTrack} />
-            )}
+            {showQueue
+              ? (
+                  <QueueView currentTrack={currentTrack} />
+                )
+              : (
+                  <AlbumArtView currentTrack={currentTrack} />
+                )}
 
             <TrackInfo track={currentTrack} compact={showQueue} />
 
@@ -140,7 +183,7 @@ export function FullPlayer() {
             <PlaybackControls isPlaying={isPlaying} compact={showQueue} />
 
             <PlayerFooter />
-          </View>
+          </Animated.View>
         </View>
       </Animated.View>
     </GestureDetector>

@@ -1,35 +1,24 @@
-import * as React from "react"
-import { PressableFeedback } from "heroui-native"
-import { View } from "react-native"
+import { PressableFeedback } from 'heroui-native'
+import * as React from 'react'
+import { View } from 'react-native'
 
-import LocalLiveStreamingIcon from "@/components/icons/local/live-streaming"
-import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
-import LocalSlidersVerticalIcon from "@/components/icons/local/sliders-vertical"
+import { useComingSoonToast } from '@/components/blocks/player/use-coming-soon-toast'
+import LocalLiveStreamingIcon from '@/components/icons/local/live-streaming'
+import LocalMoreHorizontalCircleSolidIcon from '@/components/icons/local/more-horizontal-circle-solid'
 
 interface PlayerHeaderProps {
   onClose: () => void
 }
 
-export const PlayerHeader: React.FC<PlayerHeaderProps> = ({ onClose }) => (
-  <View className="relative mt-2 h-10 flex-row items-center justify-between">
-    <PressableFeedback>
-      <LocalSlidersVerticalIcon
-        fill="none"
-        width={24}
-        height={24}
-        color="white"
-      />
-    </PressableFeedback>
+export const PlayerHeader: React.FC<PlayerHeaderProps> = ({ onClose }) => {
+  const { showComingSoon } = useComingSoonToast()
 
-    <PressableFeedback
-      onPress={onClose}
-      className="absolute -top-4 right-0 bottom-0 left-0 z-0 items-center justify-center p-4"
-    >
-      <View className="h-1.5 w-12 rounded-full bg-white/40" />
-    </PressableFeedback>
-
-    <View className="z-10 flex-row gap-8">
-      <PressableFeedback>
+  return (
+    <View className="relative mt-2 h-10 justify-center">
+      <PressableFeedback
+        onPress={() => showComingSoon('Cast songs')}
+        className="absolute left-0 z-20 p-1"
+      >
         <LocalLiveStreamingIcon
           fill="none"
           width={24}
@@ -37,7 +26,18 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({ onClose }) => (
           color="white"
         />
       </PressableFeedback>
-      <PressableFeedback>
+
+      <PressableFeedback
+        onPress={onClose}
+        className="absolute -top-4 z-10 self-center px-6 py-4"
+      >
+        <View className="h-1.5 w-12 rounded-full bg-white/40" />
+      </PressableFeedback>
+
+      <PressableFeedback
+        onPress={() => showComingSoon('Cast features')}
+        className="absolute right-0 z-20 p-1"
+      >
         <LocalMoreHorizontalCircleSolidIcon
           fill="none"
           width={24}
@@ -46,5 +46,5 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({ onClose }) => (
         />
       </PressableFeedback>
     </View>
-  </View>
-)
+  )
+}

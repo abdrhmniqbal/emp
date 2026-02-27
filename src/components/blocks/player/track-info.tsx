@@ -28,6 +28,11 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
   )
   const toggleFavoriteMutation = useToggleFavorite()
   const isFavorite = Boolean(isFavoriteQuery)
+  const titleClassName = cn(
+    "mb-1 font-bold text-white",
+    compact ? "text-xl" : "text-2xl"
+  )
+  const artistClassName = cn("text-white/60", compact ? "text-base" : "text-lg")
 
   return (
     <Animated.View
@@ -35,16 +40,10 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
       className={`flex-row items-center justify-between ${compact ? "mb-3" : "mb-6"}`}
     >
       <View className="mr-4 flex-1">
-        <MarqueeText
-          text={track.title}
-          className={cn(
-            "mb-1 font-bold text-white",
-            compact ? "text-xl" : "text-2xl"
-          )}
-        />
+        <MarqueeText text={track.title} className={titleClassName} />
         <MarqueeText
           text={track.artist || "Unknown Artist"}
-          className={cn("text-white/60", compact ? "text-base" : "text-lg")}
+          className={artistClassName}
         />
       </View>
       <PressableFeedback

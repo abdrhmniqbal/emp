@@ -51,6 +51,8 @@ function ToastAnimatedWrapper({
 
   const animatedStyle = useAnimatedStyle(() => ({
     paddingBottom: animatedExtraBottom.value,
+    zIndex: 2100,
+    elevation: 2100,
   }))
 
   return (
