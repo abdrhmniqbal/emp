@@ -42,6 +42,11 @@ interface TrackListProps {
   ) => void
   refreshControl?: React.ReactElement | null
   resetScrollKey?: string
+  renderItemPrefix?: (
+    track: Track,
+    index: number,
+    data: Track[]
+  ) => React.ReactNode
 }
 
 export const TrackList: React.FC<TrackListProps> = ({
@@ -63,6 +68,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   onMomentumScrollEnd,
   refreshControl,
   resetScrollKey,
+  renderItemPrefix,
 }) => {
   const theme = useThemeColors()
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null)
@@ -111,37 +117,40 @@ export const TrackList: React.FC<TrackListProps> = ({
   }
 
   const renderTrackItem = (item: Track, index: number) => (
-    <TrackRow
-      key={`${item.id}-${index}`}
-      track={item}
-      onPress={() => handlePress(item)}
-      onLongPress={() => showActionMenu(item)}
-      rank={
-        showNumbers
-          ? getNumber
-            ? getNumber(item, index)
-            : index + 1
-          : undefined
-      }
-      showCover={!hideCover}
-      showArtist={!hideArtist}
-      rightAction={
-        <PressableFeedback
-          onPress={(event) => {
-            event.stopPropagation()
-            showActionMenu(item)
-          }}
-          className="p-2"
-        >
-          <LocalMoreHorizontalCircleSolidIcon
-            fill="none"
-            width={24}
-            height={24}
-            color={theme.muted}
-          />
-        </PressableFeedback>
-      }
-    />
+    <>
+      {renderItemPrefix?.(item, index, data) || null}
+      <TrackRow
+        key={`${item.id}-${index}`}
+        track={item}
+        onPress={() => handlePress(item)}
+        onLongPress={() => showActionMenu(item)}
+        rank={
+          showNumbers
+            ? getNumber
+              ? getNumber(item, index)
+              : index + 1
+            : undefined
+        }
+        showCover={!hideCover}
+        showArtist={!hideArtist}
+        rightAction={
+          <PressableFeedback
+            onPress={(event) => {
+              event.stopPropagation()
+              showActionMenu(item)
+            }}
+            className="p-2"
+          >
+            <LocalMoreHorizontalCircleSolidIcon
+              fill="none"
+              width={24}
+              height={24}
+              color={theme.muted}
+            />
+          </PressableFeedback>
+        }
+      />
+    </>
   )
 
   if (data.length === 0) {

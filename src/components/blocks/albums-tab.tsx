@@ -2,7 +2,10 @@ import * as React from "react"
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import type { SortConfig } from "@/modules/library/library-sort.store"
+import {
+  sortAlbums,
+  type SortConfig,
+} from "@/modules/library/library-sort.store"
 import { useAlbums } from "@/modules/library/library.queries"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { AlbumGrid, type Album } from "@/components/blocks/album-grid"
@@ -31,9 +34,15 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
+  const effectiveSortConfig: SortConfig = sortConfig ?? {
+    field: "title",
+    order: "asc",
+  }
   const orderByField =
-    sortConfig?.field === "artist" ? "title" : sortConfig?.field || "title"
-  const order = sortConfig?.order || "asc"
+    effectiveSortConfig.field === "artist"
+      ? "title"
+      : effectiveSortConfig.field || "title"
+  const order = effectiveSortConfig.order || "asc"
 
   const {
     data: albumsData,
@@ -52,6 +61,7 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
       year: album.year || 0,
       dateAdded: 0,
     })) || []
+  const sortedAlbums = sortAlbums(albums, effectiveSortConfig) as Album[]
 
   const handleAlbumPress = (album: Album) => {
     onAlbumPress?.(album)
@@ -80,10 +90,10 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
 
   return (
     <AlbumGrid
-      data={albums}
+      data={sortedAlbums}
       onAlbumPress={handleAlbumPress}
       contentContainerStyle={{ paddingBottom: contentBottomPadding }}
-      resetScrollKey={`${orderByField}-${order}`}
+      resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
       onScroll={onScroll}
       onScrollBeginDrag={onScrollBeginDrag}
       onScrollEndDrag={onScrollEndDrag}

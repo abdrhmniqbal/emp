@@ -15,6 +15,7 @@ import {
   TRACK_SORT_OPTIONS,
   setSortConfig,
   sortGeneric,
+  sortTracks,
   type SortField,
 } from "@/modules/library/library-sort.store"
 import { $tracks, playTrack, type Track } from "@/modules/player/player.store"
@@ -135,6 +136,14 @@ export function useLibraryScreen() {
   }
 
   function playAll() {
+    if (activeTab === "Tracks") {
+      const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
+      if (sortedTracksQueue.length > 0) {
+        playTrack(sortedTracksQueue[0], sortedTracksQueue)
+      }
+      return
+    }
+
     if (activeTab === "Favorites") {
       const firstTrack = favorites.find((favorite) => favorite.type === "track")
       if (firstTrack) {
@@ -152,6 +161,15 @@ export function useLibraryScreen() {
   }
 
   function shuffle() {
+    if (activeTab === "Tracks") {
+      const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
+      if (sortedTracksQueue.length > 0) {
+        const randomIndex = Math.floor(Math.random() * sortedTracksQueue.length)
+        playTrack(sortedTracksQueue[randomIndex], sortedTracksQueue)
+      }
+      return
+    }
+
     if (activeTab === "Favorites") {
       const trackFavorites = favorites.filter(
         (favorite) => favorite.type === "track"

@@ -24,8 +24,8 @@ import { useThemeColors } from '@/hooks/use-theme-colors'
 import { useAlbumDetailsScreen } from '@/modules/albums/hooks/use-album-details-screen'
 import { useToggleFavorite } from '@/modules/favorites/favorites.queries'
 import {
-  type SortField,
-  TRACK_SORT_OPTIONS,
+  ALBUM_TRACK_SORT_OPTIONS,
+  type AlbumTrackSortField,
 } from '@/modules/library/library-sort.store'
 import { screenEnterTransition } from '@/constants/animations'
 
@@ -56,6 +56,9 @@ export default function AlbumDetailsScreen() {
     selectSort,
     getSortLabel,
   } = useAlbumDetailsScreen()
+  const hasMultipleDiscs = new Set(
+    sortedTracks.map((track) => track.discNumber || 1),
+  ).size > 1
 
   if (isLoading) {
     return (
@@ -65,7 +68,7 @@ export default function AlbumDetailsScreen() {
     )
   }
 
-  function handleSortSelect(field: SortField, order?: 'asc' | 'desc') {
+  function handleSortSelect(field: AlbumTrackSortField, order?: 'asc' | 'desc') {
     selectSort(field, order)
   }
 
@@ -164,6 +167,27 @@ export default function AlbumDetailsScreen() {
           hideCover
           hideArtist
           getNumber={(track, index) => track.trackNumber || index + 1}
+          renderItemPrefix={(track, index, tracks) => {
+            if (sortConfig.field !== 'trackNumber' || !hasMultipleDiscs) {
+              return null
+            }
+
+            const currentDisc = track.discNumber || 1
+            const previousDisc = tracks[index - 1]?.discNumber || 1
+            const shouldShowDiscSeparator = index === 0 || currentDisc !== previousDisc
+
+            if (!shouldShowDiscSeparator) {
+              return null
+            }
+
+            return (
+              <View className="pt-3 pb-1">
+                <Text className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  Disc {currentDisc}
+                </Text>
+              </View>
+            )
+          }}
           onTrackPress={playSelectedTrack}
           resetScrollKey={`${albumId || albumInfo.title}-${sortConfig.field}-${sortConfig.order}`}
           contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
@@ -243,7 +267,7 @@ export default function AlbumDetailsScreen() {
           )}
         />
 
-        <SortSheet.Content options={TRACK_SORT_OPTIONS} />
+        <SortSheet.Content options={ALBUM_TRACK_SORT_OPTIONS} />
       </View>
     </SortSheet>
   )

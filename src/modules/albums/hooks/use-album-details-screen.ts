@@ -3,20 +3,16 @@ import { useLocalSearchParams } from "expo-router"
 
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import {
+  ALBUM_TRACK_SORT_OPTIONS,
   $sortConfig,
-  TRACK_SORT_OPTIONS,
   setSortConfig,
   sortTracks,
-  type SortField,
+  type AlbumTrackSortField,
 } from "@/modules/library/library-sort.store"
 import { useTracksByAlbumName } from "@/modules/library/library.queries"
 import { $tracks, playTrack, type Track } from "@/modules/player/player.store"
 
-import {
-  formatAlbumDuration,
-  groupTracksByDisc,
-  sortTracksByDiscAndTrack,
-} from "../albums.utils"
+import { formatAlbumDuration, groupTracksByDisc } from "../albums.utils"
 
 function getRandomIndex(max: number) {
   return Math.floor(Math.random() * max)
@@ -70,14 +66,11 @@ export function useAlbumDetailsScreen() {
     0
   )
   const sortConfig = allSortConfigs.AlbumTracks || {
-    field: "title" as SortField,
+    field: "trackNumber" as AlbumTrackSortField,
     order: "asc" as const,
   }
 
-  const sortedTracks =
-    sortConfig.field !== "title" || sortConfig.order !== "asc"
-      ? sortTracks(albumTracks, sortConfig)
-      : sortTracksByDiscAndTrack(albumTracks)
+  const sortedTracks = sortTracks(albumTracks, sortConfig)
 
   const tracksByDisc = groupTracksByDisc(sortedTracks)
   const albumId = albumTracks[0]?.albumId
@@ -102,12 +95,12 @@ export function useAlbumDetailsScreen() {
     }
   }
 
-  function selectSort(field: SortField, order?: "asc" | "desc") {
+  function selectSort(field: AlbumTrackSortField, order?: "asc" | "desc") {
     setSortConfig("AlbumTracks", field, order)
   }
 
   function getSortLabel() {
-    const option = TRACK_SORT_OPTIONS.find(
+    const option = ALBUM_TRACK_SORT_OPTIONS.find(
       (item) => item.field === sortConfig.field
     )
     return option?.label || "Sort"

@@ -2,7 +2,10 @@ import * as React from "react"
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import type { SortConfig } from "@/modules/library/library-sort.store"
+import {
+  sortArtists,
+  type SortConfig,
+} from "@/modules/library/library-sort.store"
 import { useArtists } from "@/modules/library/library.queries"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import { ArtistGrid, type Artist } from "@/components/blocks/artist-grid"
@@ -31,8 +34,12 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
-  const orderByField = sortConfig?.field || "name"
-  const order = sortConfig?.order || "asc"
+  const effectiveSortConfig: SortConfig = sortConfig ?? {
+    field: "name",
+    order: "asc",
+  }
+  const orderByField = effectiveSortConfig.field || "name"
+  const order = effectiveSortConfig.order || "asc"
 
   const {
     data: artistsData,
@@ -48,6 +55,7 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
       image: artist.artwork || artist.albumArtwork || undefined,
       dateAdded: 0,
     })) || []
+  const sortedArtists = sortArtists(artists, effectiveSortConfig) as Artist[]
 
   const handleArtistPress = (artist: Artist) => {
     onArtistPress?.(artist)
@@ -76,10 +84,10 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
 
   return (
     <ArtistGrid
-      data={artists}
+      data={sortedArtists}
       onArtistPress={handleArtistPress}
       contentContainerStyle={{ paddingBottom: contentBottomPadding }}
-      resetScrollKey={`${orderByField}-${order}`}
+      resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
       onScroll={onScroll}
       onScrollBeginDrag={onScrollBeginDrag}
       onScrollEndDrag={onScrollEndDrag}

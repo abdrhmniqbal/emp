@@ -3,7 +3,7 @@ import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
 
 import type { DBTrack } from "@/types/database"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import type { SortConfig } from "@/modules/library/library-sort.store"
+import { sortTracks, type SortConfig } from "@/modules/library/library-sort.store"
 import type { Track } from "@/modules/player/player.store"
 import { useTracks } from "@/modules/tracks/tracks.queries"
 import { transformDBTrackToTrack } from "@/utils/transformers"
@@ -34,20 +34,19 @@ export const TracksTab: React.FC<TracksTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
-  const orderByField =
-    sortConfig?.field === "filename" ? "title" : sortConfig?.field || "title"
-  const order = sortConfig?.order || "asc"
 
   const {
     data: dbTracks = [],
     isLoading,
     isPending,
-  } = useTracks({
-    sortBy: orderByField as any,
-    sortOrder: order,
-  })
+  } = useTracks()
 
   const tracks = (dbTracks as DBTrack[]).map(transformDBTrackToTrack)
+  const effectiveSortConfig: SortConfig = sortConfig ?? {
+    field: "title",
+    order: "asc",
+  }
+  const sortedTracks = sortTracks(tracks, effectiveSortConfig)
 
   const handleTrackPress = (track: Track) => {
     onTrackPress?.(track)
@@ -76,10 +75,10 @@ export const TracksTab: React.FC<TracksTabProps> = ({
 
   return (
     <TrackList
-      data={tracks}
+      data={sortedTracks}
       onTrackPress={handleTrackPress}
       contentContainerStyle={{ paddingBottom: contentBottomPadding }}
-      resetScrollKey={`${orderByField}-${order}`}
+      resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
       onScroll={onScroll}
       onScrollBeginDrag={onScrollBeginDrag}
       onScrollEndDrag={onScrollEndDrag}

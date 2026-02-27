@@ -10,6 +10,7 @@ export type TrackSortField =
   | "dateAdded"
   | "filename"
   | "playCount"
+export type AlbumTrackSortField = TrackSortField | "trackNumber"
 export type AlbumSortField =
   | "title"
   | "artist"
@@ -21,7 +22,7 @@ export type PlaylistSortField = "name" | "dateAdded" | "trackCount"
 export type FolderSortField = "name" | "dateAdded" | "trackCount"
 
 export type SortField =
-  | TrackSortField
+  | AlbumTrackSortField
   | AlbumSortField
   | ArtistSortField
   | PlaylistSortField
@@ -54,7 +55,7 @@ export const $sortConfig = atom<Record<TabName, SortConfig>>({
   Favorites: { field: "dateAdded", order: "desc" },
   ArtistTracks: { field: "playCount", order: "desc" },
   ArtistAlbums: { field: "year", order: "desc" },
-  AlbumTracks: { field: "title", order: "asc" },
+  AlbumTracks: { field: "trackNumber", order: "asc" },
 })
 
 export function setSortConfig(
@@ -80,6 +81,19 @@ export const TRACK_SORT_OPTIONS: { label: string; field: TrackSortField }[] = [
   { label: "Title", field: "title" },
   { label: "Artist", field: "artist" },
   { label: "Album", field: "album" },
+  { label: "Year", field: "year" },
+  { label: "Play Count", field: "playCount" },
+  { label: "Date Added", field: "dateAdded" },
+  { label: "Filename", field: "filename" },
+]
+
+export const ALBUM_TRACK_SORT_OPTIONS: {
+  label: string
+  field: AlbumTrackSortField
+}[] = [
+  { label: "Track Number", field: "trackNumber" },
+  { label: "Title", field: "title" },
+  { label: "Artist", field: "artist" },
   { label: "Year", field: "year" },
   { label: "Play Count", field: "playCount" },
   { label: "Date Added", field: "dateAdded" },
@@ -141,6 +155,30 @@ function compareValues(a: any, b: any, order: SortOrder) {
 export function sortTracks(tracks: Track[], config: SortConfig): Track[] {
   const { field, order } = config
   return [...tracks].sort((a, b) => {
+    if (field === "trackNumber") {
+      const discCompare = compareValues(
+        a.discNumber || 1,
+        b.discNumber || 1,
+        order
+      )
+      if (discCompare !== 0) {
+        return discCompare
+      }
+
+      const trackCompare = compareValues(
+        a.trackNumber || 0,
+        b.trackNumber || 0,
+        order
+      )
+      if (trackCompare !== 0) {
+        return trackCompare
+      }
+
+      const titleA = (a.title || a.filename || "").toLowerCase()
+      const titleB = (b.title || b.filename || "").toLowerCase()
+      return compareValues(titleA, titleB, order)
+    }
+
     let aVal: any = a[field as keyof Track]
     let bVal: any = b[field as keyof Track]
 

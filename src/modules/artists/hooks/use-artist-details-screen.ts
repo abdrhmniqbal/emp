@@ -102,16 +102,20 @@ export function useArtistDetailsScreen() {
   }
 
   function playAllTracks() {
-    if (artistTracks.length > 0) {
-      playTrack(artistTracks[0], sortedArtistTracks)
+    if (sortedArtistTracks.length === 0) {
+      return
     }
+
+    playTrack(sortedArtistTracks[0], sortedArtistTracks)
   }
 
   function shuffleTracks() {
-    if (artistTracks.length > 0) {
-      const randomIndex = Math.floor(Math.random() * artistTracks.length)
-      playTrack(artistTracks[randomIndex], sortedArtistTracks)
+    if (sortedArtistTracks.length === 0) {
+      return
     }
+
+    const randomIndex = Math.floor(Math.random() * sortedArtistTracks.length)
+    playTrack(sortedArtistTracks[randomIndex], sortedArtistTracks)
   }
 
   function openAlbum(album: Album) {
