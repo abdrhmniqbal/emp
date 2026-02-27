@@ -230,7 +230,9 @@ export function usePlaylistFormScreen(
         return bLastPlayed - aLastPlayed
       }
 
-      return a.title.localeCompare(b.title)
+      return a.title.localeCompare(b.title, undefined, {
+        sensitivity: "base",
+      })
     })
 
     if (normalizedQuery.length === 0) {

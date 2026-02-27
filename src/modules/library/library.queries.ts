@@ -1,6 +1,6 @@
 import { useDebouncedValue } from "@tanstack/react-pacer/debouncer"
 import { useQuery } from "@tanstack/react-query"
-import { and, asc, desc, eq, gt, inArray, like, or } from "drizzle-orm"
+import { and, asc, desc, eq, gt, inArray, like, or, sql } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import {
@@ -35,12 +35,22 @@ export function useArtists(
     placeholderData: (previousData) => previousData,
     queryFn: async () => {
       const direction = order === "asc" ? asc : desc
+      const artistSortNameOrderValue = sql`lower(coalesce(${artists.sortName}, ${artists.name}, ''))`
+      const artistNameOrderValue = sql`lower(coalesce(${artists.name}, ''))`
       const orderBy =
         orderByField === "trackCount"
-          ? [direction(artists.trackCount), direction(artists.name)]
+          ? [
+              direction(artists.trackCount),
+              direction(artistSortNameOrderValue),
+              direction(artistNameOrderValue),
+            ]
           : orderByField === "dateAdded"
-            ? [direction(artists.createdAt), direction(artists.name)]
-            : [direction(artists.sortName), direction(artists.name)]
+            ? [
+                direction(artists.createdAt),
+                direction(artistSortNameOrderValue),
+                direction(artistNameOrderValue),
+              ]
+            : [direction(artistSortNameOrderValue), direction(artistNameOrderValue)]
 
       const results = await db.query.artists.findMany({
         where: gt(artists.trackCount, 0),
@@ -110,14 +120,15 @@ export function useAlbums(
     placeholderData: (previousData) => previousData,
     queryFn: async () => {
       const direction = order === "asc" ? asc : desc
+      const albumTitleOrderValue = sql`lower(coalesce(${albums.title}, ''))`
       const orderBy =
         orderByField === "year"
-          ? [direction(albums.year), direction(albums.title)]
+          ? [direction(albums.year), direction(albumTitleOrderValue)]
           : orderByField === "trackCount"
-            ? [direction(albums.trackCount), direction(albums.title)]
+            ? [direction(albums.trackCount), direction(albumTitleOrderValue)]
             : orderByField === "dateAdded"
-              ? [direction(albums.createdAt), direction(albums.title)]
-              : [direction(albums.title)]
+              ? [direction(albums.createdAt), direction(albumTitleOrderValue)]
+              : [direction(albumTitleOrderValue)]
 
       const results = await db.query.albums.findMany({
         where: gt(albums.trackCount, 0),
@@ -153,11 +164,21 @@ export function useAlbums(
 
       const multiplier = order === "asc" ? 1 : -1
       return mapped.sort((a, b) => {
-        const aVal = (a.artist?.sortName || a.artist?.name || "").toLowerCase()
-        const bVal = (b.artist?.sortName || b.artist?.name || "").toLowerCase()
-        if (aVal < bVal) return -1 * multiplier
-        if (aVal > bVal) return 1 * multiplier
-        return 0
+        const aVal = a.artist?.sortName || a.artist?.name || ""
+        const bVal = b.artist?.sortName || b.artist?.name || ""
+        const byArtist = aVal.localeCompare(bVal, undefined, {
+          sensitivity: "base",
+        })
+
+        if (byArtist !== 0) {
+          return byArtist * multiplier
+        }
+
+        return (
+          (a.title || "").localeCompare(b.title || "", undefined, {
+            sensitivity: "base",
+          }) * multiplier
+        )
       })
     },
   })
@@ -176,7 +197,7 @@ export function useAlbum(id: string) {
             orderBy: [
               asc(tracks.discNumber),
               asc(tracks.trackNumber),
-              asc(tracks.title),
+              asc(sql`lower(coalesce(${tracks.title}, ''))`),
             ],
             with: {
               artist: true,
@@ -216,7 +237,7 @@ export function useTracksByAlbumName(albumName: string) {
           orderBy: [
             asc(tracks.discNumber),
             asc(tracks.trackNumber),
-            asc(tracks.title),
+            asc(sql`lower(coalesce(${tracks.title}, ''))`),
           ],
         })
 
@@ -237,7 +258,11 @@ export function useTracksByAlbumName(albumName: string) {
           artist: true,
           album: true,
         },
-        orderBy: [asc(tracks.discNumber), asc(tracks.trackNumber), asc(tracks.title)],
+        orderBy: [
+          asc(tracks.discNumber),
+          asc(tracks.trackNumber),
+          asc(sql`lower(coalesce(${tracks.title}, ''))`),
+        ],
       })
 
       return results.map(transformDBTrackToTrack)
@@ -270,7 +295,7 @@ export function useTracksByArtistName(artistName: string) {
             artist: true,
             album: true,
           },
-          orderBy: [asc(tracks.title)],
+          orderBy: [asc(sql`lower(coalesce(${tracks.title}, ''))`)],
         })
 
         return fallbackTracks
@@ -369,13 +394,13 @@ export function useSearch(query: string) {
                   limit: 1,
                 },
               },
-              orderBy: [asc(artists.name)],
+              orderBy: [asc(sql`lower(coalesce(${artists.name}, ''))`)],
               limit: 10,
             }),
             db.query.albums.findMany({
               where: and(like(albums.title, searchTerm), gt(albums.trackCount, 0)),
               with: { artist: true },
-              orderBy: [asc(albums.title)],
+              orderBy: [asc(sql`lower(coalesce(${albums.title}, ''))`)],
               limit: 10,
             }),
             db.query.playlists.findMany({

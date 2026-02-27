@@ -28,7 +28,7 @@ export function useTracks(filters?: TrackFilter) {
 
       const dbOrderBy =
         sortField === "title"
-          ? [orderByDirection(tracks.title)]
+          ? [orderByDirection(sql`lower(coalesce(${tracks.title}, ''))`)]
           : sortField === "dateAdded"
             ? [orderByDirection(tracks.dateAdded)]
             : sortField === "playCount"

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { asc, eq } from "drizzle-orm"
+import { asc, eq, sql } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import { genres } from "@/db/schema"
@@ -11,7 +11,7 @@ export function useGenres() {
     queryKey: [GENRES_KEY],
     queryFn: async () => {
       return db.query.genres.findMany({
-        orderBy: [asc(genres.name)],
+        orderBy: [asc(sql`lower(coalesce(${genres.name}, ''))`)],
       })
     },
   })

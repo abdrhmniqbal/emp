@@ -128,7 +128,9 @@ function compareValues(a: any, b: any, order: SortOrder) {
   if (b === undefined || b === null) return -1
 
   if (typeof a === "string" && typeof b === "string") {
-    return order === "asc" ? a.localeCompare(b) : b.localeCompare(a)
+    return order === "asc"
+      ? a.localeCompare(b, undefined, { sensitivity: "base" })
+      : b.localeCompare(a, undefined, { sensitivity: "base" })
   }
 
   if (a < b) return order === "asc" ? -1 : 1

@@ -28,7 +28,9 @@ export function sortTracksByDiscAndTrack(tracks: Track[]): Track[] {
       return trackA - trackB
     }
 
-    return a.title.localeCompare(b.title)
+    return a.title.localeCompare(b.title, undefined, {
+      sensitivity: "base",
+    })
   })
 }
 
