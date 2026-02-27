@@ -39,9 +39,14 @@ export function useAppBootstrap() {
     let isMounted = true
 
     async function initialize() {
-      await bootstrapApp()
-      if (isMounted) {
-        setIsInitialized(true)
+      try {
+        await bootstrapApp()
+      } catch (error) {
+        console.error("App bootstrap failed", error)
+      } finally {
+        if (isMounted) {
+          setIsInitialized(true)
+        }
       }
     }
 

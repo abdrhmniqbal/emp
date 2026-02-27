@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type ReactNode } from "react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useStore } from "@nanostores/react"
 import {
   DarkTheme,
@@ -16,6 +16,7 @@ import Animated, {
 } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useUniwind } from "uniwind"
+import * as SplashScreen from "expo-splash-screen"
 
 import { MINI_PLAYER_HEIGHT, getTabBarHeight } from "@/constants/layout"
 import { $barsVisible } from "@/hooks/scroll-bars.store"
@@ -65,6 +66,14 @@ function ToastAnimatedWrapper({
   )
 }
 
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+})
+void SplashScreen.preventAutoHideAsync().catch(() => {
+  // Splash screen might be already prevented by native/runtime.
+})
+
 export default function Layout() {
   const { theme: currentTheme } = useUniwind()
   const theme = useThemeColors()
@@ -72,7 +81,9 @@ export default function Layout() {
   const insets = useSafeAreaInsets()
   const barsVisible = useStore($barsVisible)
   const currentTrack = useStore($currentTrack)
-  useAppBootstrap()
+  const { isInitialized: isBootstrapInitialized } = useAppBootstrap()
+  const [isDatabaseReady, setIsDatabaseReady] = useState(false)
+  const hasHiddenSplashRef = useRef(false)
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const isMainTabsRoute = segments[0] === "(main)"
@@ -100,6 +111,21 @@ export default function Layout() {
     },
     [toastExtraBottomOffset]
   )
+
+  useEffect(() => {
+    if (!isBootstrapInitialized || !isDatabaseReady || hasHiddenSplashRef.current) {
+      return
+    }
+
+    hasHiddenSplashRef.current = true
+    void SplashScreen.hideAsync().catch(() => {
+      // Ignore hide race if splash is already hidden.
+    })
+  }, [isBootstrapInitialized, isDatabaseReady])
+
+  const handleDatabaseReady = useCallback(() => {
+    setIsDatabaseReady(true)
+  }, [])
 
   const navigationTheme = {
     ...(currentTheme === "dark" ? DarkTheme : DefaultTheme),
@@ -130,7 +156,7 @@ export default function Layout() {
               },
             }}
           >
-            <Providers>
+            <Providers onDatabaseReady={handleDatabaseReady}>
               <View className="flex-1">
                 <Stack
                   screenOptions={{

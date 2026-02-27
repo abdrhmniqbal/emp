@@ -4,10 +4,16 @@ import { queryClient } from "@/lib/tanstack-query"
 
 import { DatabaseProvider } from "./database-provider"
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  onDatabaseReady,
+}: {
+  children: React.ReactNode
+  onDatabaseReady?: () => void
+}) {
   return (
     <QueryClientProvider client={queryClient}>
-      <DatabaseProvider>{children}</DatabaseProvider>
+      <DatabaseProvider onReady={onDatabaseReady}>{children}</DatabaseProvider>
     </QueryClientProvider>
   )
 }
