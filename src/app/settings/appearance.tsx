@@ -1,4 +1,3 @@
-import * as React from "react"
 import { PressableFeedback } from "heroui-native"
 import { ScrollView, Text, View } from "react-native"
 import { Uniwind, useUniwind } from "uniwind"
@@ -19,7 +18,7 @@ const APPEARANCE_OPTIONS: AppearanceOption[] = [
   { label: "System", value: "system" },
 ]
 
-export default function AppearanceScreen() {
+export default function AppearanceSettingsScreen() {
   const { theme: currentTheme, hasAdaptiveThemes } = useUniwind()
   const theme = useThemeColors()
 
@@ -35,8 +34,11 @@ export default function AppearanceScreen() {
     <ScrollView className="flex-1 bg-background">
       <View className="py-2">
         <View className="px-6 pt-8 pb-3">
-          <Text className="text-[13px] font-medium tracking-wider text-muted uppercase">
+          <Text className="text-[17px] font-normal text-foreground">
             Theme Mode
+          </Text>
+          <Text className="text-[13px] leading-5 text-muted">
+            Choose how Euphony Music looks across the app.
           </Text>
         </View>
         {APPEARANCE_OPTIONS.map((option) => (
