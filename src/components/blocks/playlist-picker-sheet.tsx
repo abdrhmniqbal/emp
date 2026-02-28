@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { useBottomSheetInternal } from "@gorhom/bottom-sheet"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { BottomSheet, Button, Checkbox, Input, TextField } from "heroui-native"
@@ -18,7 +18,14 @@ import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
 import { PlaylistArtwork } from "@/components/patterns"
-import { EmptyState, Item, ItemContent, ItemDescription, ItemImage, ItemTitle } from "@/components/ui"
+import {
+  EmptyState,
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemImage,
+  ItemTitle,
+} from "@/components/ui"
 
 interface PlaylistPickerSheetProps {
   isOpen: boolean
@@ -139,24 +146,29 @@ export function PlaylistPickerSheet({
 
   const { data: playlists = [] } = usePlaylistsForTrack(trackId ?? null, isOpen)
 
-  useEffect(() => {
-    if (isOpen) {
-      return
-    }
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      onOpenChange(open)
+      if (open) {
+        return
+      }
 
-    setSearchQuery("")
-    setSearchInputKey((previous) => previous + 1)
-  }, [isOpen])
+      setSearchQuery("")
+      setSearchInputKey((previous) => previous + 1)
+    },
+    [onOpenChange]
+  )
 
   const normalizedQuery = searchQuery.trim().toLowerCase()
-  const filteredPlaylists = normalizedQuery.length > 0
-    ? playlists.filter((playlist) =>
-      playlist.name.toLowerCase().includes(normalizedQuery)
-    )
-    : playlists
+  const filteredPlaylists =
+    normalizedQuery.length > 0
+      ? playlists.filter((playlist) =>
+          playlist.name.toLowerCase().includes(normalizedQuery)
+        )
+      : playlists
 
   return (
-    <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
+    <BottomSheet isOpen={isOpen} onOpenChange={handleOpenChange}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay />
         <BottomSheet.Content
@@ -191,7 +203,11 @@ export function PlaylistPickerSheet({
             initialContainerPoolRatio={3}
             estimatedItemSize={72}
             drawDistance={180}
-            renderItem={({ item }: LegendListRenderItemProps<typeof filteredPlaylists[number]>) => {
+            renderItem={({
+              item,
+            }: LegendListRenderItemProps<
+              (typeof filteredPlaylists)[number]
+            >) => {
               const hasTrack = Boolean(item.hasTrack)
               const handleSelect = () => {
                 if (isSelecting) {
@@ -232,7 +248,8 @@ export function PlaylistPickerSheet({
                   <ItemContent>
                     <ItemTitle>{item.name}</ItemTitle>
                     <ItemDescription>
-                      {item.trackCount} {item.trackCount === 1 ? "track" : "tracks"}
+                      {item.trackCount}{" "}
+                      {item.trackCount === 1 ? "track" : "tracks"}
                     </ItemDescription>
                   </ItemContent>
                 </Item>

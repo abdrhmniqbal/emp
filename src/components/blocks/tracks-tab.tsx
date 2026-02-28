@@ -3,7 +3,10 @@ import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
 
 import type { DBTrack } from "@/types/database"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { sortTracks, type SortConfig } from "@/modules/library/library-sort.store"
+import {
+  sortTracks,
+  type SortConfig,
+} from "@/modules/library/library-sort.store"
 import type { Track } from "@/modules/player/player.store"
 import { useTracks } from "@/modules/tracks/tracks.queries"
 import { transformDBTrackToTrack } from "@/utils/transformers"
@@ -19,9 +22,7 @@ interface TracksTabProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  onMomentumScrollEnd?: (
-    event: NativeSyntheticEvent<NativeScrollEvent>
-  ) => void
+  onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 export const TracksTab: React.FC<TracksTabProps> = ({
@@ -35,11 +36,7 @@ export const TracksTab: React.FC<TracksTabProps> = ({
 }) => {
   const theme = useThemeColors()
 
-  const {
-    data: dbTracks = [],
-    isLoading,
-    isPending,
-  } = useTracks()
+  const { data: dbTracks = [], isLoading, isPending } = useTracks()
 
   const tracks = (dbTracks as DBTrack[]).map(transformDBTrackToTrack)
   const effectiveSortConfig: SortConfig = sortConfig ?? {

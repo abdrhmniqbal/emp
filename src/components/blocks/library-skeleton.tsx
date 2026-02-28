@@ -109,7 +109,10 @@ function ArtistGridSkeleton({ itemCount = 9 }: { itemCount?: number }) {
     rows.push(
       <View key={`artist-row-${i}`} className="flex-row gap-3">
         {Array.from({ length: Math.min(3, itemCount - i) }, (_, offset) => (
-          <View key={`artist-card-${i + offset}`} className="w-[31.5%] items-center">
+          <View
+            key={`artist-card-${i + offset}`}
+            className="w-[31.5%] items-center"
+          >
             <Skeleton className="aspect-square w-full rounded-full" />
             <View className="mt-2 w-full items-center gap-1">
               <Skeleton className="h-4 w-5/6 rounded" />

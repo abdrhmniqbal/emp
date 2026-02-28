@@ -3,8 +3,8 @@ import { useLocalSearchParams } from "expo-router"
 
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import {
-  ALBUM_TRACK_SORT_OPTIONS,
   $sortConfig,
+  ALBUM_TRACK_SORT_OPTIONS,
   setSortConfig,
   sortTracks,
   type AlbumTrackSortField,
@@ -74,7 +74,10 @@ export function useAlbumDetailsScreen() {
 
   const tracksByDisc = groupTracksByDisc(sortedTracks)
   const albumId = albumTracks[0]?.albumId
-  const { data: isAlbumFavorite = false } = useIsFavorite("album", albumId || "")
+  const { data: isAlbumFavorite = false } = useIsFavorite(
+    "album",
+    albumId || ""
+  )
   const isLoading =
     (isAlbumTracksLoading || isAlbumTracksFetching) && albumTracks.length === 0
 

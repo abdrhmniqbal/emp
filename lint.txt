@@ -1,0 +1,67 @@
+
+/home/abdrhmniqbal/Documents/project/emp/src/app/(main)/(library)/artist/[name].tsx
+  272:19  error  Error: This value cannot be modified
+
+This modifies a variable that React considers immutable.
+
+/home/abdrhmniqbal/Documents/project/emp/src/app/(main)/(library)/artist/[name].tsx:272:19
+  270 |                 onScroll={(e) => {
+  271 |                   const y = e.nativeEvent.contentOffset.y
+> 272 |                   scrollY.value = y
+      |                   ^^^^^^^ `scrollY` cannot be modified
+  273 |                   handleScroll(y)
+  274 |                   const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
+  275 |                   if (nextHeaderSolid !== isHeaderSolid) {                react-hooks/immutability
+  335:21  error  Error: This value cannot be modified
+
+This modifies a variable that React considers immutable.
+
+/home/abdrhmniqbal/Documents/project/emp/src/app/(main)/(library)/artist/[name].tsx:335:21
+  333 |                   onScroll={(e) => {
+  334 |                     const y = e.nativeEvent.contentOffset.y
+> 335 |                     scrollY.value = y
+      |                     ^^^^^^^ `scrollY` cannot be modified
+  336 |                     handleScroll(y)
+  337 |                     const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
+  338 |                     if (nextHeaderSolid !== isHeaderSolid) {  react-hooks/immutability
+  391:21  error  Error: This value cannot be modified
+
+This modifies a variable that React considers immutable.
+
+/home/abdrhmniqbal/Documents/project/emp/src/app/(main)/(library)/artist/[name].tsx:391:21
+  389 |                   onScroll={(e) => {
+  390 |                     const y = e.nativeEvent.contentOffset.y
+> 391 |                     scrollY.value = y
+      |                     ^^^^^^^ `scrollY` cannot be modified
+  392 |                     handleScroll(y)
+  393 |                     const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
+  394 |                     if (nextHeaderSolid !== isHeaderSolid) {  react-hooks/immutability
+
+/home/abdrhmniqbal/Documents/project/emp/src/app/settings/track-duration-filter.tsx
+  75:5  warning  Do not call the 'set' function 'setCustomSliderValue' of 'useState' directly in 'useEffect'  react-hooks-extra/no-direct-set-state-in-use-effect
+
+/home/abdrhmniqbal/Documents/project/emp/src/components/blocks/playlist-picker-sheet.tsx
+  149:5  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/abdrhmniqbal/Documents/project/emp/src/components/blocks/playlist-picker-sheet.tsx:149:5
+  147 |     }
+  148 |
+> 149 |     setSearchQuery('')
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  150 |     setSearchInputKey(previous => previous + 1)
+  151 |   }, [isOpen])
+  152 |  react-hooks/set-state-in-effect
+  149:5  warning  Do not call the 'set' function 'setSearchQuery' of 'useState' directly in 'useEffect'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks-extra/no-direct-set-state-in-use-effect
+  150:5  warning  Do not call the 'set' function 'setSearchInputKey' of 'useState' directly in 'useEffect'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks-extra/no-direct-set-state-in-use-effect
+
+/home/abdrhmniqbal/Documents/project/emp/src/components/blocks/track-action-sheet.tsx
+  284:5  warning  Do not call the 'set' function 'setIsPlaylistPickerOpen' of 'useState' directly in 'useEffect'  react-hooks-extra/no-direct-set-state-in-use-effect
+
+✖ 8 problems (4 errors, 4 warnings)
+

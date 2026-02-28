@@ -3,13 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { and, asc, desc, eq, gt, inArray, like, or, sql } from "drizzle-orm"
 
 import { db } from "@/db/client"
-import {
-  albums,
-  artists,
-  playlists,
-  playlistTracks,
-  tracks,
-} from "@/db/schema"
+import { albums, artists, playlistTracks, playlists, tracks } from "@/db/schema"
 import type { Track } from "@/modules/player/player.types"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
@@ -50,7 +44,10 @@ export function useArtists(
                 direction(artistSortNameOrderValue),
                 direction(artistNameOrderValue),
               ]
-            : [direction(artistSortNameOrderValue), direction(artistNameOrderValue)]
+            : [
+                direction(artistSortNameOrderValue),
+                direction(artistNameOrderValue),
+              ]
 
       const results = await db.query.artists.findMany({
         where: gt(artists.trackCount, 0),
@@ -110,7 +107,12 @@ export function useArtist(id: string) {
 }
 
 export function useAlbums(
-  orderByField: "title" | "artist" | "year" | "trackCount" | "dateAdded" = "title",
+  orderByField:
+    | "title"
+    | "artist"
+    | "year"
+    | "trackCount"
+    | "dateAdded" = "title",
   order: "asc" | "desc" = "asc",
   options: QueryOptions = {}
 ) {
@@ -285,7 +287,9 @@ export function useTracksByArtistName(artistName: string) {
       })
 
       const matchingArtistIds = matchingArtists
-        .filter((artist) => normalizeLookup(artist.name) === normalizedArtistName)
+        .filter(
+          (artist) => normalizeLookup(artist.name) === normalizedArtistName
+        )
         .map((artist) => artist.id)
 
       if (matchingArtistIds.length === 0) {
@@ -382,52 +386,62 @@ export function useSearch(query: string) {
       }
 
       try {
-        const [artistResults, albumResults, playlistResults, titleTrackResults] =
-          await Promise.all([
-            db.query.artists.findMany({
-              where: and(like(artists.name, searchTerm), gt(artists.trackCount, 0)),
-              with: {
-                albums: {
-                  columns: {
-                    artwork: true,
-                  },
-                  limit: 1,
+        const [
+          artistResults,
+          albumResults,
+          playlistResults,
+          titleTrackResults,
+        ] = await Promise.all([
+          db.query.artists.findMany({
+            where: and(
+              like(artists.name, searchTerm),
+              gt(artists.trackCount, 0)
+            ),
+            with: {
+              albums: {
+                columns: {
+                  artwork: true,
                 },
+                limit: 1,
               },
-              orderBy: [asc(sql`lower(coalesce(${artists.name}, ''))`)],
-              limit: 10,
-            }),
-            db.query.albums.findMany({
-              where: and(like(albums.title, searchTerm), gt(albums.trackCount, 0)),
-              with: { artist: true },
-              orderBy: [asc(sql`lower(coalesce(${albums.title}, ''))`)],
-              limit: 10,
-            }),
-            db.query.playlists.findMany({
-              where: like(playlists.name, searchTerm),
-              orderBy: [desc(playlists.updatedAt)],
-              limit: 10,
-              with: {
-                tracks: {
-                  limit: 4,
-                  orderBy: [asc(playlistTracks.position)],
-                  with: {
-                    track: {
-                      with: {
-                        album: true,
-                      },
+            },
+            orderBy: [asc(sql`lower(coalesce(${artists.name}, ''))`)],
+            limit: 10,
+          }),
+          db.query.albums.findMany({
+            where: and(
+              like(albums.title, searchTerm),
+              gt(albums.trackCount, 0)
+            ),
+            with: { artist: true },
+            orderBy: [asc(sql`lower(coalesce(${albums.title}, ''))`)],
+            limit: 10,
+          }),
+          db.query.playlists.findMany({
+            where: like(playlists.name, searchTerm),
+            orderBy: [desc(playlists.updatedAt)],
+            limit: 10,
+            with: {
+              tracks: {
+                limit: 4,
+                orderBy: [asc(playlistTracks.position)],
+                with: {
+                  track: {
+                    with: {
+                      album: true,
                     },
                   },
                 },
               },
-            }),
-            db.query.tracks.findMany({
-              where: and(eq(tracks.isDeleted, 0), like(tracks.title, searchTerm)),
-              with: { artist: true, album: true },
-              orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
-              limit: 20,
-            }),
-          ])
+            },
+          }),
+          db.query.tracks.findMany({
+            where: and(eq(tracks.isDeleted, 0), like(tracks.title, searchTerm)),
+            with: { artist: true, album: true },
+            orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
+            limit: 20,
+          }),
+        ])
 
         const matchedArtistIds = artistResults.map((artist) => artist.id)
         const matchedAlbumIds = albumResults.map((album) => album.id)
@@ -444,15 +458,14 @@ export function useSearch(query: string) {
                 ? inArray(tracks.albumId, matchedAlbumIds)
                 : null
 
-        const relationTrackResults =
-          relationTrackFilter
-            ? await db.query.tracks.findMany({
-                where: and(eq(tracks.isDeleted, 0), relationTrackFilter),
-                with: { artist: true, album: true },
-                orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
-                limit: 40,
-              })
-            : []
+        const relationTrackResults = relationTrackFilter
+          ? await db.query.tracks.findMany({
+              where: and(eq(tracks.isDeleted, 0), relationTrackFilter),
+              with: { artist: true, album: true },
+              orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
+              limit: 40,
+            })
+          : []
 
         const mergedTrackResults = [...titleTrackResults]
         const trackIds = new Set(titleTrackResults.map((track) => track.id))

@@ -1,5 +1,5 @@
-import { atom } from "nanostores"
 import { File, Paths } from "expo-file-system"
+import { atom } from "nanostores"
 
 export type FolderFilterMode = "whitelist" | "blacklist"
 

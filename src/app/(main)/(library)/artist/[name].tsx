@@ -4,13 +4,7 @@ import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
-import {
-  Dimensions,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native"
+import { Dimensions, Pressable, ScrollView, Text, View } from "react-native"
 import Animated, {
   Extrapolation,
   interpolate,
@@ -51,6 +45,10 @@ import { SectionTitle } from "@/components/ui"
 
 const SCREEN_WIDTH = Dimensions.get("window").width
 const HEADER_COLLAPSE_THRESHOLD = SCREEN_WIDTH - 120
+
+function setAnimatedValue<T>(target: { value: T }, nextValue: T) {
+  target.value = nextValue
+}
 
 export default function ArtistDetailsScreen() {
   const theme = useThemeColors()
@@ -171,7 +169,9 @@ export default function ArtistDetailsScreen() {
 
       <View className="absolute right-6 bottom-8 left-6">
         <Text className="mb-2 text-4xl font-bold text-white">{artistName}</Text>
-        <Text className="text-base text-white/70">{artistTracks.length} tracks</Text>
+        <Text className="text-base text-white/70">
+          {artistTracks.length} tracks
+        </Text>
       </View>
     </View>
   )
@@ -258,7 +258,7 @@ export default function ArtistDetailsScreen() {
             contentContainerStyle={{ paddingBottom: 200 }}
             onScroll={(e) => {
               const y = e.nativeEvent.contentOffset.y
-              scrollY.value = y
+              setAnimatedValue(scrollY, y)
               handleScroll(y)
               const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
               if (nextHeaderSolid !== isHeaderSolid) {
@@ -316,10 +316,13 @@ export default function ArtistDetailsScreen() {
             data={sortedArtistTracks}
             onTrackPress={playArtistTrack}
             resetScrollKey={`${artistId || artistName}-tracks-${sortConfig.field}-${sortConfig.order}`}
-            contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 24 }}
+            contentContainerStyle={{
+              paddingBottom: 200,
+              paddingHorizontal: 24,
+            }}
             onScroll={(e) => {
               const y = e.nativeEvent.contentOffset.y
-              scrollY.value = y
+              setAnimatedValue(scrollY, y)
               handleScroll(y)
               const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
               if (nextHeaderSolid !== isHeaderSolid) {
@@ -331,7 +334,9 @@ export default function ArtistDetailsScreen() {
             onScrollEndDrag={handleScrollStop}
             listHeader={
               <>
-                <View style={{ marginHorizontal: -24 }}>{renderHeroSection()}</View>
+                <View style={{ marginHorizontal: -24 }}>
+                  {renderHeroSection()}
+                </View>
                 <Animated.View
                   entering={screenEnterTransition()}
                   className="pt-4"
@@ -374,7 +379,7 @@ export default function ArtistDetailsScreen() {
             }}
             onScroll={(e) => {
               const y = e.nativeEvent.contentOffset.y
-              scrollY.value = y
+              setAnimatedValue(scrollY, y)
               handleScroll(y)
               const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
               if (nextHeaderSolid !== isHeaderSolid) {
@@ -386,7 +391,9 @@ export default function ArtistDetailsScreen() {
             onScrollEndDrag={handleScrollStop}
             listHeader={
               <>
-                <View style={{ marginHorizontal: -16 }}>{renderHeroSection()}</View>
+                <View style={{ marginHorizontal: -16 }}>
+                  {renderHeroSection()}
+                </View>
                 <Animated.View
                   entering={screenEnterTransition()}
                   className="px-2 pt-4"

@@ -52,9 +52,10 @@ export async function scanMediaLibrary(
 
   const folderFilterConfig = await ensureFolderFilterConfigLoaded()
   const durationFilterConfig = await ensureTrackDurationFilterConfigLoaded()
-  const scopedAssets = assets.filter((asset) =>
-    isAssetAllowedByFolderFilters(asset.uri, folderFilterConfig) &&
-    isAssetAllowedByTrackDuration(asset.duration, durationFilterConfig)
+  const scopedAssets = assets.filter(
+    (asset) =>
+      isAssetAllowedByFolderFilters(asset.uri, folderFilterConfig) &&
+      isAssetAllowedByTrackDuration(asset.duration, durationFilterConfig)
   )
 
   onProgress?.({

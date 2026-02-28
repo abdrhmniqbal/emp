@@ -1,15 +1,15 @@
-import { getActualPath } from '@missingcore/react-native-actual-path'
+import { getActualPath } from "@missingcore/react-native-actual-path"
 
 function toFileUri(path: string): string {
-  return path.startsWith('file://') ? path : `file://${path}`
+  return path.startsWith("file://") ? path : `file://${path}`
 }
 
 export async function resolvePlayableFileUri(uri: string): Promise<string> {
   if (!uri) {
-    return ''
+    return ""
   }
 
-  if (uri.startsWith('content://')) {
+  if (uri.startsWith("content://")) {
     try {
       const actualPath = await getActualPath(uri)
       if (actualPath) {
@@ -21,7 +21,7 @@ export async function resolvePlayableFileUri(uri: string): Promise<string> {
     return uri
   }
 
-  if (uri.includes('://')) {
+  if (uri.includes("://")) {
     return uri
   }
 
@@ -29,12 +29,12 @@ export async function resolvePlayableFileUri(uri: string): Promise<string> {
 }
 
 export function getContainingFolderUri(uri: string): string | null {
-  if (!uri.startsWith('file://')) {
+  if (!uri.startsWith("file://")) {
     return null
   }
 
-  const lastSlash = uri.lastIndexOf('/')
-  if (lastSlash <= 'file://'.length) {
+  const lastSlash = uri.lastIndexOf("/")
+  if (lastSlash <= "file://".length) {
     return null
   }
 

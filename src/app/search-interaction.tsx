@@ -12,7 +12,10 @@ import {
   RecentSearches,
   type RecentSearchItem,
 } from "@/components/blocks/recent-searches"
-import { SearchResults, type SearchTab } from "@/components/blocks/search-results"
+import {
+  SearchResults,
+  type SearchTab,
+} from "@/components/blocks/search-results"
 
 interface HeaderSearchInputProps {
   theme: ReturnType<typeof useThemeColors>

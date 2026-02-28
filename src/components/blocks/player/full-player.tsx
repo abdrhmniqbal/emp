@@ -1,34 +1,34 @@
-import { useStore } from '@nanostores/react'
-import { useRouter } from 'expo-router'
-import { LinearGradient } from 'expo-linear-gradient'
-import { BottomSheet } from 'heroui-native'
-import * as React from 'react'
-import { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import * as React from "react"
+import { useEffect, useState } from "react"
+import { useStore } from "@nanostores/react"
+import { LinearGradient } from "expo-linear-gradient"
+import { useRouter } from "expo-router"
+import { BottomSheet } from "heroui-native"
+import { StyleSheet, View } from "react-native"
 
-import { $isPlayerExpanded, $showPlayerQueue } from '@/hooks/scroll-bars.store'
+import { $isPlayerExpanded, $showPlayerQueue } from "@/hooks/scroll-bars.store"
 import {
   $currentColors,
   updateColorsForImage,
-} from '@/modules/player/player-colors.store'
+} from "@/modules/player/player-colors.store"
 import {
   $currentTime,
   $currentTrack,
   $duration,
   $isPlaying,
-} from '@/modules/player/player.store'
+} from "@/modules/player/player.store"
 
-import { AlbumArtView } from './album-art-view'
-import { PlaybackControls } from './playback-controls'
-import { PlayerActionSheet } from './player-action-sheet'
-import { PlayerFooter } from './player-footer'
-import { PlayerHeader } from './player-header'
-import { ProgressBar } from './progress-bar'
-import { QueueView } from './queue-view'
-import { TrackInfo } from './track-info'
+import { AlbumArtView } from "./album-art-view"
+import { PlaybackControls } from "./playback-controls"
+import { PlayerActionSheet } from "./player-action-sheet"
+import { PlayerFooter } from "./player-footer"
+import { PlayerHeader } from "./player-header"
+import { ProgressBar } from "./progress-bar"
+import { QueueView } from "./queue-view"
+import { TrackInfo } from "./track-info"
 
-const BACKGROUND_DARKEN_OVERLAY = 'rgba(0, 0, 0, 0.15)'
-const FULL_PLAYER_SNAP_POINTS = ['100%']
+const BACKGROUND_DARKEN_OVERLAY = "rgba(0, 0, 0, 0.15)"
+const FULL_PLAYER_SNAP_POINTS = ["100%"]
 
 export function FullPlayer() {
   const router = useRouter()
@@ -59,17 +59,19 @@ export function FullPlayer() {
 
     closePlayer()
     router.push({
-      pathname: '/(main)/(library)/artist/[name]',
+      pathname: "/(main)/(library)/artist/[name]",
       params: { name: artistName },
     })
   }
 
-  if (!currentTrack)
-    return null
+  if (!currentTrack) return null
 
   return (
     <>
-      <BottomSheet isOpen={isExpanded} onOpenChange={(open) => !open && closePlayer()}>
+      <BottomSheet
+        isOpen={isExpanded}
+        onOpenChange={(open) => !open && closePlayer()}
+      >
         <BottomSheet.Portal disableFullWindowOverlay>
           <BottomSheet.Overlay />
           <BottomSheet.Content
@@ -86,13 +88,16 @@ export function FullPlayer() {
           >
             <View className="relative flex-1">
               <LinearGradient
-                colors={[colors.bg, colors.secondary, '#09090B']}
+                colors={[colors.bg, colors.secondary, "#09090B"]}
                 locations={[0, 0.6, 1]}
                 style={StyleSheet.absoluteFillObject}
               />
               <View
                 pointerEvents="none"
-                style={[StyleSheet.absoluteFillObject, { backgroundColor: BACKGROUND_DARKEN_OVERLAY }]}
+                style={[
+                  StyleSheet.absoluteFillObject,
+                  { backgroundColor: BACKGROUND_DARKEN_OVERLAY },
+                ]}
               />
 
               <View className="flex-1 justify-between px-6 pt-12 pb-8">
@@ -101,13 +106,11 @@ export function FullPlayer() {
                   onOpenMore={() => setIsActionSheetOpen(true)}
                 />
 
-                {showQueue
-                  ? (
-                      <QueueView currentTrack={currentTrack} />
-                    )
-                  : (
-                      <AlbumArtView currentTrack={currentTrack} />
-                    )}
+                {showQueue ? (
+                  <QueueView currentTrack={currentTrack} />
+                ) : (
+                  <AlbumArtView currentTrack={currentTrack} />
+                )}
 
                 <TrackInfo
                   track={currentTrack}

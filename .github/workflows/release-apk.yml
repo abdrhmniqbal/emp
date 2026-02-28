@@ -3,12 +3,12 @@ name: Android APK Release
 on:
   push:
     tags:
-      - 'v*.*.*'
-      - 'v*.*.*-rc.*'
+      - "v*.*.*"
+      - "v*.*.*-rc.*"
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag (example: v1.2.3 or v1.2.3-rc.1)'
+        description: "Release tag (example: v1.2.3 or v1.2.3-rc.1)"
         required: true
         type: string
 
@@ -21,7 +21,7 @@ jobs:
     env:
       RELEASE_CRED: ${{ secrets.RELEASE_CRED }}
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-      TARGET_ARCHS: 'armeabi-v7a arm64-v8a x86 x86_64'
+      TARGET_ARCHS: "armeabi-v7a arm64-v8a x86 x86_64"
 
     steps:
       - name: Checkout

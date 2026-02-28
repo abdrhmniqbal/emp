@@ -5,13 +5,13 @@ import { Button } from "heroui-native"
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
+import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { screenEnterTransition } from "@/constants/animations"
 import { usePlaylistDetailsScreen } from "@/modules/playlist/hooks/use-playlist-details-screen"
 import { formatDuration } from "@/modules/playlist/playlist.utils"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
@@ -198,7 +198,10 @@ export default function PlaylistDetailsScreen() {
                     {playlist.name}
                   </Text>
                   {playlist.description ? (
-                    <Text className="mt-1 text-base text-muted" numberOfLines={2}>
+                    <Text
+                      className="mt-1 text-base text-muted"
+                      numberOfLines={2}
+                    >
                       {playlist.description}
                     </Text>
                   ) : null}

@@ -1,8 +1,12 @@
 import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { Tabs } from "heroui-native"
-import type { NativeSyntheticEvent, NativeScrollEvent } from "react-native"
-import { Text, View } from "react-native"
+import {
+  Text,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "tailwind-variants"
 

@@ -1,13 +1,13 @@
-import type { Track } from '@/modules/player/player.types'
-import { useIsFocused } from '@react-navigation/native'
-import { useQuery } from '@tanstack/react-query'
+import { useEffect } from "react"
+import { useIsFocused } from "@react-navigation/native"
+import { useQuery } from "@tanstack/react-query"
 
-import { useEffect } from 'react'
-import { fetchRecentlyPlayedTracks } from '@/modules/history/history.utils'
-import { startIndexing } from '@/modules/indexer'
-import { playTrack } from '@/modules/player/player.store'
+import { fetchRecentlyPlayedTracks } from "@/modules/history/history.utils"
+import { startIndexing } from "@/modules/indexer"
+import { playTrack } from "@/modules/player/player.store"
+import type { Track } from "@/modules/player/player.types"
 
-const RECENTLY_PLAYED_QUERY_KEY = ['recently-played-screen'] as const
+const RECENTLY_PLAYED_QUERY_KEY = ["recently-played-screen"] as const
 const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 
 export function useRecentlyPlayedScreen() {
@@ -21,7 +21,7 @@ export function useRecentlyPlayedScreen() {
     queryKey: RECENTLY_PLAYED_QUERY_KEY,
     queryFn: () => fetchRecentlyPlayedTracks(RECENTLY_PLAYED_SCREEN_LIMIT),
     enabled: false,
-    placeholderData: previousData => previousData,
+    placeholderData: (previousData) => previousData,
   })
   const history = historyData ?? []
 

@@ -1,10 +1,10 @@
 import * as React from "react"
+import { useEffect, useRef } from "react"
 import {
   LegendList,
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
-import { useEffect, useRef } from "react"
 import type {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -49,9 +49,7 @@ interface PlaylistListProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  onMomentumScrollEnd?: (
-    event: NativeSyntheticEvent<NativeScrollEvent>
-  ) => void
+  onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 export const PlaylistList: React.FC<PlaylistListProps> = ({

@@ -1,12 +1,12 @@
-import { File, Paths } from 'expo-file-system'
-import { atom } from 'nanostores'
+import { File, Paths } from "expo-file-system"
+import { atom } from "nanostores"
 
-export type TrackDurationFilterMode
-  = | 'off'
-    | 'min30s'
-    | 'min60s'
-    | 'min120s'
-    | 'custom'
+export type TrackDurationFilterMode =
+  | "off"
+  | "min30s"
+  | "min60s"
+  | "min120s"
+  | "custom"
 
 export interface TrackDurationFilterConfig {
   mode: TrackDurationFilterMode
@@ -15,15 +15,15 @@ export interface TrackDurationFilterConfig {
 
 const TRACK_DURATION_FILTER_FILE = new File(
   Paths.document,
-  'track-duration-filter.json',
+  "track-duration-filter.json"
 )
 const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
-  mode: 'off',
+  mode: "off",
   customMinimumSeconds: 180,
 }
 
 export const $trackDurationFilterConfig = atom<TrackDurationFilterConfig>(
-  DEFAULT_TRACK_DURATION_FILTER,
+  DEFAULT_TRACK_DURATION_FILTER
 )
 
 let loadPromise: Promise<TrackDurationFilterConfig> | null = null
@@ -38,21 +38,21 @@ function clampCustomSeconds(value: number): number {
 }
 
 function sanitizeConfig(
-  config: Partial<TrackDurationFilterConfig>,
+  config: Partial<TrackDurationFilterConfig>
 ): TrackDurationFilterConfig {
-  const mode: TrackDurationFilterMode
-    = config.mode === 'min30s'
-      || config.mode === 'min60s'
-      || config.mode === 'min120s'
-      || config.mode === 'custom'
+  const mode: TrackDurationFilterMode =
+    config.mode === "min30s" ||
+    config.mode === "min60s" ||
+    config.mode === "min120s" ||
+    config.mode === "custom"
       ? config.mode
-      : 'off'
+      : "off"
 
   return {
     mode,
     customMinimumSeconds: clampCustomSeconds(
-      config.customMinimumSeconds
-      ?? DEFAULT_TRACK_DURATION_FILTER.customMinimumSeconds,
+      config.customMinimumSeconds ??
+        DEFAULT_TRACK_DURATION_FILTER.customMinimumSeconds
     ),
   }
 }
@@ -66,7 +66,7 @@ async function persistConfig(config: TrackDurationFilterConfig): Promise<void> {
   }
 
   TRACK_DURATION_FILTER_FILE.write(JSON.stringify(config), {
-    encoding: 'utf8',
+    encoding: "utf8",
   })
 }
 
@@ -93,8 +93,7 @@ export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDura
       $trackDurationFilterConfig.set(next)
       hasLoadedConfig = true
       return next
-    }
-    catch {
+    } catch {
       $trackDurationFilterConfig.set(DEFAULT_TRACK_DURATION_FILTER)
       hasLoadedConfig = true
       return DEFAULT_TRACK_DURATION_FILTER
@@ -107,7 +106,7 @@ export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDura
 }
 
 export async function setTrackDurationFilterConfig(
-  updates: Partial<TrackDurationFilterConfig>,
+  updates: Partial<TrackDurationFilterConfig>
 ): Promise<TrackDurationFilterConfig> {
   await ensureTrackDurationFilterConfigLoaded()
   const current = $trackDurationFilterConfig.get()
@@ -119,21 +118,21 @@ export async function setTrackDurationFilterConfig(
 }
 
 export function getTrackDurationMinimumSeconds(
-  config: TrackDurationFilterConfig,
+  config: TrackDurationFilterConfig
 ): number {
-  if (config.mode === 'min30s') {
+  if (config.mode === "min30s") {
     return 30
   }
 
-  if (config.mode === 'min60s') {
+  if (config.mode === "min60s") {
     return 60
   }
 
-  if (config.mode === 'min120s') {
+  if (config.mode === "min120s") {
     return 120
   }
 
-  if (config.mode === 'custom') {
+  if (config.mode === "custom") {
     return clampCustomSeconds(config.customMinimumSeconds)
   }
 
@@ -142,7 +141,7 @@ export function getTrackDurationMinimumSeconds(
 
 export function isAssetAllowedByTrackDuration(
   durationSeconds: number,
-  config: TrackDurationFilterConfig,
+  config: TrackDurationFilterConfig
 ): boolean {
   const minDuration = getTrackDurationMinimumSeconds(config)
   if (minDuration <= 0) {
@@ -157,21 +156,21 @@ export function isAssetAllowedByTrackDuration(
 }
 
 export function getTrackDurationFilterLabel(
-  config: TrackDurationFilterConfig,
+  config: TrackDurationFilterConfig
 ): string {
-  if (config.mode === 'min30s') {
-    return 'At least 30s'
+  if (config.mode === "min30s") {
+    return "At least 30s"
   }
 
-  if (config.mode === 'min60s') {
-    return 'At least 1m'
+  if (config.mode === "min60s") {
+    return "At least 1m"
   }
 
-  if (config.mode === 'min120s') {
-    return 'At least 2m'
+  if (config.mode === "min120s") {
+    return "At least 2m"
   }
 
-  if (config.mode === 'custom') {
+  if (config.mode === "custom") {
     const seconds = getTrackDurationMinimumSeconds(config)
     if (seconds < 60) {
       return `Custom ${seconds}s`
@@ -181,5 +180,5 @@ export function getTrackDurationFilterLabel(
     return rem > 0 ? `Custom ${minutes}m ${rem}s` : `Custom ${minutes}m`
   }
 
-  return 'No filter'
+  return "No filter"
 }

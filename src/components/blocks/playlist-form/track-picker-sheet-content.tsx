@@ -1,18 +1,18 @@
-import type { TrackPickerSheetContentProps } from './types'
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
-import { LegendList, type LegendListRenderItemProps } from '@legendapp/list'
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
+import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
+import { BottomSheet, Button } from "heroui-native"
+import { Text, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-import { BottomSheet, Button } from 'heroui-native'
-import { Text, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import LocalMusicNoteSolidIcon from '@/components/icons/local/music-note-solid'
-import { EmptyState } from '@/components/ui'
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { EmptyState } from "@/components/ui"
 
-import { useThemeColors } from '@/hooks/use-theme-colors'
-import { PlaylistTrackRow } from './playlist-track-row'
-import { SheetSearchInput } from './sheet-search-input'
+import { PlaylistTrackRow } from "./playlist-track-row"
+import { SheetSearchInput } from "./sheet-search-input"
+import type { TrackPickerSheetContentProps } from "./types"
 
-const TRACK_PICKER_SNAP_POINTS = ['72%', '90%']
+const TRACK_PICKER_SNAP_POINTS = ["72%", "90%"]
 
 export function TrackPickerSheetContent({
   inputKey,
@@ -27,8 +27,7 @@ export function TrackPickerSheetContent({
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
   const selectedCount = selectedTracks.size
-  const applyLabel
-    = selectedCount === 0 ? 'Apply' : `Apply (${selectedCount})`
+  const applyLabel = selectedCount === 0 ? "Apply" : `Apply (${selectedCount})`
 
   return (
     <BottomSheet.Content
@@ -47,36 +46,38 @@ export function TrackPickerSheetContent({
       />
       <LegendList
         data={filteredTracks}
-        getItemType={() => 'track'}
-        renderItem={({ item }: LegendListRenderItemProps<(typeof filteredTracks)[number]>) => (
+        getItemType={() => "track"}
+        renderItem={({
+          item,
+        }: LegendListRenderItemProps<(typeof filteredTracks)[number]>) => (
           <PlaylistTrackRow
             track={item}
             isSelected={selectedTracks.has(item.id)}
             onPress={() => onToggleTrack(item.id)}
           />
         )}
-        keyExtractor={item => item.id}
-        style={{ flex: 1, minHeight: 1, width: '100%' }}
+        keyExtractor={(item) => item.id}
+        style={{ flex: 1, minHeight: 1, width: "100%" }}
         contentContainerStyle={{
           paddingTop: 6,
           paddingBottom: 24,
           paddingHorizontal: 4,
         }}
-        renderScrollComponent={props => <BottomSheetScrollView {...props} />}
+        renderScrollComponent={(props) => <BottomSheetScrollView {...props} />}
         nestedScrollEnabled={true}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         extraData={selectedTracks}
         ListEmptyComponent={() => (
           <EmptyState
-            icon={(
+            icon={
               <LocalMusicNoteSolidIcon
                 fill="none"
                 width={48}
                 height={48}
                 color={theme.muted}
               />
-            )}
+            }
             title="No tracks found"
             message="Try a different keyword."
             className="py-10"
@@ -92,9 +93,7 @@ export function TrackPickerSheetContent({
         style={{ paddingBottom: Math.max(insets.bottom, 12) }}
       >
         <View className="mb-2 flex-row items-center justify-between">
-          <Text className="text-sm text-muted">
-            {selectedCount} selected
-          </Text>
+          <Text className="text-sm text-muted">{selectedCount} selected</Text>
           <Button
             onPress={onClearSelection}
             variant="ghost"

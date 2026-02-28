@@ -14,11 +14,11 @@ import {
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
-import {
-  type FavoriteEntry,
-  type FavoriteType,
+import type {
+  FavoriteEntry,
+  FavoriteType,
 } from "@/modules/favorites/favorites.api"
+import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
 import { $tracks, playTrack } from "@/modules/player/player.store"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
@@ -42,9 +42,7 @@ interface FavoritesListProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  onMomentumScrollEnd?: (
-    event: NativeSyntheticEvent<NativeScrollEvent>
-  ) => void
+  onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({

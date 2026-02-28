@@ -1,9 +1,11 @@
 import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
-import ReorderableList, { useReorderableDrag } from "react-native-reorderable-list"
 import { Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
+import ReorderableList, {
+  useReorderableDrag,
+} from "react-native-reorderable-list"
 import { cn } from "tailwind-variants"
 
 import { playTrack, type Track } from "@/modules/player/player.store"
@@ -14,8 +16,8 @@ import {
   removeFromQueue,
 } from "@/modules/player/queue.store"
 import LocalCancelIcon from "@/components/icons/local/cancel"
-import { TrackRow } from "@/components/patterns"
 import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
+import { TrackRow } from "@/components/patterns"
 
 interface QueueItemProps {
   track: Track
@@ -72,7 +74,12 @@ export const QueueItem: React.FC<QueueItemProps> = ({
               }}
               className="p-2 opacity-60"
             >
-              <LocalCancelIcon fill="none" width={24} height={24} color="white" />
+              <LocalCancelIcon
+                fill="none"
+                width={24}
+                height={24}
+                color="white"
+              />
             </PressableFeedback>
           ) : null}
         </View>

@@ -28,7 +28,8 @@ export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
   const indexerState = useStore($indexerState)
-  const { recentlyPlayedTracks, topTracks, isLoading, refresh } = useHomeScreen()
+  const { recentlyPlayedTracks, topTracks, isLoading, refresh } =
+    useHomeScreen()
 
   if (isLoading) {
     return (

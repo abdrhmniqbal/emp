@@ -1,16 +1,11 @@
-import { useStore } from '@nanostores/react'
-import { Directory } from 'expo-file-system'
-import { BottomSheet, Button, PressableFeedback } from 'heroui-native'
-import * as React from 'react'
-import { ScrollView, Text, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import * as React from "react"
+import { useStore } from "@nanostores/react"
+import { Directory } from "expo-file-system"
+import { BottomSheet, Button, PressableFeedback } from "heroui-native"
+import { ScrollView, Text, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-import LocalAddIcon from '@/components/icons/local/add'
-import LocalCancelIcon from '@/components/icons/local/cancel'
-import LocalFolderSolidIcon from '@/components/icons/local/folder-solid'
-import LocalTickIcon from '@/components/icons/local/tick'
-import { EmptyState } from '@/components/ui'
-import { useThemeColors } from '@/hooks/use-theme-colors'
+import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   $folderFilterConfig,
   $indexerState,
@@ -21,8 +16,13 @@ import {
   setAllFolderFiltersMode,
   setFolderFilterMode,
   startIndexing,
-} from '@/modules/indexer'
-import { $tracks } from '@/modules/player/player.store'
+} from "@/modules/indexer"
+import { $tracks } from "@/modules/player/player.store"
+import LocalAddIcon from "@/components/icons/local/add"
+import LocalCancelIcon from "@/components/icons/local/cancel"
+import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
+import LocalTickIcon from "@/components/icons/local/tick"
+import { EmptyState } from "@/components/ui"
 
 interface FolderEntry {
   path: string
@@ -31,12 +31,12 @@ interface FolderEntry {
 }
 
 function buildFolderEntries(
-  trackUris: Array<{ uri?: string | null }>,
+  trackUris: Array<{ uri?: string | null }>
 ): FolderEntry[] {
   const folderMap = new Map<string, FolderEntry>()
 
   for (const track of trackUris) {
-    const uri = track.uri || ''
+    const uri = track.uri || ""
     const folderPath = getFolderPathFromUri(uri)
     if (!folderPath) {
       continue
@@ -56,7 +56,7 @@ function buildFolderEntries(
   }
 
   return Array.from(folderMap.values()).sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
   )
 }
 
@@ -77,12 +77,12 @@ function FolderRow({
   isDisabled = false,
   onRemove,
 }: FolderRowProps) {
-  const folder = allFolders.find(entry => entry.path === path)
+  const folder = allFolders.find((entry) => entry.path === path)
   const displayName = folder?.name || getFolderNameFromPath(path)
   const trackCount = folder?.trackCount ?? 0
 
   return (
-    <View className={`py-3 ${isLast ? '' : 'border-b border-border/60'}`}>
+    <View className={`py-3 ${isLast ? "" : "border-b border-border/60"}`}>
       <View className="flex-row items-start justify-between">
         <View className="flex-1 gap-1 pr-2">
           <Text className="text-base font-semibold text-foreground">
@@ -91,15 +91,11 @@ function FolderRow({
           <Text className="text-xs leading-4 text-muted" numberOfLines={2}>
             {path}
           </Text>
-          {trackCount > 0
-            ? (
-                <Text className="text-xs text-muted">
-                  {trackCount}
-                  {' '}
-                  {trackCount === 1 ? 'track' : 'tracks'}
-                </Text>
-              )
-            : null}
+          {trackCount > 0 ? (
+            <Text className="text-xs text-muted">
+              {trackCount} {trackCount === 1 ? "track" : "tracks"}
+            </Text>
+          ) : null}
         </View>
         <Button
           variant="ghost"
@@ -128,8 +124,8 @@ export default function FolderFiltersScreen() {
   const folderFilters = useStore($folderFilterConfig)
   const [isLoaded, setIsLoaded] = React.useState(false)
   const [selectedMode, setSelectedMode] = React.useState<
-    'whitelist' | 'blacklist'
-  >('whitelist')
+    "whitelist" | "blacklist"
+  >("whitelist")
   const [hasPendingChanges, setHasPendingChanges] = React.useState(false)
   const [isModeSheetOpen, setIsModeSheetOpen] = React.useState(false)
 
@@ -148,11 +144,15 @@ export default function FolderFiltersScreen() {
 
   const allFolders = buildFolderEntries(tracks)
   const folderPaths = Array.from(
-    new Set([...folderFilters.whitelist, ...folderFilters.blacklist]),
+    new Set([...folderFilters.whitelist, ...folderFilters.blacklist])
   ).sort((a, b) =>
-    getFolderNameFromPath(a).localeCompare(getFolderNameFromPath(b), undefined, {
-      sensitivity: 'base',
-    }),
+    getFolderNameFromPath(a).localeCompare(
+      getFolderNameFromPath(b),
+      undefined,
+      {
+        sensitivity: "base",
+      }
+    )
   )
   const hasAnyFilters = folderPaths.length > 0
 
@@ -165,8 +165,7 @@ export default function FolderFiltersScreen() {
 
       await setFolderFilterMode(directory.uri, selectedMode)
       setHasPendingChanges(true)
-    }
-    catch {
+    } catch {
       // User cancelled picker.
     }
   }
@@ -183,7 +182,7 @@ export default function FolderFiltersScreen() {
     })
   }
 
-  function setUnifiedMode(mode: 'whitelist' | 'blacklist') {
+  function setUnifiedMode(mode: "whitelist" | "blacklist") {
     if (mode === selectedMode) {
       return
     }
@@ -208,13 +207,13 @@ export default function FolderFiltersScreen() {
   }
 
   function getModeLabel() {
-    if (selectedMode === 'whitelist') {
-      return 'Whitelist'
+    if (selectedMode === "whitelist") {
+      return "Whitelist"
     }
-    if (selectedMode === 'blacklist') {
-      return 'Blacklist'
+    if (selectedMode === "blacklist") {
+      return "Blacklist"
     }
-    return 'Whitelist'
+    return "Whitelist"
   }
 
   if (!isLoaded) {
@@ -278,37 +277,35 @@ export default function FolderFiltersScreen() {
           </Button>
         </View>
 
-        {folderPaths.length === 0
-          ? (
-              <EmptyState
-                icon={(
-                  <LocalFolderSolidIcon
-                    fill="none"
-                    width={40}
-                    height={40}
-                    color="#94a3b8"
-                  />
-                )}
-                title="No folders added"
-                message="Add one or more folders, then apply filter."
-                className="mt-4"
+        {folderPaths.length === 0 ? (
+          <EmptyState
+            icon={
+              <LocalFolderSolidIcon
+                fill="none"
+                width={40}
+                height={40}
+                color="#94a3b8"
               />
-            )
-          : (
-              <View>
-                {folderPaths.map((path, index) => (
-                  <FolderRow
-                    key={path}
-                    path={path}
-                    allFolders={allFolders}
-                    removeIconColor={theme.muted}
-                    isLast={index === folderPaths.length - 1}
-                    onRemove={removeFolder}
-                    isDisabled={indexerState.isIndexing}
-                  />
-                ))}
-              </View>
-            )}
+            }
+            title="No folders added"
+            message="Add one or more folders, then apply filter."
+            className="mt-4"
+          />
+        ) : (
+          <View>
+            {folderPaths.map((path, index) => (
+              <FolderRow
+                key={path}
+                path={path}
+                allFolders={allFolders}
+                removeIconColor={theme.muted}
+                isLast={index === folderPaths.length - 1}
+                onRemove={removeFolder}
+                isDisabled={indexerState.isIndexing}
+              />
+            ))}
+          </View>
+        )}
       </ScrollView>
 
       <View
@@ -321,66 +318,69 @@ export default function FolderFiltersScreen() {
           }}
           isDisabled={!hasPendingChanges || indexerState.isIndexing}
         >
-          {indexerState.isIndexing ? 'Indexing...' : 'Apply Filter'}
+          {indexerState.isIndexing ? "Indexing..." : "Apply Filter"}
         </Button>
       </View>
 
       <BottomSheet isOpen={isModeSheetOpen} onOpenChange={setIsModeSheetOpen}>
         <BottomSheet.Portal>
           <BottomSheet.Overlay />
-          <BottomSheet.Content className="gap-1" backgroundClassName="bg-surface">
+          <BottomSheet.Content
+            className="gap-1"
+            backgroundClassName="bg-surface"
+          >
             <BottomSheet.Title className="mb-1 text-xl">
               Select Filter Mode
             </BottomSheet.Title>
             <PressableFeedback
               className="h-14 flex-row items-center justify-between active:opacity-60"
               onPress={() => {
-                setUnifiedMode('whitelist')
+                setUnifiedMode("whitelist")
                 setIsModeSheetOpen(false)
               }}
             >
               <Text
                 className={`text-base ${
-                  selectedMode === 'whitelist' ? 'text-accent' : 'text-foreground'
+                  selectedMode === "whitelist"
+                    ? "text-accent"
+                    : "text-foreground"
                 }`}
               >
                 Whitelist
               </Text>
-              {selectedMode === 'whitelist'
-                ? (
-                    <LocalTickIcon
-                      fill="none"
-                      width={20}
-                      height={20}
-                      color={theme.accent}
-                    />
-                  )
-                : null}
+              {selectedMode === "whitelist" ? (
+                <LocalTickIcon
+                  fill="none"
+                  width={20}
+                  height={20}
+                  color={theme.accent}
+                />
+              ) : null}
             </PressableFeedback>
             <PressableFeedback
               className="h-14 flex-row items-center justify-between active:opacity-60"
               onPress={() => {
-                setUnifiedMode('blacklist')
+                setUnifiedMode("blacklist")
                 setIsModeSheetOpen(false)
               }}
             >
               <Text
                 className={`text-base ${
-                  selectedMode === 'blacklist' ? 'text-accent' : 'text-foreground'
+                  selectedMode === "blacklist"
+                    ? "text-accent"
+                    : "text-foreground"
                 }`}
               >
                 Blacklist
               </Text>
-              {selectedMode === 'blacklist'
-                ? (
-                    <LocalTickIcon
-                      fill="none"
-                      width={20}
-                      height={20}
-                      color={theme.accent}
-                    />
-                  )
-                : null}
+              {selectedMode === "blacklist" ? (
+                <LocalTickIcon
+                  fill="none"
+                  width={20}
+                  height={20}
+                  color={theme.accent}
+                />
+              ) : null}
             </PressableFeedback>
           </BottomSheet.Content>
         </BottomSheet.Portal>

@@ -25,9 +25,7 @@ interface FolderTabProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  onMomentumScrollEnd?: (
-    event: NativeSyntheticEvent<NativeScrollEvent>
-  ) => void
+  onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 export function FolderTab({

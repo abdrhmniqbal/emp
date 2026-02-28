@@ -6,6 +6,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native"
 import { Stack, useSegments } from "expo-router"
+import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
@@ -16,7 +17,6 @@ import Animated, {
 } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useUniwind } from "uniwind"
-import * as SplashScreen from "expo-splash-screen"
 
 import { MINI_PLAYER_HEIGHT, getTabBarHeight } from "@/constants/layout"
 import { $barsVisible } from "@/hooks/scroll-bars.store"
@@ -113,7 +113,11 @@ export default function Layout() {
   )
 
   useEffect(() => {
-    if (!isBootstrapInitialized || !isDatabaseReady || hasHiddenSplashRef.current) {
+    if (
+      !isBootstrapInitialized ||
+      !isDatabaseReady ||
+      hasHiddenSplashRef.current
+    ) {
       return
     }
 

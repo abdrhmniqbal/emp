@@ -11,9 +11,7 @@ interface AlbumArtViewProps {
   currentTrack: Track
 }
 
-export const AlbumArtView: React.FC<AlbumArtViewProps> = ({
-  currentTrack,
-}) => {
+export const AlbumArtView: React.FC<AlbumArtViewProps> = ({ currentTrack }) => {
   const theme = useThemeColors()
   return (
     <Animated.View
@@ -21,9 +19,7 @@ export const AlbumArtView: React.FC<AlbumArtViewProps> = ({
       className="my-8 flex-1 items-center justify-center"
     >
       <View className="scale-0.9 absolute aspect-square w-full rounded-full blur-2xl" />
-      <Animated.View
-        className="elevation-10 aspect-square w-full overflow-hidden rounded-3xl shadow-2xl"
-      >
+      <Animated.View className="elevation-10 aspect-square w-full overflow-hidden rounded-3xl shadow-2xl">
         {currentTrack.image ? (
           <Image
             source={{ uri: currentTrack.image }}

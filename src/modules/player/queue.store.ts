@@ -134,11 +134,11 @@ export function setQueue(tracks: Track[]) {
 export async function moveInQueue(fromIndex: number, toIndex: number) {
   const previousQueue = $queue.get()
   if (
-    fromIndex < 0
-    || toIndex < 0
-    || fromIndex >= previousQueue.length
-    || toIndex >= previousQueue.length
-    || fromIndex === toIndex
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= previousQueue.length ||
+    toIndex >= previousQueue.length ||
+    fromIndex === toIndex
   ) {
     return
   }

@@ -1,19 +1,22 @@
-import type {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StyleProp,
-  ViewStyle,
-} from 'react-native'
+import * as React from "react"
+import { useEffect, useRef } from "react"
 import {
   LegendList,
   type LegendListRef,
   type LegendListRenderItemProps,
-} from '@legendapp/list'
-import * as React from 'react'
-import { useEffect, useRef } from 'react'
-import { Dimensions, View } from 'react-native'
+} from "@legendapp/list"
+import {
+  Dimensions,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native"
 
-import LocalVynilSolidIcon from '@/components/icons/local/vynil-solid'
+import { ICON_SIZES } from "@/constants/icon-sizes"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import {
   EmptyState,
   Item,
@@ -21,9 +24,7 @@ import {
   ItemDescription,
   ItemImage,
   ItemTitle,
-} from '@/components/ui'
-import { ICON_SIZES } from '@/constants/icon-sizes'
-import { useThemeColors } from '@/hooks/use-theme-colors'
+} from "@/components/ui"
 
 export interface Album {
   id: string
@@ -50,26 +51,24 @@ interface AlbumGridProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  onMomentumScrollEnd?: (
-    event: NativeSyntheticEvent<NativeScrollEvent>,
-  ) => void
+  onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   refreshControl?: React.ReactElement | null
   resetScrollKey?: string
 }
 
 const GAP = 16
 const NUM_COLUMNS = 2
-const SCREEN_WIDTH = Dimensions.get('window').width
+const SCREEN_WIDTH = Dimensions.get("window").width
 const HORIZONTAL_PADDING = 32
-const ITEM_WIDTH
-  = (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
+const ITEM_WIDTH =
+  (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
 const HORIZONTAL_ROW_HEIGHT = 208
 
 export const AlbumGrid: React.FC<AlbumGridProps> = ({
   data,
   onAlbumPress,
   horizontal,
-  containerClassName = '',
+  containerClassName = "",
   scrollEnabled = true,
   listHeader = null,
   listFooter = null,
@@ -120,14 +119,14 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   const renderAlbumItem = (item: Album) => (
     <Item variant="grid" className="w-full" onPress={() => handlePress(item)}>
       <ItemImage
-        icon={(
+        icon={
           <LocalVynilSolidIcon
             fill="none"
             width={ICON_SIZES.largeCardFallback}
             height={ICON_SIZES.largeCardFallback}
             color={theme.muted}
           />
-        )}
+        }
         image={item.image}
         className="aspect-square w-full rounded-md"
       />
@@ -137,7 +136,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
         </ItemTitle>
         <ItemDescription numberOfLines={1}>
           {item.albumArtist || item.artist}
-          {item.trackCount ? ` • ${item.trackCount} tracks` : ''}
+          {item.trackCount ? ` • ${item.trackCount} tracks` : ""}
         </ItemDescription>
       </ItemContent>
     </Item>
@@ -146,14 +145,14 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   if (data.length === 0) {
     return (
       <EmptyState
-        icon={(
+        icon={
           <LocalVynilSolidIcon
             fill="none"
             width={ICON_SIZES.emptyState}
             height={ICON_SIZES.emptyState}
             color={theme.muted}
           />
-        )}
+        }
         title="No Albums"
         message="Albums you add to your library will appear here."
       />
@@ -176,14 +175,14 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
           >
             <Item variant="grid" onPress={() => handlePress(item)}>
               <ItemImage
-                icon={(
+                icon={
                   <LocalVynilSolidIcon
                     fill="none"
                     width={ICON_SIZES.mediumCardFallback}
                     height={ICON_SIZES.mediumCardFallback}
                     color={theme.muted}
                   />
-                )}
+                }
                 image={item.image}
                 className="aspect-square w-full rounded-md"
               />
@@ -193,13 +192,13 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
                 </ItemTitle>
                 <ItemDescription numberOfLines={1}>
                   {item.albumArtist || item.artist}
-                  {item.trackCount ? ` • ${item.trackCount} tracks` : ''}
+                  {item.trackCount ? ` • ${item.trackCount} tracks` : ""}
                 </ItemDescription>
               </ItemContent>
             </Item>
           </View>
         )}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 2, paddingBottom: 6 }}
         style={{ minHeight: HORIZONTAL_ROW_HEIGHT }}
@@ -232,7 +231,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
           </View>
         )
       }}
-      keyExtractor={item => item.id}
+      keyExtractor={(item) => item.id}
       scrollEnabled={scrollEnabled}
       showsVerticalScrollIndicator={showsVerticalScrollIndicator}
       ListHeaderComponent={listHeader}

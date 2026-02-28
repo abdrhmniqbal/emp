@@ -1,11 +1,11 @@
 import * as React from "react"
+import { useEffect, useRef } from "react"
 import {
   LegendList,
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import { Button, PressableFeedback } from "heroui-native"
-import { useEffect, useRef } from "react"
 import {
   ScrollView,
   Text,
@@ -60,9 +60,7 @@ interface FolderListProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  onMomentumScrollEnd?: (
-    event: NativeSyntheticEvent<NativeScrollEvent>
-  ) => void
+  onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 type FolderListItem =

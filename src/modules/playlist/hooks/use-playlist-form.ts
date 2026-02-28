@@ -26,11 +26,11 @@ interface PlaylistFormPayload {
 
 function reorderIds(ids: string[], from: number, to: number): string[] {
   if (
-    from < 0
-    || to < 0
-    || from >= ids.length
-    || to >= ids.length
-    || from === to
+    from < 0 ||
+    to < 0 ||
+    from >= ids.length ||
+    to >= ids.length ||
+    from === to
   ) {
     return ids
   }
@@ -273,8 +273,7 @@ export function usePlaylistFormScreen(
     const newlySelectedIds = sortedTracks
       .map((track) => track.id)
       .filter(
-        (id) =>
-          draftSelectedTracks.has(id) && !persistedSelectedSet.has(id)
+        (id) => draftSelectedTracks.has(id) && !persistedSelectedSet.has(id)
       )
     const selectedTopTracks = [...persistedSelectedIds, ...newlySelectedIds]
       .map((id) => tracksById.get(id))
@@ -304,11 +303,15 @@ export function usePlaylistFormScreen(
       const remainingTracks = sortedTracks.filter(
         (track) => (track.lastPlayedAt ?? 0) <= 0
       )
-      const suggestedTracks = recentlyPlayedTracks.length >= TRACK_PICKER_LIMIT
-        ? recentlyPlayedTracks.slice(0, TRACK_PICKER_LIMIT)
-        : recentlyPlayedTracks.concat(
-          remainingTracks.slice(0, TRACK_PICKER_LIMIT - recentlyPlayedTracks.length)
-        )
+      const suggestedTracks =
+        recentlyPlayedTracks.length >= TRACK_PICKER_LIMIT
+          ? recentlyPlayedTracks.slice(0, TRACK_PICKER_LIMIT)
+          : recentlyPlayedTracks.concat(
+              remainingTracks.slice(
+                0,
+                TRACK_PICKER_LIMIT - recentlyPlayedTracks.length
+              )
+            )
 
       return mergeUniqueById(selectedTopTracks, suggestedTracks).slice(
         0,

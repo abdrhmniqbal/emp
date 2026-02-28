@@ -1,6 +1,8 @@
 import { Button, Input, PressableFeedback, TextArea } from "heroui-native"
-import ReorderableList, { useReorderableDrag } from "react-native-reorderable-list"
 import { Text, View } from "react-native"
+import ReorderableList, {
+  useReorderableDrag,
+} from "react-native-reorderable-list"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import type { Track } from "@/modules/player/player.types"
@@ -33,7 +35,7 @@ function ReorderableSelectedTrackRow({
     <TrackRow
       track={track}
       className="w-full py-2"
-      leftAction={(
+      leftAction={
         <PressableFeedback
           onPressIn={(event) => {
             event.stopPropagation()
@@ -48,8 +50,8 @@ function ReorderableSelectedTrackRow({
             color={theme.foreground}
           />
         </PressableFeedback>
-      )}
-      rightAction={(
+      }
+      rightAction={
         <PressableFeedback
           onPress={(event) => {
             event.stopPropagation()
@@ -64,7 +66,7 @@ function ReorderableSelectedTrackRow({
             color={theme.muted}
           />
         </PressableFeedback>
-      )}
+      }
     />
   )
 }
@@ -144,10 +146,7 @@ export function PlaylistForm({
       onReorder={({ from, to }) => reorderSelectedTracks(from, to)}
       renderItem={({ item }) => (
         <View className="mb-2">
-          <ReorderableSelectedTrackRow
-            track={item}
-            onToggle={toggleTrack}
-          />
+          <ReorderableSelectedTrackRow track={item} onToggle={toggleTrack} />
         </View>
       )}
       keyExtractor={(item) => item.id}

@@ -1,13 +1,12 @@
-import { useStore } from '@nanostores/react'
-import Constants from 'expo-constants'
-import { useRouter } from 'expo-router'
-import { Button, Dialog, PressableFeedback, Switch } from 'heroui-native'
-import * as React from 'react'
-import { Linking, Platform, ScrollView, Text, View } from 'react-native'
-import { useUniwind } from 'uniwind'
+import * as React from "react"
+import { useStore } from "@nanostores/react"
+import Constants from "expo-constants"
+import { useRouter } from "expo-router"
+import { Button, Dialog, PressableFeedback, Switch } from "heroui-native"
+import { Linking, Platform, ScrollView, Text, View } from "react-native"
+import { useUniwind } from "uniwind"
 
-import LocalChevronRightIcon from '@/components/icons/local/chevron-right'
-import { useThemeColors } from '@/hooks/use-theme-colors'
+import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   $autoScanEnabled,
   $indexerState,
@@ -17,7 +16,8 @@ import {
   forceReindexLibrary,
   getTrackDurationFilterLabel,
   setAutoScanEnabled,
-} from '@/modules/indexer'
+} from "@/modules/indexer"
+import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 
 interface SettingItemProps {
   title: string
@@ -42,16 +42,16 @@ const SettingItem: React.FC<SettingItemProps> = ({
     <PressableFeedback
       onPress={isDisabled ? undefined : onPress}
       className={`flex-row items-center bg-background px-6 py-4 ${
-        isDisabled ? 'opacity-60' : 'active:opacity-70'
+        isDisabled ? "opacity-60" : "active:opacity-70"
       }`}
     >
       <View className="flex-1 gap-1">
         <Text className="text-[17px] font-normal text-foreground">{title}</Text>
-        {description
-          ? (
-              <Text className="text-[13px] leading-5 text-muted">{description}</Text>
-            )
-          : null}
+        {description ? (
+          <Text className="text-[13px] leading-5 text-muted">
+            {description}
+          </Text>
+        ) : null}
       </View>
       <View className="flex-row items-center gap-2">
         {rightIcon}
@@ -87,51 +87,51 @@ interface SettingSection {
     title: string
     description?: string
     route?: string
-    action?: 'forceReindex' | 'openBatteryOptimizationSettings'
+    action?: "forceReindex" | "openBatteryOptimizationSettings"
     showChevron?: boolean
   }[]
 }
 
 const SETTINGS_SECTIONS: SettingSection[] = [
   {
-    title: 'Interface',
+    title: "Interface",
     items: [
       {
-        id: 'appearance',
-        title: 'Appearance',
-        route: '/settings/appearance',
+        id: "appearance",
+        title: "Appearance",
+        route: "/settings/appearance",
       },
     ],
   },
   {
-    title: 'Library',
+    title: "Library",
     items: [
       {
-        id: 'folder-filters',
-        title: 'Folder Filters',
-        route: '/settings/folder-filters',
+        id: "folder-filters",
+        title: "Folder Filters",
+        route: "/settings/folder-filters",
       },
       {
-        id: 'track-duration-filter',
-        title: 'Track Duration Filter',
-        route: '/settings/track-duration-filter',
+        id: "track-duration-filter",
+        title: "Track Duration Filter",
+        route: "/settings/track-duration-filter",
       },
       {
-        id: 'auto-scan',
-        title: 'Auto Scan',
+        id: "auto-scan",
+        title: "Auto Scan",
         showChevron: false,
       },
       {
-        id: 'force-reindex',
-        title: 'Reindex Library',
-        description: 'Re-scan all tracks, including unchanged files.',
-        action: 'forceReindex',
+        id: "force-reindex",
+        title: "Reindex Library",
+        description: "Re-scan all tracks, including unchanged files.",
+        action: "forceReindex",
         showChevron: false,
       },
       {
-        id: 'battery-optimization',
-        title: 'Disable Battery Optimization',
-        action: 'openBatteryOptimizationSettings',
+        id: "battery-optimization",
+        title: "Disable Battery Optimization",
+        action: "openBatteryOptimizationSettings",
       },
     ],
   },
@@ -146,23 +146,23 @@ export default function SettingsScreen() {
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
 
   const currentAppearance = hasAdaptiveThemes
-    ? 'System'
-    : currentTheme === 'dark'
-      ? 'Dark'
-      : 'Light'
+    ? "System"
+    : currentTheme === "dark"
+      ? "Dark"
+      : "Light"
 
   React.useEffect(() => {
     void ensureAutoScanConfigLoaded()
     void ensureTrackDurationFilterConfigLoaded()
   }, [])
 
-  function handleItemPress(item: SettingSection['items'][number]) {
-    if (item.action === 'forceReindex') {
+  function handleItemPress(item: SettingSection["items"][number]) {
+    if (item.action === "forceReindex") {
       setShowReindexDialog(true)
       return
     }
 
-    if (item.action === 'openBatteryOptimizationSettings') {
+    if (item.action === "openBatteryOptimizationSettings") {
       void openBatteryOptimizationSettings()
       return
     }
@@ -176,7 +176,7 @@ export default function SettingsScreen() {
     const appPackage = Constants.expoConfig?.android?.package
 
     try {
-      if (Platform.OS !== 'android') {
+      if (Platform.OS !== "android") {
         await Linking.openSettings()
         return
       }
@@ -184,25 +184,25 @@ export default function SettingsScreen() {
       if (appPackage) {
         try {
           await Linking.sendIntent(
-            'android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
+            "android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
             [
               {
-                key: 'android.provider.extra.APP_PACKAGE',
+                key: "android.provider.extra.APP_PACKAGE",
                 value: appPackage,
               },
-            ],
+            ]
           )
           return
-        }
-        catch {
+        } catch {
           // Fall through to settings list.
         }
       }
 
-      await Linking.sendIntent('android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS')
+      await Linking.sendIntent(
+        "android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"
+      )
       return
-    }
-    catch {
+    } catch {
       // Fallback to app settings.
     }
 
@@ -211,24 +211,24 @@ export default function SettingsScreen() {
 
   function getItemDescription(itemId: string): string | undefined {
     switch (itemId) {
-      case 'appearance':
+      case "appearance":
         return `Current: ${currentAppearance}`
-      case 'force-reindex':
+      case "force-reindex":
         return indexerState.isIndexing
-          ? 'Indexing in progress...'
-          : 'Re-scan all tracks, including unchanged files.'
-      case 'folder-filters':
-        return 'Whitelist or blacklist specific folders.'
-      case 'track-duration-filter':
+          ? "Indexing in progress..."
+          : "Re-scan all tracks, including unchanged files."
+      case "folder-filters":
+        return "Whitelist or blacklist specific folders."
+      case "track-duration-filter":
         return getTrackDurationFilterLabel(trackDurationFilterConfig)
-      case 'auto-scan':
+      case "auto-scan":
         return autoScanEnabled
-          ? 'Re-scan on app launch and when files change.'
-          : 'Scan manually when needed.'
-      case 'battery-optimization':
-        return Platform.OS === 'android'
-          ? 'Prevent background restrictions so indexing and playback stay reliable.'
-          : 'Open system settings.'
+          ? "Re-scan on app launch and when files change."
+          : "Scan manually when needed."
+      case "battery-optimization":
+        return Platform.OS === "android"
+          ? "Prevent background restrictions so indexing and playback stay reliable."
+          : "Open system settings."
       default:
         return undefined
     }
@@ -245,31 +245,33 @@ export default function SettingsScreen() {
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        {SETTINGS_SECTIONS.map(section => (
+        {SETTINGS_SECTIONS.map((section) => (
           <View key={section.title}>
             <SectionHeader title={section.title} />
-            {section.items.map(item => (
+            {section.items.map((item) => (
               <SettingItem
                 key={item.id}
                 title={item.title}
                 description={item.description ?? getItemDescription(item.id)}
                 onPress={
-                  item.id === 'auto-scan' ? undefined : () => handleItemPress(item)
+                  item.id === "auto-scan"
+                    ? undefined
+                    : () => handleItemPress(item)
                 }
                 showChevron={item.showChevron !== false}
                 rightIcon={
-                  item.id === 'auto-scan'
-                    ? (
-                        <Switch
-                          isSelected={autoScanEnabled}
-                          onSelectedChange={(isSelected) => {
-                            void setAutoScanEnabled(isSelected)
-                          }}
-                        />
-                      )
-                    : undefined
+                  item.id === "auto-scan" ? (
+                    <Switch
+                      isSelected={autoScanEnabled}
+                      onSelectedChange={(isSelected) => {
+                        void setAutoScanEnabled(isSelected)
+                      }}
+                    />
+                  ) : undefined
                 }
-                isDisabled={item.id === 'force-reindex' && indexerState.isIndexing}
+                isDisabled={
+                  item.id === "force-reindex" && indexerState.isIndexing
+                }
               />
             ))}
           </View>
@@ -287,7 +289,10 @@ export default function SettingsScreen() {
               </Dialog.Description>
             </View>
             <View className="flex-row justify-end gap-3">
-              <Button variant="ghost" onPress={() => setShowReindexDialog(false)}>
+              <Button
+                variant="ghost"
+                onPress={() => setShowReindexDialog(false)}
+              >
                 Cancel
               </Button>
               <Button onPress={handleConfirmForceReindex}>Reindex</Button>

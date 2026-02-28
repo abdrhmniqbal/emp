@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { useRouter } from 'expo-router'
-import { BottomSheet, PressableFeedback, Toast, useToast } from 'heroui-native'
-import { Text } from 'react-native'
+import { useState } from "react"
+import { useRouter } from "expo-router"
+import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
+import { Text } from "react-native"
 
+import type { Track } from "@/modules/player/player.store"
 import {
   useAddTrackToPlaylist,
   useRemoveTrackFromPlaylist,
-} from '@/modules/playlist/playlist.queries'
-import type { Track } from '@/modules/player/player.store'
-import { PlaylistPickerSheet } from '@/components/blocks/playlist-picker-sheet'
+} from "@/modules/playlist/playlist.queries"
+import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
 
 interface PlayerActionSheetProps {
   visible: boolean
@@ -32,16 +32,14 @@ export function PlayerActionSheet({
   const showPlaylistToast = (title: string, description?: string) => {
     toast.show({
       duration: 1800,
-      component: props => (
+      component: (props) => (
         <Toast {...props} variant="accent" placement="bottom">
           <Toast.Title className="text-sm font-semibold">{title}</Toast.Title>
-          {description
-            ? (
-                <Toast.Description className="text-xs text-muted">
-                  {description}
-                </Toast.Description>
-              )
-            : null}
+          {description ? (
+            <Toast.Description className="text-xs text-muted">
+              {description}
+            </Toast.Description>
+          ) : null}
         </Toast>
       ),
     })
@@ -62,7 +60,7 @@ export function PlayerActionSheet({
     setIsPlaylistPickerOpen(false)
     onNavigate?.()
     router.push({
-      pathname: '/(main)/(library)/artist/[name]',
+      pathname: "/(main)/(library)/artist/[name]",
       params: { name: artistName },
     })
   }
@@ -77,14 +75,14 @@ export function PlayerActionSheet({
     setIsPlaylistPickerOpen(false)
     onNavigate?.()
     router.push({
-      pathname: '/(main)/(library)/album/[name]',
+      pathname: "/(main)/(library)/album/[name]",
       params: { name: albumName },
     })
   }
 
   const handleCreatePlaylist = () => {
     setIsPlaylistPickerOpen(false)
-    router.push('/(main)/(library)/playlist/form')
+    router.push("/(main)/(library)/playlist/form")
   }
 
   const handleSelectPlaylist = async ({
@@ -97,9 +95,9 @@ export function PlayerActionSheet({
     hasTrack: boolean
   }) => {
     if (
-      !track
-      || addTrackToPlaylistMutation.isPending
-      || removeTrackFromPlaylistMutation.isPending
+      !track ||
+      addTrackToPlaylistMutation.isPending ||
+      removeTrackFromPlaylistMutation.isPending
     ) {
       return
     }
@@ -111,10 +109,9 @@ export function PlayerActionSheet({
           trackId: track.id,
         })
         setIsPlaylistPickerOpen(false)
-        showPlaylistToast('Removed from playlist', name)
-      }
-      catch {
-        showPlaylistToast('Failed to remove track')
+        showPlaylistToast("Removed from playlist", name)
+      } catch {
+        showPlaylistToast("Failed to remove track")
       }
       return
     }
@@ -128,14 +125,13 @@ export function PlayerActionSheet({
       setIsPlaylistPickerOpen(false)
 
       if (result.skipped) {
-        showPlaylistToast('Already in playlist', name)
+        showPlaylistToast("Already in playlist", name)
         return
       }
 
-      showPlaylistToast('Added to playlist', name)
-    }
-    catch {
-      showPlaylistToast('Failed to add track')
+      showPlaylistToast("Added to playlist", name)
+    } catch {
+      showPlaylistToast("Failed to add track")
     }
   }
 
@@ -148,7 +144,10 @@ export function PlayerActionSheet({
       <BottomSheet isOpen={visible} onOpenChange={onOpenChange}>
         <BottomSheet.Portal>
           <BottomSheet.Overlay />
-          <BottomSheet.Content backgroundClassName="bg-surface" className="gap-1">
+          <BottomSheet.Content
+            backgroundClassName="bg-surface"
+            className="gap-1"
+          >
             <PressableFeedback
               className="h-14 flex-row items-center justify-between active:opacity-50"
               onPress={handleOpenArtist}
@@ -182,11 +181,11 @@ export function PlayerActionSheet({
         onOpenChange={setIsPlaylistPickerOpen}
         trackId={track.id}
         isSelecting={
-          addTrackToPlaylistMutation.isPending
-          || removeTrackFromPlaylistMutation.isPending
+          addTrackToPlaylistMutation.isPending ||
+          removeTrackFromPlaylistMutation.isPending
         }
         onCreatePlaylist={handleCreatePlaylist}
-        onSelectPlaylist={playlist => {
+        onSelectPlaylist={(playlist) => {
           void handleSelectPlaylist(playlist)
         }}
       />

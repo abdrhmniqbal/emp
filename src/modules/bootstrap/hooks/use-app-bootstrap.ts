@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { AppState, type AppStateStatus } from "react-native"
 import * as MediaLibrary from "expo-media-library"
+import { AppState, type AppStateStatus } from "react-native"
 
-import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
-import {
-  ensureAutoScanConfigLoaded,
-  startIndexing,
-} from "@/modules/indexer"
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
+import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
+import { ensureAutoScanConfigLoaded, startIndexing } from "@/modules/indexer"
 
 export function useAppBootstrap() {
   const [isInitialized, setIsInitialized] = useState(false)

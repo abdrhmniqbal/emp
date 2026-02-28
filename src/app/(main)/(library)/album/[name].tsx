@@ -1,33 +1,33 @@
-import { Image } from 'expo-image'
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
-import { Button } from 'heroui-native'
-import * as React from 'react'
-import { useState } from 'react'
-import { Text, View } from 'react-native'
-import Animated from 'react-native-reanimated'
+import * as React from "react"
+import { useState } from "react"
+import { Image } from "expo-image"
+import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { Button } from "heroui-native"
+import { Text, View } from "react-native"
+import Animated from "react-native-reanimated"
 
-import { PlaybackActionsRow } from '@/components/blocks'
-import { LibrarySkeleton } from '@/components/blocks/library-skeleton'
-import { SortSheet } from '@/components/blocks/sort-sheet'
-import { TrackList } from '@/components/blocks/track-list'
-import LocalFavouriteIcon from '@/components/icons/local/favourite'
-import LocalFavouriteSolidIcon from '@/components/icons/local/favourite-solid'
-import LocalVynilSolidIcon from '@/components/icons/local/vynil-solid'
-import { BackButton } from '@/components/patterns'
-import { EmptyState } from '@/components/ui'
+import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from '@/hooks/scroll-bars.store'
-import { useThemeColors } from '@/hooks/use-theme-colors'
-import { useAlbumDetailsScreen } from '@/modules/albums/hooks/use-album-details-screen'
-import { useToggleFavorite } from '@/modules/favorites/favorites.queries'
+} from "@/hooks/scroll-bars.store"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useAlbumDetailsScreen } from "@/modules/albums/hooks/use-album-details-screen"
+import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
 import {
   ALBUM_TRACK_SORT_OPTIONS,
   type AlbumTrackSortField,
-} from '@/modules/library/library-sort.store'
-import { screenEnterTransition } from '@/constants/animations'
+} from "@/modules/library/library-sort.store"
+import LocalFavouriteIcon from "@/components/icons/local/favourite"
+import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
+import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
+import { PlaybackActionsRow } from "@/components/blocks"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { SortSheet } from "@/components/blocks/sort-sheet"
+import { TrackList } from "@/components/blocks/track-list"
+import { BackButton } from "@/components/patterns"
+import { EmptyState } from "@/components/ui"
 
 const HEADER_COLLAPSE_THRESHOLD = 120
 
@@ -56,9 +56,8 @@ export default function AlbumDetailsScreen() {
     selectSort,
     getSortLabel,
   } = useAlbumDetailsScreen()
-  const hasMultipleDiscs = new Set(
-    sortedTracks.map((track) => track.discNumber || 1),
-  ).size > 1
+  const hasMultipleDiscs =
+    new Set(sortedTracks.map((track) => track.discNumber || 1)).size > 1
 
   if (isLoading) {
     return (
@@ -68,14 +67,17 @@ export default function AlbumDetailsScreen() {
     )
   }
 
-  function handleSortSelect(field: AlbumTrackSortField, order?: 'asc' | 'desc') {
+  function handleSortSelect(
+    field: AlbumTrackSortField,
+    order?: "asc" | "desc"
+  ) {
     selectSort(field, order)
   }
 
   function handleBack() {
-    if (from === 'search') {
+    if (from === "search") {
       router.replace({
-        pathname: '/search-interaction',
+        pathname: "/search-interaction",
         params: query ? { query } : {},
       })
       return
@@ -87,14 +89,14 @@ export default function AlbumDetailsScreen() {
   if (!albumInfo) {
     return (
       <EmptyState
-        icon={(
+        icon={
           <LocalVynilSolidIcon
             fill="none"
             width={48}
             height={48}
             color={theme.muted}
           />
-        )}
+        }
         title="No albums found"
         message="No albums found"
         className="mt-12"
@@ -113,7 +115,7 @@ export default function AlbumDetailsScreen() {
       <View className="flex-1 bg-background">
         <Stack.Screen
           options={{
-            title: showHeaderTitle ? albumInfo.title : '',
+            title: showHeaderTitle ? albumInfo.title : "",
             headerBackVisible: false,
             headerLeft: () => (
               <BackButton className="-ml-2" onPress={handleBack} />
@@ -127,7 +129,7 @@ export default function AlbumDetailsScreen() {
                     }
 
                     void toggleFavoriteMutation.mutateAsync({
-                      type: 'album',
+                      type: "album",
                       itemId: albumId,
                       isCurrentlyFavorite: isAlbumFavorite,
                       name: albumInfo.title,
@@ -140,23 +142,21 @@ export default function AlbumDetailsScreen() {
                   className="-mr-2"
                   isIconOnly
                 >
-                  {isAlbumFavorite
-                    ? (
-                        <LocalFavouriteSolidIcon
-                          fill="none"
-                          width={24}
-                          height={24}
-                          color="#ef4444"
-                        />
-                      )
-                    : (
-                        <LocalFavouriteIcon
-                          fill="none"
-                          width={24}
-                          height={24}
-                          color={theme.foreground}
-                        />
-                      )}
+                  {isAlbumFavorite ? (
+                    <LocalFavouriteSolidIcon
+                      fill="none"
+                      width={24}
+                      height={24}
+                      color="#ef4444"
+                    />
+                  ) : (
+                    <LocalFavouriteIcon
+                      fill="none"
+                      width={24}
+                      height={24}
+                      color={theme.foreground}
+                    />
+                  )}
                 </Button>
               ),
           }}
@@ -168,13 +168,14 @@ export default function AlbumDetailsScreen() {
           hideArtist
           getNumber={(track, index) => track.trackNumber || index + 1}
           renderItemPrefix={(track, index, tracks) => {
-            if (sortConfig.field !== 'trackNumber' || !hasMultipleDiscs) {
+            if (sortConfig.field !== "trackNumber" || !hasMultipleDiscs) {
               return null
             }
 
             const currentDisc = track.discNumber || 1
             const previousDisc = tracks[index - 1]?.discNumber || 1
-            const shouldShowDiscSeparator = index === 0 || currentDisc !== previousDisc
+            const shouldShowDiscSeparator =
+              index === 0 || currentDisc !== previousDisc
 
             if (!shouldShowDiscSeparator) {
               return null
@@ -202,29 +203,27 @@ export default function AlbumDetailsScreen() {
           onScrollBeginDrag={handleScrollStart}
           onMomentumScrollEnd={handleScrollStop}
           onScrollEndDrag={handleScrollStop}
-          listHeader={(
+          listHeader={
             <>
               <View className="pb-6">
                 <View className="flex-row gap-4 pt-6">
                   <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
-                    {albumInfo.image
-                      ? (
-                          <Image
-                            source={{ uri: albumInfo.image }}
-                            style={{ width: '100%', height: '100%' }}
-                            contentFit="cover"
-                          />
-                        )
-                      : (
-                          <View className="h-full w-full items-center justify-center">
-                            <LocalVynilSolidIcon
-                              fill="none"
-                              width={48}
-                              height={48}
-                              color={theme.muted}
-                            />
-                          </View>
-                        )}
+                    {albumInfo.image ? (
+                      <Image
+                        source={{ uri: albumInfo.image }}
+                        style={{ width: "100%", height: "100%" }}
+                        contentFit="cover"
+                      />
+                    ) : (
+                      <View className="h-full w-full items-center justify-center">
+                        <LocalVynilSolidIcon
+                          fill="none"
+                          width={48}
+                          height={48}
+                          color={theme.muted}
+                        />
+                      </View>
+                    )}
                   </View>
 
                   <View className="flex-1 justify-center">
@@ -238,10 +237,7 @@ export default function AlbumDetailsScreen() {
                       {albumInfo.artist}
                     </Text>
                     <Text className="mt-2 text-sm text-muted">
-                      {albumInfo.year ? `${albumInfo.year}` : ''}
-                      {' '}
-                      ·
-                      {' '}
+                      {albumInfo.year ? `${albumInfo.year}` : ""} ·{" "}
                       {totalDurationLabel}
                     </Text>
                   </View>
@@ -257,14 +253,12 @@ export default function AlbumDetailsScreen() {
 
               <View className="mb-4 flex-row items-center justify-between">
                 <Text className="text-lg font-bold text-foreground">
-                  {sortedTracks.length}
-                  {' '}
-                  Tracks
+                  {sortedTracks.length} Tracks
                 </Text>
                 <SortSheet.Trigger label={getSortLabel()} iconSize={16} />
               </View>
             </>
-          )}
+          }
         />
 
         <SortSheet.Content options={ALBUM_TRACK_SORT_OPTIONS} />

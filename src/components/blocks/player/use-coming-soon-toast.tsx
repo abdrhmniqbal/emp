@@ -1,5 +1,5 @@
-import { Toast, useToast } from 'heroui-native'
-import { useCallback } from 'react'
+import { useCallback } from "react"
+import { Toast, useToast } from "heroui-native"
 
 export function useComingSoonToast() {
   const { toast } = useToast()
@@ -8,7 +8,7 @@ export function useComingSoonToast() {
     (featureLabel?: string) => {
       toast.show({
         duration: 1800,
-        component: props => (
+        component: (props) => (
           <Toast
             {...props}
             variant="accent"
@@ -18,18 +18,16 @@ export function useComingSoonToast() {
             <Toast.Title className="text-sm font-semibold">
               Coming soon
             </Toast.Title>
-            {featureLabel
-              ? (
-                  <Toast.Description className="text-xs text-muted">
-                    {featureLabel}
-                  </Toast.Description>
-                )
-              : null}
+            {featureLabel ? (
+              <Toast.Description className="text-xs text-muted">
+                {featureLabel}
+              </Toast.Description>
+            ) : null}
           </Toast>
         ),
       })
     },
-    [toast],
+    [toast]
   )
 
   return { showComingSoon }

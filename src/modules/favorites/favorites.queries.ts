@@ -1,8 +1,4 @@
-import {
-  type QueryClient,
-  useMutation,
-  useQuery,
-} from "@tanstack/react-query"
+import { useMutation, useQuery, type QueryClient } from "@tanstack/react-query"
 
 import { queryClient } from "@/lib/tanstack-query"
 import {
@@ -32,134 +28,149 @@ async function invalidateFavoriteQueries(queryClient: QueryClient) {
 }
 
 export function useFavorites(type?: FavoriteType, options: QueryOptions = {}) {
-  return useQuery({
-    queryKey: [FAVORITES_KEY, type],
-    enabled: options.enabled ?? true,
-    placeholderData: (previousData) => previousData,
-    queryFn: () => getFavorites(type),
-  }, queryClient)
+  return useQuery(
+    {
+      queryKey: [FAVORITES_KEY, type],
+      enabled: options.enabled ?? true,
+      placeholderData: (previousData) => previousData,
+      queryFn: () => getFavorites(type),
+    },
+    queryClient
+  )
 }
 
 export function useAddFavorite() {
-  return useMutation({
-    mutationFn: async ({
-      type,
-      itemId,
-      name,
-      subtitle,
-      image,
-    }: {
-      type: FavoriteType
-      itemId: string
-      name: string
-      subtitle?: string
-      image?: string
-    }) => {
-      const now = Date.now()
-      await addFavorite({
-        id: itemId,
+  return useMutation(
+    {
+      mutationFn: async ({
         type,
+        itemId,
         name,
         subtitle,
         image,
-        dateAdded: now,
-      })
-
-      return { type, itemId, favoritedAt: now }
-    },
-    onSuccess: async () => {
-      await invalidateFavoriteQueries(queryClient)
-    },
-  }, queryClient)
-}
-
-export function useRemoveFavorite() {
-  return useMutation({
-    mutationFn: async ({
-      type,
-      itemId,
-    }: {
-      type: FavoriteType
-      itemId: string
-    }) => {
-      await removeFavorite(itemId, type)
-
-      return { type, itemId }
-    },
-    onSuccess: async () => {
-      await invalidateFavoriteQueries(queryClient)
-    },
-  }, queryClient)
-}
-
-export function useIsFavorite(type: FavoriteType, itemId: string) {
-  const normalizedItemId = itemId.trim()
-
-  return useQuery({
-    queryKey: [FAVORITES_KEY, type, normalizedItemId],
-    enabled: normalizedItemId.length > 0,
-    placeholderData: (previousData) => previousData,
-    queryFn: () => isFavorite(normalizedItemId, type),
-  }, queryClient)
-}
-
-export function useToggleFavorite() {
-  return useMutation({
-    mutationFn: async ({
-      type,
-      itemId,
-      isCurrentlyFavorite,
-      name,
-      subtitle,
-      image,
-    }: {
-      type: FavoriteType
-      itemId: string
-      isCurrentlyFavorite: boolean
-      name: string
-      subtitle?: string
-      image?: string
-    }) => {
-      if (isCurrentlyFavorite) {
-        await removeFavorite(itemId, type)
-      } else {
+      }: {
+        type: FavoriteType
+        itemId: string
+        name: string
+        subtitle?: string
+        image?: string
+      }) => {
+        const now = Date.now()
         await addFavorite({
           id: itemId,
           type,
           name,
           subtitle,
           image,
-          dateAdded: Date.now(),
+          dateAdded: now,
         })
-      }
 
-      return !isCurrentlyFavorite
+        return { type, itemId, favoritedAt: now }
+      },
+      onSuccess: async () => {
+        await invalidateFavoriteQueries(queryClient)
+      },
     },
-    onMutate: async (variables) => {
-      await queryClient.cancelQueries({
-        queryKey: [FAVORITES_KEY, variables.type, variables.itemId],
-      })
-      const previousValue = queryClient.getQueryData<boolean>([
-        FAVORITES_KEY,
-        variables.type,
-        variables.itemId,
-      ])
+    queryClient
+  )
+}
 
-      queryClient.setQueryData(
-        [FAVORITES_KEY, variables.type, variables.itemId],
-        !variables.isCurrentlyFavorite
-      )
+export function useRemoveFavorite() {
+  return useMutation(
+    {
+      mutationFn: async ({
+        type,
+        itemId,
+      }: {
+        type: FavoriteType
+        itemId: string
+      }) => {
+        await removeFavorite(itemId, type)
 
-      return { previousValue }
+        return { type, itemId }
+      },
+      onSuccess: async () => {
+        await invalidateFavoriteQueries(queryClient)
+      },
     },
-    onError: (_error, variables, context) => {
-      queryClient.setQueryData(
-        [FAVORITES_KEY, variables.type, variables.itemId],
-        context?.previousValue
-      )
+    queryClient
+  )
+}
+
+export function useIsFavorite(type: FavoriteType, itemId: string) {
+  const normalizedItemId = itemId.trim()
+
+  return useQuery(
+    {
+      queryKey: [FAVORITES_KEY, type, normalizedItemId],
+      enabled: normalizedItemId.length > 0,
+      placeholderData: (previousData) => previousData,
+      queryFn: () => isFavorite(normalizedItemId, type),
     },
-    onSettled: async () => {
-      await invalidateFavoriteQueries(queryClient)
+    queryClient
+  )
+}
+
+export function useToggleFavorite() {
+  return useMutation(
+    {
+      mutationFn: async ({
+        type,
+        itemId,
+        isCurrentlyFavorite,
+        name,
+        subtitle,
+        image,
+      }: {
+        type: FavoriteType
+        itemId: string
+        isCurrentlyFavorite: boolean
+        name: string
+        subtitle?: string
+        image?: string
+      }) => {
+        if (isCurrentlyFavorite) {
+          await removeFavorite(itemId, type)
+        } else {
+          await addFavorite({
+            id: itemId,
+            type,
+            name,
+            subtitle,
+            image,
+            dateAdded: Date.now(),
+          })
+        }
+
+        return !isCurrentlyFavorite
+      },
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries({
+          queryKey: [FAVORITES_KEY, variables.type, variables.itemId],
+        })
+        const previousValue = queryClient.getQueryData<boolean>([
+          FAVORITES_KEY,
+          variables.type,
+          variables.itemId,
+        ])
+
+        queryClient.setQueryData(
+          [FAVORITES_KEY, variables.type, variables.itemId],
+          !variables.isCurrentlyFavorite
+        )
+
+        return { previousValue }
+      },
+      onError: (_error, variables, context) => {
+        queryClient.setQueryData(
+          [FAVORITES_KEY, variables.type, variables.itemId],
+          context?.previousValue
+        )
+      },
+      onSettled: async () => {
+        await invalidateFavoriteQueries(queryClient)
+      },
     },
-  }, queryClient)
+    queryClient
+  )
 }

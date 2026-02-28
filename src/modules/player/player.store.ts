@@ -7,16 +7,16 @@ import {
   incrementTrackPlayCount,
 } from "@/modules/history/history.api"
 import {
+  loadPlaybackSession,
+  savePlaybackSession,
+} from "@/modules/player/player-session"
+import {
   Capability,
   Event,
   RepeatMode,
   State,
   TrackPlayer,
 } from "@/modules/player/player.utils"
-import {
-  loadPlaybackSession,
-  savePlaybackSession,
-} from "@/modules/player/player-session"
 
 import type { Album, Artist, LyricLine, Track } from "./player.types"
 
@@ -113,15 +113,18 @@ async function setQueueStore(tracks: Track[]): Promise<void> {
   setQueue(tracks)
 }
 
-export async function persistPlaybackSession(
-  options?: { force?: boolean }
-): Promise<void> {
+export async function persistPlaybackSession(options?: {
+  force?: boolean
+}): Promise<void> {
   if (!isPlayerReady) {
     return
   }
 
   const now = Date.now()
-  if (!options?.force && now - lastPlaybackSessionSavedAt < MIN_SESSION_SAVE_INTERVAL_MS) {
+  if (
+    !options?.force &&
+    now - lastPlaybackSessionSavedAt < MIN_SESSION_SAVE_INTERVAL_MS
+  ) {
     return
   }
 
@@ -134,8 +137,8 @@ export async function persistPlaybackSession(
 
     const currentTrackId =
       currentIndex !== null && currentIndex >= 0 && currentIndex < queue.length
-        ? queue[currentIndex]?.id ?? null
-        : $currentTrack.get()?.id ?? null
+        ? (queue[currentIndex]?.id ?? null)
+        : ($currentTrack.get()?.id ?? null)
 
     await savePlaybackSession({
       queue,
@@ -167,9 +170,9 @@ export async function restorePlaybackSession(): Promise<void> {
 
       const currentIndex = await TrackPlayer.getCurrentTrack()
       if (
-        currentIndex !== null
-        && currentIndex >= 0
-        && currentIndex < mappedQueue.length
+        currentIndex !== null &&
+        currentIndex >= 0 &&
+        currentIndex < mappedQueue.length
       ) {
         $currentTrack.set(mappedQueue[currentIndex] || null)
       } else {
@@ -200,7 +203,9 @@ export async function restorePlaybackSession(): Promise<void> {
 
     const currentIndex =
       snapshot.currentTrackId !== null
-        ? snapshot.queue.findIndex((track) => track.id === snapshot.currentTrackId)
+        ? snapshot.queue.findIndex(
+            (track) => track.id === snapshot.currentTrackId
+          )
         : 0
     const targetIndex = currentIndex >= 0 ? currentIndex : 0
     const targetPosition = Math.max(0, snapshot.positionSeconds || 0)

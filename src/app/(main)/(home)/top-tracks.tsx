@@ -20,8 +20,8 @@ import {
   type TopTracksTab,
 } from "@/modules/tracks/hooks/use-top-tracks-screen"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import { EmptyState } from "@/components/ui"
 
@@ -95,7 +95,10 @@ export default function TopTracksScreen() {
           <TrackList
             data={currentTracks}
             showNumbers
-            contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
+            contentContainerStyle={{
+              paddingBottom: 200,
+              paddingHorizontal: 16,
+            }}
             onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}

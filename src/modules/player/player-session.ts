@@ -43,7 +43,7 @@ function sanitizeTrack(track: Track): Track {
 }
 
 function sanitizeSession(
-  payload: Partial<PersistedPlaybackSession>,
+  payload: Partial<PersistedPlaybackSession>
 ): PersistedPlaybackSession | null {
   if (!Array.isArray(payload.queue)) {
     return null
@@ -57,15 +57,16 @@ function sanitizeSession(
     ? Math.max(0, payload.positionSeconds ?? 0)
     : 0
 
-  const repeatMode: RepeatModeType
-    = payload.repeatMode === "track"
-      || payload.repeatMode === "queue"
-      || payload.repeatMode === "off"
+  const repeatMode: RepeatModeType =
+    payload.repeatMode === "track" ||
+    payload.repeatMode === "queue" ||
+    payload.repeatMode === "off"
       ? payload.repeatMode
       : "off"
 
-  const currentTrackId
-    = typeof payload.currentTrackId === "string" && payload.currentTrackId.length > 0
+  const currentTrackId =
+    typeof payload.currentTrackId === "string" &&
+    payload.currentTrackId.length > 0
       ? payload.currentTrackId
       : null
 
@@ -75,12 +76,14 @@ function sanitizeSession(
     positionSeconds,
     repeatMode,
     wasPlaying: Boolean(payload.wasPlaying),
-    savedAt: Number.isFinite(payload.savedAt) ? payload.savedAt ?? Date.now() : Date.now(),
+    savedAt: Number.isFinite(payload.savedAt)
+      ? (payload.savedAt ?? Date.now())
+      : Date.now(),
   }
 }
 
 export async function savePlaybackSession(
-  session: PersistedPlaybackSession,
+  session: PersistedPlaybackSession
 ): Promise<void> {
   const sanitized = sanitizeSession(session)
   if (!sanitized) {

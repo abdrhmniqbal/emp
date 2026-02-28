@@ -24,8 +24,9 @@ export interface GenreVisual {
 export async function getAllGenres(): Promise<string[]> {
   try {
     const result = await db.query.genres.findMany({
-      orderBy: (genres, { asc }) =>
-        [asc(sql`lower(coalesce(${genres.name}, ''))`)],
+      orderBy: (genres, { asc }) => [
+        asc(sql`lower(coalesce(${genres.name}, ''))`),
+      ],
       columns: {
         name: true,
       },
@@ -40,8 +41,9 @@ export async function getAllGenres(): Promise<string[]> {
 export async function getAllGenreVisuals(): Promise<GenreVisual[]> {
   try {
     const result = await db.query.genres.findMany({
-      orderBy: (genres, { asc }) =>
-        [asc(sql`lower(coalesce(${genres.name}, ''))`)],
+      orderBy: (genres, { asc }) => [
+        asc(sql`lower(coalesce(${genres.name}, ''))`),
+      ],
       columns: {
         name: true,
         color: true,

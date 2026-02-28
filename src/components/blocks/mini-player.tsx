@@ -1,16 +1,12 @@
-import { useStore } from '@nanostores/react'
-import { Image } from 'expo-image'
-import { PressableFeedback } from 'heroui-native'
-import * as React from 'react'
-import { View } from 'react-native'
-import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated'
+import * as React from "react"
+import { useStore } from "@nanostores/react"
+import { Image } from "expo-image"
+import { PressableFeedback } from "heroui-native"
+import { View } from "react-native"
+import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated"
 
-import LocalNextSolidIcon from '@/components/icons/local/next-solid'
-import LocalPauseSolidIcon from '@/components/icons/local/pause-solid'
-import LocalPlaySolidIcon from '@/components/icons/local/play-solid'
-import { MarqueeText } from '@/components/ui/marquee-text'
-import { $isPlayerExpanded, $showPlayerQueue } from '@/hooks/scroll-bars.store'
-import { useThemeColors } from '@/hooks/use-theme-colors'
+import { $isPlayerExpanded, $showPlayerQueue } from "@/hooks/scroll-bars.store"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   $currentTime,
   $currentTrack,
@@ -18,10 +14,14 @@ import {
   $isPlaying,
   playNext,
   togglePlayback,
-} from '@/modules/player/player.store'
+} from "@/modules/player/player.store"
+import LocalNextSolidIcon from "@/components/icons/local/next-solid"
+import LocalPauseSolidIcon from "@/components/icons/local/pause-solid"
+import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
+import { MarqueeText } from "@/components/ui/marquee-text"
 
-import LocalMusicNoteSolidIcon from '../icons/local/music-note-solid'
-import LocalQueueIcon from '../icons/local/queue'
+import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
+import LocalQueueIcon from "../icons/local/queue"
 
 interface MiniPlayerProps {
   bottomOffset?: number
@@ -39,8 +39,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 
   const theme = useThemeColors()
 
-  if (!currentTrack)
-    return null
+  if (!currentTrack) return null
 
   return (
     <Animated.View
@@ -60,7 +59,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
         <View
           style={{
             width: `${progressPercent}%`,
-            height: '100%',
+            height: "100%",
             backgroundColor: theme.accent,
           }}
         />
@@ -72,22 +71,20 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
           className="flex-1 flex-row items-center gap-3 active:opacity-80"
         >
           <View className="h-11 w-11 items-center justify-center overflow-hidden rounded-md bg-surface">
-            {currentTrack.image
-              ? (
-                  <Image
-                    source={{ uri: currentTrack.image }}
-                    style={{ width: '100%', height: '100%' }}
-                    contentFit="cover"
-                  />
-                )
-              : (
-                  <LocalMusicNoteSolidIcon
-                    fill="none"
-                    width={20}
-                    height={20}
-                    color={theme.muted}
-                  />
-                )}
+            {currentTrack.image ? (
+              <Image
+                source={{ uri: currentTrack.image }}
+                style={{ width: "100%", height: "100%" }}
+                contentFit="cover"
+              />
+            ) : (
+              <LocalMusicNoteSolidIcon
+                fill="none"
+                width={20}
+                height={20}
+                color={theme.muted}
+              />
+            )}
           </View>
 
           <View className="flex-1 overflow-hidden">
@@ -97,7 +94,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
               speed={0.6}
             />
             <MarqueeText
-              text={currentTrack.artist || 'Unknown Artist'}
+              text={currentTrack.artist || "Unknown Artist"}
               className="text-[13px] text-muted"
               speed={0.5}
             />
@@ -109,23 +106,21 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
             onPress={togglePlayback}
             className="p-2 active:opacity-60"
           >
-            {isPlaying
-              ? (
-                  <LocalPauseSolidIcon
-                    fill="none"
-                    width={28}
-                    height={28}
-                    color={theme.foreground}
-                  />
-                )
-              : (
-                  <LocalPlaySolidIcon
-                    fill="none"
-                    width={28}
-                    height={28}
-                    color={theme.foreground}
-                  />
-                )}
+            {isPlaying ? (
+              <LocalPauseSolidIcon
+                fill="none"
+                width={28}
+                height={28}
+                color={theme.foreground}
+              />
+            ) : (
+              <LocalPlaySolidIcon
+                fill="none"
+                width={28}
+                height={28}
+                color={theme.foreground}
+              />
+            )}
           </PressableFeedback>
           <PressableFeedback
             onPress={playNext}
