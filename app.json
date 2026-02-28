@@ -1,7 +1,7 @@
 {
   "expo": {
     "newArchEnabled": true,
-    "scheme": "acme",
+    "scheme": "euphony-music",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
