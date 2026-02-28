@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -155,6 +157,7 @@ jobs:
 
           DIST_DIR="app/build/outputs/apk/dist"
           RELEASE_DIR="app/build/outputs/apk/release"
+          APK_PREFIX="euphony-music-${RELEASE_TAG}"
           ./gradlew clean
           mkdir -p "${DIST_DIR}"
           rm -f "${DIST_DIR}"/*.apk
@@ -172,7 +175,7 @@ jobs:
             local latest_apk
             latest_apk="$(ls -t ${RELEASE_DIR}/*.apk | head -n1)"
             mkdir -p "${DIST_DIR}"
-            cp "${latest_apk}" "${DIST_DIR}/app-release-${label}.apk"
+            cp "${latest_apk}" "${DIST_DIR}/${APK_PREFIX}-${label}.apk"
           }
 
           # Universal APK (all configured architectures)
@@ -212,6 +215,72 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
+      - name: Generate release draft body (commits + authors)
+        run: |
+          set -euo pipefail
+          CURRENT_TAG="${RELEASE_TAG}"
+          PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || true)"
+
+          if [ -n "${PREVIOUS_TAG}" ]; then
+            RANGE="${PREVIOUS_TAG}..${CURRENT_TAG}"
+            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}"
+          else
+            RANGE="${CURRENT_TAG}"
+            COMPARE_URL=""
+          fi
+
+          NOTES_PATH="release-body.md"
+
+          {
+            echo "## Included Commits"
+            echo
+            if [ -n "${PREVIOUS_TAG}" ]; then
+              echo "Range: \`${PREVIOUS_TAG}..${CURRENT_TAG}\`"
+            else
+              echo "Range: \`${CURRENT_TAG}\` (first tagged release or previous tag not found)"
+            fi
+            if [ -n "${COMPARE_URL}" ]; then
+              echo
+              echo "Compare: ${COMPARE_URL}"
+            fi
+            echo
+
+            COMMITS_FILE="$(mktemp)"
+            AUTHORS_FILE="$(mktemp)"
+
+            while IFS=$'\t' read -r sha subject author_name author_email; do
+              if [ -z "${sha}" ]; then
+                continue
+              fi
+
+              author_ref="${author_name}"
+              if [[ "${author_email}" =~ ^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$ ]]; then
+                author_ref="@${BASH_REMATCH[2]}"
+              elif [[ "${author_name}" =~ ^@ ]]; then
+                author_ref="${author_name}"
+              fi
+
+              printf -- '- %s (%s) — %s\n' "${subject}" "${sha}" "${author_ref}" >> "${COMMITS_FILE}"
+              printf '%s\n' "${author_ref}" >> "${AUTHORS_FILE}"
+            done < <(git log --no-merges --pretty=format:'%h%x09%s%x09%an%x09%ae' "${RANGE}")
+
+            if [ -s "${COMMITS_FILE}" ]; then
+              cat "${COMMITS_FILE}"
+            else
+              echo "- No commits found in this range."
+            fi
+
+            echo
+            echo "## Contributors"
+            if [ -s "${AUTHORS_FILE}" ]; then
+              sort -fu "${AUTHORS_FILE}" | sed 's/^/- /'
+            else
+              echo "- Unknown"
+            fi
+          } > "${NOTES_PATH}"
+
+          echo "RELEASE_BODY_PATH=${NOTES_PATH}" >> "$GITHUB_ENV"
+
       - name: Create GitHub Release draft with APK
         uses: softprops/action-gh-release@v2
         with:
@@ -219,6 +288,7 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
           files: ${{ steps.collect_apk.outputs.apk_files }}
+          body_path: ${{ env.RELEASE_BODY_PATH }}
           fail_on_unmatched_files: true
           overwrite_files: true
           draft: true
