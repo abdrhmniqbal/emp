@@ -67,6 +67,15 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen
+        name="about"
+        options={{
+          title: "About",
+          headerBackButtonMenuEnabled: false,
+          headerBackVisible: false,
+          headerLeft: () => <BackButton className="-ml-2" />,
+        }}
+      />
+      <Stack.Screen
         name="folder-filters"
         options={{
           title: "Folder Filters",

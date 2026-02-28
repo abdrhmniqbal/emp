@@ -61,6 +61,11 @@ export default function SettingsScreen() {
           description="System-level and troubleshooting settings."
           onPress={() => router.push("/settings/advanced")}
         />
+        <SettingsCategoryItem
+          title="About"
+          description="App information and build details."
+          onPress={() => router.push("/settings/about")}
+        />
       </View>
     </ScrollView>
   )
