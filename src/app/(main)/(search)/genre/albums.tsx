@@ -48,7 +48,7 @@ export default function GenreAlbumsScreen() {
 
   if (isLoading && sortedAlbumData.length === 0) {
     return (
-      <View className="flex-1 bg-background px-6 pt-4">
+      <View className="flex-1 bg-background px-4 pt-4">
         <Stack.Screen
           options={{
             title: `${genreName.trim()} Albums`,
@@ -124,7 +124,10 @@ export default function GenreAlbumsScreen() {
             data={sortedAlbumData}
             onAlbumPress={handleAlbumPress}
             resetScrollKey={`${genreName}-${sortConfig.field}-${sortConfig.order}`}
-            contentContainerStyle={{ paddingBottom: 200 }}
+            contentContainerStyle={{
+              paddingHorizontal: 16,
+              paddingBottom: 200,
+            }}
             onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}
@@ -140,7 +143,7 @@ export default function GenreAlbumsScreen() {
               <Animated.View
                 entering={screenEnterTransition()}
                 exiting={screenExitTransition()}
-                className="px-6 py-4"
+                className="py-4"
               >
                 <View className="mb-4 flex-row items-center justify-between">
                   <Text className="text-lg font-bold text-foreground">

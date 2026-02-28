@@ -19,6 +19,7 @@ import {
   ALBUM_TRACK_SORT_OPTIONS,
   type AlbumTrackSortField,
 } from "@/modules/library/library-sort.store"
+import { mergeText } from "@/utils/merge-text"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
@@ -237,8 +238,7 @@ export default function AlbumDetailsScreen() {
                       {albumInfo.artist}
                     </Text>
                     <Text className="mt-2 text-sm text-muted">
-                      {albumInfo.year ? `${albumInfo.year}` : ""} ·{" "}
-                      {totalDurationLabel}
+                      {mergeText([albumInfo?.year, totalDurationLabel])}
                     </Text>
                   </View>
                 </View>

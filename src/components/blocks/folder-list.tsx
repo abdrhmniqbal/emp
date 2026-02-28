@@ -20,6 +20,7 @@ import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import type { Track } from "@/modules/player/player.store"
 import { formatDuration } from "@/utils/format"
+import { mergeText } from "@/utils/merge-text"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
@@ -168,8 +169,10 @@ export const FolderList: React.FC<FolderListProps> = ({
           {track.title || track.filename || "Unknown Track"}
         </ItemTitle>
         <ItemDescription>
-          {track.artist || "Unknown Artist"} •{" "}
-          {formatDuration(track.duration || 0)}
+          {mergeText([
+            track.artist || "Unknown Artist",
+            formatDuration(track.duration || 0),
+          ])}
         </ItemDescription>
       </ItemContent>
     </Item>

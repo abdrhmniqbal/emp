@@ -215,7 +215,7 @@ export default function LibraryScreen() {
 
         <View className="flex-1 px-4">
           {showPlayButtons && (
-            <View className="mb-4">
+            <View className="mb-2">
               <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
             </View>
           )}

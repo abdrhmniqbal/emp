@@ -16,6 +16,7 @@ import {
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
+import { mergeText } from "@/utils/merge-text"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import {
   EmptyState,
@@ -116,6 +117,13 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
     onAlbumPress?.(album)
   }
 
+  function getAlbumMetaText(item: Album) {
+    return mergeText([
+      item.albumArtist || item.artist,
+      item.trackCount > 0 ? `${item.trackCount} tracks` : null,
+    ])
+  }
+
   const renderAlbumItem = (item: Album) => (
     <Item variant="grid" className="w-full" onPress={() => handlePress(item)}>
       <ItemImage
@@ -135,8 +143,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
           {item.title}
         </ItemTitle>
         <ItemDescription numberOfLines={1}>
-          {item.albumArtist || item.artist}
-          {item.trackCount ? ` • ${item.trackCount} tracks` : ""}
+          {getAlbumMetaText(item)}
         </ItemDescription>
       </ItemContent>
     </Item>
@@ -191,8 +198,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
                   {item.title}
                 </ItemTitle>
                 <ItemDescription numberOfLines={1}>
-                  {item.albumArtist || item.artist}
-                  {item.trackCount ? ` • ${item.trackCount} tracks` : ""}
+                  {getAlbumMetaText(item)}
                 </ItemDescription>
               </ItemContent>
             </Item>

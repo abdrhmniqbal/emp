@@ -13,7 +13,6 @@ import type {
 } from "@/modules/library/library.queries"
 import { playTrack, type Track } from "@/modules/player/player.store"
 import LocalCheckmarkCircleSolidIcon from "@/components/icons/local/checkmark-circle-solid"
-import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
@@ -295,14 +294,6 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
                 {item.track.artist || "Unknown Artist"}
               </ItemDescription>
             </ItemContent>
-            <ItemAction>
-              <LocalMoreHorizontalCircleSolidIcon
-                fill="none"
-                width={20}
-                height={20}
-                color={theme.muted}
-              />
-            </ItemAction>
           </Item>
         )
       default:

@@ -43,9 +43,11 @@ function PlaybackActionsSkeleton() {
 function TrackRowSkeleton({
   showCover = true,
   showRank = false,
+  showTrailingAction = true,
 }: {
   showCover?: boolean
   showRank?: boolean
+  showTrailingAction?: boolean
 }) {
   return (
     <View className="flex-row items-center gap-3 py-2">
@@ -55,7 +57,9 @@ function TrackRowSkeleton({
         <Skeleton className="h-4 w-3/4 rounded" />
         <Skeleton className="h-3 w-1/2 rounded" />
       </View>
-      <Skeleton className="h-6 w-6 rounded-full" />
+      {showTrailingAction ? (
+        <Skeleton className="h-6 w-6 rounded-full" />
+      ) : null}
     </View>
   )
 }
@@ -64,10 +68,12 @@ function TrackListSkeleton({
   itemCount = 8,
   showCover = true,
   showRank = false,
+  showTrailingAction = true,
 }: {
   itemCount?: number
   showCover?: boolean
   showRank?: boolean
+  showTrailingAction?: boolean
 }) {
   return (
     <View className="gap-2">
@@ -76,6 +82,7 @@ function TrackListSkeleton({
           key={`track-skeleton-${index}`}
           showCover={showCover}
           showRank={showRank}
+          showTrailingAction={showTrailingAction}
         />
       ))}
     </View>
@@ -174,7 +181,7 @@ function SearchResultsSkeleton() {
       <View className="mb-3">
         <Skeleton className="h-6 w-20 rounded-md" />
       </View>
-      <TrackListSkeleton itemCount={7} />
+      <TrackListSkeleton itemCount={7} showTrailingAction={false} />
     </View>
   )
 }

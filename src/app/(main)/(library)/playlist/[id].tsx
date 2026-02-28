@@ -14,6 +14,7 @@ import {
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { usePlaylistDetailsScreen } from "@/modules/playlist/hooks/use-playlist-details-screen"
 import { formatDuration } from "@/modules/playlist/playlist.utils"
+import { mergeText } from "@/utils/merge-text"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
@@ -56,6 +57,10 @@ export default function PlaylistDetailsScreen() {
     deletePlaylist,
     isDeleting,
   } = usePlaylistDetailsScreen(id || "")
+  const playlistMetaText = mergeText([
+    `${tracks.length} ${tracks.length === 1 ? "track" : "tracks"}`,
+    formatDuration(totalDuration),
+  ])
 
   function handleBack() {
     if (from === "search") {
@@ -206,7 +211,7 @@ export default function PlaylistDetailsScreen() {
                     </Text>
                   ) : null}
                   <Text className="mt-2 text-sm text-muted">
-                    {tracks.length} tracks ·{formatDuration(totalDuration)}
+                    {playlistMetaText}
                   </Text>
                 </View>
               </View>
