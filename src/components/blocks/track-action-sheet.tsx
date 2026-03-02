@@ -268,7 +268,16 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     }
   }, [track?.id, track?.uri])
 
-  if (!track) return null
+  if (!track) {
+    return (
+      <BottomSheet isOpen={false} onOpenChange={() => {}}>
+        <BottomSheet.Portal>
+          <BottomSheet.Overlay />
+          <BottomSheet.Content />
+        </BottomSheet.Portal>
+      </BottomSheet>
+    )
+  }
 
   const fallbackArtist = track.artist || "Unknown Artist"
   const fallbackAlbum = track.album || "Unknown Album"
