@@ -345,6 +345,8 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     $isPlaying.set(true)
     $currentTime.set(0)
     $duration.set(track.duration || 0)
+    addTrackToHistory(track.id)
+    incrementTrackPlayCount(track.id)
     await persistPlaybackSession({ force: true })
   } catch {}
 }
@@ -379,9 +381,13 @@ export async function playNext() {
   try {
     await TrackPlayer.skipToNext()
     await syncCurrentTrackFromPlayer()
+    const newTrack = $currentTrack.get()
+    if (newTrack) {
+      addTrackToHistory(newTrack.id)
+      incrementTrackPlayCount(newTrack.id)
+    }
     await persistPlaybackSession({ force: true })
   } catch {
-    // If at end of queue, wrap to beginning of active playback queue.
     const { $queue } = await import("./queue.store")
     const queue = $queue.get()
     if (queue.length > 0) {
@@ -392,18 +398,20 @@ export async function playNext() {
 
 export async function playPrevious() {
   try {
-    // v4 API: getPosition() returns position directly
     const position = await TrackPlayer.getPosition()
     if (position > 3) {
       await TrackPlayer.seekTo(0)
     } else {
       await TrackPlayer.skipToPrevious()
       await syncCurrentTrackFromPlayer()
+      const newTrack = $currentTrack.get()
+      if (newTrack) {
+        addTrackToHistory(newTrack.id)
+        incrementTrackPlayCount(newTrack.id)
+      }
       await persistPlaybackSession({ force: true })
     }
-  } catch {
-    // If at beginning of queue, stay at first track
-  }
+  } catch {}
 }
 
 export async function seekTo(seconds: number) {
