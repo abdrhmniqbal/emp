@@ -162,17 +162,20 @@ async function processBatch(
       const artworkPath = await saveArtworkToCache(metadata.artwork)
       if (signal?.aborted) return
 
-      // Get or create artist
       const artistId = metadata.artist
         ? await getOrCreateArtist(metadata.artist)
         : null
 
-      // Get or create album
+      const albumArtistId =
+        metadata.albumArtist && metadata.albumArtist !== metadata.artist
+          ? await getOrCreateArtist(metadata.albumArtist)
+          : artistId
+
       const albumId =
-        metadata.album && artistId
+        metadata.album && albumArtistId
           ? await getOrCreateAlbum(
               metadata.album,
-              artistId,
+              albumArtistId,
               artworkPath,
               metadata.year
             )
