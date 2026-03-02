@@ -1,0 +1,112 @@
+name: Release Notes
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: "Release tag (example: v1.2.3 or v1.2.3-rc.1)"
+        required: true
+        type: string
+    secrets:
+      github_token:
+        required: true
+
+jobs:
+  generate-release-notes:
+    name: Generate and Apply Release Notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate release body (categorized)
+        run: |
+          set -euo pipefail
+          CURRENT_TAG="${{ inputs.release_tag }}"
+          PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || true)"
+
+          if [ -n "${PREVIOUS_TAG}" ]; then
+            RANGE="${PREVIOUS_TAG}..${CURRENT_TAG}"
+            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}"
+          else
+            RANGE="${CURRENT_TAG}"
+            COMPARE_URL=""
+          fi
+
+          NOTES_PATH="release-body.md"
+          FEATURES_FILE="$(mktemp)"
+          CHANGES_FILE="$(mktemp)"
+          FIXES_FILE="$(mktemp)"
+
+          while IFS=$'\t' read -r sha subject author_name author_email; do
+            if [ -z "${sha}" ]; then
+              continue
+            fi
+
+            author_ref="${author_name}"
+            if [[ "${author_email}" =~ ^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$ ]]; then
+              author_ref="@${BASH_REMATCH[2]}"
+            elif [[ "${author_name}" =~ ^@ ]]; then
+              author_ref="${author_name}"
+            fi
+
+            clean_subject="${subject}"
+            if [[ "${subject}" =~ ^feat(\(.+\))?:\ (.+)$ ]]; then
+              clean_subject="${BASH_REMATCH[2]}"
+              first_word="$(echo "${clean_subject}" | awk '{print $1}')"
+              if [[ "${first_word,,}" == "add" ]]; then
+                printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FEATURES_FILE}"
+              else
+                printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${CHANGES_FILE}"
+              fi
+            elif [[ "${subject}" =~ ^fix(\(.+\))?:\ (.+)$ ]]; then
+              clean_subject="${BASH_REMATCH[2]}"
+              printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FIXES_FILE}"
+            fi
+          done < <(git log --no-merges --pretty=format:'%h%x09%s%x09%an%x09%ae' "${RANGE}")
+
+          {
+            echo "Check out the [past release notes](https://github.com/${GITHUB_REPOSITORY}/releases) if you're upgrading from an earlier version."
+            echo
+
+            if [ -s "${FEATURES_FILE}" ]; then
+              echo "## ✨ New Features"
+              cat "${FEATURES_FILE}"
+              echo
+            fi
+
+            if [ -s "${CHANGES_FILE}" ]; then
+              echo "## ⚙️ Changes"
+              cat "${CHANGES_FILE}"
+              echo
+            fi
+
+            if [ -s "${FIXES_FILE}" ]; then
+              echo "## 🧩 Fixes"
+              cat "${FIXES_FILE}"
+              echo
+            fi
+
+            if [ -n "${COMPARE_URL}" ]; then
+              echo "**Full Changelog**:"
+              echo "${COMPARE_URL}"
+            fi
+          } > "${NOTES_PATH}"
+
+          echo "RELEASE_BODY_PATH=${NOTES_PATH}" >> "$GITHUB_ENV"
+
+      - name: Update release draft body
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ inputs.release_tag }}
+          tag_name: ${{ inputs.release_tag }}
+          token: ${{ secrets.github_token }}
+          body_path: ${{ env.RELEASE_BODY_PATH }}
+          draft: true
+          prerelease: ${{ contains(inputs.release_tag, '-rc.') }}
+          generate_release_notes: false
