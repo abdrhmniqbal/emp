@@ -124,6 +124,13 @@ export async function scanMediaLibrary(
 
   if (signal?.aborted) return
 
+  await updateArtistCounts()
+  if (signal?.aborted) return
+  await updateAlbumCounts()
+  if (signal?.aborted) return
+  await updateGenreCounts()
+  if (signal?.aborted) return
+
   onProgress?.({
     phase: "complete",
     current: assetsToProcess.length,
@@ -131,7 +138,6 @@ export async function scanMediaLibrary(
     currentFile: "",
   })
 
-  // Cleanup deleted tracks
   if (signal?.aborted) return
   await db.delete(tracks).where(eq(tracks.isDeleted, 1))
 }
@@ -268,14 +274,6 @@ async function processBatch(
       })
     }
   }
-
-  // Update denormalized counts
-  if (signal?.aborted) return
-  await updateArtistCounts()
-  if (signal?.aborted) return
-  await updateAlbumCounts()
-  if (signal?.aborted) return
-  await updateGenreCounts()
 }
 
 async function getOrCreateArtist(name: string): Promise<string> {
