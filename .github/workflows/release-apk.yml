@@ -235,6 +235,8 @@ jobs:
   release-notes:
     name: Generate Release Notes
     needs: build-apk
+    permissions:
+      contents: write
     uses: ./.github/workflows/release-notes.yml
     with:
       release_tag: ${{ needs.build-apk.outputs.release_tag }}
