@@ -119,7 +119,10 @@ export function useArtistDetailsScreen() {
   }
 
   function openAlbum(album: Album) {
-    router.push(`../album/${encodeURIComponent(album.title)}`)
+    router.push({
+      pathname: "/(main)/(library)/album/[name]",
+      params: { name: album.title },
+    })
   }
 
   function selectSort(field: SortField, order?: "asc" | "desc") {

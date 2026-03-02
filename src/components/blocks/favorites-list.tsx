@@ -185,10 +185,16 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         break
       }
       case "artist":
-        router.push(`./artist/${encodeURIComponent(favorite.name)}`)
+        router.push({
+          pathname: "/(main)/(library)/artist/[name]",
+          params: { name: favorite.name },
+        })
         break
       case "album":
-        router.push(`./album/${encodeURIComponent(favorite.name)}`)
+        router.push({
+          pathname: "/(main)/(library)/album/[name]",
+          params: { name: favorite.name },
+        })
         break
       case "playlist":
         router.push(`./playlist/${favorite.id}`)

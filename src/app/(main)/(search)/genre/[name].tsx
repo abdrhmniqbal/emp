@@ -65,9 +65,10 @@ export default function GenreDetailsScreen() {
           />
         }
         onPress={() =>
-          router.push(
-            `/(main)/(library)/album/${encodeURIComponent(album.name)}`
-          )
+          router.push({
+            pathname: "/(main)/(library)/album/[name]",
+            params: { name: album.name },
+          })
         }
       />
     )
@@ -104,7 +105,10 @@ export default function GenreDetailsScreen() {
             title="Top Tracks"
             data={topTracks}
             onViewMore={() =>
-              router.push(`./top-tracks?name=${encodeURIComponent(genreName)}`)
+              router.push({
+                pathname: "./top-tracks",
+                params: { name: genreName },
+              })
             }
             emptyState={{
               icon: (
@@ -129,7 +133,7 @@ export default function GenreDetailsScreen() {
             title="Recommended Albums"
             data={previewAlbums}
             onViewMore={() =>
-              router.push(`./albums?name=${encodeURIComponent(genreName)}`)
+              router.push({ pathname: "./albums", params: { name: genreName } })
             }
             emptyState={{
               icon: (

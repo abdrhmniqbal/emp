@@ -60,7 +60,10 @@ export default function GenreAlbumsScreen() {
   }
 
   function handleAlbumPress(album: Album) {
-    router.push(`/(main)/(library)/album/${encodeURIComponent(album.title)}`)
+    router.push({
+      pathname: "/(main)/(library)/album/[name]",
+      params: { name: album.title },
+    })
   }
 
   function handleSortSelect(field: AlbumSortField, order?: SortOrder) {

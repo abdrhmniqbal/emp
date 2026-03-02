@@ -112,11 +112,17 @@ export function useLibraryScreen() {
   }
 
   function openArtist(name: string) {
-    router.push(`./artist/${encodeURIComponent(name)}`)
+    router.push({
+      pathname: "/(main)/(library)/artist/[name]",
+      params: { name },
+    })
   }
 
   function openAlbum(title: string) {
-    router.push(`./album/${encodeURIComponent(title)}`)
+    router.push({
+      pathname: "/(main)/(library)/album/[name]",
+      params: { name: title },
+    })
   }
 
   function openPlaylist(id: string) {

@@ -26,7 +26,10 @@ export default function SearchScreen() {
   const { categories, isLoading, refresh } = useSearchScreen()
 
   function handleGenrePress(genre: Category) {
-    router.push(`./genre/${encodeURIComponent(genre.title)}`)
+    router.push({
+      pathname: "/(main)/(search)/genre/[name]",
+      params: { name: genre.title },
+    })
   }
 
   function handleSearchPress() {
