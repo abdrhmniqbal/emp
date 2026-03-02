@@ -7,15 +7,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $folderFilterConfig,
   $indexerState,
-  clearFolderFilters,
+  commitFolderFilterConfig,
   ensureFolderFilterConfigLoaded,
   getFolderNameFromPath,
   getFolderPathFromUri,
-  setAllFolderFiltersMode,
-  setFolderFilterMode,
+  normalizeFolderPath,
   startIndexing,
+  type FolderFilterConfig,
+  type FolderFilterMode,
 } from "@/modules/indexer"
 import { $tracks } from "@/modules/player/player.store"
 import LocalAddIcon from "@/components/icons/local/add"
@@ -116,23 +116,33 @@ function FolderRow({
   )
 }
 
+const EMPTY_PENDING: FolderFilterConfig = { whitelist: [], blacklist: [] }
+
 export default function FolderFiltersScreen() {
   const insets = useSafeAreaInsets()
   const theme = useThemeColors()
   const tracks = useStore($tracks)
   const indexerState = useStore($indexerState)
-  const folderFilters = useStore($folderFilterConfig)
   const [isLoaded, setIsLoaded] = React.useState(false)
-  const [selectedMode, setSelectedMode] = React.useState<
-    "whitelist" | "blacklist"
-  >("whitelist")
+  const [pendingConfig, setPendingConfig] =
+    React.useState<FolderFilterConfig>(EMPTY_PENDING)
+  const [selectedMode, setSelectedMode] =
+    React.useState<FolderFilterMode>("whitelist")
   const [hasPendingChanges, setHasPendingChanges] = React.useState(false)
   const [isModeSheetOpen, setIsModeSheetOpen] = React.useState(false)
 
   React.useEffect(() => {
     let isMounted = true
-    void ensureFolderFilterConfigLoaded().finally(() => {
+    void ensureFolderFilterConfigLoaded().then((config) => {
       if (isMounted) {
+        setPendingConfig(config)
+        const mode =
+          config.whitelist.length > 0
+            ? "whitelist"
+            : config.blacklist.length > 0
+              ? "blacklist"
+              : "whitelist"
+        setSelectedMode(mode)
         setIsLoaded(true)
       }
     })
@@ -144,7 +154,7 @@ export default function FolderFiltersScreen() {
 
   const allFolders = buildFolderEntries(tracks)
   const folderPaths = Array.from(
-    new Set([...folderFilters.whitelist, ...folderFilters.blacklist])
+    new Set([...pendingConfig.whitelist, ...pendingConfig.blacklist])
   ).sort((a, b) =>
     getFolderNameFromPath(a).localeCompare(
       getFolderNameFromPath(b),
@@ -163,7 +173,21 @@ export default function FolderFiltersScreen() {
         return
       }
 
-      await setFolderFilterMode(directory.uri, selectedMode)
+      const normalizedPath = normalizeFolderPath(directory.uri)
+      if (!normalizedPath) {
+        return
+      }
+
+      setPendingConfig((prev) => {
+        const whitelist = prev.whitelist.filter((p) => p !== normalizedPath)
+        const blacklist = prev.blacklist.filter((p) => p !== normalizedPath)
+        if (selectedMode === "whitelist") {
+          whitelist.push(normalizedPath)
+        } else {
+          blacklist.push(normalizedPath)
+        }
+        return { whitelist, blacklist }
+      })
       setHasPendingChanges(true)
     } catch {
       // User cancelled picker.
@@ -171,18 +195,19 @@ export default function FolderFiltersScreen() {
   }
 
   function removeFolder(path: string) {
-    void setFolderFilterMode(path, null).then(() => {
-      setHasPendingChanges(true)
-    })
+    setPendingConfig((prev) => ({
+      whitelist: prev.whitelist.filter((p) => p !== path),
+      blacklist: prev.blacklist.filter((p) => p !== path),
+    }))
+    setHasPendingChanges(true)
   }
 
   function clearAllFolders() {
-    void clearFolderFilters().then(() => {
-      setHasPendingChanges(true)
-    })
+    setPendingConfig(EMPTY_PENDING)
+    setHasPendingChanges(true)
   }
 
-  function setUnifiedMode(mode: "whitelist" | "blacklist") {
+  function setUnifiedMode(mode: FolderFilterMode) {
     if (mode === selectedMode) {
       return
     }
@@ -192,9 +217,15 @@ export default function FolderFiltersScreen() {
       return
     }
 
-    void setAllFolderFiltersMode(mode).then(() => {
-      setHasPendingChanges(true)
+    setPendingConfig((prev) => {
+      const folders = Array.from(
+        new Set([...prev.whitelist, ...prev.blacklist])
+      )
+      return mode === "whitelist"
+        ? { whitelist: folders, blacklist: [] }
+        : { whitelist: [], blacklist: folders }
     })
+    setHasPendingChanges(true)
   }
 
   async function applyFilter() {
@@ -202,6 +233,7 @@ export default function FolderFiltersScreen() {
       return
     }
 
+    await commitFolderFilterConfig(pendingConfig)
     await startIndexing(false, true)
     setHasPendingChanges(false)
   }

@@ -78,6 +78,10 @@ function normalizePath(path: string): string {
   return trimmed
 }
 
+export function normalizeFolderPath(path: string): string {
+  return normalizePath(path)
+}
+
 function sanitizeConfig(config: FolderFilterConfig): FolderFilterConfig {
   const whitelist = Array.from(
     new Set(config.whitelist.map(normalizePath).filter(Boolean))
@@ -167,6 +171,14 @@ export async function setFolderFilterMode(
 export async function clearFolderFilters(): Promise<void> {
   $folderFilterConfig.set(EMPTY_FILTER_CONFIG)
   await persistConfig(EMPTY_FILTER_CONFIG)
+}
+
+export async function commitFolderFilterConfig(
+  config: FolderFilterConfig
+): Promise<void> {
+  const sanitized = sanitizeConfig(config)
+  $folderFilterConfig.set(sanitized)
+  await persistConfig(sanitized)
 }
 
 export async function setAllFolderFiltersMode(

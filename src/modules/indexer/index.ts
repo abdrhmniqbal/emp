@@ -6,11 +6,13 @@ export {
 export {
   $folderFilterConfig,
   clearFolderFilters,
+  commitFolderFilterConfig,
   ensureFolderFilterConfigLoaded,
   type FolderFilterConfig,
   type FolderFilterMode,
   getFolderNameFromPath,
   getFolderPathFromUri,
+  normalizeFolderPath,
   setAllFolderFiltersMode,
   setFolderFilterMode,
 } from "./folder-filters"
