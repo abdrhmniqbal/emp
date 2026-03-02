@@ -3,3 +3,4 @@
 .opencode
 android
 src/components/icons
+*.d.ts
