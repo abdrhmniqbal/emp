@@ -6,11 +6,12 @@ import {
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import { PressableFeedback } from "heroui-native"
-import type {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StyleProp,
-  ViewStyle,
+import {
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -169,7 +170,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   }
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <LegendList
         ref={listRef}
         maintainVisibleContentPosition={false}
@@ -205,6 +206,6 @@ export const TrackList: React.FC<TrackListProps> = ({
         onClose={() => setIsSheetOpen(false)}
         tracks={data}
       />
-    </>
+    </View>
   )
 }

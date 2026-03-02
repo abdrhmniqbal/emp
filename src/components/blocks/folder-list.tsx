@@ -211,96 +211,98 @@ export const FolderList: React.FC<FolderListProps> = ({
   }
 
   return (
-    <LegendList
-      ref={listRef}
-      maintainVisibleContentPosition={false}
-      dataVersion={resetScrollKey}
-      data={listData}
-      keyExtractor={(item) => item.id}
-      getItemType={(item) => item.type}
-      renderItem={({ item }: LegendListRenderItemProps<FolderListItem>) =>
-        item.type === "folder"
-          ? renderFolderItem(item.folder)
-          : renderTrackItem(item.track)
-      }
-      contentContainerStyle={[
-        { gap: 8, paddingBottom: 16 },
-        contentContainerStyle,
-      ]}
-      onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
-      onMomentumScrollEnd={onMomentumScrollEnd}
-      scrollEventThrottle={16}
-      recycleItems={true}
-      initialContainerPoolRatio={3}
-      estimatedItemSize={68}
-      drawDistance={180}
-      style={{ flex: 1, minHeight: 1 }}
-      ListHeaderComponent={
-        hasNestedPath ? (
-          <View className="mb-2">
-            <View className="mb-2 flex-row items-center gap-2">
-              <Button
-                onPress={onBackPress}
-                variant="secondary"
-                className="h-8 w-8"
-                isIconOnly
-              >
-                <LocalChevronLeftIcon
-                  fill="none"
-                  width={16}
-                  height={16}
-                  color={theme.foreground}
-                />
-              </Button>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ alignItems: "center", gap: 8 }}
-              >
-                <PressableFeedback
-                  onPress={() => onBreadcrumbPress?.("")}
-                  className="max-w-24"
+    <View style={{ flex: 1 }}>
+      <LegendList
+        ref={listRef}
+        maintainVisibleContentPosition={false}
+        dataVersion={resetScrollKey}
+        data={listData}
+        keyExtractor={(item) => item.id}
+        getItemType={(item) => item.type}
+        renderItem={({ item }: LegendListRenderItemProps<FolderListItem>) =>
+          item.type === "folder"
+            ? renderFolderItem(item.folder)
+            : renderTrackItem(item.track)
+        }
+        contentContainerStyle={[
+          { gap: 8, paddingBottom: 16 },
+          contentContainerStyle,
+        ]}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        scrollEventThrottle={16}
+        recycleItems={true}
+        initialContainerPoolRatio={3}
+        estimatedItemSize={68}
+        drawDistance={180}
+        style={{ flex: 1, minHeight: 1 }}
+        ListHeaderComponent={
+          hasNestedPath ? (
+            <View className="mb-2">
+              <View className="mb-2 flex-row items-center gap-2">
+                <Button
+                  onPress={onBackPress}
+                  variant="secondary"
+                  className="h-8 w-8"
+                  isIconOnly
                 >
-                  <Text
-                    className="text-sm text-muted"
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
+                  <LocalChevronLeftIcon
+                    fill="none"
+                    width={16}
+                    height={16}
+                    color={theme.foreground}
+                  />
+                </Button>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ alignItems: "center", gap: 8 }}
+                >
+                  <PressableFeedback
+                    onPress={() => onBreadcrumbPress?.("")}
+                    className="max-w-24"
                   >
-                    Folders
-                  </Text>
-                </PressableFeedback>
-                {breadcrumbs.map((breadcrumb) => (
-                  <View
-                    key={breadcrumb.path}
-                    className="flex-row items-center gap-2"
-                  >
-                    <LocalChevronRightIcon
-                      fill="none"
-                      width={12}
-                      height={12}
-                      color={theme.foreground}
-                    />
-                    <PressableFeedback
-                      onPress={() => onBreadcrumbPress?.(breadcrumb.path)}
-                      className="max-w-28"
+                    <Text
+                      className="text-sm text-muted"
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
                     >
-                      <Text
-                        className="text-sm text-foreground"
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
+                      Folders
+                    </Text>
+                  </PressableFeedback>
+                  {breadcrumbs.map((breadcrumb) => (
+                    <View
+                      key={breadcrumb.path}
+                      className="flex-row items-center gap-2"
+                    >
+                      <LocalChevronRightIcon
+                        fill="none"
+                        width={12}
+                        height={12}
+                        color={theme.foreground}
+                      />
+                      <PressableFeedback
+                        onPress={() => onBreadcrumbPress?.(breadcrumb.path)}
+                        className="max-w-28"
                       >
-                        {breadcrumb.name}
-                      </Text>
-                    </PressableFeedback>
-                  </View>
-                ))}
-              </ScrollView>
+                        <Text
+                          className="text-sm text-foreground"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {breadcrumb.name}
+                        </Text>
+                      </PressableFeedback>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
             </View>
-          </View>
-        ) : null
-      }
-    />
+          ) : null
+        }
+      />
+    </View>
   )
 }

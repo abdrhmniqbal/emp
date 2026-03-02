@@ -218,44 +218,46 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   }
 
   return (
-    <LegendList
-      ref={listRef}
-      maintainVisibleContentPosition={false}
-      dataVersion={resetScrollKey}
-      data={data}
-      renderItem={({ item, index }: LegendListRenderItemProps<Album>) => {
-        const column = index % NUM_COLUMNS
-        return (
-          <View
-            style={{
-              width: ITEM_WIDTH,
-              marginRight: column < NUM_COLUMNS - 1 ? GAP : 0,
-              marginBottom: GAP,
-            }}
-          >
-            {renderAlbumItem(item)}
-          </View>
-        )
-      }}
-      keyExtractor={(item) => item.id}
-      scrollEnabled={scrollEnabled}
-      showsVerticalScrollIndicator={showsVerticalScrollIndicator}
-      ListHeaderComponent={listHeader}
-      ListFooterComponent={listFooter}
-      numColumns={NUM_COLUMNS}
-      contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
-      onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
-      onMomentumScrollEnd={onMomentumScrollEnd}
-      scrollEventThrottle={scrollEventThrottle}
-      refreshControl={refreshControl}
-      style={{ flex: 1, minHeight: 1 }}
-      className={containerClassName}
-      recycleItems={true}
-      initialContainerPoolRatio={2.5}
-      estimatedItemSize={176}
-      drawDistance={160}
-    />
+    <View style={{ flex: 1 }}>
+      <LegendList
+        ref={listRef}
+        maintainVisibleContentPosition={false}
+        dataVersion={resetScrollKey}
+        data={data}
+        renderItem={({ item, index }: LegendListRenderItemProps<Album>) => {
+          const column = index % NUM_COLUMNS
+          return (
+            <View
+              style={{
+                width: ITEM_WIDTH,
+                marginRight: column < NUM_COLUMNS - 1 ? GAP : 0,
+                marginBottom: GAP,
+              }}
+            >
+              {renderAlbumItem(item)}
+            </View>
+          )
+        }}
+        keyExtractor={(item) => item.id}
+        scrollEnabled={scrollEnabled}
+        showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+        ListHeaderComponent={listHeader}
+        ListFooterComponent={listFooter}
+        numColumns={NUM_COLUMNS}
+        contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        scrollEventThrottle={scrollEventThrottle}
+        refreshControl={refreshControl}
+        style={{ flex: 1, minHeight: 1 }}
+        className={containerClassName}
+        recycleItems={true}
+        initialContainerPoolRatio={2.5}
+        estimatedItemSize={176}
+        drawDistance={160}
+      />
+    </View>
   )
 }

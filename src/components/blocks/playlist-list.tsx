@@ -5,11 +5,12 @@ import {
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
-import type {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StyleProp,
-  ViewStyle,
+import {
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -151,12 +152,64 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
 
   if (data.length === 0) {
     return (
+      <View style={{ flex: 1 }}>
+        <LegendList
+          ref={listRef}
+          maintainVisibleContentPosition={false}
+          dataVersion={resetScrollKey}
+          data={[{ id: "create", rowType: "create" }]}
+          renderItem={() => renderCreateButton()}
+          keyExtractor={(item) => item.id}
+          getItemType={(item) => item.rowType}
+          scrollEnabled={scrollEnabled}
+          contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
+          onScroll={onScroll}
+          onScrollBeginDrag={onScrollBeginDrag}
+          onScrollEndDrag={onScrollEndDrag}
+          onMomentumScrollEnd={onMomentumScrollEnd}
+          scrollEventThrottle={16}
+          recycleItems={true}
+          initialContainerPoolRatio={3}
+          ListEmptyComponent={
+            <EmptyState
+              icon={
+                <LocalPlaylistSolidIcon
+                  fill="none"
+                  width={48}
+                  height={48}
+                  color={theme.muted}
+                />
+              }
+              title="No Playlists"
+              message="Create your first playlist to organize your music."
+            />
+          }
+          estimatedItemSize={68}
+          drawDistance={180}
+          style={{ flex: 1, minHeight: 1 }}
+        />
+      </View>
+    )
+  }
+
+  const listData: PlaylistListRow[] = [
+    { id: "create", rowType: "create" },
+    ...data.map((playlist) => ({ ...playlist, rowType: "playlist" as const })),
+  ]
+
+  return (
+    <View style={{ flex: 1 }}>
       <LegendList
         ref={listRef}
         maintainVisibleContentPosition={false}
         dataVersion={resetScrollKey}
-        data={[{ id: "create", rowType: "create" }]}
-        renderItem={() => renderCreateButton()}
+        data={listData}
+        renderItem={({ item }: LegendListRenderItemProps<PlaylistListRow>) => {
+          if (item.rowType === "create") {
+            return renderCreateButton()
+          }
+          return renderPlaylistItem(item)
+        }}
         keyExtractor={(item) => item.id}
         getItemType={(item) => item.rowType}
         scrollEnabled={scrollEnabled}
@@ -168,58 +221,10 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         scrollEventThrottle={16}
         recycleItems={true}
         initialContainerPoolRatio={3}
-        ListEmptyComponent={
-          <EmptyState
-            icon={
-              <LocalPlaylistSolidIcon
-                fill="none"
-                width={48}
-                height={48}
-                color={theme.muted}
-              />
-            }
-            title="No Playlists"
-            message="Create your first playlist to organize your music."
-          />
-        }
         estimatedItemSize={68}
         drawDistance={180}
         style={{ flex: 1, minHeight: 1 }}
       />
-    )
-  }
-
-  const listData: PlaylistListRow[] = [
-    { id: "create", rowType: "create" },
-    ...data.map((playlist) => ({ ...playlist, rowType: "playlist" as const })),
-  ]
-
-  return (
-    <LegendList
-      ref={listRef}
-      maintainVisibleContentPosition={false}
-      dataVersion={resetScrollKey}
-      data={listData}
-      renderItem={({ item }: LegendListRenderItemProps<PlaylistListRow>) => {
-        if (item.rowType === "create") {
-          return renderCreateButton()
-        }
-        return renderPlaylistItem(item)
-      }}
-      keyExtractor={(item) => item.id}
-      getItemType={(item) => item.rowType}
-      scrollEnabled={scrollEnabled}
-      contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
-      onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
-      onMomentumScrollEnd={onMomentumScrollEnd}
-      scrollEventThrottle={16}
-      recycleItems={true}
-      initialContainerPoolRatio={3}
-      estimatedItemSize={68}
-      drawDistance={180}
-      style={{ flex: 1, minHeight: 1 }}
-    />
+    </View>
   )
 }

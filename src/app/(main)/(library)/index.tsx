@@ -38,7 +38,7 @@ export default function LibraryScreen() {
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const libraryListBottomPadding =
-    tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 16
+    tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 200
 
   const {
     activeTab,
@@ -219,7 +219,7 @@ export default function LibraryScreen() {
               <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
             </View>
           )}
-          {renderTabContent()}
+          <View className="flex-1">{renderTabContent()}</View>
         </View>
       </View>
 

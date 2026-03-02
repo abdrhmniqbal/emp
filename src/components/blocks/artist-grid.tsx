@@ -7,6 +7,7 @@ import {
 } from "@legendapp/list"
 import {
   Dimensions,
+  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
@@ -118,64 +119,66 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
   }
 
   return (
-    <LegendList
-      ref={listRef}
-      maintainVisibleContentPosition={false}
-      dataVersion={resetScrollKey}
-      data={data}
-      renderItem={({ item, index }: LegendListRenderItemProps<Artist>) => {
-        const column = index % NUM_COLUMNS
-        return (
-          <Item
-            key={item.id}
-            variant="grid"
-            style={{
-              width: ITEM_WIDTH,
-              marginRight: column < NUM_COLUMNS - 1 ? GAP : 0,
-              marginBottom: GAP,
-            }}
-            onPress={() => handlePress(item)}
-          >
-            <ItemImage
-              icon={
-                <LocalUserSolidIcon
-                  fill="none"
-                  width={ICON_SIZES.gridFallback}
-                  height={ICON_SIZES.gridFallback}
-                  color={theme.muted}
-                />
-              }
-              image={item.image}
-              className="aspect-square w-full rounded-full bg-default"
-            />
-            <ItemContent className="mt-1 items-center">
-              <ItemTitle
-                className="text-center text-sm normal-case"
-                numberOfLines={1}
-              >
-                {item.name}
-              </ItemTitle>
-              <ItemDescription className="text-center">
-                {formatTrackCount(item.trackCount)}
-              </ItemDescription>
-            </ItemContent>
-          </Item>
-        )
-      }}
-      keyExtractor={(item) => item.id}
-      scrollEnabled={scrollEnabled}
-      numColumns={NUM_COLUMNS}
-      contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
-      onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
-      onMomentumScrollEnd={onMomentumScrollEnd}
-      scrollEventThrottle={16}
-      style={{ flex: 1, minHeight: 1 }}
-      recycleItems={true}
-      initialContainerPoolRatio={2.5}
-      estimatedItemSize={132}
-      drawDistance={160}
-    />
+    <View style={{ flex: 1 }}>
+      <LegendList
+        ref={listRef}
+        maintainVisibleContentPosition={false}
+        dataVersion={resetScrollKey}
+        data={data}
+        renderItem={({ item, index }: LegendListRenderItemProps<Artist>) => {
+          const column = index % NUM_COLUMNS
+          return (
+            <Item
+              key={item.id}
+              variant="grid"
+              style={{
+                width: ITEM_WIDTH,
+                marginRight: column < NUM_COLUMNS - 1 ? GAP : 0,
+                marginBottom: GAP,
+              }}
+              onPress={() => handlePress(item)}
+            >
+              <ItemImage
+                icon={
+                  <LocalUserSolidIcon
+                    fill="none"
+                    width={ICON_SIZES.gridFallback}
+                    height={ICON_SIZES.gridFallback}
+                    color={theme.muted}
+                  />
+                }
+                image={item.image}
+                className="aspect-square w-full rounded-full bg-default"
+              />
+              <ItemContent className="mt-1 items-center">
+                <ItemTitle
+                  className="text-center text-sm normal-case"
+                  numberOfLines={1}
+                >
+                  {item.name}
+                </ItemTitle>
+                <ItemDescription className="text-center">
+                  {formatTrackCount(item.trackCount)}
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          )
+        }}
+        keyExtractor={(item) => item.id}
+        scrollEnabled={scrollEnabled}
+        numColumns={NUM_COLUMNS}
+        contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        scrollEventThrottle={16}
+        style={{ flex: 1, minHeight: 1 }}
+        recycleItems={true}
+        initialContainerPoolRatio={2.5}
+        estimatedItemSize={132}
+        drawDistance={160}
+      />
+    </View>
   )
 }
