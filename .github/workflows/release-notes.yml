@@ -8,7 +8,7 @@ on:
         required: true
         type: string
     secrets:
-      github_token:
+      token:
         required: true
 
 jobs:
@@ -105,7 +105,7 @@ jobs:
         with:
           name: ${{ inputs.release_tag }}
           tag_name: ${{ inputs.release_tag }}
-          token: ${{ secrets.github_token }}
+          token: ${{ secrets.token }}
           body_path: ${{ env.RELEASE_BODY_PATH }}
           draft: true
           prerelease: ${{ contains(inputs.release_tag, '-rc.') }}

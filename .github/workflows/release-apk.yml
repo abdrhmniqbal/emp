@@ -239,4 +239,4 @@ jobs:
     with:
       release_tag: ${{ needs.build-apk.outputs.release_tag }}
     secrets:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.GITHUB_TOKEN }}
