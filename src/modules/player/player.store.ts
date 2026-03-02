@@ -303,7 +303,11 @@ export async function PlaybackService() {
     const previousTrackId = $currentTrack.get()?.id ?? null
     await syncCurrentTrackFromPlayer()
     const currentTrack = $currentTrack.get()
-    if (!currentTrack || currentTrack.id === previousTrackId) {
+    const isTrackRepeat = $repeatMode.get() === "track"
+    if (
+      !currentTrack ||
+      (currentTrack.id === previousTrackId && !isTrackRepeat)
+    ) {
       return
     }
 
