@@ -139,6 +139,7 @@ export default function SearchInteractionScreen() {
     navigation.setOptions({
       headerShown: true,
       title: "Search",
+      headerTitleAlign: "left",
       headerTitle: () => (
         <HeaderSearchInput
           key={headerInputKey}
@@ -184,32 +185,20 @@ export default function SearchInteractionScreen() {
           onActiveTabChange={setActiveSearchTab}
           onArtistPress={(artist) =>
             router.push({
-              pathname: "/(main)/(library)/artist/[name]",
-              params: {
-                name: artist.name,
-                from: "search",
-                query: searchQuery,
-              },
+              pathname: "/artist/[name]",
+              params: { name: artist.name },
             })
           }
           onAlbumPress={(album) =>
             router.push({
-              pathname: "/(main)/(library)/album/[name]",
-              params: {
-                name: album.title,
-                from: "search",
-                query: searchQuery,
-              },
+              pathname: "/album/[name]",
+              params: { name: album.title },
             })
           }
           onPlaylistPress={(playlist) =>
             router.push({
-              pathname: "/(main)/(library)/playlist/[id]",
-              params: {
-                id: playlist.id,
-                from: "search",
-                query: searchQuery,
-              },
+              pathname: "/playlist/[id]",
+              params: { id: playlist.id },
             })
           }
         />

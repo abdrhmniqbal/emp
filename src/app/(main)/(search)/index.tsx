@@ -33,7 +33,7 @@ export default function SearchScreen() {
   }
 
   function handleSearchPress() {
-    router.push("/search-interaction")
+    router.push("/search")
   }
 
   return (

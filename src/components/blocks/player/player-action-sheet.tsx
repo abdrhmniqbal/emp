@@ -60,7 +60,7 @@ export function PlayerActionSheet({
     setIsPlaylistPickerOpen(false)
     onNavigate?.()
     router.push({
-      pathname: "/(main)/(library)/artist/[name]",
+      pathname: "/artist/[name]",
       params: { name: artistName },
     })
   }
@@ -75,14 +75,14 @@ export function PlayerActionSheet({
     setIsPlaylistPickerOpen(false)
     onNavigate?.()
     router.push({
-      pathname: "/(main)/(library)/album/[name]",
+      pathname: "/album/[name]",
       params: { name: albumName },
     })
   }
 
   const handleCreatePlaylist = () => {
     setIsPlaylistPickerOpen(false)
-    router.push("/(main)/(library)/playlist/form")
+    router.push("/playlist/form")
   }
 
   const handleSelectPlaylist = async ({

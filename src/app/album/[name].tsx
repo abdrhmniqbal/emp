@@ -1,7 +1,7 @@
 import * as React from "react"
 import { useState } from "react"
 import { Image } from "expo-image"
-import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { Stack, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
@@ -36,10 +36,6 @@ export default function AlbumDetailsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
   const toggleFavoriteMutation = useToggleFavorite()
-  const { from, query } = useLocalSearchParams<{
-    from?: string
-    query?: string
-  }>()
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
 
@@ -76,14 +72,6 @@ export default function AlbumDetailsScreen() {
   }
 
   function handleBack() {
-    if (from === "search") {
-      router.replace({
-        pathname: "/search-interaction",
-        params: query ? { query } : {},
-      })
-      return
-    }
-
     router.back()
   }
 

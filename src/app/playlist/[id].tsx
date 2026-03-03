@@ -34,10 +34,8 @@ const HEADER_COLLAPSE_THRESHOLD = 120
 export default function PlaylistDetailsScreen() {
   const router = useRouter()
   const theme = useThemeColors()
-  const { id, from, query } = useLocalSearchParams<{
+  const { id } = useLocalSearchParams<{
     id: string
-    from?: string
-    query?: string
   }>()
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
   const [showActionSheet, setShowActionSheet] = useState(false)
@@ -63,14 +61,6 @@ export default function PlaylistDetailsScreen() {
   ])
 
   function handleBack() {
-    if (from === "search") {
-      router.replace({
-        pathname: "/search-interaction",
-        params: query ? { query } : {},
-      })
-      return
-    }
-
     router.back()
   }
 
@@ -78,7 +68,7 @@ export default function PlaylistDetailsScreen() {
     const didDelete = await deletePlaylist()
     if (didDelete) {
       setShowDeleteDialog(false)
-      router.replace("/(main)/(library)")
+      router.replace("/(main)")
     }
   }
 
@@ -229,7 +219,7 @@ export default function PlaylistDetailsScreen() {
         onOpenChange={setShowActionSheet}
         onEdit={() =>
           router.push({
-            pathname: "/(main)/(library)/playlist/form",
+            pathname: "/playlist/form",
             params: { id: playlist.id },
           })
         }

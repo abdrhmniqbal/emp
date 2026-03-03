@@ -59,7 +59,7 @@ export function FullPlayer() {
 
     closePlayer()
     router.push({
-      pathname: "/(main)/(library)/artist/[name]",
+      pathname: "/artist/[name]",
       params: { name: artistName },
     })
   }

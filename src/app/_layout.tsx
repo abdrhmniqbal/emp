@@ -169,13 +169,10 @@ export default function Layout() {
                   }}
                 >
                   <Stack.Screen name="(main)" />
-                  <Stack.Screen
-                    name="search-interaction"
-                    options={{
-                      animation: "default",
-                      title: "Search",
-                    }}
-                  />
+                  <Stack.Screen name="search" />
+                  <Stack.Screen name="album" />
+                  <Stack.Screen name="artist" />
+                  <Stack.Screen name="playlist" />
                   <Stack.Screen
                     name="settings"
                     options={{

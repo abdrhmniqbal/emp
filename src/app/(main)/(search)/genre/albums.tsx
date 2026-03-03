@@ -61,7 +61,7 @@ export default function GenreAlbumsScreen() {
 
   function handleAlbumPress(album: Album) {
     router.push({
-      pathname: "/(main)/(library)/album/[name]",
+      pathname: "/album/[name]",
       params: { name: album.title },
     })
   }

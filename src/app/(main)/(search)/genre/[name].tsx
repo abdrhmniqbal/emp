@@ -66,7 +66,7 @@ export default function GenreDetailsScreen() {
         }
         onPress={() =>
           router.push({
-            pathname: "/(main)/(library)/album/[name]",
+            pathname: "/album/[name]",
             params: { name: album.name },
           })
         }

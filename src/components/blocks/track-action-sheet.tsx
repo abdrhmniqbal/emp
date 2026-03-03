@@ -192,7 +192,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   const handleCreatePlaylist = () => {
     setIsPlaylistPickerOpen(false)
     onClose()
-    router.push("/(main)/(library)/playlist/form")
+    router.push("/playlist/form")
   }
 
   const handleOpenArtist = () => {
@@ -202,7 +202,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
 
     onClose()
     router.push({
-      pathname: "/(main)/(library)/artist/[name]",
+      pathname: "/artist/[name]",
       params: { name: track.artist.trim() },
     })
   }
@@ -214,7 +214,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
 
     onClose()
     router.push({
-      pathname: "/(main)/(library)/album/[name]",
+      pathname: "/album/[name]",
       params: { name: track.album.trim() },
     })
   }

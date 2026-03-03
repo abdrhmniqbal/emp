@@ -33,7 +33,7 @@ export default function HomeLayout() {
           headerRight: () => (
             <View className="-mr-2 flex-row gap-4">
               <Button
-                onPress={() => router.push("/search-interaction")}
+                onPress={() => router.push("/search")}
                 variant="ghost"
                 isIconOnly
               >

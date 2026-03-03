@@ -2,7 +2,7 @@ import * as React from "react"
 import { useState } from "react"
 import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
-import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { Stack, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import { Dimensions, Pressable, ScrollView, Text, View } from "react-native"
 import Animated, {
@@ -54,10 +54,7 @@ export default function ArtistDetailsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
   const toggleFavoriteMutation = useToggleFavorite()
-  const { from, query } = useLocalSearchParams<{
-    from?: string
-    query?: string
-  }>()
+
   const [isHeaderSolid, setIsHeaderSolid] = useState(false)
   const scrollY = useSharedValue(0)
   const {
@@ -114,14 +111,6 @@ export default function ArtistDetailsScreen() {
   }
 
   function handleBack() {
-    if (from === "search") {
-      router.replace({
-        pathname: "/search-interaction",
-        params: query ? { query } : {},
-      })
-      return
-    }
-
     router.back()
   }
 

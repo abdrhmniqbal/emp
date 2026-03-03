@@ -113,14 +113,14 @@ export function useLibraryScreen() {
 
   function openArtist(name: string) {
     router.push({
-      pathname: "/(main)/(library)/artist/[name]",
+      pathname: "/artist/[name]",
       params: { name },
     })
   }
 
   function openAlbum(title: string) {
     router.push({
-      pathname: "/(main)/(library)/album/[name]",
+      pathname: "/album/[name]",
       params: { name: title },
     })
   }
@@ -130,7 +130,7 @@ export function useLibraryScreen() {
   }
 
   function openPlaylistForm() {
-    router.push("/(main)/(library)/playlist/form")
+    router.push("/playlist/form")
   }
 
   function playFolderTrack(track: Track) {
