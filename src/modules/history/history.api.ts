@@ -26,6 +26,13 @@ interface TrackWithRelations {
   album?: {
     title: string | null
   } | null
+  genres?:
+    | {
+        genre?: {
+          name: string | null
+        } | null
+      }[]
+    | null
 }
 
 function mapTrackRecord(track: TrackWithRelations): Track {
@@ -46,6 +53,7 @@ function mapTrackRecord(track: TrackWithRelations): Track {
     isFavorite: Boolean(track.isFavorite),
     trackNumber: track.trackNumber || undefined,
     discNumber: track.discNumber || undefined,
+    genre: track.genres?.[0]?.genre?.name || undefined,
   }
 }
 
@@ -58,6 +66,11 @@ export async function getTrackHistory(): Promise<Track[]> {
           with: {
             artist: true,
             album: true,
+            genres: {
+              with: {
+                genre: true,
+              },
+            },
           },
         },
       },
@@ -84,6 +97,11 @@ export async function getTopTracksByPeriod(
         with: {
           artist: true,
           album: true,
+          genres: {
+            with: {
+              genre: true,
+            },
+          },
         },
         limit,
       })
@@ -105,6 +123,11 @@ export async function getTopTracksByPeriod(
           with: {
             artist: true,
             album: true,
+            genres: {
+              with: {
+                genre: true,
+              },
+            },
           },
         },
       },

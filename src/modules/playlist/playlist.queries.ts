@@ -27,6 +27,11 @@ export function usePlaylistsWithOptions(enabled: boolean) {
               track: {
                 with: {
                   album: true,
+                  genres: {
+                    with: {
+                      genre: true,
+                    },
+                  },
                 },
               },
             },
@@ -83,6 +88,11 @@ export function usePlaylistsForTrack(trackId: string | null, enabled: boolean) {
                 track: {
                   with: {
                     album: true,
+                    genres: {
+                      with: {
+                        genre: true,
+                      },
+                    },
                   },
                 },
               },
@@ -149,6 +159,11 @@ export function usePlaylist(id: string, enabled: boolean = true) {
                 with: {
                   artist: true,
                   album: true,
+                  genres: {
+                    with: {
+                      genre: true,
+                    },
+                  },
                 },
               },
             },

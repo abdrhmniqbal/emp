@@ -50,6 +50,11 @@ export function useTracks(filters?: TrackFilter) {
         with: {
           artist: true,
           album: true,
+          genres: {
+            with: {
+              genre: true,
+            },
+          },
         },
         orderBy: dbOrderBy.length > 0 ? dbOrderBy : undefined,
       })

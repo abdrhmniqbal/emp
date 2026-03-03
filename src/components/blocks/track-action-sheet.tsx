@@ -373,6 +373,15 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       label: "Genre",
       value: track.genre || "Unknown",
       fullWidth: (track.genre || "Unknown").length > 24,
+      onPress: track.genre?.trim()
+        ? () => {
+            onClose()
+            router.push({
+              pathname: "/(main)/(search)/genre/[name]",
+              params: { name: track.genre!.trim() },
+            })
+          }
+        : undefined,
     },
     { label: "Year", value: track.year ? String(track.year) : "Unknown" },
     {

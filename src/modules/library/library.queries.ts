@@ -98,6 +98,11 @@ export function useArtist(id: string) {
             where: eq(tracks.isDeleted, 0),
             with: {
               album: true,
+              genres: {
+                with: {
+                  genre: true,
+                },
+              },
             },
           },
         },
@@ -203,6 +208,11 @@ export function useAlbum(id: string) {
             ],
             with: {
               artist: true,
+              genres: {
+                with: {
+                  genre: true,
+                },
+              },
             },
           },
         },
@@ -235,6 +245,11 @@ export function useTracksByAlbumName(albumName: string) {
           with: {
             artist: true,
             album: true,
+            genres: {
+              with: {
+                genre: true,
+              },
+            },
           },
           orderBy: [
             asc(tracks.discNumber),
@@ -259,6 +274,11 @@ export function useTracksByAlbumName(albumName: string) {
         with: {
           artist: true,
           album: true,
+          genres: {
+            with: {
+              genre: true,
+            },
+          },
         },
         orderBy: [
           asc(tracks.discNumber),
@@ -298,6 +318,11 @@ export function useTracksByArtistName(artistName: string) {
           with: {
             artist: true,
             album: true,
+            genres: {
+              with: {
+                genre: true,
+              },
+            },
           },
           orderBy: [asc(sql`lower(coalesce(${tracks.title}, ''))`)],
         })
@@ -318,6 +343,11 @@ export function useTracksByArtistName(artistName: string) {
         with: {
           artist: true,
           album: true,
+          genres: {
+            with: {
+              genre: true,
+            },
+          },
         },
       })
 
@@ -437,7 +467,15 @@ export function useSearch(query: string) {
           }),
           db.query.tracks.findMany({
             where: and(eq(tracks.isDeleted, 0), like(tracks.title, searchTerm)),
-            with: { artist: true, album: true },
+            with: {
+              artist: true,
+              album: true,
+              genres: {
+                with: {
+                  genre: true,
+                },
+              },
+            },
             orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
             limit: 20,
           }),
@@ -461,7 +499,15 @@ export function useSearch(query: string) {
         const relationTrackResults = relationTrackFilter
           ? await db.query.tracks.findMany({
               where: and(eq(tracks.isDeleted, 0), relationTrackFilter),
-              with: { artist: true, album: true },
+              with: {
+                artist: true,
+                album: true,
+                genres: {
+                  with: {
+                    genre: true,
+                  },
+                },
+              },
               orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
               limit: 40,
             })
