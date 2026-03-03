@@ -11,7 +11,11 @@ import {
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { $indexerState } from "@/modules/indexer"
 import { useHomeScreen } from "@/modules/library/hooks/use-home-screen"
-import { $currentTrack, playTrack, type Track } from "@/modules/player/player.store"
+import {
+  $currentTrack,
+  playTrack,
+  type Track,
+} from "@/modules/player/player.store"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import {

@@ -59,6 +59,10 @@ export default function LibraryLayout() {
           ),
         }}
       />
+      <Stack.Screen name="album" options={{ headerShown: false }} />
+      <Stack.Screen name="artist" options={{ headerShown: false }} />
+      <Stack.Screen name="playlist" options={{ headerShown: false }} />
+      <Stack.Screen name="search" options={{ headerShown: false }} />
     </Stack>
   )
 }
