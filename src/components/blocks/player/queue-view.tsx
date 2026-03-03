@@ -1,7 +1,8 @@
 import * as React from "react"
+import { useEffect, useRef } from "react"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
-import { Text, View } from "react-native"
+import { Text, View, type FlatList } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import ReorderableList, {
   useReorderableDrag,
@@ -92,9 +93,26 @@ interface QueueViewProps {
   currentTrack: Track | null
 }
 
+const ITEM_HEIGHT = 64
+const ITEM_GAP = 6
+
 export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
   const queueInfo = useStore($queueInfo)
   const { queue, upNext, currentIndex } = queueInfo
+  const listRef = useRef<FlatList>(null)
+
+  useEffect(() => {
+    if (currentIndex >= 0 && queue.length > 0) {
+      const timer = setTimeout(() => {
+        listRef.current?.scrollToIndex({
+          index: currentIndex,
+          animated: false,
+          viewPosition: 0,
+        })
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [])
 
   if (!currentTrack || queue.length === 0) return null
 
@@ -127,6 +145,7 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
       </View>
       <View className="flex-1">
         <ReorderableList
+          ref={listRef}
           data={queue}
           keyExtractor={(item) => item.id}
           onReorder={handleReorder}
@@ -139,9 +158,14 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
               onRemove={() => handleRemove(item.id)}
             />
           )}
+          getItemLayout={(_, index) => ({
+            length: ITEM_HEIGHT,
+            offset: (ITEM_HEIGHT + ITEM_GAP) * index,
+            index,
+          })}
           style={{ flex: 1, minHeight: 1 }}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ gap: 4, paddingBottom: 20 }}
+          contentContainerStyle={{ gap: ITEM_GAP, paddingBottom: 20 }}
         />
       </View>
     </Animated.View>
