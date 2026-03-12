@@ -9,8 +9,10 @@ import { Dimensions, ScrollView, Text, View } from "react-native"
 import Animated, {
   Extrapolation,
   interpolate,
+  useDerivedValue,
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated"
 
 import { PlaybackActionsRow } from "@/components/blocks"
@@ -85,21 +87,29 @@ export default function ArtistDetailsScreen() {
   } = useArtistDetailsScreen()
 
   const artistName = name || "Unknown Artist"
+  const smoothScrollY = useDerivedValue(() =>
+    withTiming(scrollY.value, { duration: 90 })
+  )
 
   const heroArtworkStyle = useAnimatedStyle(() => {
-    const y = scrollY.value
+    const y = smoothScrollY.value
     return {
       transform: [
         {
           translateY: interpolate(
             y,
-            [-160, 0, 280],
-            [-36, 0, 88],
+            [-220, 0, 220],
+            [-52, 0, 0],
             Extrapolation.CLAMP
           ),
         },
         {
-          scale: interpolate(y, [-160, 0], [1.18, 1], Extrapolation.CLAMP),
+          scale: interpolate(
+            y,
+            [-220, 0, 220],
+            [1.22, 1.08, 1],
+            Extrapolation.CLAMP
+          ),
         },
       ],
     }
