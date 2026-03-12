@@ -28,6 +28,7 @@ export const $currentTrack = atom<Track | null>(null)
 export const $isPlaying = atom(false)
 export const $currentTime = atom(0)
 export const $duration = atom(0)
+export const $playbackRefreshVersion = atom(0)
 
 export type RepeatModeType = "off" | "track" | "queue"
 export const $repeatMode = atom<RepeatModeType>("off")
@@ -35,6 +36,45 @@ export const $repeatMode = atom<RepeatModeType>("off")
 let isPlayerReady = false
 const MIN_SESSION_SAVE_INTERVAL_MS = 2000
 let lastPlaybackSessionSavedAt = 0
+const RECENTLY_PLAYED_SCREEN_LIMIT = 50
+const HOME_RECENTLY_PLAYED_LIMIT = 8
+
+function bumpPlaybackRefreshVersion() {
+  $playbackRefreshVersion.set($playbackRefreshVersion.get() + 1)
+}
+
+async function invalidatePlaybackQueries() {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ["recently-played-screen"] }),
+    queryClient.invalidateQueries({ queryKey: ["home", "recently-played"] }),
+    queryClient.invalidateQueries({ queryKey: ["home", "top-tracks"] }),
+    queryClient.invalidateQueries({ queryKey: ["top-tracks-screen"] }),
+    queryClient.invalidateQueries({ queryKey: ["tracks"] }),
+  ])
+}
+
+function prependUniqueTrack(
+  current: Track[] | undefined,
+  track: Track,
+  limit: number
+): Track[] {
+  const existing = current ?? []
+  return [track, ...existing.filter((item) => item.id !== track.id)].slice(
+    0,
+    limit
+  )
+}
+
+function optimisticallyUpdateRecentlyPlayedQueries(track: Track) {
+  queryClient.setQueryData<Track[]>(["recently-played-screen"], (previous) =>
+    prependUniqueTrack(previous, track, RECENTLY_PLAYED_SCREEN_LIMIT)
+  )
+  queryClient.setQueryData<Track[]>(
+    ["home", "recently-played", HOME_RECENTLY_PLAYED_LIMIT],
+    (previous) =>
+      prependUniqueTrack(previous, track, HOME_RECENTLY_PLAYED_LIMIT)
+  )
+}
 
 function mapTrackPlayerTrackToTrack(track: any): Track {
   return {
@@ -313,8 +353,13 @@ export async function PlaybackService() {
       return
     }
 
-    addTrackToHistory(currentTrack.id)
-    incrementTrackPlayCount(currentTrack.id)
+    optimisticallyUpdateRecentlyPlayedQueries(currentTrack)
+    await Promise.allSettled([
+      addTrackToHistory(currentTrack.id),
+      incrementTrackPlayCount(currentTrack.id),
+    ])
+    bumpPlaybackRefreshVersion()
+    void invalidatePlaybackQueries()
     void persistPlaybackSession({ force: true })
   })
 
@@ -346,13 +391,18 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
 
     $currentTrack.set(track)
+    optimisticallyUpdateRecentlyPlayedQueries(track)
 
     await TrackPlayer.play()
     $isPlaying.set(true)
     $currentTime.set(0)
     $duration.set(track.duration || 0)
-    addTrackToHistory(track.id)
-    incrementTrackPlayCount(track.id)
+    await Promise.allSettled([
+      addTrackToHistory(track.id),
+      incrementTrackPlayCount(track.id),
+    ])
+    bumpPlaybackRefreshVersion()
+    void invalidatePlaybackQueries()
     await persistPlaybackSession({ force: true })
   } catch {}
 }
@@ -389,8 +439,13 @@ export async function playNext() {
     await syncCurrentTrackFromPlayer()
     const newTrack = $currentTrack.get()
     if (newTrack) {
-      addTrackToHistory(newTrack.id)
-      incrementTrackPlayCount(newTrack.id)
+      optimisticallyUpdateRecentlyPlayedQueries(newTrack)
+      await Promise.allSettled([
+        addTrackToHistory(newTrack.id),
+        incrementTrackPlayCount(newTrack.id),
+      ])
+      bumpPlaybackRefreshVersion()
+      void invalidatePlaybackQueries()
     }
     await persistPlaybackSession({ force: true })
   } catch {
@@ -412,8 +467,13 @@ export async function playPrevious() {
       await syncCurrentTrackFromPlayer()
       const newTrack = $currentTrack.get()
       if (newTrack) {
-        addTrackToHistory(newTrack.id)
-        incrementTrackPlayCount(newTrack.id)
+        optimisticallyUpdateRecentlyPlayedQueries(newTrack)
+        await Promise.allSettled([
+          addTrackToHistory(newTrack.id),
+          incrementTrackPlayCount(newTrack.id),
+        ])
+        bumpPlaybackRefreshVersion()
+        void invalidatePlaybackQueries()
       }
       await persistPlaybackSession({ force: true })
     }

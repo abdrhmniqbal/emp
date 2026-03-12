@@ -1,10 +1,12 @@
 import type { Track } from "@/modules/player/player.types"
+import { useStore } from "@nanostores/react"
 import { useIsFocused } from "@react-navigation/native"
 import { useQuery } from "@tanstack/react-query"
 
 import { useEffect } from "react"
 import { fetchRecentlyPlayedTracks } from "@/modules/history/history.utils"
 import { startIndexing } from "@/modules/indexer"
+import { $playbackRefreshVersion } from "@/modules/player/player.store"
 import { getTopTracks } from "@/modules/tracks/tracks.api"
 
 const RECENTLY_PLAYED_LIMIT = 8
@@ -25,6 +27,7 @@ const HOME_TOP_TRACKS_QUERY_KEY = [
 
 export function useHomeScreen() {
   const isFocused = useIsFocused()
+  const playbackRefreshVersion = useStore($playbackRefreshVersion)
   const {
     data: recentlyPlayedTracksData,
     isLoading: isRecentlyPlayedLoading,
@@ -66,6 +69,19 @@ export function useHomeScreen() {
     // Refresh only when tab regains focus to keep first paint instant from cache.
     void Promise.all([refetchRecentlyPlayedTracks(), refetchTopTracks()])
   }, [isFocused, refetchRecentlyPlayedTracks, refetchTopTracks])
+
+  useEffect(() => {
+    if (!isFocused || playbackRefreshVersion === 0) {
+      return
+    }
+
+    void Promise.all([refetchRecentlyPlayedTracks(), refetchTopTracks()])
+  }, [
+    isFocused,
+    playbackRefreshVersion,
+    refetchRecentlyPlayedTracks,
+    refetchTopTracks,
+  ])
 
   async function refresh() {
     startIndexing(false)
