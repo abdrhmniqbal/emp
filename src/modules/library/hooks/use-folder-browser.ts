@@ -47,24 +47,24 @@ function getTrackDirectorySegments(track: Track): string[] {
   return directory.split("/").filter(Boolean)
 }
 
-function getCommonPrefix(allSegments: string[][]): string[] {
-  if (allSegments.length === 0) {
-    return []
-  }
-
-  const first = allSegments[0]
-  const prefix: string[] = []
-
-  for (let i = 0; i < first.length; i += 1) {
-    const value = first[i]
-    const isShared = allSegments.every((segments) => segments[i] === value)
-    if (!isShared) {
-      break
+function trimDeviceRootSegments(segments: string[]): string[] {
+  if (segments.length >= 3) {
+    const [first, second, third] = segments
+    if (
+      first.toLowerCase() === "storage" &&
+      second.toLowerCase() === "emulated" &&
+      third === "0"
+    ) {
+      return segments.slice(3)
     }
-    prefix.push(value)
   }
 
-  return prefix
+  if (segments.length >= 2 && segments[0]?.toLowerCase() === "storage") {
+    // /storage/<volume>/<folder>/... -> hide storage root + volume id.
+    return segments.slice(2)
+  }
+
+  return segments
 }
 
 function buildFolderTree(tracks: Track[]): FolderNode {
@@ -75,14 +75,9 @@ function buildFolderTree(tracks: Track[]): FolderNode {
     tracks: [],
   }
 
-  const allSegments = tracks
-    .map(getTrackDirectorySegments)
-    .filter((segments) => segments.length > 0)
-  const commonPrefix = getCommonPrefix(allSegments)
-
   for (const track of tracks) {
     const fullSegments = getTrackDirectorySegments(track)
-    const segments = fullSegments.slice(commonPrefix.length)
+    const segments = trimDeviceRootSegments(fullSegments)
     let current = root
 
     for (const segmentKey of segments) {
