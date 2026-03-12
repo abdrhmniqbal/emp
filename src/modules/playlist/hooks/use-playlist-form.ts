@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react"
+import type { Track } from "@/modules/player/player.types"
 import { useDebouncedValue } from "@tanstack/react-pacer"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
+import { useEffect, useMemo, useState } from "react"
 import { getAllTracks } from "@/modules/player/player.api"
-import type { Track } from "@/modules/player/player.types"
 import { createPlaylist, updatePlaylist } from "@/modules/playlist/playlist.api"
 import { usePlaylist } from "@/modules/playlist/playlist.queries"
 import {

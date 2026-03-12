@@ -1,8 +1,18 @@
+import type { GenreAlbumInfo } from "@/modules/genres/genres.api"
 import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { RefreshControl, ScrollView, View } from "react-native"
-import Animated from "react-native-reanimated"
 
+import Animated from "react-native-reanimated"
+import {
+  ContentSection,
+  LibrarySkeleton,
+  MediaCarousel,
+  RankedTrackCarousel,
+} from "@/components/blocks"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
+import { MusicCard } from "@/components/patterns"
 import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
@@ -10,18 +20,8 @@ import {
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import type { GenreAlbumInfo } from "@/modules/genres/genres.api"
 import { useGenreDetailsScreen } from "@/modules/genres/hooks/use-genre-details-screen"
 import { $indexerState } from "@/modules/indexer"
-import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import {
-  ContentSection,
-  LibrarySkeleton,
-  MediaCarousel,
-  RankedTrackCarousel,
-} from "@/components/blocks"
-import { MusicCard } from "@/components/patterns"
 
 const CHUNK_SIZE = 5
 

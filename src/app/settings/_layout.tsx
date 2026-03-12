@@ -1,9 +1,9 @@
 import { Stack, useRouter } from "expo-router"
 import { PressableFeedback } from "heroui-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import { BackButton } from "@/components/patterns"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export default function SettingsLayout() {
   const theme = useThemeColors()

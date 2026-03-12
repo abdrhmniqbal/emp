@@ -1,10 +1,14 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { PressableFeedback } from "heroui-native"
+import * as React from "react"
 import { View } from "react-native"
 import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated"
 
+import LocalNextSolidIcon from "@/components/icons/local/next-solid"
+import LocalPauseSolidIcon from "@/components/icons/local/pause-solid"
+import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
+import { MarqueeText } from "@/components/ui/marquee-text"
 import { $isPlayerExpanded, $showPlayerQueue } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
@@ -15,10 +19,6 @@ import {
   playNext,
   togglePlayback,
 } from "@/modules/player/player.store"
-import LocalNextSolidIcon from "@/components/icons/local/next-solid"
-import LocalPauseSolidIcon from "@/components/icons/local/pause-solid"
-import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
-import { MarqueeText } from "@/components/ui/marquee-text"
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
 import LocalQueueIcon from "../icons/local/queue"

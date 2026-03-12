@@ -1,13 +1,9 @@
-import * as React from "react"
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { Input, PressableFeedback } from "heroui-native"
-import { ScrollView, View, type TextInput } from "react-native"
+import * as React from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { ScrollView, type TextInput, View } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useSearch } from "@/modules/library/library.queries"
-import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
-import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import {
   RecentSearches,
   type RecentSearchItem,
@@ -16,6 +12,10 @@ import {
   SearchResults,
   type SearchTab,
 } from "@/components/blocks/search-results"
+import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
+import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useSearch } from "@/modules/library/library.queries"
 
 interface HeaderSearchInputProps {
   theme: ReturnType<typeof useThemeColors>

@@ -1,14 +1,18 @@
-import * as React from "react"
-import { useEffect, useRef } from "react"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
-import { Text, View, type FlatList } from "react-native"
+import * as React from "react"
+import { useEffect, useRef } from "react"
+import { type FlatList, Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import ReorderableList, {
   useReorderableDrag,
 } from "react-native-reorderable-list"
 import { cn } from "tailwind-variants"
 
+import LocalCancelIcon from "@/components/icons/local/cancel"
+import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
+import { TrackRow } from "@/components/patterns"
+import { ScaleLoader } from "@/components/ui"
 import { playTrack, type Track } from "@/modules/player/player.store"
 import {
   $queue,
@@ -16,10 +20,6 @@ import {
   moveInQueue,
   removeFromQueue,
 } from "@/modules/player/queue.store"
-import LocalCancelIcon from "@/components/icons/local/cancel"
-import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
-import { TrackRow } from "@/components/patterns"
-import { ScaleLoader } from "@/components/ui"
 
 interface QueueItemProps {
   track: Track
@@ -114,7 +114,7 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
       }, 50)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [currentIndex, queue.length])
 
   if (!currentTrack || queue.length === 0) return null
 

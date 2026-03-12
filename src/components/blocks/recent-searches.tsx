@@ -1,8 +1,7 @@
-import * as React from "react"
 import { PressableFeedback } from "heroui-native"
+import * as React from "react"
 import { Text, View } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
@@ -16,6 +15,7 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export interface RecentSearchItem {
   id: string

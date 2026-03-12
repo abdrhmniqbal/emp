@@ -1,5 +1,5 @@
-import { getTrackHistory } from "@/modules/history/history.api"
 import type { Track } from "@/modules/player/player.types"
+import { getTrackHistory } from "@/modules/history/history.api"
 
 export function dedupeTracksById(tracks: Track[]): Track[] {
   const seen = new Set<string>()

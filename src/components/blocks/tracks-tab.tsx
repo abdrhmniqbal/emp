@@ -1,19 +1,19 @@
-import * as React from "react"
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
+import type { Track } from "@/modules/player/player.store"
 
 import type { DBTrack } from "@/types/database"
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import {
-  sortTracks,
-  type SortConfig,
-} from "@/modules/library/library-sort.store"
-import type { Track } from "@/modules/player/player.store"
-import { useTracks } from "@/modules/tracks/tracks.queries"
-import { transformDBTrackToTrack } from "@/utils/transformers"
-import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import * as React from "react"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import {
+  type SortConfig,
+  sortTracks,
+} from "@/modules/library/library-sort.store"
+import { useTracks } from "@/modules/tracks/tracks.queries"
+import { transformDBTrackToTrack } from "@/utils/transformers"
 
 interface TracksTabProps {
   onTrackPress?: (track: Track) => void

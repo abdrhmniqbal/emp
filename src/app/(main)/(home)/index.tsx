@@ -1,8 +1,18 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { useRouter } from "expo-router"
+import * as React from "react"
 import { RefreshControl, ScrollView, View } from "react-native"
 
+import {
+  ContentSection,
+  LibrarySkeleton,
+  MediaCarousel,
+  RankedTrackCarousel,
+} from "@/components/blocks"
+import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { TrackRow } from "@/components/patterns"
+import { ScaleLoader } from "@/components/ui"
 import {
   handleScroll,
   handleScrollStart,
@@ -16,16 +26,6 @@ import {
   playTrack,
   type Track,
 } from "@/modules/player/player.store"
-import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
-import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import {
-  ContentSection,
-  LibrarySkeleton,
-  MediaCarousel,
-  RankedTrackCarousel,
-} from "@/components/blocks"
-import { TrackRow } from "@/components/patterns"
-import { ScaleLoader } from "@/components/ui"
 
 const CHUNK_SIZE = 5
 

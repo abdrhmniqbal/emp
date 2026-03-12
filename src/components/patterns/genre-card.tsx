@@ -1,8 +1,8 @@
+import type { PatternType } from "@/modules/genres/genres.utils"
 import { Card, PressableFeedback } from "heroui-native"
 import { Text, View } from "react-native"
-import { cn } from "tailwind-variants"
 
-import type { PatternType } from "@/modules/genres/genres.utils"
+import { cn } from "tailwind-variants"
 
 interface GenreCardProps {
   title: string

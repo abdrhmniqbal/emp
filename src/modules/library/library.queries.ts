@@ -1,10 +1,10 @@
+import type { Track } from "@/modules/player/player.types"
 import { useDebouncedValue } from "@tanstack/react-pacer/debouncer"
 import { useQuery } from "@tanstack/react-query"
-import { and, asc, desc, eq, gt, inArray, like, or, sql } from "drizzle-orm"
 
+import { and, asc, desc, eq, gt, inArray, like, or, sql } from "drizzle-orm"
 import { db } from "@/db/client"
-import { albums, artists, playlistTracks, playlists, tracks } from "@/db/schema"
-import type { Track } from "@/modules/player/player.types"
+import { albums, artists, playlists, playlistTracks, tracks } from "@/db/schema"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 const ARTISTS_KEY = "artists"

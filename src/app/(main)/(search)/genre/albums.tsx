@@ -1,9 +1,14 @@
-import { useState } from "react"
 import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { useState } from "react"
 import { RefreshControl, Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
+import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { SortSheet } from "@/components/blocks/sort-sheet"
+import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
+import { EmptyState } from "@/components/ui"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -18,15 +23,10 @@ import { useGenreAlbumsScreen } from "@/modules/genres/hooks/use-genre-albums-sc
 import { $indexerState } from "@/modules/indexer"
 import {
   ALBUM_SORT_OPTIONS,
-  sortAlbums,
   type AlbumSortField,
+  sortAlbums,
   type SortOrder,
 } from "@/modules/library/library-sort.store"
-import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { AlbumGrid, type Album } from "@/components/blocks/album-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { SortSheet } from "@/components/blocks/sort-sheet"
-import { EmptyState } from "@/components/ui"
 
 export default function GenreAlbumsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()

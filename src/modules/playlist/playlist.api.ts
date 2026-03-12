@@ -1,7 +1,7 @@
 import { eq, inArray } from "drizzle-orm"
 
 import { db } from "@/db/client"
-import { playlistTracks, playlists, tracks } from "@/db/schema"
+import { playlists, playlistTracks, tracks } from "@/db/schema"
 
 function generateId(): string {
   if (globalThis.crypto && globalThis.crypto.randomUUID) {

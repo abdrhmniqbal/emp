@@ -1,5 +1,3 @@
-import * as React from "react"
-import { useEffect, useRef, useState } from "react"
 import {
   LegendList,
   type LegendListRef,
@@ -7,26 +5,28 @@ import {
 } from "@legendapp/list"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
+import * as React from "react"
+import { useEffect, useRef, useState } from "react"
 import {
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type RefreshControlProps,
   type StyleProp,
+  View,
   type ViewStyle,
 } from "react-native"
 
+import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
+import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { TrackRow } from "@/components/patterns"
+import { EmptyState, ScaleLoader } from "@/components/ui"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   $currentTrack,
   playTrack,
   type Track,
 } from "@/modules/player/player.store"
-import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
-import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
-import { TrackRow } from "@/components/patterns"
-import { EmptyState, ScaleLoader } from "@/components/ui"
 
 interface TrackListProps {
   data: Track[]

@@ -7,9 +7,9 @@ import type {
 
 import type { Track } from "@/modules/player/player.store"
 import {
-  FolderList,
   type Folder,
   type FolderBreadcrumb,
+  FolderList,
 } from "@/components/blocks/folder-list"
 
 interface FolderTabProps {

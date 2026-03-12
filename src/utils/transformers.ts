@@ -1,5 +1,5 @@
-import type { DBAlbum, DBArtist, DBTrack } from "@/types/database"
 import type { Album, Artist, Track } from "@/modules/player/player.types"
+import type { DBAlbum, DBArtist, DBTrack } from "@/types/database"
 
 export function transformDBTrackToTrack(dbTrack: DBTrack): Track {
   return {

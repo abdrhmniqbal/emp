@@ -1,10 +1,10 @@
-import { useCallback, useEffect } from "react"
 import { useStore } from "@nanostores/react"
 import {
   BottomTabBar,
   type BottomTabBarProps,
 } from "@react-navigation/bottom-tabs"
 import { Tabs } from "expo-router"
+import { useCallback, useEffect } from "react"
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,20 +12,20 @@ import Animated, {
 } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-import {
-  MINI_PLAYER_HEIGHT,
-  getTabBarBottomPadding,
-  getTabBarHeight,
-} from "@/constants/layout"
-import { $barsVisible } from "@/hooks/scroll-bars.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { MiniPlayer } from "@/components/blocks/mini-player"
 import LocalHomeIcon from "@/components/icons/local/home"
 import LocalHomeSolidIcon from "@/components/icons/local/home-solid"
 import LocalLibraryIcon from "@/components/icons/local/library"
 import LocalLibrarySolidIcon from "@/components/icons/local/library-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
 import LocalSearchSolidIcon from "@/components/icons/local/search-solid"
-import { MiniPlayer } from "@/components/blocks/mini-player"
+import {
+  getTabBarBottomPadding,
+  getTabBarHeight,
+  MINI_PLAYER_HEIGHT,
+} from "@/constants/layout"
+import { $barsVisible } from "@/hooks/scroll-bars.store"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 const TAB_HIDE_DURATION_MS = 250
 const TAB_HIDE_EXTRA_OFFSET = 16

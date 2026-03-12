@@ -1,28 +1,28 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { Directory } from "expo-file-system"
 import { BottomSheet, Button, PressableFeedback } from "heroui-native"
+import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import {
-  $indexerState,
-  commitFolderFilterConfig,
-  ensureFolderFilterConfigLoaded,
-  getFolderNameFromPath,
-  getFolderPathFromUri,
-  normalizeFolderPath,
-  startIndexing,
-  type FolderFilterConfig,
-  type FolderFilterMode,
-} from "@/modules/indexer"
-import { $tracks } from "@/modules/player/player.store"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { EmptyState } from "@/components/ui"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import {
+  $indexerState,
+  commitFolderFilterConfig,
+  ensureFolderFilterConfigLoaded,
+  type FolderFilterConfig,
+  type FolderFilterMode,
+  getFolderNameFromPath,
+  getFolderPathFromUri,
+  normalizeFolderPath,
+  startIndexing,
+} from "@/modules/indexer"
+import { $tracks } from "@/modules/player/player.store"
 
 interface FolderEntry {
   path: string

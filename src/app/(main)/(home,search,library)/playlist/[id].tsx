@@ -1,10 +1,23 @@
-import * as React from "react"
-import { useState } from "react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
+import * as React from "react"
+import { useState } from "react"
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
+import {
+  DeletePlaylistDialog,
+  LibrarySkeleton,
+  PlaybackActionsRow,
+  PlaylistActionsSheet,
+} from "@/components/blocks"
+import { TrackList } from "@/components/blocks/track-list"
+import LocalFavouriteIcon from "@/components/icons/local/favourite"
+import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
+import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
+import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
+import { BackButton, PlaylistArtwork } from "@/components/patterns"
+import { EmptyState } from "@/components/ui"
 import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
@@ -15,19 +28,6 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 import { usePlaylistDetailsScreen } from "@/modules/playlist/hooks/use-playlist-details-screen"
 import { formatDuration } from "@/modules/playlist/playlist.utils"
 import { mergeText } from "@/utils/merge-text"
-import LocalFavouriteIcon from "@/components/icons/local/favourite"
-import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
-import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
-import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
-import {
-  DeletePlaylistDialog,
-  LibrarySkeleton,
-  PlaybackActionsRow,
-  PlaylistActionsSheet,
-} from "@/components/blocks"
-import { TrackList } from "@/components/blocks/track-list"
-import { BackButton, PlaylistArtwork } from "@/components/patterns"
-import { EmptyState } from "@/components/ui"
 
 const HEADER_COLLAPSE_THRESHOLD = 120
 

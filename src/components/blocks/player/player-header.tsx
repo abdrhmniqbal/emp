@@ -1,10 +1,10 @@
-import * as React from "react"
 import { PressableFeedback } from "heroui-native"
+import * as React from "react"
 import { View } from "react-native"
 
+import { useComingSoonToast } from "@/components/blocks/player/use-coming-soon-toast"
 import LocalLiveStreamingIcon from "@/components/icons/local/live-streaming"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
-import { useComingSoonToast } from "@/components/blocks/player/use-coming-soon-toast"
 
 interface PlayerHeaderProps {
   onClose: () => void

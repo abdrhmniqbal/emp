@@ -2,8 +2,8 @@ import type { ComponentProps } from "react"
 import { useRouter } from "expo-router"
 import { Button } from "heroui-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 interface BackButtonProps {
   onPress?: () => void

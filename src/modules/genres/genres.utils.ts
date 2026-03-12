@@ -1,15 +1,15 @@
+import type { GenreShape } from "./genres.constants"
+import type { Album } from "@/components/blocks/album-grid"
+import type { Track } from "@/modules/player/player.types"
+
 import {
+  type GenreAlbumInfo,
+  type GenreVisual,
   getAlbumsByGenre,
   getAllGenreVisuals,
   getAllTracksByGenre,
   getTopTracksByGenre,
-  type GenreAlbumInfo,
-  type GenreVisual,
 } from "@/modules/genres/genres.api"
-import type { Track } from "@/modules/player/player.types"
-import type { Album } from "@/components/blocks/album-grid"
-
-import type { GenreShape } from "./genres.constants"
 
 export type PatternType = GenreShape
 

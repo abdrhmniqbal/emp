@@ -1,10 +1,10 @@
-import * as React from "react"
-import { useState } from "react"
 import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
 import { Stack, useRouter } from "expo-router"
 import { Button, PressableFeedback } from "heroui-native"
+import * as React from "react"
+import { useState } from "react"
 import { Dimensions, ScrollView, Text, View } from "react-native"
 import Animated, {
   Extrapolation,
@@ -13,6 +13,18 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated"
 
+import { PlaybackActionsRow } from "@/components/blocks"
+import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { SortSheet } from "@/components/blocks/sort-sheet"
+import { TrackList } from "@/components/blocks/track-list"
+import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
+import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
+import LocalFavouriteIcon from "@/components/icons/local/favourite"
+import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
+import LocalUserSolidIcon from "@/components/icons/local/user-solid"
+import { TrackRow } from "@/components/patterns"
+import { ScaleLoader, SectionTitle } from "@/components/ui"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -27,23 +39,11 @@ import { useArtistDetailsScreen } from "@/modules/artists/hooks/use-artist-detai
 import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
 import {
   ALBUM_SORT_OPTIONS,
-  TRACK_SORT_OPTIONS,
   type SortField,
+  TRACK_SORT_OPTIONS,
 } from "@/modules/library/library-sort.store"
 import { $currentTrack } from "@/modules/player/player.store"
 import { cn } from "@/utils/common"
-import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
-import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
-import LocalFavouriteIcon from "@/components/icons/local/favourite"
-import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
-import LocalUserSolidIcon from "@/components/icons/local/user-solid"
-import { PlaybackActionsRow } from "@/components/blocks"
-import { AlbumGrid, type Album } from "@/components/blocks/album-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { SortSheet } from "@/components/blocks/sort-sheet"
-import { TrackList } from "@/components/blocks/track-list"
-import { TrackRow } from "@/components/patterns"
-import { ScaleLoader, SectionTitle } from "@/components/ui"
 
 const SCREEN_WIDTH = Dimensions.get("window").width
 const HEADER_COLLAPSE_THRESHOLD = SCREEN_WIDTH - 120

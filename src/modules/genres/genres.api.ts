@@ -1,8 +1,8 @@
-import { asc, desc, sql } from "drizzle-orm"
+import type { Track } from "@/modules/player/player.types"
 
+import { asc, desc, sql } from "drizzle-orm"
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
-import type { Track } from "@/modules/player/player.types"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 import { GENRE_COLORS, GENRE_SHAPES, type GenreShape } from "./genres.constants"

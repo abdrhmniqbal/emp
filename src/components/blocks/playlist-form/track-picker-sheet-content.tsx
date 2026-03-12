@@ -1,16 +1,16 @@
+import type { TrackPickerSheetContentProps } from "./types"
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { BottomSheet, Button } from "heroui-native"
 import { Text, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui"
 
+import { useThemeColors } from "@/hooks/use-theme-colors"
 import { PlaylistTrackRow } from "./playlist-track-row"
 import { SheetSearchInput } from "./sheet-search-input"
-import type { TrackPickerSheetContentProps } from "./types"
 
 const TRACK_PICKER_SNAP_POINTS = ["72%", "90%"]
 

@@ -1,20 +1,20 @@
-import { useState } from "react"
+import type { Album } from "@/components/blocks/album-grid"
 import { useStore } from "@nanostores/react"
 import { useLocalSearchParams, useRouter } from "expo-router"
 
+import { useState } from "react"
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import {
   $sortConfig,
   ALBUM_SORT_OPTIONS,
-  TRACK_SORT_OPTIONS,
   setSortConfig,
   sortAlbums,
-  sortTracks,
   type SortField,
+  sortTracks,
+  TRACK_SORT_OPTIONS,
 } from "@/modules/library/library-sort.store"
 import { useTracksByArtistName } from "@/modules/library/library.queries"
 import { $tracks, playTrack, type Track } from "@/modules/player/player.store"
-import type { Album } from "@/components/blocks/album-grid"
 
 import { buildArtistAlbums } from "../artists.utils"
 

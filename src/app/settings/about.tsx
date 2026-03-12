@@ -4,8 +4,9 @@ import { Image } from "expo-image"
 import { PressableFeedback } from "heroui-native"
 import { Linking, ScrollView, Text, View } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import appIcon from "@/assets/icon.png"
 
 export default function AboutSettingsScreen() {
   const theme = useThemeColors()
@@ -20,7 +21,7 @@ export default function AboutSettingsScreen() {
     <ScrollView className="flex-1 bg-background">
       <View className="flex-row items-center gap-6 bg-background px-6 py-4">
         <Image
-          source={require("../../assets/icon.png")}
+          source={appIcon}
           style={{ width: 64, height: 64 }}
           contentFit="contain"
         />

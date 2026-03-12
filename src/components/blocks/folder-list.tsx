@@ -1,26 +1,22 @@
-import * as React from "react"
-import { useEffect, useRef } from "react"
+import type { Track } from "@/modules/player/player.store"
 import {
   LegendList,
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import { Button, PressableFeedback } from "heroui-native"
+import * as React from "react"
+import { useEffect, useRef } from "react"
+
 import {
-  ScrollView,
-  Text,
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  ScrollView,
   type StyleProp,
+  Text,
+  View,
   type ViewStyle,
 } from "react-native"
-
-import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import type { Track } from "@/modules/player/player.store"
-import { formatDuration } from "@/utils/format"
-import { mergeText } from "@/utils/merge-text"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
@@ -33,6 +29,10 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { ICON_SIZES } from "@/constants/icon-sizes"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { formatDuration } from "@/utils/format"
+import { mergeText } from "@/utils/merge-text"
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
 

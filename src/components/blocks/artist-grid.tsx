@@ -1,21 +1,19 @@
-import * as React from "react"
-import { useEffect, useRef } from "react"
 import {
   LegendList,
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
+import * as React from "react"
+import { useEffect, useRef } from "react"
 import {
   Dimensions,
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
+  View,
   type ViewStyle,
 } from "react-native"
 
-import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import {
   EmptyState,
@@ -25,6 +23,8 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { ICON_SIZES } from "@/constants/icon-sizes"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export interface Artist {
   id: string

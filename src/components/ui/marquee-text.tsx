@@ -1,7 +1,7 @@
+import { Marquee } from "@animatereactnative/marquee"
 import * as React from "react"
 import { useState } from "react"
-import { Marquee } from "@animatereactnative/marquee"
-import { Text, View, type LayoutChangeEvent } from "react-native"
+import { type LayoutChangeEvent, Text, View } from "react-native"
 
 interface MarqueeTextProps {
   text: string

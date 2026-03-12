@@ -1,7 +1,8 @@
-import { useState } from "react"
+import type { Playlist } from "@/components/blocks/playlist-list"
 import { useStore } from "@nanostores/react"
 import { useRouter } from "expo-router"
 
+import { useState } from "react"
 import { useAlbums } from "@/modules/albums/albums.queries"
 import { useArtists } from "@/modules/artists/artists.queries"
 import { useFavorites } from "@/modules/favorites/favorites.queries"
@@ -12,15 +13,14 @@ import {
   ARTIST_SORT_OPTIONS,
   FOLDER_SORT_OPTIONS,
   PLAYLIST_SORT_OPTIONS,
-  TRACK_SORT_OPTIONS,
   setSortConfig,
+  type SortField,
   sortGeneric,
   sortTracks,
-  type SortField,
+  TRACK_SORT_OPTIONS,
 } from "@/modules/library/library-sort.store"
 import { $tracks, playTrack, type Track } from "@/modules/player/player.store"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
-import type { Playlist } from "@/components/blocks/playlist-list"
 
 export const LIBRARY_TABS = [
   "Tracks",

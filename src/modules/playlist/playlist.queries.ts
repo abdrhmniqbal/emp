@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { and, asc, desc, eq } from "drizzle-orm"
 
 import { db } from "@/db/client"
-import { playlistTracks, playlists } from "@/db/schema"
+import { playlists, playlistTracks } from "@/db/schema"
 import { createPlaylist } from "@/modules/playlist/playlist.api"
 
 const PLAYLISTS_KEY = "playlists"

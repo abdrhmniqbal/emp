@@ -1,11 +1,11 @@
-import { useState } from "react"
+import type { Folder, FolderBreadcrumb } from "@/components/blocks/folder-list"
 
 import type {
   SortConfig,
   SortOrder,
 } from "@/modules/library/library-sort.store"
 import type { Track } from "@/modules/player/player.store"
-import type { Folder, FolderBreadcrumb } from "@/components/blocks/folder-list"
+import { useState } from "react"
 
 interface FolderNode {
   name: string

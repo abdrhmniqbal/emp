@@ -1,6 +1,6 @@
-import { atom } from "nanostores"
-
 import type { Track } from "@/modules/player/player.store"
+
+import { atom } from "nanostores"
 
 export type TrackSortField =
   | "title"

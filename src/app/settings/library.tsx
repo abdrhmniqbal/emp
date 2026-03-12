@@ -1,9 +1,10 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { useRouter } from "expo-router"
 import { Button, Dialog, PressableFeedback, Switch } from "heroui-native"
+import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
 
+import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   $autoScanEnabled,
@@ -15,7 +16,6 @@ import {
   getTrackDurationFilterLabel,
   setAutoScanEnabled,
 } from "@/modules/indexer"
-import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 
 interface LibrarySettingItemProps {
   title: string

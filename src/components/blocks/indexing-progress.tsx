@@ -1,11 +1,11 @@
-import { useEffect, useRef } from "react"
 import { useStore } from "@nanostores/react"
 import {
   PressableFeedback,
   Toast,
-  useToast,
   type ToastComponentProps,
+  useToast,
 } from "heroui-native"
+import { useEffect, useRef } from "react"
 import { Text, View } from "react-native"
 import Animated, {
   useAnimatedStyle,
@@ -13,9 +13,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 
+import LocalCancelIcon from "@/components/icons/local/cancel"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { $indexerState, stopIndexing } from "@/modules/indexer"
-import LocalCancelIcon from "@/components/icons/local/cancel"
 
 const TOAST_ID = "indexing-progress-toast"
 const COMPLETE_HIDE_DELAY_MS = 1500

@@ -2,8 +2,8 @@ import { PressableFeedback } from "heroui-native"
 import { ScrollView, Text, View } from "react-native"
 import { Uniwind, useUniwind } from "uniwind"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalTickIcon from "@/components/icons/local/tick"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 type ThemeValue = "light" | "dark" | "system"
 

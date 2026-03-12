@@ -2,10 +2,10 @@ import { Stack, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import { View } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalSearchIcon from "@/components/icons/local/search"
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { BackButton } from "@/components/patterns"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export default function HomeLayout() {
   const theme = useThemeColors()

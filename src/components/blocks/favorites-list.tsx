@@ -1,25 +1,21 @@
-import * as React from "react"
+import type {
+  FavoriteEntry,
+  FavoriteType,
+} from "@/modules/favorites/favorites.api"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
 import { Chip, PressableFeedback } from "heroui-native"
+import * as React from "react"
+
 import {
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
+  View,
   type ViewStyle,
 } from "react-native"
-
-import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import type {
-  FavoriteEntry,
-  FavoriteType,
-} from "@/modules/favorites/favorites.api"
-import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
-import { $tracks, playTrack } from "@/modules/player/player.store"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
@@ -34,6 +30,10 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { ICON_SIZES } from "@/constants/icon-sizes"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
+import { $tracks, playTrack } from "@/modules/player/player.store"
 
 interface FavoritesListProps {
   data: FavoriteEntry[]

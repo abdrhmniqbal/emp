@@ -3,6 +3,11 @@ import { Stack, useLocalSearchParams } from "expo-router"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
 
+import { PlaybackActionsRow } from "@/components/blocks"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { TrackList } from "@/components/blocks/track-list"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { EmptyState } from "@/components/ui"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -15,11 +20,6 @@ import {
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useGenreTopTracksScreen } from "@/modules/genres/hooks/use-genre-top-tracks-screen"
 import { $indexerState } from "@/modules/indexer"
-import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { PlaybackActionsRow } from "@/components/blocks"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { TrackList } from "@/components/blocks/track-list"
-import { EmptyState } from "@/components/ui"
 
 export default function GenreTopTracksScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()

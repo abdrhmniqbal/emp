@@ -1,19 +1,18 @@
-import * as React from "react"
-import { useEffect, useRef } from "react"
 import {
   LegendList,
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
+import * as React from "react"
+import { useEffect, useRef } from "react"
 import {
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
+  View,
   type ViewStyle,
 } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
@@ -27,6 +26,7 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export interface Playlist {
   id: string

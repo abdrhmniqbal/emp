@@ -1,8 +1,8 @@
-import { eq } from "drizzle-orm"
+import type { Track } from "@/modules/player/player.types"
 
+import { eq } from "drizzle-orm"
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
-import type { Track } from "@/modules/player/player.types"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 export async function getAllTracks(): Promise<Track[]> {

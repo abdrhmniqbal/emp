@@ -1,28 +1,15 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { Tabs } from "heroui-native"
+import * as React from "react"
 import {
-  Text,
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  Text,
+  View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "tailwind-variants"
 
-import { MINI_PLAYER_HEIGHT, getTabBarHeight } from "@/constants/layout"
-import {
-  handleScroll,
-  handleScrollStart,
-  handleScrollStop,
-} from "@/hooks/scroll-bars.store"
-import {
-  LIBRARY_TABS,
-  LIBRARY_TAB_SORT_OPTIONS,
-  useLibraryScreen,
-  type LibraryTab,
-} from "@/modules/library/hooks/use-library-screen"
-import { $currentTrack } from "@/modules/player/player.store"
 import { PlaybackActionsRow } from "@/components/blocks"
 import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
@@ -31,6 +18,19 @@ import { FolderTab } from "@/components/blocks/folder-tab"
 import { PlaylistList } from "@/components/blocks/playlist-list"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TracksTab } from "@/components/blocks/tracks-tab"
+import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
+import {
+  handleScroll,
+  handleScrollStart,
+  handleScrollStop,
+} from "@/hooks/scroll-bars.store"
+import {
+  LIBRARY_TAB_SORT_OPTIONS,
+  LIBRARY_TABS,
+  type LibraryTab,
+  useLibraryScreen,
+} from "@/modules/library/hooks/use-library-screen"
+import { $currentTrack } from "@/modules/player/player.store"
 
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets()

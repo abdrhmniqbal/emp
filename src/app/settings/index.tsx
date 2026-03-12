@@ -2,8 +2,8 @@ import { useRouter } from "expo-router"
 import { PressableFeedback } from "heroui-native"
 import { ScrollView, Text, View } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 interface SettingsCategoryItemProps {
   title: string

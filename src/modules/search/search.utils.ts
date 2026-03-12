@@ -1,12 +1,12 @@
+import type { Album } from "@/components/blocks/album-grid"
+import type { Track } from "@/modules/player/player.types"
 import {
+  type GenreAlbumInfo as AlbumInfo,
   getAlbumsByGenre,
   getAllGenres,
   getAllTracksByGenre,
   getTopTracksByGenre,
-  type GenreAlbumInfo as AlbumInfo,
 } from "@/modules/genres/genres.api"
-import type { Track } from "@/modules/player/player.types"
-import type { Album } from "@/components/blocks/album-grid"
 
 export type PatternType =
   | "circles"

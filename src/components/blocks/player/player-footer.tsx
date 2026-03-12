@@ -1,14 +1,14 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
+import * as React from "react"
 import { View } from "react-native"
 import { cn } from "tailwind-variants"
 
-import { $showPlayerQueue } from "@/hooks/scroll-bars.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useComingSoonToast } from "@/components/blocks/player/use-coming-soon-toast"
 import LocalMicIcon from "@/components/icons/local/mic"
 import LocalQueueIcon from "@/components/icons/local/queue"
-import { useComingSoonToast } from "@/components/blocks/player/use-coming-soon-toast"
+import { $showPlayerQueue } from "@/hooks/scroll-bars.store"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export const PlayerFooter: React.FC = () => {
   const showQueue = useStore($showPlayerQueue)

@@ -1,6 +1,11 @@
 import { useStore } from "@nanostores/react"
 import { RefreshControl, View } from "react-native"
 
+import { PlaybackActionsRow } from "@/components/blocks"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { TrackList } from "@/components/blocks/track-list"
+import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
+import { EmptyState } from "@/components/ui"
 import {
   handleScroll,
   handleScrollStart,
@@ -9,11 +14,6 @@ import {
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useRecentlyPlayedScreen } from "@/modules/history/hooks/use-recently-played-screen"
 import { $indexerState } from "@/modules/indexer"
-import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
-import { PlaybackActionsRow } from "@/components/blocks"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { TrackList } from "@/components/blocks/track-list"
-import { EmptyState } from "@/components/ui"
 
 export default function RecentlyPlayedScreen() {
   const theme = useThemeColors()

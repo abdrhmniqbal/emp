@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useStore } from "@nanostores/react"
 import {
   DarkTheme,
@@ -8,6 +7,7 @@ import {
 import { Stack, useSegments } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import Animated, {
@@ -18,14 +18,14 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useUniwind } from "uniwind"
 
-import { MINI_PLAYER_HEIGHT, getTabBarHeight } from "@/constants/layout"
+import { FullPlayer } from "@/components/blocks/full-player"
+import { IndexingProgress } from "@/components/blocks/indexing-progress"
+import { Providers } from "@/components/providers"
+import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
 import { $barsVisible } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useAppBootstrap } from "@/modules/bootstrap/hooks/use-app-bootstrap"
 import { $currentTrack } from "@/modules/player/player.store"
-import { FullPlayer } from "@/components/blocks/full-player"
-import { IndexingProgress } from "@/components/blocks/indexing-progress"
-import { Providers } from "@/components/providers"
 
 import "../global.css"
 

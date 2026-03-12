@@ -12,6 +12,7 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 
 const BAR_COUNT = 3
 const BAR_WIDTH = 3
+const BAR_DELAYS = Array.from({ length: BAR_COUNT }, (_, index) => index * 150)
 
 interface ScaleLoaderProps {
   size?: number
@@ -64,8 +65,8 @@ export function ScaleLoader({ size = 20 }: ScaleLoaderProps) {
           height: size,
         }}
       >
-        {Array.from({ length: BAR_COUNT }).map((_, i) => (
-          <Bar key={i} delay={i * 150} maxHeight={size} />
+        {BAR_DELAYS.map((delay) => (
+          <Bar key={delay} delay={delay} maxHeight={size} />
         ))}
       </View>
     </View>

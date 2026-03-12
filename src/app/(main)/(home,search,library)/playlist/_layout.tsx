@@ -1,7 +1,7 @@
 import { Stack } from "expo-router"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import { BackButton } from "@/components/patterns"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export default function PlaylistLayout() {
   const theme = useThemeColors()

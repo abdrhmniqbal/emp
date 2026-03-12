@@ -8,6 +8,7 @@ export default antfu({
   react: true,
   imports: false,
   formatters: true,
+  stylistic: false,
   plugins: {
     expo,
     tailwindcss: tailwind,

@@ -1,5 +1,3 @@
-import * as React from "react"
-import { useEffect, useState } from "react"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
 import {
@@ -11,10 +9,21 @@ import {
   Toast,
   useToast,
 } from "heroui-native"
+import * as React from "react"
+import { useEffect, useState } from "react"
 import { Linking, Text, View } from "react-native"
 import { open as openFileViewer } from "react-native-file-viewer-turbo"
 import { cn } from "tailwind-variants"
 
+import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import LocalAddIcon from "@/components/icons/local/add"
+import LocalFavouriteIcon from "@/components/icons/local/favourite"
+import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import LocalNextSolidIcon from "@/components/icons/local/next-solid"
+import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
+import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
+import { MarqueeText } from "@/components/ui"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
@@ -34,15 +43,6 @@ import {
 } from "@/modules/tracks/track-metadata.utils"
 import { resolvePlayableFileUri } from "@/utils/file-path"
 import { formatDuration } from "@/utils/format"
-import LocalAddIcon from "@/components/icons/local/add"
-import LocalFavouriteIcon from "@/components/icons/local/favourite"
-import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
-import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import LocalNextSolidIcon from "@/components/icons/local/next-solid"
-import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
-import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
-import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
-import { MarqueeText } from "@/components/ui"
 
 interface TrackActionSheetProps {
   track: Track | null

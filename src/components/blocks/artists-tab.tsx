@@ -1,16 +1,16 @@
-import * as React from "react"
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
+import * as React from "react"
 
+import { type Artist, ArtistGrid } from "@/components/blocks/artist-grid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import LocalUserSolidIcon from "@/components/icons/local/user-solid"
+import { EmptyState } from "@/components/ui"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   sortArtists,
   type SortConfig,
 } from "@/modules/library/library-sort.store"
 import { useArtists } from "@/modules/library/library.queries"
-import LocalUserSolidIcon from "@/components/icons/local/user-solid"
-import { ArtistGrid, type Artist } from "@/components/blocks/artist-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { EmptyState } from "@/components/ui"
 
 interface ArtistsTabProps {
   onArtistPress?: (artist: Artist) => void

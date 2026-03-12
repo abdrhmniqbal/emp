@@ -3,6 +3,11 @@ import { Tabs } from "heroui-native"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
 
+import { PlaybackActionsRow } from "@/components/blocks"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { TrackList } from "@/components/blocks/track-list"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { EmptyState } from "@/components/ui"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -16,14 +21,9 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 import { $indexerState } from "@/modules/indexer"
 import {
   TOP_TRACKS_TABS,
-  useTopTracksScreen,
   type TopTracksTab,
+  useTopTracksScreen,
 } from "@/modules/tracks/hooks/use-top-tracks-screen"
-import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { PlaybackActionsRow } from "@/components/blocks"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { TrackList } from "@/components/blocks/track-list"
-import { EmptyState } from "@/components/ui"
 
 export default function TopTracksScreen() {
   const indexerState = useStore($indexerState)

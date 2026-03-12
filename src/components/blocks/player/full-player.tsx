@@ -1,9 +1,9 @@
-import * as React from "react"
-import { useEffect, useState } from "react"
 import { useStore } from "@nanostores/react"
 import { LinearGradient } from "expo-linear-gradient"
 import { useRouter } from "expo-router"
 import { BottomSheet } from "heroui-native"
+import * as React from "react"
+import { useEffect, useState } from "react"
 import { StyleSheet, View } from "react-native"
 
 import { $isPlayerExpanded, $showPlayerQueue } from "@/hooks/scroll-bars.store"

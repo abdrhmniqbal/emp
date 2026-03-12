@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react"
+import type { Track } from "@/modules/player/player.types"
 import { useIsFocused } from "@react-navigation/native"
 import { useQuery } from "@tanstack/react-query"
 
+import { useEffect, useState } from "react"
 import { startIndexing } from "@/modules/indexer"
 import { playTrack } from "@/modules/player/player.store"
-import type { Track } from "@/modules/player/player.types"
 import { getTopTracks, type TopTracksPeriod } from "@/modules/tracks/tracks.api"
 
 export const TOP_TRACKS_TABS = ["Realtime", "Daily", "Weekly"] as const

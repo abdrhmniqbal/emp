@@ -1,6 +1,7 @@
+import type { Album, Artist, LyricLine, Track } from "./player.types"
 import { atom } from "nanostores"
-import { processColor } from "react-native"
 
+import { processColor } from "react-native"
 import { queryClient } from "@/lib/tanstack-query"
 import { toggleFavoriteDB } from "@/modules/favorites/favorites.api"
 import {
@@ -11,6 +12,7 @@ import {
   loadPlaybackSession,
   savePlaybackSession,
 } from "@/modules/player/player-session"
+
 import {
   Capability,
   Event,
@@ -18,8 +20,6 @@ import {
   State,
   TrackPlayer,
 } from "@/modules/player/player.utils"
-
-import type { Album, Artist, LyricLine, Track } from "./player.types"
 
 export type { Album, Artist, LyricLine, Track }
 

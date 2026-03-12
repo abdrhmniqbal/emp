@@ -1,7 +1,9 @@
+import type { AnimatedProgressBarProps } from "./animated-progress-bar.types"
+import { LinearGradient } from "expo-linear-gradient"
 import * as React from "react"
 import { useEffect } from "react"
-import { LinearGradient } from "expo-linear-gradient"
 import { Dimensions, Text, View } from "react-native"
+
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -12,8 +14,6 @@ import Animated, {
 } from "react-native-reanimated"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
-
-import type { AnimatedProgressBarProps } from "./animated-progress-bar.types"
 
 const styles = {
   container: {

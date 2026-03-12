@@ -2,14 +2,14 @@ import type { ReactNode } from "react"
 import { useStore } from "@nanostores/react"
 import { View } from "react-native"
 
+import { TrackRow } from "@/components/patterns"
+import { ScaleLoader } from "@/components/ui"
 import {
   $currentTrack,
   playTrack,
   type Track,
 } from "@/modules/player/player.store"
 import { chunkArray } from "@/utils/array"
-import { TrackRow } from "@/components/patterns"
-import { ScaleLoader } from "@/components/ui"
 
 import { MediaCarousel } from "./media-carousel"
 

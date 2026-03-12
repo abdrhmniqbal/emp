@@ -1,11 +1,11 @@
-import * as React from "react"
-import { Image } from "expo-image"
-import { View } from "react-native"
-import Animated, { Layout } from "react-native-reanimated"
-
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import type { Track } from "@/modules/player/player.store"
+import { Image } from "expo-image"
+import * as React from "react"
+import { View } from "react-native"
+
+import Animated, { Layout } from "react-native-reanimated"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 interface AlbumArtViewProps {
   currentTrack: Track

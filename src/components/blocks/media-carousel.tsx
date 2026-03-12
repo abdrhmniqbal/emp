@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { ScrollView, View, type StyleProp, type ViewStyle } from "react-native"
+import { ScrollView, type StyleProp, View, type ViewStyle } from "react-native"
 import { cn } from "tailwind-variants"
 
 import { EmptyState } from "@/components/ui"

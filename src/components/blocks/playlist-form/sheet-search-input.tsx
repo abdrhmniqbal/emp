@@ -1,20 +1,20 @@
-import * as React from "react"
-import { useCallback, useRef } from "react"
+import type { SheetSearchInputProps } from "./types"
 import { useBottomSheetInternal } from "@gorhom/bottom-sheet"
 import { Input, PressableFeedback, TextField } from "heroui-native"
+import * as React from "react"
+import { useCallback, useRef } from "react"
+
 import {
+  type BlurEvent,
+  findNodeHandle,
+  type FocusEvent,
   TextInput,
   View,
-  findNodeHandle,
-  type BlurEvent,
-  type FocusEvent,
 } from "react-native"
-
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
 
-import type { SheetSearchInputProps } from "./types"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export function SheetSearchInput({
   inputKey,

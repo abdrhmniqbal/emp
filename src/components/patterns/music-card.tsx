@@ -4,10 +4,10 @@ import { PressableFeedback } from "heroui-native"
 import { Text, View } from "react-native"
 import { cn } from "tailwind-variants"
 
-import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { Card } from "@/components/ui"
+import { ICON_SIZES } from "@/constants/icon-sizes"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 interface MusicCardProps {
   title: string

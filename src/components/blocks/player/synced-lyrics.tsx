@@ -1,6 +1,6 @@
+import { useStore } from "@nanostores/react"
 import * as React from "react"
 import { useEffect, useRef } from "react"
-import { useStore } from "@nanostores/react"
 import { Dimensions, ScrollView, Text, View } from "react-native"
 
 import { $currentTime, $currentTrack } from "@/modules/player/player.store"

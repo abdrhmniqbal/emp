@@ -1,4 +1,3 @@
-import { useCallback, useRef, useState } from "react"
 import { useBottomSheetInternal } from "@gorhom/bottom-sheet"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import {
@@ -9,17 +8,16 @@ import {
   PressableFeedback,
   TextField,
 } from "heroui-native"
+import { useCallback, useRef, useState } from "react"
 import {
+  type BlurEvent,
+  findNodeHandle,
+  type FocusEvent,
   Text,
   TextInput,
   View,
-  findNodeHandle,
-  type BlurEvent,
-  type FocusEvent,
 } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import { usePlaylistsForTrack } from "@/modules/playlist/playlist.queries"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
@@ -32,6 +30,8 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { usePlaylistsForTrack } from "@/modules/playlist/playlist.queries"
 
 interface PlaylistPickerSheetProps {
   isOpen: boolean

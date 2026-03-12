@@ -5,9 +5,9 @@ import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import {
   $sortConfig,
   ALBUM_TRACK_SORT_OPTIONS,
+  type AlbumTrackSortField,
   setSortConfig,
   sortTracks,
-  type AlbumTrackSortField,
 } from "@/modules/library/library-sort.store"
 import { useTracksByAlbumName } from "@/modules/library/library.queries"
 import { $tracks, playTrack, type Track } from "@/modules/player/player.store"

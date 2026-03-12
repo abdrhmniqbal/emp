@@ -1,22 +1,19 @@
-import * as React from "react"
-import { useEffect, useRef } from "react"
 import {
   LegendList,
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
+import * as React from "react"
+import { useEffect, useRef } from "react"
 import {
   Dimensions,
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
+  View,
   type ViewStyle,
 } from "react-native"
 
-import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import { mergeText } from "@/utils/merge-text"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import {
   EmptyState,
@@ -26,6 +23,9 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { ICON_SIZES } from "@/constants/icon-sizes"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { mergeText } from "@/utils/merge-text"
 
 export interface Album {
   id: string

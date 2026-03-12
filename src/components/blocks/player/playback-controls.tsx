@@ -1,20 +1,9 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
+import * as React from "react"
 import { View } from "react-native"
 import Animated, { Layout } from "react-native-reanimated"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
-import {
-  $repeatMode,
-  playNext,
-  playPrevious,
-  togglePlayback,
-  toggleRepeatMode,
-  type RepeatModeType,
-} from "@/modules/player/player.store"
-import { $isShuffled, toggleShuffle } from "@/modules/player/queue.store"
-import { cn } from "@/utils/common"
 import LocalNextSolidIcon from "@/components/icons/local/next-solid"
 import LocalPauseCircleSolidIcon from "@/components/icons/local/pause-circle-solid"
 import LocalPlayCircleSolidIcon from "@/components/icons/local/play-circle-solid"
@@ -22,6 +11,17 @@ import LocalPreviousSolidIcon from "@/components/icons/local/previous-solid"
 import LocalRepeatIcon from "@/components/icons/local/repeat"
 import LocalRepeatOneIcon from "@/components/icons/local/repeat-one"
 import LocalShuffleIcon from "@/components/icons/local/shuffle"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import {
+  $repeatMode,
+  playNext,
+  playPrevious,
+  type RepeatModeType,
+  togglePlayback,
+  toggleRepeatMode,
+} from "@/modules/player/player.store"
+import { $isShuffled, toggleShuffle } from "@/modules/player/queue.store"
+import { cn } from "@/utils/common"
 
 interface PlaybackControlsProps {
   isPlaying: boolean

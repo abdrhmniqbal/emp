@@ -1,12 +1,12 @@
-import { useMutation, useQuery, type QueryClient } from "@tanstack/react-query"
+import { type QueryClient, useMutation, useQuery } from "@tanstack/react-query"
 
 import { queryClient } from "@/lib/tanstack-query"
 import {
   addFavorite,
+  type FavoriteType,
   getFavorites,
   isFavorite,
   removeFavorite,
-  type FavoriteType,
 } from "@/modules/favorites/favorites.api"
 
 const FAVORITES_KEY = "favorites"

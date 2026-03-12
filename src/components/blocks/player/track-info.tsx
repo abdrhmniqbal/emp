@@ -1,17 +1,17 @@
-import * as React from "react"
+import type { Track } from "@/modules/player/player.store"
 import { PressableFeedback } from "heroui-native"
+import * as React from "react"
 import { View } from "react-native"
 import Animated, { Layout } from "react-native-reanimated"
-import { cn } from "tailwind-variants"
 
+import { cn } from "tailwind-variants"
+import LocalFavouriteIcon from "@/components/icons/local/favourite"
+import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
+import { MarqueeText } from "@/components/ui"
 import {
   useIsFavorite,
   useToggleFavorite,
 } from "@/modules/favorites/favorites.queries"
-import type { Track } from "@/modules/player/player.store"
-import LocalFavouriteIcon from "@/components/icons/local/favourite"
-import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
-import { MarqueeText } from "@/components/ui"
 
 interface TrackInfoProps {
   track: Track

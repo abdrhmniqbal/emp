@@ -22,5 +22,5 @@ export {
   MediaItemRank as ItemRank,
   MediaItemTitle as ItemTitle,
 } from "./media-item"
-export { SectionHeader, SectionTitle } from "./section-header"
 export { ScaleLoader } from "./scale-loader"
+export { SectionHeader, SectionTitle } from "./section-header"

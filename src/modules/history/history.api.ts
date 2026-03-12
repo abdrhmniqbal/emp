@@ -1,8 +1,8 @@
-import { desc, eq, sql } from "drizzle-orm"
+import type { Track } from "@/modules/player/player.types"
 
+import { desc, eq, sql } from "drizzle-orm"
 import { db } from "@/db/client"
 import { playHistory, tracks } from "@/db/schema"
-import type { Track } from "@/modules/player/player.types"
 
 export type HistoryTopTracksPeriod = "all" | "day" | "week"
 

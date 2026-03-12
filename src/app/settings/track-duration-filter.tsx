@@ -1,8 +1,9 @@
-import * as React from "react"
 import { useStore } from "@nanostores/react"
 import { PressableFeedback, Slider } from "heroui-native"
+import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
 
+import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   $indexerState,
@@ -12,7 +13,6 @@ import {
   startIndexing,
   type TrackDurationFilterMode,
 } from "@/modules/indexer"
-import LocalTickIcon from "@/components/icons/local/tick"
 
 interface DurationOption {
   label: string

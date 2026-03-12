@@ -2,8 +2,8 @@ import Constants from "expo-constants"
 import { PressableFeedback } from "heroui-native"
 import { Linking, Platform, ScrollView, Text, View } from "react-native"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export default function AdvancedSettingsScreen() {
   const theme = useThemeColors()

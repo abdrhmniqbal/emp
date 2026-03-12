@@ -1,10 +1,10 @@
-import { useEffect } from "react"
+import type { Track } from "@/modules/player/player.types"
 import { useIsFocused } from "@react-navigation/native"
 import { useQuery } from "@tanstack/react-query"
 
+import { useEffect } from "react"
 import { fetchRecentlyPlayedTracks } from "@/modules/history/history.utils"
 import { startIndexing } from "@/modules/indexer"
-import type { Track } from "@/modules/player/player.types"
 import { getTopTracks } from "@/modules/tracks/tracks.api"
 
 const RECENTLY_PLAYED_LIMIT = 8

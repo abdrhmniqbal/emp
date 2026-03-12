@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react"
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator"
+import { useEffect, useRef, useState } from "react"
 import { Text, View } from "react-native"
 
 import { db } from "@/db/client"

@@ -1,12 +1,12 @@
+import { BottomSheet, Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { createContext, use } from "react"
-import { BottomSheet, Button, PressableFeedback } from "heroui-native"
 import { Text } from "react-native"
 import { cn } from "tailwind-variants"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import LocalArrowDownIcon from "@/components/icons/local/arrow-down"
 import LocalArrowUpIcon from "@/components/icons/local/arrow-up"
+import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export interface SortOption<T extends string> {
   field: T

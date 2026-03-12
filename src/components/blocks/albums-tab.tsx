@@ -1,16 +1,16 @@
-import * as React from "react"
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
+import * as React from "react"
 
+import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
+import { EmptyState } from "@/components/ui"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   sortAlbums,
   type SortConfig,
 } from "@/modules/library/library-sort.store"
 import { useAlbums } from "@/modules/library/library.queries"
-import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { AlbumGrid, type Album } from "@/components/blocks/album-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { EmptyState } from "@/components/ui"
 
 interface AlbumsTabProps {
   onAlbumPress?: (album: Album) => void

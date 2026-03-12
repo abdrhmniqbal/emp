@@ -1,22 +1,19 @@
-import * as React from "react"
-import { useState } from "react"
-import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
-import { Chip, PressableFeedback } from "heroui-native"
-import { ScrollView, Text, View } from "react-native"
-
-import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
 import type {
   SearchAlbumResult,
   SearchArtistResult,
   SearchPlaylistResult,
 } from "@/modules/library/library.queries"
-import { playTrack, type Track } from "@/modules/player/player.store"
+import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
+import { Chip, PressableFeedback } from "heroui-native"
+import * as React from "react"
+import { useState } from "react"
+
+import { ScrollView, Text, View } from "react-native"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalCheckmarkCircleSolidIcon from "@/components/icons/local/checkmark-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaylistArtwork } from "@/components/patterns"
 import {
   Item,
@@ -26,6 +23,9 @@ import {
   ItemImage,
   ItemTitle,
 } from "@/components/ui"
+import { ICON_SIZES } from "@/constants/icon-sizes"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { playTrack, type Track } from "@/modules/player/player.store"
 
 const SEARCH_TABS = ["All", "Track", "Album", "Artist", "Playlist"] as const
 export type SearchTab = (typeof SEARCH_TABS)[number]

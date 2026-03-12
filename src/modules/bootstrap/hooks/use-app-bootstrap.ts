@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react"
 import * as MediaLibrary from "expo-media-library"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { AppState, type AppStateStatus } from "react-native"
 
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
