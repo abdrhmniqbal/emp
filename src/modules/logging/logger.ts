@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { File, Paths } from "expo-file-system"
 import { atom } from "nanostores"
 import { Share } from "react-native"

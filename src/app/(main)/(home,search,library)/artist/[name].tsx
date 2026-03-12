@@ -9,8 +9,8 @@ import { Dimensions, ScrollView, Text, View } from "react-native"
 import Animated, {
   Extrapolation,
   interpolate,
-  useDerivedValue,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated"

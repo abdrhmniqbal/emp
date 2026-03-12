@@ -758,7 +758,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                         >
                           {item.segments.map((segment, segmentIndex) => (
                             <React.Fragment
-                              key={`${item.label}-${segment.value}-${segmentIndex}`}
+                              key={`${item.label}-${segment.value}-${segment.onPress ? "link" : "text"}`}
                             >
                               {segment.onPress ? (
                                 <Text
