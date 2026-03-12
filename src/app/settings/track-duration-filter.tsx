@@ -93,11 +93,6 @@ export default function TrackDurationFilterScreen() {
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="py-2">
-        <View className="px-6 pt-8 pb-3">
-          <Text className="text-[13px] font-medium tracking-wider text-muted uppercase">
-            Duration Mode
-          </Text>
-        </View>
         {DURATION_OPTIONS.map((option) => (
           <PressableFeedback
             key={option.value}

@@ -93,6 +93,15 @@ export default function SettingsLayout() {
           headerLeft: () => <BackButton className="-ml-2" />,
         }}
       />
+      <Stack.Screen
+        name="log-level"
+        options={{
+          title: "Log Level",
+          headerBackButtonMenuEnabled: false,
+          headerBackVisible: false,
+          headerLeft: () => <BackButton className="-ml-2" />,
+        }}
+      />
     </Stack>
   )
 }

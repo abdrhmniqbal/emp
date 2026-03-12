@@ -1,36 +1,35 @@
 import { useStore } from "@nanostores/react"
+import * as Application from "expo-application"
 import Constants from "expo-constants"
-import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
-import { useEffect, useState } from "react"
+import { useRouter } from "expo-router"
+import { PressableFeedback, Toast, useToast } from "heroui-native"
+import { useEffect } from "react"
 import { Linking, Platform, ScrollView, Text, View } from "react-native"
 
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
-import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
+  isIgnoringBatteryOptimizations,
+  openBatteryOptimizationSettings as openNativeBatteryOptimizationSettings,
+  requestIgnoreBatteryOptimizations,
+} from "@/modules/device/battery-optimization"
+import {
   $loggingConfig,
-  type AppLogLevel,
   ensureLoggingConfigLoaded,
-  setAppLogLevel,
   shareCrashLogs,
 } from "@/modules/logging"
 
 export default function AdvancedSettingsScreen() {
   const theme = useThemeColors()
+  const router = useRouter()
   const { toast } = useToast()
   const loggingConfig = useStore($loggingConfig)
-  const [isLogLevelSheetOpen, setIsLogLevelSheetOpen] = useState(false)
 
   useEffect(() => {
     void ensureLoggingConfigLoaded()
   }, [])
 
   const logLevelLabel = loggingConfig.level === "extra" ? "Extra" : "Minimal"
-
-  async function handleLogLevelSelect(level: AppLogLevel) {
-    await setAppLogLevel(level)
-    setIsLogLevelSheetOpen(false)
-  }
 
   async function handleShareCrashLogs() {
     const result = await shareCrashLogs()
@@ -52,7 +51,10 @@ export default function AdvancedSettingsScreen() {
   }
 
   async function openBatteryOptimizationSettings() {
-    const appPackage = Constants.expoConfig?.android?.package
+    const appPackage =
+      Application.applicationId || Constants.expoConfig?.android?.package
+    const BATTERY_SETTINGS_ACTION =
+      "android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"
 
     try {
       if (Platform.OS !== "android") {
@@ -60,27 +62,41 @@ export default function AdvancedSettingsScreen() {
         return
       }
 
-      if (appPackage) {
-        try {
-          await Linking.sendIntent(
-            "android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
-            [
-              {
-                key: "android.provider.extra.APP_PACKAGE",
-                value: appPackage,
-              },
-            ]
-          )
-          return
-        } catch {
-          // Fall through to settings list.
-        }
+      if (await isIgnoringBatteryOptimizations(appPackage)) {
+        toast.show({
+          duration: 2200,
+          component: (props) => (
+            <Toast {...props} variant="accent" placement="bottom">
+              <Toast.Title className="text-sm font-semibold">
+                Battery optimization already disabled
+              </Toast.Title>
+              <Toast.Description className="text-xs text-muted">
+                No additional action is needed.
+              </Toast.Description>
+            </Toast>
+          ),
+        })
+        return
       }
 
-      await Linking.sendIntent(
-        "android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"
-      )
-      return
+      const requestResult = await requestIgnoreBatteryOptimizations(appPackage)
+      if (
+        requestResult === "dialog_opened" ||
+        requestResult === "settings_opened"
+      ) {
+        return
+      }
+
+      if (await openNativeBatteryOptimizationSettings()) {
+        return
+      }
+
+      try {
+        await Linking.sendIntent(BATTERY_SETTINGS_ACTION)
+        return
+      } catch {
+        // Fall through to app settings.
+      }
     } catch {
       // Fallback to app settings.
     }
@@ -88,11 +104,31 @@ export default function AdvancedSettingsScreen() {
     await Linking.openSettings()
   }
 
+  async function openDontKillMyApp() {
+    try {
+      await Linking.openURL("https://dontkillmyapp.com")
+    } catch {
+      toast.show({
+        duration: 2200,
+        component: (props) => (
+          <Toast {...props} variant="accent" placement="bottom">
+            <Toast.Title className="text-sm font-semibold">
+              Unable to open link
+            </Toast.Title>
+            <Toast.Description className="text-xs text-muted">
+              Please try again in a moment.
+            </Toast.Description>
+          </Toast>
+        ),
+      })
+    }
+  }
+
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="py-2">
         <PressableFeedback
-          onPress={() => setIsLogLevelSheetOpen(true)}
+          onPress={() => router.push("/settings/log-level")}
           className="flex-row items-center bg-background px-6 py-4 active:opacity-70"
         >
           <View className="flex-1 gap-1">
@@ -137,6 +173,10 @@ export default function AdvancedSettingsScreen() {
           />
         </PressableFeedback>
 
+        <Text className="px-6 pt-4 pb-2 text-xs font-medium tracking-wide text-accent uppercase">
+          Background Activity
+        </Text>
+
         <PressableFeedback
           onPress={() => {
             void openBatteryOptimizationSettings()
@@ -160,70 +200,29 @@ export default function AdvancedSettingsScreen() {
             color={theme.muted}
           />
         </PressableFeedback>
+
+        <PressableFeedback
+          onPress={() => {
+            void openDontKillMyApp()
+          }}
+          className="flex-row items-center gap-1 bg-background px-6 py-4 active:opacity-70"
+        >
+          <View className="flex-1 gap-1">
+            <Text className="text-[17px] font-normal text-foreground">
+              Don't Kill My App!
+            </Text>
+            <Text className="text-[13px] leading-5 text-muted">
+              Open device-specific battery and background process guidance.
+            </Text>
+          </View>
+          <LocalChevronRightIcon
+            fill="none"
+            width={20}
+            height={20}
+            color={theme.muted}
+          />
+        </PressableFeedback>
       </View>
-
-      <BottomSheet
-        isOpen={isLogLevelSheetOpen}
-        onOpenChange={setIsLogLevelSheetOpen}
-      >
-        <BottomSheet.Portal>
-          <BottomSheet.Overlay />
-          <BottomSheet.Content
-            backgroundClassName="bg-surface"
-            className="gap-1"
-          >
-            <BottomSheet.Title className="mb-1 text-xl">
-              Log Level
-            </BottomSheet.Title>
-
-            <PressableFeedback
-              onPress={() => {
-                void handleLogLevelSelect("minimal")
-              }}
-              className="h-14 flex-row items-center justify-between active:opacity-50"
-            >
-              <View className="gap-0.5">
-                <Text className="text-base font-medium text-foreground">
-                  Minimal
-                </Text>
-                <Text className="text-xs text-muted">
-                  Critical errors only.
-                </Text>
-              </View>
-              {loggingConfig.level === "minimal" ? (
-                <LocalTickIcon
-                  fill="none"
-                  width={22}
-                  height={22}
-                  color={theme.accent}
-                />
-              ) : null}
-            </PressableFeedback>
-
-            <PressableFeedback
-              onPress={() => {
-                void handleLogLevelSelect("extra")
-              }}
-              className="h-14 flex-row items-center justify-between active:opacity-50"
-            >
-              <View className="gap-0.5">
-                <Text className="text-base font-medium text-foreground">
-                  Extra
-                </Text>
-                <Text className="text-xs text-muted">Log everything.</Text>
-              </View>
-              {loggingConfig.level === "extra" ? (
-                <LocalTickIcon
-                  fill="none"
-                  width={22}
-                  height={22}
-                  color={theme.accent}
-                />
-              ) : null}
-            </PressableFeedback>
-          </BottomSheet.Content>
-        </BottomSheet.Portal>
-      </BottomSheet>
     </ScrollView>
   )
 }
