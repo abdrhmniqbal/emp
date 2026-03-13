@@ -1,6 +1,7 @@
 import type { Track } from "@/modules/player/player.store"
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { useStore } from "@nanostores/react"
+import { useQuery } from "@tanstack/react-query"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { Text, useWindowDimensions, View } from "react-native"
@@ -9,8 +10,10 @@ import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import LocalMicIcon from "@/components/icons/local/mic"
 import { EmptyState } from "@/components/ui"
 import { useThemeColors } from "@/hooks/use-theme-colors"
+import { queryClient } from "@/lib/tanstack-query"
 import { $currentTime, seekTo } from "@/modules/player/player.store"
 import { parseSyncedLyricsLines, splitLyricsLines } from "@/utils/lyrics"
+import { resolveTrackLyricsSource } from "@/utils/lyrics-source"
 
 type LyricsMode = "static" | "synced"
 
@@ -26,8 +29,30 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   const theme = useThemeColors()
   const { height } = useWindowDimensions()
   const currentTime = useStore($currentTime)
-  const lines = splitLyricsLines(track?.lyrics)
-  const syncedLines = parseSyncedLyricsLines(track?.lyrics)
+  const { data: resolvedLyrics = null } = useQuery(
+    {
+      queryKey: [
+        "track-lyrics-source",
+        track?.id ?? "",
+        track?.uri ?? "",
+        track?.fileHash ?? "",
+        track?.scanTime ?? 0,
+      ],
+      enabled: Boolean(track?.id),
+      staleTime: 0,
+      queryFn: async () => {
+        const source = await resolveTrackLyricsSource(track)
+        return source ?? null
+      },
+      placeholderData: () => {
+        const metadataLyrics = track?.lyrics?.trim()
+        return metadataLyrics ? track.lyrics : null
+      },
+    },
+    queryClient
+  )
+  const lines = splitLyricsLines(resolvedLyrics)
+  const syncedLines = parseSyncedLyricsLines(resolvedLyrics)
   const hasStaticLyrics = lines.length > 0
   const hasSyncedLyrics = syncedLines.length > 0
   const [mode, setMode] = React.useState<LyricsMode>("static")
