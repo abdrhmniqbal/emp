@@ -1,5 +1,5 @@
 import { File, Paths } from "expo-file-system"
-import { atom } from "nanostores"
+import { create } from "zustand"
 
 interface AutoScanConfig {
   enabled: boolean
@@ -8,7 +8,18 @@ interface AutoScanConfig {
 const AUTO_SCAN_FILE = new File(Paths.document, "indexer-auto-scan.json")
 const DEFAULT_AUTO_SCAN_ENABLED = true
 
-export const $autoScanEnabled = atom<boolean>(DEFAULT_AUTO_SCAN_ENABLED)
+interface AutoScanState {
+  autoScanEnabled: boolean
+}
+
+export const useAutoScanStore = create<AutoScanState>(() => ({
+  autoScanEnabled: DEFAULT_AUTO_SCAN_ENABLED,
+}))
+
+export const $autoScanEnabled = {
+  get: () => useAutoScanStore.getState().autoScanEnabled,
+  set: (value: boolean) => useAutoScanStore.setState({ autoScanEnabled: value }),
+}
 
 let loadPromise: Promise<boolean> | null = null
 let hasLoadedConfig = false

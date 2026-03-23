@@ -3,7 +3,6 @@ import type {
   FavoriteType,
 } from "@/modules/favorites/favorites.api"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
-import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
 import { Chip, PressableFeedback } from "heroui-native"
@@ -34,7 +33,7 @@ import {
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
-import { $tracks, playTrack } from "@/modules/player/player.store"
+import { playTrack, usePlayerStore } from "@/modules/player/player.store"
 
 interface FavoritesListProps {
   data: FavoriteEntry[]
@@ -157,7 +156,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   onScrollEndDrag,
   onMomentumScrollEnd,
 }) => {
-  const tracks = useStore($tracks)
+  const tracks = usePlayerStore((state) => state.tracks)
   const toggleFavoriteMutation = useToggleFavorite()
   const router = useRouter()
 

@@ -1,6 +1,6 @@
 import type { Track } from "@/modules/player/player.store"
 
-import { atom } from "nanostores"
+import { create } from "zustand"
 
 export type TrackSortField =
   | "title"
@@ -45,7 +45,7 @@ export interface SortConfig {
   order: SortOrder
 }
 
-export const $sortConfig = atom<Record<TabName, SortConfig>>({
+const DEFAULT_SORT_CONFIG: Record<TabName, SortConfig> = {
   Tracks: { field: "title", order: "asc" },
   Albums: { field: "title", order: "asc" },
   Artists: { field: "name", order: "asc" },
@@ -56,7 +56,21 @@ export const $sortConfig = atom<Record<TabName, SortConfig>>({
   ArtistTracks: { field: "playCount", order: "desc" },
   ArtistAlbums: { field: "year", order: "desc" },
   AlbumTracks: { field: "trackNumber", order: "asc" },
-})
+}
+
+interface LibrarySortState {
+  sortConfig: Record<TabName, SortConfig>
+}
+
+export const useLibrarySortStore = create<LibrarySortState>(() => ({
+  sortConfig: DEFAULT_SORT_CONFIG,
+}))
+
+export const $sortConfig = {
+  get: () => useLibrarySortStore.getState().sortConfig,
+  set: (value: Record<TabName, SortConfig>) =>
+    useLibrarySortStore.setState({ sortConfig: value }),
+}
 
 export function setSortConfig(
   tab: TabName,

@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { useLocalSearchParams } from "expo-router"
 
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
@@ -8,9 +7,10 @@ import {
   type AlbumTrackSortField,
   setSortConfig,
   sortTracks,
+  useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
 import { useTracksByAlbumName } from "@/modules/library/library.queries"
-import { $tracks, playTrack, type Track } from "@/modules/player/player.store"
+import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
 
 import { formatAlbumDuration, groupTracksByDisc } from "../albums.utils"
 
@@ -29,8 +29,8 @@ function getSafeRouteName(value: string | string[] | undefined) {
 
 export function useAlbumDetailsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
-  const allSortConfigs = useStore($sortConfig)
-  const allTracks = useStore($tracks)
+  const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
+  const allTracks = usePlayerStore((state) => state.tracks)
 
   const albumName = getSafeRouteName(name)
   const normalizedAlbumName = albumName.trim().toLowerCase()

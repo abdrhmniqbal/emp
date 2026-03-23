@@ -10,9 +10,15 @@ import { initializeLogging, logError } from "@/modules/logging"
 export function useAppBootstrap() {
   const [isInitialized, setIsInitialized] = useState(false)
   const lastAutoScanAtRef = useRef(0)
+  const [isDatabaseReady, setIsDatabaseReady] = useState(false)
+  const isBootstrappedRef = useRef(false)
 
   const runAutoScan = useCallback(
     async (options?: { bypassThrottle?: boolean }) => {
+      if (!isDatabaseReady || !isBootstrappedRef.current) {
+        return
+      }
+
       const bypassThrottle = options?.bypassThrottle === true
       const now = Date.now()
       const MIN_AUTO_SCAN_INTERVAL_MS = 5000
@@ -37,7 +43,7 @@ export function useAppBootstrap() {
       // Auto-scan only checks and processes changed files.
       await startIndexing(false, false)
     },
-    []
+    [isDatabaseReady]
   )
 
   useEffect(() => {
@@ -46,13 +52,8 @@ export function useAppBootstrap() {
     async function initialize() {
       try {
         await initializeLogging()
-        await bootstrapApp()
       } catch (error) {
         logError("App bootstrap failed", error)
-      } finally {
-        if (isMounted) {
-          setIsInitialized(true)
-        }
       }
     }
 
@@ -62,6 +63,33 @@ export function useAppBootstrap() {
       isMounted = false
     }
   }, [])
+
+  useEffect(() => {
+    if (!isDatabaseReady || isBootstrappedRef.current) {
+      return
+    }
+
+    let isMounted = true
+
+    async function initializeAfterDatabaseReady() {
+      try {
+        await bootstrapApp()
+      } catch (error) {
+        logError("App bootstrap failed", error)
+      } finally {
+        if (isMounted) {
+          isBootstrappedRef.current = true
+          setIsInitialized(true)
+        }
+      }
+    }
+
+    void initializeAfterDatabaseReady()
+
+    return () => {
+      isMounted = false
+    }
+  }, [isDatabaseReady])
 
   useEffect(() => {
     let previousState: AppStateStatus = AppState.currentState
@@ -97,5 +125,10 @@ export function useAppBootstrap() {
     }
   }, [runAutoScan])
 
-  return { isInitialized }
+  return {
+    isInitialized,
+    markDatabaseReady: useCallback(() => {
+      setIsDatabaseReady(true)
+    }, []),
+  }
 }

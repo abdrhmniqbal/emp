@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { PressableFeedback, Slider } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
@@ -6,12 +5,12 @@ import { ScrollView, Text, View } from "react-native"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $indexerState,
-  $trackDurationFilterConfig,
   ensureTrackDurationFilterConfigLoaded,
   setTrackDurationFilterConfig,
   startIndexing,
   type TrackDurationFilterMode,
+  useIndexerStore,
+  useTrackDurationFilterStore,
 } from "@/modules/indexer"
 
 interface DurationOption {
@@ -61,8 +60,10 @@ function getSliderNumericValue(value: number | number[]): number {
 
 export default function TrackDurationFilterScreen() {
   const theme = useThemeColors()
-  const indexerState = useStore($indexerState)
-  const config = useStore($trackDurationFilterConfig)
+  const indexerState = useIndexerStore((state) => state.indexerState)
+  const config = useTrackDurationFilterStore(
+    (state) => state.trackDurationFilterConfig
+  )
   const [customSliderValue, setCustomSliderValue] = React.useState<
     number | null
   >(null)

@@ -10,13 +10,16 @@ import { loadTracks } from "@/modules/player/player.store"
 export function DatabaseProvider({
   children,
   onReady,
+  onError,
 }: {
   children: React.ReactNode
   onReady?: () => void
+  onError?: () => void
 }) {
   const [hasLoadedTracks, setHasLoadedTracks] = useState(false)
   const [loadError, setLoadError] = useState<Error | null>(null)
   const hasNotifiedReadyRef = useRef(false)
+  const hasNotifiedErrorRef = useRef(false)
   const { success, error } = useMigrations(db, migrations)
 
   useEffect(() => {
@@ -45,11 +48,20 @@ export function DatabaseProvider({
       return
     }
 
-    if (resolvedError || !isInitializing) {
+    if (!resolvedError && !isInitializing) {
       hasNotifiedReadyRef.current = true
       onReady?.()
     }
   }, [isInitializing, onReady, resolvedError])
+
+  useEffect(() => {
+    if (!resolvedError || hasNotifiedErrorRef.current) {
+      return
+    }
+
+    hasNotifiedErrorRef.current = true
+    onError?.()
+  }, [onError, resolvedError])
 
   if (resolvedError) {
     const message = resolvedError.message || ""

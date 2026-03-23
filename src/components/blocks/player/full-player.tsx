@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { LinearGradient } from "expo-linear-gradient"
 import { useRouter } from "expo-router"
 import { BottomSheet } from "heroui-native"
@@ -9,16 +8,14 @@ import { StyleSheet, View } from "react-native"
 import {
   $isPlayerExpanded,
   $playerExpandedView,
+  useUIStore,
 } from "@/hooks/scroll-bars.store"
 import {
-  $currentColors,
   updateColorsForImage,
+  usePlayerColorsStore,
 } from "@/modules/player/player-colors.store"
 import {
-  $currentTime,
-  $currentTrack,
-  $duration,
-  $isPlaying,
+  usePlayerStore,
 } from "@/modules/player/player.store"
 
 import { AlbumArtView } from "./album-art-view"
@@ -36,13 +33,13 @@ const FULL_PLAYER_SNAP_POINTS = ["100%"]
 
 export function FullPlayer() {
   const router = useRouter()
-  const isExpanded = useStore($isPlayerExpanded)
-  const currentTrack = useStore($currentTrack)
-  const isPlaying = useStore($isPlaying)
-  const currentTimeVal = useStore($currentTime)
-  const durationVal = useStore($duration)
-  const playerExpandedView = useStore($playerExpandedView)
-  const colors = useStore($currentColors)
+  const isExpanded = useUIStore((state) => state.isPlayerExpanded)
+  const playerExpandedView = useUIStore((state) => state.playerExpandedView)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const isPlaying = usePlayerStore((state) => state.isPlaying)
+  const currentTimeVal = usePlayerStore((state) => state.currentTime)
+  const durationVal = usePlayerStore((state) => state.duration)
+  const colors = usePlayerColorsStore((state) => state.currentColors)
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false)
 
   useEffect(() => {

@@ -1,5 +1,5 @@
-import { atom } from "nanostores"
 import { getColors } from "react-native-image-colors"
+import { create } from "zustand"
 
 export interface ColorPalette {
   bg: string
@@ -15,9 +15,35 @@ const DEFAULT_COLORS: ColorPalette = {
 
 const colorCache = new Map<string, ColorPalette>()
 
-export const $currentImageUri = atom<string | null>(null)
-export const $currentColors = atom<ColorPalette>(DEFAULT_COLORS)
-export const $isLoadingColors = atom(false)
+interface PlayerColorsState {
+  currentImageUri: string | null
+  currentColors: ColorPalette
+  isLoadingColors: boolean
+}
+
+export const usePlayerColorsStore = create<PlayerColorsState>(() => ({
+  currentImageUri: null,
+  currentColors: DEFAULT_COLORS,
+  isLoadingColors: false,
+}))
+
+export const $currentImageUri = {
+  get: () => usePlayerColorsStore.getState().currentImageUri,
+  set: (value: string | null) =>
+    usePlayerColorsStore.setState({ currentImageUri: value }),
+}
+
+export const $currentColors = {
+  get: () => usePlayerColorsStore.getState().currentColors,
+  set: (value: ColorPalette) =>
+    usePlayerColorsStore.setState({ currentColors: value }),
+}
+
+export const $isLoadingColors = {
+  get: () => usePlayerColorsStore.getState().isLoadingColors,
+  set: (value: boolean) =>
+    usePlayerColorsStore.setState({ isLoadingColors: value }),
+}
 
 export async function getTrackColors(imageUri: string): Promise<ColorPalette> {
   if (colorCache.has(imageUri)) {

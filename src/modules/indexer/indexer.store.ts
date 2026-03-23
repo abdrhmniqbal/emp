@@ -1,4 +1,4 @@
-import { atom } from "nanostores"
+import { create } from "zustand"
 
 import { queryClient } from "@/lib/tanstack-query"
 import { scanMediaLibrary } from "@/modules/indexer/indexer.api"
@@ -14,7 +14,7 @@ export interface IndexerState {
   showProgress: boolean
 }
 
-export const $indexerState = atom<IndexerState>({
+const DEFAULT_INDEXER_STATE: IndexerState = {
   isIndexing: false,
   progress: 0,
   currentFile: "",
@@ -22,7 +22,20 @@ export const $indexerState = atom<IndexerState>({
   processedFiles: 0,
   phase: "idle",
   showProgress: false,
-})
+}
+
+interface IndexerStoreState {
+  indexerState: IndexerState
+}
+
+export const useIndexerStore = create<IndexerStoreState>(() => ({
+  indexerState: DEFAULT_INDEXER_STATE,
+}))
+
+export const $indexerState = {
+  get: () => useIndexerStore.getState().indexerState,
+  set: (value: IndexerState) => useIndexerStore.setState({ indexerState: value }),
+}
 
 let abortController: AbortController | null = null
 let runToken = 0

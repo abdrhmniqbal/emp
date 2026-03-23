@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { useState } from "react"
 import { RefreshControl, Text, View } from "react-native"
@@ -20,7 +19,7 @@ import {
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useGenreAlbumsScreen } from "@/modules/genres/hooks/use-genre-albums-screen"
-import { $indexerState } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import {
   ALBUM_SORT_OPTIONS,
   type AlbumSortField,
@@ -31,7 +30,7 @@ import {
 export default function GenreAlbumsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
   const router = useRouter()
-  const indexerState = useStore($indexerState)
+  const indexerState = useIndexerStore((state) => state.indexerState)
   const theme = useThemeColors()
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const [sortConfig, setSortConfig] = useState<{

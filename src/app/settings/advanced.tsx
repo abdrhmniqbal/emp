@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { useRouter } from "expo-router"
@@ -14,22 +13,22 @@ import {
   requestIgnoreBatteryOptimizations,
 } from "@/modules/device/battery-optimization"
 import {
-  $loggingConfig,
   ensureLoggingConfigLoaded,
   shareCrashLogs,
+  useLoggingStore,
 } from "@/modules/logging"
 
 export default function AdvancedSettingsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
   const { toast } = useToast()
-  const loggingConfig = useStore($loggingConfig)
+  const loggingLevel = useLoggingStore((state) => state.loggingConfig.level)
 
   useEffect(() => {
     void ensureLoggingConfigLoaded()
   }, [])
 
-  const logLevelLabel = loggingConfig.level === "extra" ? "Extra" : "Minimal"
+  const logLevelLabel = loggingLevel === "extra" ? "Extra" : "Minimal"
 
   async function handleShareCrashLogs() {
     const result = await shareCrashLogs()

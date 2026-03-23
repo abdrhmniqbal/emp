@@ -3,7 +3,6 @@ import {
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
-import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useEffect, useRef, useState } from "react"
@@ -23,8 +22,8 @@ import { TrackRow } from "@/components/patterns"
 import { EmptyState, ScaleLoader } from "@/components/ui"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $currentTrack,
   playTrack,
+  usePlayerStore,
   type Track,
 } from "@/modules/player/player.store"
 
@@ -80,7 +79,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const listRef = useRef<LegendListRef | null>(null)
   const isCompactNumberedList = hideCover && showNumbers
-  const currentTrack = useStore($currentTrack)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
 
   useEffect(() => {
     if (!resetScrollKey) {

@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { RefreshControl, View } from "react-native"
 
 import { PlaybackActionsRow } from "@/components/blocks"
@@ -13,11 +12,11 @@ import {
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useRecentlyPlayedScreen } from "@/modules/history/hooks/use-recently-played-screen"
-import { $indexerState } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 
 export default function RecentlyPlayedScreen() {
   const theme = useThemeColors()
-  const indexerState = useStore($indexerState)
+  const indexerState = useIndexerStore((state) => state.indexerState)
   const { history, isLoading, refresh, playFirst, shuffle } =
     useRecentlyPlayedScreen()
 

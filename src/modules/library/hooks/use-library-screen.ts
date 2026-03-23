@@ -1,5 +1,4 @@
 import type { Playlist } from "@/components/blocks/playlist-list"
-import { useStore } from "@nanostores/react"
 import { useRouter } from "expo-router"
 
 import { useState } from "react"
@@ -18,8 +17,9 @@ import {
   sortGeneric,
   sortTracks,
   TRACK_SORT_OPTIONS,
+  useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
-import { $tracks, playTrack, type Track } from "@/modules/player/player.store"
+import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
 
 export const LIBRARY_TABS = [
@@ -51,8 +51,8 @@ export function useLibraryScreen() {
   const [activeTab, setActiveTab] = useState<LibraryTab>("Tracks")
   const [sortModalVisible, setSortModalVisible] = useState(false)
 
-  const allSortConfigs = useStore($sortConfig)
-  const tracks = useStore($tracks)
+  const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
+  const tracks = usePlayerStore((state) => state.tracks)
   const sortConfig = allSortConfigs[activeTab]
   const shouldLoadFavorites = activeTab === "Favorites"
   const shouldLoadAlbums = activeTab === "Albums"

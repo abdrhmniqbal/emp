@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
 import { useEffect } from "react"
 import { ScrollView, Text, View } from "react-native"
@@ -6,10 +5,10 @@ import { ScrollView, Text, View } from "react-native"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $loggingConfig,
   type AppLogLevel,
   ensureLoggingConfigLoaded,
   setAppLogLevel,
+  useLoggingStore,
 } from "@/modules/logging"
 
 interface LogLevelOption {
@@ -33,7 +32,7 @@ const LOG_LEVEL_OPTIONS: LogLevelOption[] = [
 
 export default function LogLevelSettingsScreen() {
   const theme = useThemeColors()
-  const loggingConfig = useStore($loggingConfig)
+  const loggingLevel = useLoggingStore((state) => state.loggingConfig.level)
 
   useEffect(() => {
     void ensureLoggingConfigLoaded()
@@ -62,7 +61,7 @@ export default function LogLevelSettingsScreen() {
                 {option.description}
               </Text>
             </View>
-            {loggingConfig.level === option.value ? (
+            {loggingLevel === option.value ? (
               <LocalTickIcon
                 fill="none"
                 width={24}

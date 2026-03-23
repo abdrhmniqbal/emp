@@ -1,5 +1,5 @@
 import { File, Paths } from "expo-file-system"
-import { atom } from "nanostores"
+import { create } from "zustand"
 
 export type FolderFilterMode = "whitelist" | "blacklist"
 
@@ -14,7 +14,19 @@ const EMPTY_FILTER_CONFIG: FolderFilterConfig = {
   blacklist: [],
 }
 
-export const $folderFilterConfig = atom<FolderFilterConfig>(EMPTY_FILTER_CONFIG)
+interface FolderFilterStoreState {
+  folderFilterConfig: FolderFilterConfig
+}
+
+export const useFolderFilterStore = create<FolderFilterStoreState>(() => ({
+  folderFilterConfig: EMPTY_FILTER_CONFIG,
+}))
+
+export const $folderFilterConfig = {
+  get: () => useFolderFilterStore.getState().folderFilterConfig,
+  set: (value: FolderFilterConfig) =>
+    useFolderFilterStore.setState({ folderFilterConfig: value }),
+}
 
 let loadPromise: Promise<FolderFilterConfig> | null = null
 

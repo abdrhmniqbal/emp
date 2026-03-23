@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import {
   PressableFeedback,
   Toast,
@@ -15,7 +14,8 @@ import Animated, {
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { $indexerState, stopIndexing } from "@/modules/indexer"
+import { stopIndexing } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 
 const TOAST_ID = "indexing-progress-toast"
 const COMPLETE_HIDE_DELAY_MS = 1500
@@ -31,7 +31,7 @@ const PHASE_LABELS: Record<string, string> = {
 
 function IndexingProgressToast(props: ToastComponentProps) {
   const theme = useThemeColors()
-  const state = useStore($indexerState)
+  const state = useIndexerStore((store) => store.indexerState)
 
   const normalizedProgress = Math.min(Math.max(state.progress / 100, 0), 1)
   const animatedProgress = useSharedValue(normalizedProgress)
@@ -112,7 +112,7 @@ function IndexingProgressToast(props: ToastComponentProps) {
 }
 
 export function IndexingProgress() {
-  const state = useStore($indexerState)
+  const state = useIndexerStore((store) => store.indexerState)
   const { toast } = useToast()
   const isToastVisibleRef = useRef(false)
   const isCompleteDismissedRef = useRef(false)

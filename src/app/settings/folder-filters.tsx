@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { Directory } from "expo-file-system"
 import { BottomSheet, Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -12,7 +11,6 @@ import LocalTickIcon from "@/components/icons/local/tick"
 import { EmptyState } from "@/components/ui"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $indexerState,
   commitFolderFilterConfig,
   ensureFolderFilterConfigLoaded,
   type FolderFilterConfig,
@@ -21,8 +19,9 @@ import {
   getFolderPathFromUri,
   normalizeFolderPath,
   startIndexing,
+  useIndexerStore,
 } from "@/modules/indexer"
-import { $tracks } from "@/modules/player/player.store"
+import { usePlayerStore } from "@/modules/player/player.store"
 
 interface FolderEntry {
   path: string
@@ -121,8 +120,8 @@ const EMPTY_PENDING: FolderFilterConfig = { whitelist: [], blacklist: [] }
 export default function FolderFiltersScreen() {
   const insets = useSafeAreaInsets()
   const theme = useThemeColors()
-  const tracks = useStore($tracks)
-  const indexerState = useStore($indexerState)
+  const tracks = usePlayerStore((state) => state.tracks)
+  const indexerState = useIndexerStore((state) => state.indexerState)
   const [isLoaded, setIsLoaded] = React.useState(false)
   const [pendingConfig, setPendingConfig] =
     React.useState<FolderFilterConfig>(EMPTY_PENDING)

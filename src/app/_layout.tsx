@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import {
   DarkTheme,
   DefaultTheme,
@@ -22,10 +21,10 @@ import { FullPlayer } from "@/components/blocks/full-player"
 import { IndexingProgress } from "@/components/blocks/indexing-progress"
 import { Providers } from "@/components/providers"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
-import { $barsVisible } from "@/hooks/scroll-bars.store"
+import { useUIStore } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useAppBootstrap } from "@/modules/bootstrap/hooks/use-app-bootstrap"
-import { $currentTrack } from "@/modules/player/player.store"
+import { usePlayerStore } from "@/modules/player/player.store"
 
 import "../global.css"
 
@@ -79,9 +78,12 @@ export default function Layout() {
   const theme = useThemeColors()
   const segments = useSegments()
   const insets = useSafeAreaInsets()
-  const barsVisible = useStore($barsVisible)
-  const currentTrack = useStore($currentTrack)
-  const { isInitialized: isBootstrapInitialized } = useAppBootstrap()
+  const barsVisible = useUIStore((state) => state.barsVisible)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const {
+    isInitialized: isBootstrapInitialized,
+    markDatabaseReady,
+  } = useAppBootstrap()
   const [isDatabaseReady, setIsDatabaseReady] = useState(false)
   const hasHiddenSplashRef = useRef(false)
   const tabBarHeight = getTabBarHeight(insets.bottom)
@@ -129,6 +131,11 @@ export default function Layout() {
 
   const handleDatabaseReady = useCallback(() => {
     setIsDatabaseReady(true)
+    markDatabaseReady()
+  }, [markDatabaseReady])
+
+  const handleDatabaseError = useCallback(() => {
+    setIsDatabaseReady(true)
   }, [])
 
   const navigationTheme = {
@@ -160,7 +167,10 @@ export default function Layout() {
               },
             }}
           >
-            <Providers onDatabaseReady={handleDatabaseReady}>
+            <Providers
+              onDatabaseReady={handleDatabaseReady}
+              onDatabaseError={handleDatabaseError}
+            >
               <View className="flex-1">
                 <Stack
                   screenOptions={{

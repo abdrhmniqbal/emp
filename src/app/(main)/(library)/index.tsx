@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { Tabs } from "heroui-native"
 import * as React from "react"
 import {
@@ -26,20 +25,21 @@ import {
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { $indexerState, startIndexing } from "@/modules/indexer"
+import { startIndexing } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import {
   LIBRARY_TAB_SORT_OPTIONS,
   LIBRARY_TABS,
   type LibraryTab,
   useLibraryScreen,
 } from "@/modules/library/hooks/use-library-screen"
-import { $currentTrack } from "@/modules/player/player.store"
+import { usePlayerStore } from "@/modules/player/player.store"
 
 export default function LibraryScreen() {
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
-  const currentTrack = useStore($currentTrack)
-  const indexerState = useStore($indexerState)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const indexerState = useIndexerStore((state) => state.indexerState)
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const libraryListBottomPadding =

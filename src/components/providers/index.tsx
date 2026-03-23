@@ -7,13 +7,17 @@ import { DatabaseProvider } from "./database-provider"
 export function Providers({
   children,
   onDatabaseReady,
+  onDatabaseError,
 }: {
   children: React.ReactNode
   onDatabaseReady?: () => void
+  onDatabaseError?: () => void
 }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <DatabaseProvider onReady={onDatabaseReady}>{children}</DatabaseProvider>
+      <DatabaseProvider onReady={onDatabaseReady} onError={onDatabaseError}>
+        {children}
+      </DatabaseProvider>
     </QueryClientProvider>
   )
 }

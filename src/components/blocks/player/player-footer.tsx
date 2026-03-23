@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
@@ -6,11 +5,11 @@ import { cn } from "tailwind-variants"
 
 import LocalMicIcon from "@/components/icons/local/mic"
 import LocalQueueIcon from "@/components/icons/local/queue"
-import { $playerExpandedView } from "@/hooks/scroll-bars.store"
+import { $playerExpandedView, useUIStore } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export const PlayerFooter: React.FC = () => {
-  const playerExpandedView = useStore($playerExpandedView)
+  const playerExpandedView = useUIStore((state) => state.playerExpandedView)
   const theme = useThemeColors()
 
   return (

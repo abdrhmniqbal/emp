@@ -1,5 +1,4 @@
 import type { Album } from "@/components/blocks/album-grid"
-import { useStore } from "@nanostores/react"
 import { useLocalSearchParams, useRouter } from "expo-router"
 
 import { useState } from "react"
@@ -12,9 +11,10 @@ import {
   type SortField,
   sortTracks,
   TRACK_SORT_OPTIONS,
+  useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
 import { useTracksByArtistName } from "@/modules/library/library.queries"
-import { $tracks, playTrack, type Track } from "@/modules/player/player.store"
+import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
 
 import { buildArtistAlbums } from "../artists.utils"
 
@@ -31,8 +31,8 @@ export function useArtistDetailsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
   const router = useRouter()
 
-  const allSortConfigs = useStore($sortConfig)
-  const allTracks = useStore($tracks)
+  const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
+  const allTracks = usePlayerStore((state) => state.tracks)
   const artistName = getSafeRouteName(name)
   const normalizedArtistName = artistName.trim().toLowerCase()
 

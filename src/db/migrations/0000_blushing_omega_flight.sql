@@ -8,6 +8,8 @@ CREATE TABLE `albums` (
 	`disc_count` integer,
 	`track_count` integer DEFAULT 0,
 	`duration` real,
+	`is_favorite` integer DEFAULT 0,
+	`favorited_at` integer,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON UPDATE no action ON DELETE set null
@@ -16,6 +18,7 @@ CREATE TABLE `albums` (
 CREATE INDEX `albums_title_idx` ON `albums` (`title`);--> statement-breakpoint
 CREATE INDEX `albums_artist_idx` ON `albums` (`artist_id`);--> statement-breakpoint
 CREATE INDEX `albums_year_idx` ON `albums` (`year`);--> statement-breakpoint
+CREATE INDEX `albums_is_favorite_idx` ON `albums` (`is_favorite`);--> statement-breakpoint
 CREATE TABLE `app_settings` (
 	`key` text PRIMARY KEY NOT NULL,
 	`value` text NOT NULL,
@@ -30,12 +33,15 @@ CREATE TABLE `artists` (
 	`bio` text,
 	`track_count` integer DEFAULT 0,
 	`album_count` integer DEFAULT 0,
+	`is_favorite` integer DEFAULT 0,
+	`favorited_at` integer,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL
 );
 --> statement-breakpoint
 CREATE INDEX `artists_name_idx` ON `artists` (`name`);--> statement-breakpoint
 CREATE INDEX `artists_sort_name_idx` ON `artists` (`sort_name`);--> statement-breakpoint
+CREATE INDEX `artists_is_favorite_idx` ON `artists` (`is_favorite`);--> statement-breakpoint
 CREATE TABLE `artwork_cache` (
 	`hash` text PRIMARY KEY NOT NULL,
 	`path` text NOT NULL,
@@ -47,22 +53,11 @@ CREATE TABLE `artwork_cache` (
 	`created_at` integer NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `favorites` (
-	`id` text PRIMARY KEY NOT NULL,
-	`type` text NOT NULL,
-	`item_id` text NOT NULL,
-	`name` text NOT NULL,
-	`subtitle` text,
-	`artwork` text,
-	`created_at` integer NOT NULL
-);
---> statement-breakpoint
-CREATE INDEX `favorites_type_idx` ON `favorites` (`type`);--> statement-breakpoint
-CREATE INDEX `favorites_item_idx` ON `favorites` (`type`,`item_id`);--> statement-breakpoint
-CREATE INDEX `favorites_created_at_idx` ON `favorites` (`created_at`);--> statement-breakpoint
 CREATE TABLE `genres` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
+	`color` text DEFAULT 'bg-rainbow-lime' NOT NULL,
+	`shape` text DEFAULT 'circles' NOT NULL,
 	`track_count` integer DEFAULT 0,
 	`created_at` integer NOT NULL
 );
@@ -107,6 +102,7 @@ CREATE TABLE `playlists` (
 	`track_count` integer DEFAULT 0,
 	`duration` real,
 	`is_favorite` integer DEFAULT 0,
+	`favorited_at` integer,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL
 );
@@ -141,12 +137,17 @@ CREATE TABLE `tracks` (
 	`uri` text NOT NULL,
 	`filename` text,
 	`file_hash` text,
+	`audio_bitrate` integer,
+	`audio_sample_rate` integer,
+	`audio_codec` text,
+	`audio_format` text,
 	`track_number` integer,
 	`disc_number` integer,
 	`year` integer,
 	`play_count` integer DEFAULT 0,
 	`last_played_at` integer,
 	`is_favorite` integer DEFAULT 0,
+	`favorited_at` integer,
 	`rating` integer,
 	`date_added` integer,
 	`is_deleted` integer DEFAULT 0,

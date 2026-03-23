@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { Tabs } from "heroui-native"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
@@ -18,7 +17,7 @@ import {
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { $indexerState } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import {
   TOP_TRACKS_TABS,
   type TopTracksTab,
@@ -26,7 +25,7 @@ import {
 } from "@/modules/tracks/hooks/use-top-tracks-screen"
 
 export default function TopTracksScreen() {
-  const indexerState = useStore($indexerState)
+  const indexerState = useIndexerStore((state) => state.indexerState)
   const theme = useThemeColors()
   const {
     activeTab,

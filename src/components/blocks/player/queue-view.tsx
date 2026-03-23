@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useEffect, useRef } from "react"
@@ -16,9 +15,9 @@ import { ScaleLoader } from "@/components/ui"
 import { playTrack, type Track } from "@/modules/player/player.store"
 import {
   $queue,
-  $queueInfo,
   moveInQueue,
   removeFromQueue,
+  useQueueInfo,
 } from "@/modules/player/queue.store"
 
 interface QueueItemProps {
@@ -99,7 +98,7 @@ const ITEM_HEIGHT = 64
 const ITEM_GAP = 6
 
 export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
-  const queueInfo = useStore($queueInfo)
+  const queueInfo = useQueueInfo()
   const { queue, upNext, currentIndex } = queueInfo
   const listRef = useRef<FlatList>(null)
 

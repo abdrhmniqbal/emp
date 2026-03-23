@@ -1,5 +1,5 @@
 import { File, Paths } from "expo-file-system"
-import { atom } from "nanostores"
+import { create } from "zustand"
 
 export type TrackDurationFilterMode =
   | "off"
@@ -22,9 +22,20 @@ const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
   customMinimumSeconds: 180,
 }
 
-export const $trackDurationFilterConfig = atom<TrackDurationFilterConfig>(
-  DEFAULT_TRACK_DURATION_FILTER
-)
+interface TrackDurationFilterStoreState {
+  trackDurationFilterConfig: TrackDurationFilterConfig
+}
+
+export const useTrackDurationFilterStore =
+  create<TrackDurationFilterStoreState>(() => ({
+    trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
+  }))
+
+export const $trackDurationFilterConfig = {
+  get: () => useTrackDurationFilterStore.getState().trackDurationFilterConfig,
+  set: (value: TrackDurationFilterConfig) =>
+    useTrackDurationFilterStore.setState({ trackDurationFilterConfig: value }),
+}
 
 let loadPromise: Promise<TrackDurationFilterConfig> | null = null
 let hasLoadedConfig = false

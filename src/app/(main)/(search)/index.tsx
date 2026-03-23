@@ -1,5 +1,4 @@
 import type { GenreCategory as Category } from "@/modules/genres/genres.utils"
-import { useStore } from "@nanostores/react"
 import { useRouter } from "expo-router"
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -16,13 +15,13 @@ import {
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { $indexerState } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { useSearchScreen } from "@/modules/search/hooks/use-search-screen"
 
 export default function SearchScreen() {
   const theme = useThemeColors()
   const router = useRouter()
-  const indexerState = useStore($indexerState)
+  const indexerState = useIndexerStore((state) => state.indexerState)
   const { categories, isLoading, refresh } = useSearchScreen()
 
   function handleGenrePress(genre: Category) {

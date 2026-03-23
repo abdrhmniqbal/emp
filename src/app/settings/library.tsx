@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { useRouter } from "expo-router"
 import { Button, Dialog, PressableFeedback, Switch } from "heroui-native"
 import * as React from "react"
@@ -7,14 +6,14 @@ import { ScrollView, Text, View } from "react-native"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $autoScanEnabled,
-  $indexerState,
-  $trackDurationFilterConfig,
   ensureAutoScanConfigLoaded,
   ensureTrackDurationFilterConfigLoaded,
   forceReindexLibrary,
   getTrackDurationFilterLabel,
   setAutoScanEnabled,
+  useAutoScanStore,
+  useIndexerStore,
+  useTrackDurationFilterStore,
 } from "@/modules/indexer"
 
 interface LibrarySettingItemProps {
@@ -68,9 +67,11 @@ function LibrarySettingItem({
 
 export default function LibrarySettingsScreen() {
   const router = useRouter()
-  const indexerState = useStore($indexerState)
-  const autoScanEnabled = useStore($autoScanEnabled)
-  const trackDurationFilterConfig = useStore($trackDurationFilterConfig)
+  const indexerState = useIndexerStore((state) => state.indexerState)
+  const autoScanEnabled = useAutoScanStore((state) => state.autoScanEnabled)
+  const trackDurationFilterConfig = useTrackDurationFilterStore(
+    (state) => state.trackDurationFilterConfig
+  )
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
 
   React.useEffect(() => {

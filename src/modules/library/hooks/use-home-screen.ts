@@ -1,12 +1,11 @@
 import type { Track } from "@/modules/player/player.types"
-import { useStore } from "@nanostores/react"
 import { useIsFocused } from "@react-navigation/native"
 import { useQuery } from "@tanstack/react-query"
 
 import { useEffect } from "react"
 import { fetchRecentlyPlayedTracks } from "@/modules/history/history.utils"
 import { startIndexing } from "@/modules/indexer"
-import { $playbackRefreshVersion } from "@/modules/player/player.store"
+import { usePlayerStore } from "@/modules/player/player.store"
 import { getTopTracks } from "@/modules/tracks/tracks.api"
 
 const RECENTLY_PLAYED_LIMIT = 8
@@ -27,7 +26,9 @@ const HOME_TOP_TRACKS_QUERY_KEY = [
 
 export function useHomeScreen() {
   const isFocused = useIsFocused()
-  const playbackRefreshVersion = useStore($playbackRefreshVersion)
+  const playbackRefreshVersion = usePlayerStore(
+    (state) => state.playbackRefreshVersion
+  )
   const {
     data: recentlyPlayedTracksData,
     isLoading: isRecentlyPlayedLoading,

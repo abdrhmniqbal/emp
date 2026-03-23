@@ -1,20 +1,11 @@
-import { computed } from "nanostores"
-
 import {
-  $currentColors,
-  $isLoadingColors,
   type ColorPalette,
+  usePlayerColorsStore,
 } from "./player-colors.store"
-import {
-  $currentTime,
-  $currentTrack,
-  $duration,
-  $isPlaying,
-  $tracks,
-} from "./player.store"
+import { usePlayerStore } from "./player.store"
 
 export interface PlayerState {
-  track: ReturnType<typeof $currentTrack.get>
+  track: ReturnType<typeof usePlayerStore.getState>["currentTrack"]
   isPlaying: boolean
   currentTime: number
   duration: number
@@ -24,8 +15,8 @@ export interface PlayerState {
 }
 
 export interface QueueState {
-  tracks: ReturnType<typeof $tracks.get>
-  currentTrack: ReturnType<typeof $currentTrack.get>
+  tracks: ReturnType<typeof usePlayerStore.getState>["tracks"]
+  currentTrack: ReturnType<typeof usePlayerStore.getState>["currentTrack"]
   currentIndex: number
   queueLength: number
   hasNext: boolean
@@ -38,24 +29,28 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`
 }
 
-export const $playerState = computed(
-  [$currentTrack, $isPlaying, $currentTime, $duration],
-  (track, isPlaying, currentTime, duration): PlayerState => ({
-    track,
-    isPlaying,
-    currentTime,
-    duration,
-    progressPercent: duration > 0 ? (currentTime / duration) * 100 : 0,
-    formattedCurrentTime: formatTime(currentTime),
-    formattedDuration: formatTime(duration),
-  })
-)
+export const $playerState = {
+  get: (): PlayerState => {
+    const { currentTrack, isPlaying, currentTime, duration } =
+      usePlayerStore.getState()
 
-export const $queueState = computed(
-  [$tracks, $currentTrack],
-  (tracks, currentTrack): QueueState => {
+    return {
+      track: currentTrack,
+      isPlaying,
+      currentTime,
+      duration,
+      progressPercent: duration > 0 ? (currentTime / duration) * 100 : 0,
+      formattedCurrentTime: formatTime(currentTime),
+      formattedDuration: formatTime(duration),
+    }
+  },
+}
+
+export const $queueState = {
+  get: (): QueueState => {
+    const { tracks, currentTrack } = usePlayerStore.getState()
     const currentIndex = currentTrack
-      ? tracks.findIndex((t) => t.id === currentTrack.id)
+      ? tracks.findIndex((track) => track.id === currentTrack.id)
       : -1
 
     return {
@@ -66,25 +61,35 @@ export const $queueState = computed(
       hasNext: currentIndex < tracks.length - 1,
       hasPrevious: currentIndex > 0,
     }
-  }
-)
+  },
+}
 
-export const $playerColors = computed(
-  [$currentColors, $isLoadingColors],
-  (colors, isLoading): { colors: ColorPalette; isLoading: boolean } => ({
-    colors,
-    isLoading,
-  })
-)
+export const $playerColors = {
+  get: (): { colors: ColorPalette; isLoading: boolean } => {
+    const { currentColors, isLoadingColors } = usePlayerColorsStore.getState()
 
-export const $orderedQueue = computed(
-  [$tracks, $currentTrack],
-  (tracks, currentTrack) => {
-    if (!currentTrack || tracks.length === 0) return []
+    return {
+      colors: currentColors,
+      isLoading: isLoadingColors,
+    }
+  },
+}
 
-    const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id)
-    if (currentIndex === -1) return tracks
+export const $orderedQueue = {
+  get: () => {
+    const { tracks, currentTrack } = usePlayerStore.getState()
+
+    if (!currentTrack || tracks.length === 0) {
+      return []
+    }
+
+    const currentIndex = tracks.findIndex(
+      (track) => track.id === currentTrack.id
+    )
+    if (currentIndex === -1) {
+      return tracks
+    }
 
     return [...tracks.slice(currentIndex), ...tracks.slice(0, currentIndex)]
-  }
-)
+  },
+}

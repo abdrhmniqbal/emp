@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { useRouter } from "expo-router"
 import * as React from "react"
 import { RefreshControl, ScrollView, View } from "react-native"
@@ -19,11 +18,11 @@ import {
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { $indexerState } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { useHomeScreen } from "@/modules/library/hooks/use-home-screen"
 import {
-  $currentTrack,
   playTrack,
+  usePlayerStore,
   type Track,
 } from "@/modules/player/player.store"
 
@@ -32,8 +31,8 @@ const CHUNK_SIZE = 5
 export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
-  const indexerState = useStore($indexerState)
-  const currentTrack = useStore($currentTrack)
+  const indexerState = useIndexerStore((state) => state.indexerState)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
   const { recentlyPlayedTracks, topTracks, isLoading, refresh } =
     useHomeScreen()
 

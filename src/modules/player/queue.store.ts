@@ -1,35 +1,49 @@
-import { atom, computed } from "nanostores"
+import { useMemo } from "react"
 
 import { TrackPlayer } from "@/modules/player/player.utils"
 
 import {
   $currentTrack,
+  $isShuffled,
+  $originalQueue,
+  $queue,
   persistPlaybackSession,
   syncCurrentTrackFromPlayer,
+  usePlayerStore,
   type Track,
 } from "./player.store"
 
-export const $queue = atom<Track[]>([])
-export const $originalQueue = atom<Track[]>([])
-export const $isShuffled = atom<boolean>(false)
+export { $isShuffled, $originalQueue, $queue } from "./player.store"
 
-export const $queueInfo = computed(
-  [$queue, $currentTrack],
-  (queue, currentTrack) => {
-    const currentIndex = currentTrack
-      ? queue.findIndex((t) => t.id === currentTrack.id)
-      : -1
+function buildQueueInfo(queue: Track[], currentTrack: Track | null) {
+  const currentIndex = currentTrack
+    ? queue.findIndex((track) => track.id === currentTrack.id)
+    : -1
 
-    return {
-      queue,
-      currentIndex,
-      length: queue.length,
-      upNext: currentIndex >= 0 ? queue.slice(currentIndex + 1) : queue,
-      hasNext: currentIndex < queue.length - 1,
-      hasPrevious: currentIndex > 0,
-    }
+  return {
+    queue,
+    currentIndex,
+    length: queue.length,
+    upNext: currentIndex >= 0 ? queue.slice(currentIndex + 1) : queue,
+    hasNext: currentIndex < queue.length - 1,
+    hasPrevious: currentIndex > 0,
   }
-)
+}
+
+export const $queueInfo = {
+  get: () =>
+    buildQueueInfo($queue.get(), $currentTrack.get()),
+}
+
+export function useQueueInfo() {
+  const queue = usePlayerStore((state) => state.queue)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
+
+  return useMemo(
+    () => buildQueueInfo(queue, currentTrack),
+    [currentTrack, queue]
+  )
+}
 
 export async function addToQueue(track: Track) {
   const queue = $queue.get()

@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
@@ -19,11 +18,11 @@ import {
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useGenreTopTracksScreen } from "@/modules/genres/hooks/use-genre-top-tracks-screen"
-import { $indexerState } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 
 export default function GenreTopTracksScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
-  const indexerState = useStore($indexerState)
+  const indexerState = useIndexerStore((state) => state.indexerState)
   const theme = useThemeColors()
 
   const genreName = decodeURIComponent(name || "")

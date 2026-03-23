@@ -1,14 +1,10 @@
 import type { Track } from "@/modules/player/player.types"
-import { useStore } from "@nanostores/react"
 import { useIsFocused } from "@react-navigation/native"
 import { useQuery } from "@tanstack/react-query"
 
 import { useEffect, useState } from "react"
 import { startIndexing } from "@/modules/indexer"
-import {
-  $playbackRefreshVersion,
-  playTrack,
-} from "@/modules/player/player.store"
+import { playTrack, usePlayerStore } from "@/modules/player/player.store"
 import { getTopTracks, type TopTracksPeriod } from "@/modules/tracks/tracks.api"
 
 export const TOP_TRACKS_TABS = ["Realtime", "Daily", "Weekly"] as const
@@ -31,7 +27,9 @@ function tabToPeriod(tab: TopTracksTab): TopTracksPeriod {
 export function useTopTracksScreen() {
   const [activeTab, setActiveTab] = useState<TopTracksTab>("Realtime")
   const isFocused = useIsFocused()
-  const playbackRefreshVersion = useStore($playbackRefreshVersion)
+  const playbackRefreshVersion = usePlayerStore(
+    (state) => state.playbackRefreshVersion
+  )
   const period = tabToPeriod(activeTab)
   const {
     data: currentTracksData,

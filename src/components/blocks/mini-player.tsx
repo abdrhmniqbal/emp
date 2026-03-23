@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -15,12 +14,9 @@ import {
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $currentTime,
-  $currentTrack,
-  $duration,
-  $isPlaying,
   playNext,
   togglePlayback,
+  usePlayerStore,
 } from "@/modules/player/player.store"
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
@@ -33,10 +29,10 @@ interface MiniPlayerProps {
 export const MiniPlayer: React.FC<MiniPlayerProps> = ({
   bottomOffset = 90,
 }) => {
-  const currentTrack = useStore($currentTrack)
-  const isPlaying = useStore($isPlaying)
-  const currentTime = useStore($currentTime)
-  const duration = useStore($duration)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const isPlaying = usePlayerStore((state) => state.isPlaying)
+  const currentTime = usePlayerStore((state) => state.currentTime)
+  const duration = usePlayerStore((state) => state.duration)
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 

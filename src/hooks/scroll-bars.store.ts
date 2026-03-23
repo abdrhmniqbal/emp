@@ -1,9 +1,34 @@
-import { atom } from "nanostores"
+import { create } from "zustand"
 
-export const $barsVisible = atom(true)
-export const $isPlayerExpanded = atom(false)
 export type PlayerExpandedView = "artwork" | "lyrics" | "queue"
-export const $playerExpandedView = atom<PlayerExpandedView>("artwork")
+
+interface UIState {
+  barsVisible: boolean
+  isPlayerExpanded: boolean
+  playerExpandedView: PlayerExpandedView
+}
+
+export const useUIStore = create<UIState>(() => ({
+  barsVisible: true,
+  isPlayerExpanded: false,
+  playerExpandedView: "artwork",
+}))
+
+export const $barsVisible = {
+  get: () => useUIStore.getState().barsVisible,
+  set: (value: boolean) => useUIStore.setState({ barsVisible: value }),
+}
+
+export const $isPlayerExpanded = {
+  get: () => useUIStore.getState().isPlayerExpanded,
+  set: (value: boolean) => useUIStore.setState({ isPlayerExpanded: value }),
+}
+
+export const $playerExpandedView = {
+  get: () => useUIStore.getState().playerExpandedView,
+  set: (value: PlayerExpandedView) =>
+    useUIStore.setState({ playerExpandedView: value }),
+}
 
 let lastScrollY = 0
 let showTimeout: NodeJS.Timeout | null = null

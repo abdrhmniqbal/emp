@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import {
   BottomTabBar,
   type BottomTabBarProps,
@@ -24,7 +23,7 @@ import {
   getTabBarHeight,
   MINI_PLAYER_HEIGHT,
 } from "@/constants/layout"
-import { $barsVisible } from "@/hooks/scroll-bars.store"
+import { useUIStore } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 const TAB_HIDE_DURATION_MS = 250
@@ -33,7 +32,7 @@ const TAB_HIDE_EXTRA_OFFSET = 16
 export default function MainLayout() {
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
-  const barsVisible = useStore($barsVisible)
+  const barsVisible = useUIStore((state) => state.barsVisible)
   const tabBarBottomPadding = getTabBarBottomPadding(insets.bottom)
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hiddenOffset = tabBarHeight + MINI_PLAYER_HEIGHT + TAB_HIDE_EXTRA_OFFSET

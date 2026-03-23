@@ -1,12 +1,11 @@
 import type { ReactNode } from "react"
-import { useStore } from "@nanostores/react"
 import { View } from "react-native"
 
 import { TrackRow } from "@/components/patterns"
 import { ScaleLoader } from "@/components/ui"
 import {
-  $currentTrack,
   playTrack,
+  usePlayerStore,
   type Track,
 } from "@/modules/player/player.store"
 import { chunkArray } from "@/utils/array"
@@ -34,7 +33,7 @@ export function RankedTrackCarousel({
   onItemPress,
   className,
 }: RankedTrackCarouselProps) {
-  const currentTrack = useStore($currentTrack)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
   const chunks = chunkArray(data, chunkSize)
 
   const handlePress = (track: Track) => {

@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
@@ -13,14 +12,14 @@ import LocalRepeatOneIcon from "@/components/icons/local/repeat-one"
 import LocalShuffleIcon from "@/components/icons/local/shuffle"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
-  $repeatMode,
   playNext,
   playPrevious,
   type RepeatModeType,
   togglePlayback,
   toggleRepeatMode,
+  usePlayerStore,
 } from "@/modules/player/player.store"
-import { $isShuffled, toggleShuffle } from "@/modules/player/queue.store"
+import { toggleShuffle } from "@/modules/player/queue.store"
 import { cn } from "@/utils/common"
 
 interface PlaybackControlsProps {
@@ -41,8 +40,8 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   const playButtonSize = compact ? 64 : 80
   const containerClass = compact ? "w-16 h-16" : "w-20 h-20"
   const gapClass = compact ? "gap-6" : "gap-8"
-  const repeatMode = useStore($repeatMode)
-  const isShuffled = useStore($isShuffled)
+  const repeatMode = usePlayerStore((state) => state.repeatMode)
+  const isShuffled = usePlayerStore((state) => state.isShuffled)
 
   const getRepeatColor = (mode: RepeatModeType) => {
     return mode === "off" ? "white" : theme.accent

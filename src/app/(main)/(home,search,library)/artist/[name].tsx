@@ -1,4 +1,3 @@
-import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
 import { Stack, useRouter } from "expo-router"
@@ -44,7 +43,7 @@ import {
   type SortField,
   TRACK_SORT_OPTIONS,
 } from "@/modules/library/library-sort.store"
-import { $currentTrack } from "@/modules/player/player.store"
+import { usePlayerStore } from "@/modules/player/player.store"
 import { cn } from "@/utils/common"
 
 const SCREEN_WIDTH = Dimensions.get("window").width
@@ -61,7 +60,7 @@ export default function ArtistDetailsScreen() {
 
   const [isHeaderSolid, setIsHeaderSolid] = useState(false)
   const scrollY = useSharedValue(0)
-  const currentTrack = useStore($currentTrack)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
   const {
     name,
     isLoading,

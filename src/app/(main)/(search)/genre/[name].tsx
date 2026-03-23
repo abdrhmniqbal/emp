@@ -1,5 +1,4 @@
 import type { GenreAlbumInfo } from "@/modules/genres/genres.api"
-import { useStore } from "@nanostores/react"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { RefreshControl, ScrollView, View } from "react-native"
 
@@ -21,7 +20,7 @@ import {
 } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useGenreDetailsScreen } from "@/modules/genres/hooks/use-genre-details-screen"
-import { $indexerState } from "@/modules/indexer"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 
 const CHUNK_SIZE = 5
 
@@ -29,7 +28,7 @@ export default function GenreDetailsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
   const router = useRouter()
   const theme = useThemeColors()
-  const indexerState = useStore($indexerState)
+  const indexerState = useIndexerStore((state) => state.indexerState)
 
   const genreName = decodeURIComponent(name || "")
   const { topTracks, previewAlbums, isLoading, refresh } =

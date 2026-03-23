@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { File, Paths } from "expo-file-system"
-import { atom } from "nanostores"
 import { Share } from "react-native"
+import { create } from "zustand"
 
 export type AppLogLevel = "minimal" | "extra"
 type LogSeverity = "debug" | "info" | "warn" | "error" | "critical"
@@ -27,7 +27,18 @@ const originalConsole = {
   debug: console.debug.bind(console),
 }
 
-export const $loggingConfig = atom<LoggingConfig>(DEFAULT_LOGGING_CONFIG)
+interface LoggingStoreState {
+  loggingConfig: LoggingConfig
+}
+
+export const useLoggingStore = create<LoggingStoreState>(() => ({
+  loggingConfig: DEFAULT_LOGGING_CONFIG,
+}))
+
+export const $loggingConfig = {
+  get: () => useLoggingStore.getState().loggingConfig,
+  set: (value: LoggingConfig) => useLoggingStore.setState({ loggingConfig: value }),
+}
 
 let configLoadPromise: Promise<LoggingConfig> | null = null
 let hasLoadedConfig = false
