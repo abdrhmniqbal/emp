@@ -215,6 +215,7 @@ Logging is part of the rewrite, not an optional add-on.
 - [ ] indexer start, skip, reindex, delete cleanup, completion, and cancellation
 - [ ] metadata extraction failures and malformed-file handling
 - [ ] file-system reads for lyrics, settings, and session persistence
+- [~] file opening and file-path resolution now log native failures
 - [ ] playback lifecycle:
   - setup
   - queue replacement
@@ -225,6 +226,7 @@ Logging is part of the rewrite, not an optional add-on.
   - notification and remote-control entry points
 - [~] favorites and playlist mutations
 - [ ] destructive actions such as track deletion
+- [~] destructive track deletion now logs permission, native deletion, and cleanup failures
 - [ ] route-level failures or invalid params where the user can get stuck
 
 ### Logging rules

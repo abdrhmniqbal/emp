@@ -22,6 +22,7 @@ import {
   useIsFavorite,
 } from "@/modules/favorites/favorites.queries"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
+import { logError, logInfo, logWarn } from "@/modules/logging/logger"
 import { playTrack, type Track } from "@/modules/player/player.store"
 import { addToQueue, playNext } from "@/modules/player/queue.store"
 import {
@@ -250,23 +251,44 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     }
 
     const resolvedUri = await resolvePlayableFileUri(track.uri)
+    logInfo("Opening track file", {
+      trackId: track.id,
+      originalUri: track.uri,
+      resolvedUri,
+    })
 
     try {
       await openFileViewer(resolvedUri, {
         showOpenWithDialog: true,
         showAppsSuggestions: false,
       })
+      logInfo("Opened track file with native viewer", {
+        trackId: track.id,
+        resolvedUri,
+      })
       onClose()
-    } catch {
+    } catch (error) {
+      logWarn("Native file viewer failed, trying URL fallback", {
+        trackId: track.id,
+        resolvedUri,
+        error: error instanceof Error ? error.message : String(error),
+      })
       try {
         const openableUri = encodeURI(resolvedUri)
         const canOpenFile = await Linking.canOpenURL(openableUri)
         if (canOpenFile) {
           onClose()
           await Linking.openURL(openableUri)
+          logInfo("Opened track file via URL fallback", {
+            trackId: track.id,
+            resolvedUri: openableUri,
+          })
         }
-      } catch {
-        // Ignore: opening local files depends on OEM apps and URI permissions.
+      } catch (fallbackError) {
+        logError("Failed to open track file", fallbackError, {
+          trackId: track.id,
+          resolvedUri,
+        })
       }
     }
   }

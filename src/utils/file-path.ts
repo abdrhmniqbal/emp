@@ -1,5 +1,7 @@
 import { getActualPath } from "@missingcore/react-native-actual-path"
 
+import { logWarn } from "@/modules/logging/logger"
+
 function toFileUri(path: string): string {
   return path.startsWith("file://") ? path : `file://${path}`
 }
@@ -15,8 +17,11 @@ export async function resolvePlayableFileUri(uri: string): Promise<string> {
       if (actualPath) {
         return toFileUri(actualPath)
       }
-    } catch {
-      // Fallback to the original content URI when path resolving fails.
+    } catch (error) {
+      logWarn("Failed to resolve actual path for content URI", {
+        uri,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
     return uri
   }

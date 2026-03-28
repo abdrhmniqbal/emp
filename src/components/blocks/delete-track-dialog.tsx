@@ -6,6 +6,7 @@ import { useState } from "react"
 import { View } from "react-native"
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { startIndexing } from "@/modules/indexer/indexer.store"
+import { logError, logInfo, logWarn } from "@/modules/logging/logger"
 import { removeFromQueue } from "@/modules/player/queue.store"
 import { hardDeleteTrack } from "@/modules/tracks/track-cleanup.repository"
 
@@ -48,8 +49,16 @@ export function DeleteTrackDialog({
 
     setIsDeleting(true)
     try {
+      logInfo("Deleting track from device", {
+        trackId: track.id,
+        title: track.title,
+      })
       const { status } = await requestMediaLibraryPermission()
       if (status !== "granted") {
+        logWarn("Track deletion blocked by media permission", {
+          trackId: track.id,
+          permissionStatus: status,
+        })
         showToast(
           "Media permission required",
           "Allow media access to delete tracks from your device."
@@ -59,27 +68,44 @@ export function DeleteTrackDialog({
 
       const isDeleted = await MediaLibrary.deleteAssetsAsync([track.id])
       if (!isDeleted) {
+        logWarn("MediaLibrary reported track deletion failure", {
+          trackId: track.id,
+        })
         showToast("Failed to delete track")
         return
       }
 
       try {
         await removeFromQueue(track.id)
-      } catch {
-        // Queue cleanup failure should not block deletion flow.
+      } catch (error) {
+        logWarn("Queue cleanup failed after track deletion", {
+          trackId: track.id,
+          error: error instanceof Error ? error.message : String(error),
+        })
       }
 
       try {
         await hardDeleteTrack(track.id)
-      } catch {
-        // DB cleanup failure should not block deletion success feedback.
+      } catch (error) {
+        logWarn("Database cleanup failed after track deletion", {
+          trackId: track.id,
+          error: error instanceof Error ? error.message : String(error),
+        })
       }
 
       onOpenChange(false)
       onDeleted?.(track)
+      logInfo("Deleted track from device", {
+        trackId: track.id,
+        title: track.title,
+      })
       showToast("Deleted from device", track.title)
       void startIndexing(false, false)
-    } catch {
+    } catch (error) {
+      logError("Failed to delete track from device", error, {
+        trackId: track.id,
+        title: track.title,
+      })
       showToast("Failed to delete track")
     } finally {
       setIsDeleting(false)

@@ -192,6 +192,8 @@ Progress:
 - bootstrap, indexer, and player runtime boundaries now have first-pass structured logging
 - favorites and playlist mutation hooks now log start, success, and failure paths
 - library sort state, sort options, and pure sorting helpers are now split into separate files
+- destructive track deletion and track file opening now log native and cleanup failures
+- battery optimization helpers now log unsupported paths, requests, and failures
 - indexer config modules and `indexer.store.ts` no longer use `$...` compatibility helpers internally
 - logging, UI, and library sort modules no longer use `$...` compatibility helpers internally
 - player color state no longer uses `$...` compatibility helpers internally

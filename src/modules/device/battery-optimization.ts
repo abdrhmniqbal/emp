@@ -1,5 +1,7 @@
 import { NativeModules, Platform } from "react-native"
 
+import { logError, logInfo, logWarn } from "@/modules/logging/logger"
+
 interface BatteryOptimizationNativeModule {
   isIgnoringBatteryOptimizations: (packageName?: string) => Promise<boolean>
   requestIgnoreBatteryOptimizations: (
@@ -22,14 +24,25 @@ export async function isIgnoringBatteryOptimizations(
   }
 
   if (!batteryOptimizationModule?.isIgnoringBatteryOptimizations) {
+    logWarn("Battery optimization status check is unsupported", {
+      packageName,
+    })
     return false
   }
 
   try {
-    return await batteryOptimizationModule.isIgnoringBatteryOptimizations(
+    const result = await batteryOptimizationModule.isIgnoringBatteryOptimizations(
       packageName
     )
-  } catch {
+    logInfo("Checked battery optimization ignore status", {
+      packageName,
+      isIgnoring: result,
+    })
+    return result
+  } catch (error) {
+    logError("Failed to check battery optimization ignore status", error, {
+      packageName,
+    })
     return false
   }
 }
@@ -44,14 +57,26 @@ export async function requestIgnoreBatteryOptimizations(
   }
 
   if (!batteryOptimizationModule?.requestIgnoreBatteryOptimizations) {
+    logWarn("Battery optimization ignore request is unsupported", {
+      packageName,
+    })
     return "unsupported"
   }
 
   try {
-    return await batteryOptimizationModule.requestIgnoreBatteryOptimizations(
-      packageName
-    )
-  } catch {
+    const result =
+      await batteryOptimizationModule.requestIgnoreBatteryOptimizations(
+        packageName
+      )
+    logInfo("Requested battery optimization ignore flow", {
+      packageName,
+      result,
+    })
+    return result
+  } catch (error) {
+    logError("Failed to request battery optimization ignore flow", error, {
+      packageName,
+    })
     return "unsupported"
   }
 }
@@ -62,14 +87,17 @@ export async function openBatteryOptimizationSettings(): Promise<boolean> {
   }
 
   if (!batteryOptimizationModule?.openBatteryOptimizationSettings) {
+    logWarn("Battery optimization settings opening is unsupported")
     return false
   }
 
   try {
     const result =
       await batteryOptimizationModule.openBatteryOptimizationSettings()
+    logInfo("Opened battery optimization settings", { result })
     return result === "settings_opened"
-  } catch {
+  } catch (error) {
+    logError("Failed to open battery optimization settings", error)
     return false
   }
 }
