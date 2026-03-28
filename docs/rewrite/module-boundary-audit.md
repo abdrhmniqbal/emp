@@ -116,6 +116,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - runtime orchestration is improved, but the module still owns too many responsibilities
   - one compatibility file was removed in this audit pass: `src/modules/player/player.queries.ts`
   - playback commands are no longer re-exported through `player.store.ts`
+  - queue runtime commands are now separated into `queue.service.ts` instead of living beside derived queue state
 
 ### `playlist`
 

@@ -13,13 +13,9 @@ import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertic
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
 import { playTrack } from "@/modules/player/player.service"
-import type { Track } from "@/modules/player/player.store"
-import {
-  getQueueState,
-  moveInQueue,
-  removeFromQueue,
-  useQueueInfo,
-} from "@/modules/player/queue.store"
+import { getQueueState, type Track } from "@/modules/player/player.store"
+import { moveInQueue, removeFromQueue } from "@/modules/player/queue.service"
+import { useQueueInfo } from "@/modules/player/queue.store"
 
 interface QueueItemProps {
   track: Track

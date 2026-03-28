@@ -24,7 +24,7 @@ import {
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { playTrack } from "@/modules/player/player.service"
 import type { Track } from "@/modules/player/player.store"
-import { addToQueue, playNext } from "@/modules/player/queue.store"
+import { addToQueue, queueTrackNext } from "@/modules/player/queue.service"
 import {
   useAddTrackToPlaylist,
   useRemoveTrackFromPlaylist,
@@ -105,7 +105,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
 
   const handlePlayNext = async () => {
     if (track) {
-      await playNext(track)
+      await queueTrackNext(track)
       onClose()
     }
   }

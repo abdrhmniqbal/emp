@@ -21,7 +21,7 @@ import {
   type RepeatModeType,
   usePlayerStore,
 } from "@/modules/player/player.store"
-import { toggleShuffle } from "@/modules/player/queue.store"
+import { toggleShuffle } from "@/modules/player/queue.service"
 import { cn } from "@/utils/common"
 
 interface PlaybackControlsProps {

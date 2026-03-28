@@ -77,6 +77,7 @@ We do not keep code just because it already works.
 - [~] `favorites`, `genres`, `history`, and `search` are closest to the target module shape
 - [~] `library`, `playlist`, `tracks`, `device`, `logging`, `bootstrap`, `lyrics`, and `ui` need another cleanup pass
 - [ ] `player`, `indexer`, and `settings` still need the deepest boundary rewrite work
+- [~] `player` is improving, and queue runtime commands are now split from queue state surfaces
 
 ## Keep / Rewrite Decision Matrix
 
@@ -145,6 +146,7 @@ Rules:
 - player state helpers should use explicit getters and setters instead of compatibility-shaped wrapper objects
 - shared UI theme helpers should live under `src/modules/ui`, not `src/hooks`
 - player runtime commands should be imported from `player.service.ts`, not re-exported through `player.store.ts`
+- queue mutations should be imported from `queue.service.ts`, while derived queue state stays in `queue.store.ts`
 
 ### Module Shape
 
