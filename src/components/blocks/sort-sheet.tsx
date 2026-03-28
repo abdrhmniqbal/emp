@@ -6,7 +6,7 @@ import { cn } from "tailwind-variants"
 
 import LocalArrowDownIcon from "@/components/icons/local/arrow-down"
 import LocalArrowUpIcon from "@/components/icons/local/arrow-up"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export interface SortOption<T extends string> {
   field: T

@@ -24,7 +24,7 @@ import {
   MINI_PLAYER_HEIGHT,
 } from "@/constants/layout"
 import { useUIStore } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 const TAB_HIDE_DURATION_MS = 250
 const TAB_HIDE_EXTRA_OFFSET = 16

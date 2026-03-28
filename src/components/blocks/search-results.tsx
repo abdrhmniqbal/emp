@@ -24,7 +24,7 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import { playTrack, type Track } from "@/modules/player/player.store"
 
 const SEARCH_TABS = ["All", "Track", "Album", "Artist", "Playlist"] as const

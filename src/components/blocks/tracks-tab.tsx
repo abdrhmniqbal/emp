@@ -11,7 +11,7 @@ import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   type SortConfig,
   sortTracks,

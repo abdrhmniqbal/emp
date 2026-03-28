@@ -2,7 +2,7 @@ import { Button } from "heroui-native"
 import { Text, View } from "react-native"
 import { cn } from "tailwind-variants"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 import LocalChevronRightIcon from "../icons/local/chevron-right"
 

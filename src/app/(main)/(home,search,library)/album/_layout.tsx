@@ -1,7 +1,7 @@
 import { Stack } from "expo-router"
 
 import { BackButton } from "@/components/patterns/back-button"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export default function AlbumLayout() {
   const theme = useThemeColors()

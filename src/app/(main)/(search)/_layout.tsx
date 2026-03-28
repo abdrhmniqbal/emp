@@ -4,7 +4,7 @@ import { View } from "react-native"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { BackButton } from "@/components/patterns/back-button"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export default function SearchLayout() {
   const theme = useThemeColors()

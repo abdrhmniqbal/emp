@@ -27,7 +27,7 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export interface Playlist {
   id: string

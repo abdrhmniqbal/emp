@@ -13,7 +13,7 @@ import Animated, {
 } from "react-native-reanimated"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import { stopIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 

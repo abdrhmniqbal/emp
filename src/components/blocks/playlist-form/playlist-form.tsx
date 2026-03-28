@@ -12,7 +12,7 @@ import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertic
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { TrackRow } from "@/components/patterns/track-row"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 import {
   MAX_PLAYLIST_DESCRIPTION_LENGTH,

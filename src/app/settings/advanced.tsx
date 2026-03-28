@@ -6,7 +6,7 @@ import { useEffect } from "react"
 import { Linking, Platform, ScrollView, Text, View } from "react-native"
 
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   isIgnoringBatteryOptimizations,
   openBatteryOptimizationSettings as openNativeBatteryOptimizationSettings,

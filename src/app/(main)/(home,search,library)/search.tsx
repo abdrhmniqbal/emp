@@ -14,7 +14,7 @@ import {
 } from "@/components/blocks/search-results"
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import { useSearch } from "@/modules/library/library.queries"
 
 interface HeaderSearchInputProps {

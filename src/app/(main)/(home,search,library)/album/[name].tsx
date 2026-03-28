@@ -21,7 +21,7 @@ import {
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import { formatAlbumDuration, groupTracksByDisc } from "@/modules/albums/albums.utils"
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"

@@ -4,7 +4,7 @@ import { View } from "react-native"
 import { cn } from "tailwind-variants"
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 import LocalPlaylistSolidIcon from "../icons/local/playlist-solid"
 

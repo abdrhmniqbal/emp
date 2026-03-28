@@ -2,7 +2,7 @@ import { Button } from "heroui-native"
 import { Text, View } from "react-native"
 import { cn } from "tailwind-variants"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 import LocalPlaySolidIcon from "../icons/local/play-solid"
 import LocalShuffleSolidIcon from "../icons/local/shuffle-solid"

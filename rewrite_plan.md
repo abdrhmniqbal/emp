@@ -136,6 +136,7 @@ Rules:
 - presentational components should not know how persistence works
 - compatibility-style `$...` exports should keep shrinking until they are gone
 - player state helpers should use explicit getters and setters instead of compatibility-shaped wrapper objects
+- shared UI theme helpers should live under `src/modules/ui`, not `src/hooks`
 
 ### Module Shape
 

@@ -3,7 +3,7 @@ import { PressableFeedback } from "heroui-native"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import { BackButton } from "@/components/patterns/back-button"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export default function SettingsLayout() {
   const theme = useThemeColors()

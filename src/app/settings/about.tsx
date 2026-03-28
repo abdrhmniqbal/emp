@@ -6,7 +6,7 @@ import { Linking, ScrollView, Text, View } from "react-native"
 
 import appIcon from "@/assets/icon.png"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export default function AboutSettingsScreen() {
   const theme = useThemeColors()

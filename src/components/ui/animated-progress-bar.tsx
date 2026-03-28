@@ -13,7 +13,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 const styles = {
   container: {

@@ -15,7 +15,7 @@ import {
   MediaItemImage as ItemImage,
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export interface RecentSearchItem {
   id: string

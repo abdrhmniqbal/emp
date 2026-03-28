@@ -4,7 +4,7 @@ import { View } from "react-native"
 
 import LocalSearchIcon from "@/components/icons/local/search"
 import LocalSettingsIcon from "@/components/icons/local/settings"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export default function LibraryLayout() {
   const theme = useThemeColors()

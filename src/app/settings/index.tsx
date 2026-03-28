@@ -3,7 +3,7 @@ import { PressableFeedback } from "heroui-native"
 import { ScrollView, Text, View } from "react-native"
 
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface SettingsCategoryItemProps {
   title: string

@@ -5,7 +5,7 @@ import { View } from "react-native"
 
 import Animated, { Layout } from "react-native-reanimated"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface AlbumArtViewProps {
   currentTrack: Track

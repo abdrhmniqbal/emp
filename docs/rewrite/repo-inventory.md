@@ -134,11 +134,17 @@ These were normalized in the rewrite:
 - `src/modules/indexer/metadata.api.ts` -> `src/modules/indexer/metadata.repository.ts`
 - `src/modules/tracks/track-cleanup.api.ts` -> `src/modules/tracks/track-cleanup.repository.ts`
 
-### Remaining reusable hooks that need review
-
-These are not screen hooks anymore, but still need to be justified:
+### Shared hook cleanup
 
 - `src/hooks/use-theme-colors.ts`
+  - moved to `src/modules/ui/theme.ts`
+  - UI theme access now lives with the rest of the UI module boundary
+
+- empty hook directories were removed:
+  - `src/hooks`
+  - `src/modules/bootstrap/hooks`
+  - `src/modules/library/hooks`
+  - `src/modules/playlist/hooks`
 
 ### Removed unused hooks
 

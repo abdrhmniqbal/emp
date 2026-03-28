@@ -9,7 +9,7 @@ import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   commitFolderFilterConfig,
   ensureFolderFilterConfigLoaded,

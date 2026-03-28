@@ -7,7 +7,7 @@ import { cn } from "tailwind-variants"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { Card } from "@/components/ui/card"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface MusicCardProps {
   title: string

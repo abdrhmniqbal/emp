@@ -15,7 +15,7 @@ import Animated, {
 } from "react-native-reanimated"
 import LocalMicIcon from "@/components/icons/local/mic"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import { queryClient } from "@/lib/tanstack-query"
 import {
   hasMeaningfulSyncedLyricsTiming,

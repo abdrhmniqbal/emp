@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { ScrollView, Text, View } from "react-native"
 
 import LocalTickIcon from "@/components/icons/local/tick"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   type AppLogLevel,
   ensureLoggingConfigLoaded,

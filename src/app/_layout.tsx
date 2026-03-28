@@ -26,7 +26,7 @@ import {
   handleBootstrapDatabaseReady,
 } from "@/modules/bootstrap/bootstrap.runtime"
 import { useUIStore } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import { usePlayerStore } from "@/modules/player/player.store"
 
 import "../global.css"

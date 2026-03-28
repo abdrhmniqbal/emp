@@ -10,7 +10,7 @@ import LocalPreviousSolidIcon from "@/components/icons/local/previous-solid"
 import LocalRepeatIcon from "@/components/icons/local/repeat"
 import LocalRepeatOneIcon from "@/components/icons/local/repeat-one"
 import LocalShuffleIcon from "@/components/icons/local/shuffle"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   playNext,
   playPrevious,

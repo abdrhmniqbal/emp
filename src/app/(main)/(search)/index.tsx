@@ -13,7 +13,7 @@ import {
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import { useGenres } from "@/modules/search/search.queries"
 import type { Category } from "@/modules/search/search.types"
 import { mapGenresToCategories } from "@/modules/search/search.utils"

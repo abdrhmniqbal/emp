@@ -11,7 +11,7 @@ import { MarqueeText } from "@/components/ui/marquee-text"
 import {
   openPlayer,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   playNext,
   togglePlayback,

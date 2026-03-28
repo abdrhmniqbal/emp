@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/media-item"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export interface Artist {
   id: string

@@ -3,7 +3,7 @@ import { useRouter } from "expo-router"
 import { Button } from "heroui-native"
 
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface BackButtonProps {
   onPress?: () => void

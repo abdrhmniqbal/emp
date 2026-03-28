@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 const BAR_COUNT = 3
 const BAR_WIDTH = 3

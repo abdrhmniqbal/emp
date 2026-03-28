@@ -9,7 +9,7 @@ import {
   togglePlayerExpandedView,
   useUIStore,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 export const PlayerFooter: React.FC = () => {
   const playerExpandedView = useUIStore((state) => state.playerExpandedView)

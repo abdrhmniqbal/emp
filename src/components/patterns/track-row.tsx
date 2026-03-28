@@ -5,7 +5,7 @@ import { View } from "react-native"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { MediaItem } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface TrackRowProps {
   track: Track

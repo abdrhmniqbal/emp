@@ -17,7 +17,7 @@ import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
 import { MarqueeText } from "@/components/ui/marquee-text"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   useIsFavorite,
 } from "@/modules/favorites/favorites.queries"
