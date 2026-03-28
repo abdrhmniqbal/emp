@@ -1,8 +1,9 @@
 import { File, Paths } from "expo-file-system"
 import {
   getDefaultLoggingConfig,
-  getLoggingConfigState,
-  setLoggingConfigState,
+  getLoggingConfigState as getSettingsLoggingConfigState,
+  setLoggingConfigState as setSettingsLoggingConfigState,
+  useSettingsStore,
 } from "@/modules/settings/settings.store"
 import type { AppLogLevel, LoggingConfig } from "@/modules/settings/settings.types"
 
@@ -12,6 +13,22 @@ const LOG_CONFIG_FILE = new File(Paths.document, "logging-config.json")
 
 let configLoadPromise: Promise<LoggingConfig> | null = null
 let hasLoadedConfig = false
+
+export function useLoggingStore<T>(
+  selector: (state: { loggingConfig: LoggingConfig }) => T
+) {
+  return useSettingsStore((state) =>
+    selector({ loggingConfig: state.loggingConfig })
+  )
+}
+
+export function getLoggingConfigState() {
+  return getSettingsLoggingConfigState()
+}
+
+export function setLoggingConfigState(value: LoggingConfig) {
+  setSettingsLoggingConfigState(value)
+}
 
 function isValidLogLevel(value: unknown): value is AppLogLevel {
   return value === "minimal" || value === "extra"
