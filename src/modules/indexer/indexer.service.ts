@@ -1,8 +1,6 @@
-import { queryClient } from "@/lib/tanstack-query"
-import { invalidateIndexerQueries } from "@/modules/indexer/indexer.keys"
+import { refreshIndexedMediaState } from "@/modules/indexer/indexer-refresh.service"
 import { scanMediaLibrary } from "@/modules/indexer/indexer.repository"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
-import { loadTracks } from "@/modules/player/player.service"
 
 import { getDefaultIndexerState, getIndexerState, updateIndexerState } from "./indexer.store"
 
@@ -71,13 +69,7 @@ export async function startIndexing(
       return
     }
 
-    await loadTracks()
-
-    if (controller.signal.aborted || currentRunToken !== runToken) {
-      return
-    }
-
-    await invalidateIndexerQueries(queryClient)
+    await refreshIndexedMediaState()
 
     updateIndexerState({
       phase: "complete",

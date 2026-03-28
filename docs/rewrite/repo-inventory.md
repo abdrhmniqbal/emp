@@ -250,6 +250,7 @@ Progress:
 - active-track and playback-progress runtime sync helpers now live in `src/modules/player/player-runtime-state.ts`
 - TrackPlayer event wiring now lives in `src/modules/player/player-events.service.ts`
 - track-activation side effects now live in `src/modules/player/player-activity.service.ts`
+- post-scan media reload and query invalidation now live in `src/modules/indexer/indexer-refresh.service.ts`
 
 ### Slice 5
 
