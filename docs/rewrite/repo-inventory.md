@@ -77,7 +77,8 @@ Reason:
 Reason:
 
 - several modules already follow the new shape
-- player, indexer, and settings still need deeper cleanup
+- player and indexer still need deeper cleanup
+- settings has moved out of the heaviest rewrite bucket, but still needs another cleanup pass
 - the next pass should be driven by the module boundary audit rather than ad hoc file selection
 
 ### Module boundary audit

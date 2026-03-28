@@ -75,8 +75,8 @@ We do not keep code just because it already works.
 
 - [x] Initial module boundary audit completed
 - [~] `favorites`, `genres`, `history`, and `search` are closest to the target module shape
-- [~] `library`, `playlist`, `tracks`, `device`, `logging`, `bootstrap`, `lyrics`, and `ui` need another cleanup pass
-- [ ] `player`, `indexer`, and `settings` still need the deepest boundary rewrite work
+- [~] `library`, `playlist`, `tracks`, `device`, `logging`, `bootstrap`, `lyrics`, `ui`, and `settings` need another cleanup pass
+- [ ] `player` and `indexer` still need the deepest boundary rewrite work
 - [~] `player` is improving, and queue runtime commands are now split from queue state surfaces
 - [~] `settings` is improving, and folder filter state now lives in `useSettingsStore` with the other local preferences
 

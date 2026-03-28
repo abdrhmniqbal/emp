@@ -165,10 +165,10 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 ### `settings`
 
-- status: `rewrite`
+- status: `partial`
 - notes:
   - `useSettingsStore` now exists for local preference state
-  - settings ownership is still spread across multiple feature modules, but the store boundary is more real now
+  - settings ownership is much more coherent now, even though some actions still execute through feature modules
   - local settings persistence now lives in `settings.repository.ts`
   - auto-scan and track-duration preference ownership now live under `src/modules/settings`
   - folder-filter config helpers now live under `src/modules/settings/folder-filters.ts`
@@ -197,6 +197,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - `logging`
 - `lyrics`
 - `playlist`
+- `settings`
 - `tracks`
 - `ui`
 
@@ -204,11 +205,10 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 - `indexer`
 - `player`
-- `settings`
 
 ## Next Priority After This Audit
 
 1. Revisit `player`
 2. Revisit `indexer`
-3. Establish a real `settings` ownership boundary
-4. Simplify provider/runtime effects after the heavy modules are cleaner
+3. Simplify provider/runtime effects after the heavy modules are cleaner
+4. Revisit `settings` for final cleanup once player/indexer settle down
