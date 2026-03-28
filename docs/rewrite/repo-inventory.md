@@ -119,9 +119,9 @@ Reason:
 
 ## Immediate Structural Findings
 
-### Remaining barrel files
+### Removed barrel files
 
-These should be deleted in the next rewrite slice:
+These were deleted as part of the first code cleanup slice:
 
 - `src/components/blocks/player/index.tsx`
 - `src/components/blocks/playlist-form/index.ts`
@@ -148,9 +148,9 @@ These are not screen hooks anymore, but still need to be justified:
 
 ### Slice 1
 
-- delete remaining barrel files
-- fix imports
-- keep behavior unchanged
+- [x] delete remaining barrel files
+- [x] verify imports do not depend on them
+- [x] keep behavior unchanged
 
 ### Slice 2
 

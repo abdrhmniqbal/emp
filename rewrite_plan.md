@@ -385,6 +385,9 @@ Performance is a first-class rewrite track.
 
 - [x] Nanostores were removed from `src/`
 - [x] barrel exports were removed from `src/modules`, `src/components`, and `src/hooks`
+- [x] leftover component barrel files were removed from:
+  - `src/components/blocks/player/index.tsx`
+  - `src/components/blocks/playlist-form/index.ts`
 - [x] screen-specific orchestration hooks were removed
 - [x] several modules were already split into clearer domain layers
 - [x] player runtime has already started moving out of the store and into service boundaries
