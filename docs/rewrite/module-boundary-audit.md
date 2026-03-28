@@ -130,6 +130,8 @@ A module is considered `aligned` only if it mostly satisfies these:
   - artwork color extraction and cache logic are now separated into `player-colors.service.ts`
   - player session persistence now lives in `player-session.repository.ts`
   - TrackPlayer mapping and repeat-mode adapter helpers now live in `player-adapter.ts`
+  - session persistence/restoration now live in `player-session.service.ts`
+  - active-track and playback-progress sync helpers now live in `player-runtime-state.ts`
 
 ### `playlist`
 

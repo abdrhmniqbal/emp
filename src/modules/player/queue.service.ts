@@ -15,7 +15,7 @@ import {
 import {
   persistPlaybackSession,
   syncCurrentTrackFromPlayer,
-} from "./player.service"
+} from "./player-session.service"
 
 function mapTrackToTrackPlayerInput(track: Track) {
   return {

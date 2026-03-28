@@ -13,7 +13,7 @@ import { ensureTrackDurationFilterConfigLoaded } from "@/modules/settings/track-
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { ensureLoggingConfigLoaded } from "@/modules/logging/logging.store"
 import { logInfo } from "@/modules/logging/logging.service"
-import { restorePlaybackSession } from "@/modules/player/player.service"
+import { restorePlaybackSession } from "@/modules/player/player-session.service"
 
 async function preloadLocalSettings() {
   logInfo("Preloading local settings")

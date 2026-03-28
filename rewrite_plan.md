@@ -151,6 +151,7 @@ Rules:
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
 - player session persistence should live in `player-session.repository.ts`
 - TrackPlayer mapping and repeat-mode adapter helpers should live outside `player.service.ts`
+- player session lifecycle should live in `player-session.service.ts`, and runtime state sync helpers should live outside `player.service.ts`
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
 - logging config state should live in `logging.store.ts`, while runtime logging, file persistence, and crash sharing should live in `logging.service.ts`
 - settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
