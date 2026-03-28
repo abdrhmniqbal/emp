@@ -1,10 +1,10 @@
 import { create } from "zustand"
 
 import {
-  createIndexerConfigFile,
-  loadIndexerConfig,
-  saveIndexerConfig,
-} from "@/modules/indexer/indexer-config.repository"
+  createSettingsConfigFile,
+  loadSettingsConfig,
+  saveSettingsConfig,
+} from "@/modules/settings/settings.repository"
 
 export type FolderFilterMode = "whitelist" | "blacklist"
 
@@ -13,7 +13,7 @@ export interface FolderFilterConfig {
   blacklist: string[]
 }
 
-const FOLDER_FILTERS_FILE = createIndexerConfigFile("folder-filters.json")
+const FOLDER_FILTERS_FILE = createSettingsConfigFile("folder-filters.json")
 const EMPTY_FILTER_CONFIG: FolderFilterConfig = {
   whitelist: [],
   blacklist: [],
@@ -117,7 +117,7 @@ function sanitizeConfig(config: FolderFilterConfig): FolderFilterConfig {
 }
 
 async function persistConfig(config: FolderFilterConfig): Promise<void> {
-  await saveIndexerConfig(FOLDER_FILTERS_FILE, config)
+  await saveSettingsConfig(FOLDER_FILTERS_FILE, config)
 }
 
 export async function ensureFolderFilterConfigLoaded(): Promise<FolderFilterConfig> {
@@ -126,7 +126,7 @@ export async function ensureFolderFilterConfigLoaded(): Promise<FolderFilterConf
   }
 
   loadPromise = (async () => {
-    const next = await loadIndexerConfig(
+    const next = await loadSettingsConfig(
       FOLDER_FILTERS_FILE,
       EMPTY_FILTER_CONFIG,
       (parsed) =>

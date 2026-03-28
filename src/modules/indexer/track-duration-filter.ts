@@ -1,13 +1,13 @@
 import {
-  createIndexerConfigFile,
-  loadIndexerConfig,
-  saveIndexerConfig,
-} from "@/modules/indexer/indexer-config.repository"
-import {
   getDefaultTrackDurationFilterConfig,
   getTrackDurationFilterConfigState,
   setTrackDurationFilterConfigState,
 } from "@/modules/settings/settings.store"
+import {
+  createSettingsConfigFile,
+  loadSettingsConfig,
+  saveSettingsConfig,
+} from "@/modules/settings/settings.repository"
 import type {
   TrackDurationFilterConfig,
   TrackDurationFilterMode,
@@ -15,7 +15,7 @@ import type {
 
 export type { TrackDurationFilterConfig, TrackDurationFilterMode }
 
-const TRACK_DURATION_FILTER_FILE = createIndexerConfigFile(
+const TRACK_DURATION_FILTER_FILE = createSettingsConfigFile(
   "track-duration-filter.json"
 )
 
@@ -51,7 +51,7 @@ function sanitizeConfig(
 }
 
 async function persistConfig(config: TrackDurationFilterConfig): Promise<void> {
-  await saveIndexerConfig(TRACK_DURATION_FILTER_FILE, config)
+  await saveSettingsConfig(TRACK_DURATION_FILTER_FILE, config)
 }
 
 export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDurationFilterConfig> {
@@ -64,7 +64,7 @@ export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDura
   }
 
   loadPromise = (async () => {
-    const next = await loadIndexerConfig(
+    const next = await loadSettingsConfig(
       TRACK_DURATION_FILTER_FILE,
       getDefaultTrackDurationFilterConfig(),
       sanitizeConfig

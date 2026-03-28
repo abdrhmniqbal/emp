@@ -157,6 +157,7 @@ Rules:
 - provider effect components should delegate listener orchestration to runtime modules instead of duplicating event setup locally
 - local preference state should converge into `useSettingsStore` instead of being spread across separate per-setting Zustand stores
 - settings screens should read local preferences from `useSettingsStore` directly instead of going through per-setting selector wrappers
+- local settings persistence should converge into `settings.repository.ts` instead of being split across feature modules
 
 ### Module Shape
 

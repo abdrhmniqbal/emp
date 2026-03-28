@@ -1,19 +1,19 @@
 import {
-  createIndexerConfigFile,
-  loadIndexerConfig,
-  saveIndexerConfig,
-} from "@/modules/indexer/indexer-config.repository"
-import {
   getAutoScanEnabledState,
   getDefaultAutoScanEnabled,
   setAutoScanEnabledState,
 } from "@/modules/settings/settings.store"
+import {
+  createSettingsConfigFile,
+  loadSettingsConfig,
+  saveSettingsConfig,
+} from "@/modules/settings/settings.repository"
 
 interface AutoScanConfig {
   enabled: boolean
 }
 
-const AUTO_SCAN_FILE = createIndexerConfigFile("indexer-auto-scan.json")
+const AUTO_SCAN_FILE = createSettingsConfigFile("indexer-auto-scan.json")
 
 let loadPromise: Promise<boolean> | null = null
 let hasLoadedConfig = false
@@ -28,7 +28,7 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   }
 
   loadPromise = (async () => {
-    const config = await loadIndexerConfig(
+    const config = await loadSettingsConfig(
       AUTO_SCAN_FILE,
       { enabled: getDefaultAutoScanEnabled() },
       (parsed) => ({
@@ -53,6 +53,6 @@ export async function setAutoScanEnabled(enabled: boolean): Promise<boolean> {
   await ensureAutoScanConfigLoaded()
   setAutoScanEnabledState(enabled)
   hasLoadedConfig = true
-  await saveIndexerConfig(AUTO_SCAN_FILE, { enabled })
+  await saveSettingsConfig(AUTO_SCAN_FILE, { enabled })
   return enabled
 }

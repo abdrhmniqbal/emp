@@ -1,10 +1,10 @@
 import { File, Paths } from "expo-file-system"
 
-export function createIndexerConfigFile(fileName: string) {
+export function createSettingsConfigFile(fileName: string) {
   return new File(Paths.document, fileName)
 }
 
-export async function loadIndexerConfig<T>(
+export async function loadSettingsConfig<T>(
   file: File,
   fallback: T,
   sanitize: (config: Partial<T>) => T
@@ -22,7 +22,7 @@ export async function loadIndexerConfig<T>(
   }
 }
 
-export async function saveIndexerConfig<T>(
+export async function saveSettingsConfig<T>(
   file: File,
   config: T
 ): Promise<void> {

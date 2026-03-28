@@ -1,4 +1,3 @@
-import { File, Paths } from "expo-file-system"
 import {
   getDefaultLoggingConfig,
   getLoggingConfigState as getSettingsLoggingConfigState,
@@ -6,10 +5,15 @@ import {
   useSettingsStore,
 } from "@/modules/settings/settings.store"
 import type { AppLogLevel, LoggingConfig } from "@/modules/settings/settings.types"
+import {
+  createSettingsConfigFile,
+  loadSettingsConfig,
+  saveSettingsConfig,
+} from "@/modules/settings/settings.repository"
 
 export type { AppLogLevel, LoggingConfig }
 
-const LOG_CONFIG_FILE = new File(Paths.document, "logging-config.json")
+const LOG_CONFIG_FILE = createSettingsConfigFile("logging-config.json")
 
 let configLoadPromise: Promise<LoggingConfig> | null = null
 let hasLoadedConfig = false
@@ -43,14 +47,7 @@ function sanitizeConfig(value: Partial<LoggingConfig>): LoggingConfig {
 }
 
 async function persistConfig(config: LoggingConfig): Promise<void> {
-  if (!LOG_CONFIG_FILE.exists) {
-    LOG_CONFIG_FILE.create({
-      intermediates: true,
-      overwrite: true,
-    })
-  }
-
-  LOG_CONFIG_FILE.write(JSON.stringify(config), { encoding: "utf8" })
+  await saveSettingsConfig(LOG_CONFIG_FILE, config)
 }
 
 export async function ensureLoggingConfigLoaded(): Promise<LoggingConfig> {
@@ -64,14 +61,11 @@ export async function ensureLoggingConfigLoaded(): Promise<LoggingConfig> {
 
   configLoadPromise = (async () => {
     try {
-      if (!LOG_CONFIG_FILE.exists) {
-        setLoggingConfigState(getDefaultLoggingConfig())
-        hasLoadedConfig = true
-        return getDefaultLoggingConfig()
-      }
-
-      const raw = await LOG_CONFIG_FILE.text()
-      const parsed = sanitizeConfig(JSON.parse(raw) as Partial<LoggingConfig>)
+      const parsed = await loadSettingsConfig(
+        LOG_CONFIG_FILE,
+        getDefaultLoggingConfig(),
+        sanitizeConfig
+      )
       setLoggingConfigState(parsed)
       hasLoadedConfig = true
       return parsed
