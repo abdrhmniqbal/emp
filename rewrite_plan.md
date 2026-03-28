@@ -397,6 +397,9 @@ Performance is a first-class rewrite track.
   - `src/modules/tracks/track-cleanup.api.ts` -> `src/modules/tracks/track-cleanup.repository.ts`
 - [x] unused legacy hook removed:
   - `src/hooks/use-swipe-navigation.ts`
+- [x] reusable folder-browser hook flattened:
+  - `src/modules/library/hooks/use-folder-browser.ts` was replaced by `src/modules/library/folder-browser.ts`
+  - folder navigation state now lives directly in `src/app/(main)/(library)/index.tsx`
 
 These are now treated as groundwork, not the finish line.
 

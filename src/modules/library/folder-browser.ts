@@ -1,11 +1,6 @@
 import type { Folder, FolderBreadcrumb } from "@/components/blocks/folder-list"
-
-import type {
-  SortConfig,
-  SortOrder,
-} from "@/modules/library/library-sort.store"
-import type { Track } from "@/modules/player/player.store"
-import { useState } from "react"
+import type { SortConfig, SortOrder } from "@/modules/library/library-sort.store"
+import type { Track } from "@/modules/player/player.types"
 
 interface FolderNode {
   name: string
@@ -14,7 +9,7 @@ interface FolderNode {
   tracks: Track[]
 }
 
-interface FolderBrowserState {
+export interface FolderBrowserState {
   folders: Folder[]
   tracks: Track[]
   breadcrumbs: FolderBreadcrumb[]
@@ -60,7 +55,6 @@ function trimDeviceRootSegments(segments: string[]): string[] {
   }
 
   if (segments.length >= 2 && segments[0]?.toLowerCase() === "storage") {
-    // /storage/<volume>/<folder>/... -> hide storage root + volume id.
     return segments.slice(2)
   }
 
@@ -220,13 +214,25 @@ function sortFolderTracks(tracks: Track[], sortConfig: SortConfig): Track[] {
       return compareNumbers(a.dateAdded || 0, b.dateAdded || 0, order)
     }
 
-    const aTitle = (a.title || a.filename || "").toLowerCase()
-    const bTitle = (b.title || b.filename || "").toLowerCase()
-    return compareText(aTitle, bTitle, order)
+    return compareText(
+      a.title || a.filename || "",
+      b.title || b.filename || "",
+      order
+    )
   })
 }
 
-function buildFolderBrowserState(
+export function getParentFolderPath(path: string): string {
+  if (!path) {
+    return ""
+  }
+
+  const segments = path.split("/").filter(Boolean)
+  segments.pop()
+  return segments.join("/")
+}
+
+export function buildFolderBrowserState(
   tracks: Track[],
   currentPath: string,
   sortConfig: SortConfig
@@ -245,48 +251,9 @@ function buildFolderBrowserState(
     sortConfig
   ).map(({ latestDateAdded: _latestDateAdded, ...folder }) => folder)
 
-  const folderTracks = sortFolderTracks(currentNode.tracks, sortConfig)
-  const breadcrumbs = buildBreadcrumbs(currentNode.path)
-
   return {
     folders,
-    tracks: folderTracks,
-    breadcrumbs,
-  }
-}
-
-export function useFolderBrowser(tracks: Track[], sortConfig: SortConfig) {
-  const [currentFolderPath, setCurrentFolderPath] = useState("")
-  const folderBrowser = buildFolderBrowserState(
-    tracks,
-    currentFolderPath,
-    sortConfig
-  )
-
-  function openFolder(path: string) {
-    setCurrentFolderPath(path)
-  }
-
-  function goBackFolder() {
-    if (!currentFolderPath) {
-      return
-    }
-
-    const segments = currentFolderPath.split("/").filter(Boolean)
-    segments.pop()
-    setCurrentFolderPath(segments.join("/"))
-  }
-
-  function navigateToFolderPath(path: string) {
-    setCurrentFolderPath(path)
-  }
-
-  return {
-    folders: folderBrowser.folders,
-    folderTracks: folderBrowser.tracks,
-    folderBreadcrumbs: folderBrowser.breadcrumbs,
-    openFolder,
-    goBackFolder,
-    navigateToFolderPath,
+    tracks: sortFolderTracks(currentNode.tracks, sortConfig),
+    breadcrumbs: buildBreadcrumbs(currentNode.path),
   }
 }

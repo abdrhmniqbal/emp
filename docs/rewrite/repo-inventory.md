@@ -144,13 +144,18 @@ These should still be reviewed and likely deleted or absorbed:
 These are not screen hooks anymore, but still need to be justified:
 
 - `src/modules/bootstrap/hooks/use-app-bootstrap.ts`
-- `src/modules/library/hooks/use-folder-browser.ts`
 - `src/modules/playlist/hooks/use-playlist-form.ts`
 - `src/hooks/use-theme-colors.ts`
 
 ### Removed unused hooks
 
 - `src/hooks/use-swipe-navigation.ts`
+
+### Flattened hooks
+
+- `src/modules/library/hooks/use-folder-browser.ts`
+  - replaced by `src/modules/library/folder-browser.ts`
+  - folder path state now lives directly in `src/app/(main)/(library)/index.tsx`
 
 ## Recommended Execution Order
 

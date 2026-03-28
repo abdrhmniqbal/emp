@@ -29,6 +29,10 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useFavorites } from "@/modules/favorites/favorites.queries"
 import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import {
+  buildFolderBrowserState,
+  getParentFolderPath,
+} from "@/modules/library/folder-browser"
 import { useAlbums, useArtists } from "@/modules/library/library.queries"
 import {
   ALBUM_SORT_OPTIONS,
@@ -42,7 +46,6 @@ import {
   type SortField,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
-import { useFolderBrowser } from "@/modules/library/hooks/use-folder-browser"
 import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
 import type { Playlist } from "@/components/blocks/playlist-list"
@@ -83,6 +86,7 @@ export default function LibraryScreen() {
   const libraryListBottomPadding =
     tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 200
   const [activeTab, setActiveTab] = React.useState<LibraryTab>("Tracks")
+  const [currentFolderPath, setCurrentFolderPath] = React.useState("")
   const [sortModalVisible, setSortModalVisible] = React.useState(false)
   const [isPullRefreshing, setIsPullRefreshing] = React.useState(false)
   const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
@@ -132,14 +136,16 @@ export default function LibraryScreen() {
     allSortConfigs.Playlists
   )
 
-  const {
-    folders,
-    folderTracks,
-    folderBreadcrumbs,
-    openFolder,
-    goBackFolder,
-    navigateToFolderPath,
-  } = useFolderBrowser(tracks, allSortConfigs.Folders)
+  const { folders, tracks: folderTracks, breadcrumbs: folderBreadcrumbs } =
+    React.useMemo(
+      () =>
+        buildFolderBrowserState(
+          tracks,
+          currentFolderPath,
+          allSortConfigs.Folders
+        ),
+      [allSortConfigs.Folders, currentFolderPath, tracks]
+    )
 
   const showPlayButtons = activeTab === "Tracks" || activeTab === "Favorites"
   const currentSortOptions = LIBRARY_SORT_OPTIONS[activeTab]
@@ -172,6 +178,18 @@ export default function LibraryScreen() {
 
   function openPlaylistForm() {
     router.push("/playlist/form")
+  }
+
+  function openFolder(path: string) {
+    setCurrentFolderPath(path)
+  }
+
+  function goBackFolder() {
+    setCurrentFolderPath((currentPath) => getParentFolderPath(currentPath))
+  }
+
+  function navigateToFolderPath(path: string) {
+    setCurrentFolderPath(path)
   }
 
   function playFolderTrack(track: Track) {
