@@ -1,54 +1,39 @@
-import { create } from "zustand"
-
 import {
   createIndexerConfigFile,
   loadIndexerConfig,
   saveIndexerConfig,
 } from "@/modules/indexer/indexer-config.repository"
+import {
+  getDefaultTrackDurationFilterConfig,
+  getTrackDurationFilterConfigState,
+  setTrackDurationFilterConfigState,
+  useSettingsStore,
+} from "@/modules/settings/settings.store"
+import type {
+  TrackDurationFilterConfig,
+  TrackDurationFilterMode,
+} from "@/modules/settings/settings.types"
 
-export type TrackDurationFilterMode =
-  | "off"
-  | "min30s"
-  | "min60s"
-  | "min120s"
-  | "custom"
-
-export interface TrackDurationFilterConfig {
-  mode: TrackDurationFilterMode
-  customMinimumSeconds: number
-}
+export type { TrackDurationFilterConfig, TrackDurationFilterMode }
 
 const TRACK_DURATION_FILTER_FILE = createIndexerConfigFile(
   "track-duration-filter.json"
 )
-const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
-  mode: "off",
-  customMinimumSeconds: 180,
-}
-
-interface TrackDurationFilterStoreState {
-  trackDurationFilterConfig: TrackDurationFilterConfig
-}
-
-export const useTrackDurationFilterStore =
-  create<TrackDurationFilterStoreState>(() => ({
-    trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
-  }))
-
-function getTrackDurationFilterConfigState() {
-  return useTrackDurationFilterStore.getState().trackDurationFilterConfig
-}
-
-function setTrackDurationFilterConfigState(value: TrackDurationFilterConfig) {
-  useTrackDurationFilterStore.setState({ trackDurationFilterConfig: value })
-}
 
 let loadPromise: Promise<TrackDurationFilterConfig> | null = null
 let hasLoadedConfig = false
 
+export function useTrackDurationFilterStore<T>(
+  selector: (state: { trackDurationFilterConfig: TrackDurationFilterConfig }) => T
+) {
+  return useSettingsStore((state) =>
+    selector({ trackDurationFilterConfig: state.trackDurationFilterConfig })
+  )
+}
+
 function clampCustomSeconds(value: number): number {
   if (!Number.isFinite(value)) {
-    return DEFAULT_TRACK_DURATION_FILTER.customMinimumSeconds
+    return getDefaultTrackDurationFilterConfig().customMinimumSeconds
   }
 
   return Math.max(0, Math.min(1200, Math.round(value)))
@@ -69,7 +54,7 @@ function sanitizeConfig(
     mode,
     customMinimumSeconds: clampCustomSeconds(
       config.customMinimumSeconds ??
-        DEFAULT_TRACK_DURATION_FILTER.customMinimumSeconds
+        getDefaultTrackDurationFilterConfig().customMinimumSeconds
     ),
   }
 }
@@ -90,7 +75,7 @@ export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDura
   loadPromise = (async () => {
     const next = await loadIndexerConfig(
       TRACK_DURATION_FILTER_FILE,
-      DEFAULT_TRACK_DURATION_FILTER,
+      getDefaultTrackDurationFilterConfig(),
       sanitizeConfig
     )
     setTrackDurationFilterConfigState(next)

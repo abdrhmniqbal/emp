@@ -155,6 +155,7 @@ Rules:
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects
 - provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
 - provider effect components should delegate listener orchestration to runtime modules instead of duplicating event setup locally
+- local preference state should converge into `useSettingsStore` instead of being spread across separate per-setting Zustand stores
 
 ### Module Shape
 

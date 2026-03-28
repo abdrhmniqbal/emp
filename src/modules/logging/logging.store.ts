@@ -1,39 +1,25 @@
 import { File, Paths } from "expo-file-system"
-import { create } from "zustand"
+import {
+  getDefaultLoggingConfig,
+  getLoggingConfigState,
+  setLoggingConfigState,
+  useSettingsStore,
+} from "@/modules/settings/settings.store"
+import type { AppLogLevel, LoggingConfig } from "@/modules/settings/settings.types"
 
-export type AppLogLevel = "minimal" | "extra"
-
-export interface LoggingConfig {
-  level: AppLogLevel
-}
-
-const DEFAULT_LOGGING_CONFIG: LoggingConfig = {
-  level: "minimal",
-}
+export type { AppLogLevel, LoggingConfig }
 
 const LOG_CONFIG_FILE = new File(Paths.document, "logging-config.json")
-
-interface LoggingStoreState {
-  loggingConfig: LoggingConfig
-}
-
-export const useLoggingStore = create<LoggingStoreState>(() => ({
-  loggingConfig: DEFAULT_LOGGING_CONFIG,
-}))
 
 let configLoadPromise: Promise<LoggingConfig> | null = null
 let hasLoadedConfig = false
 
-export function getDefaultLoggingConfig() {
-  return DEFAULT_LOGGING_CONFIG
-}
-
-export function getLoggingConfigState() {
-  return useLoggingStore.getState().loggingConfig
-}
-
-export function setLoggingConfigState(value: LoggingConfig) {
-  useLoggingStore.setState({ loggingConfig: value })
+export function useLoggingStore<T>(
+  selector: (state: { loggingConfig: LoggingConfig }) => T
+) {
+  return useSettingsStore((state) =>
+    selector({ loggingConfig: state.loggingConfig })
+  )
 }
 
 function isValidLogLevel(value: unknown): value is AppLogLevel {
@@ -44,7 +30,7 @@ function sanitizeConfig(value: Partial<LoggingConfig>): LoggingConfig {
   return {
     level: isValidLogLevel(value.level)
       ? value.level
-      : DEFAULT_LOGGING_CONFIG.level,
+      : getDefaultLoggingConfig().level,
   }
 }
 
@@ -71,9 +57,9 @@ export async function ensureLoggingConfigLoaded(): Promise<LoggingConfig> {
   configLoadPromise = (async () => {
     try {
       if (!LOG_CONFIG_FILE.exists) {
-        setLoggingConfigState(DEFAULT_LOGGING_CONFIG)
+        setLoggingConfigState(getDefaultLoggingConfig())
         hasLoadedConfig = true
-        return DEFAULT_LOGGING_CONFIG
+        return getDefaultLoggingConfig()
       }
 
       const raw = await LOG_CONFIG_FILE.text()
@@ -82,9 +68,9 @@ export async function ensureLoggingConfigLoaded(): Promise<LoggingConfig> {
       hasLoadedConfig = true
       return parsed
     } catch {
-      setLoggingConfigState(DEFAULT_LOGGING_CONFIG)
+      setLoggingConfigState(getDefaultLoggingConfig())
       hasLoadedConfig = true
-      return DEFAULT_LOGGING_CONFIG
+      return getDefaultLoggingConfig()
     }
   })()
 

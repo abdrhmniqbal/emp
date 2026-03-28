@@ -1,40 +1,35 @@
-import { create } from "zustand"
-
 import {
   createIndexerConfigFile,
   loadIndexerConfig,
   saveIndexerConfig,
 } from "@/modules/indexer/indexer-config.repository"
+import {
+  getAutoScanEnabledState,
+  getDefaultAutoScanEnabled,
+  setAutoScanEnabledState,
+  useSettingsStore,
+} from "@/modules/settings/settings.store"
 
 interface AutoScanConfig {
   enabled: boolean
 }
 
 const AUTO_SCAN_FILE = createIndexerConfigFile("indexer-auto-scan.json")
-const DEFAULT_AUTO_SCAN_ENABLED = true
-
-interface AutoScanState {
-  autoScanEnabled: boolean
-}
-
-export const useAutoScanStore = create<AutoScanState>(() => ({
-  autoScanEnabled: DEFAULT_AUTO_SCAN_ENABLED,
-}))
-
-function getAutoScanEnabled() {
-  return useAutoScanStore.getState().autoScanEnabled
-}
-
-function setAutoScanEnabledState(value: boolean) {
-  useAutoScanStore.setState({ autoScanEnabled: value })
-}
 
 let loadPromise: Promise<boolean> | null = null
 let hasLoadedConfig = false
 
+export function useAutoScanStore<T>(
+  selector: (state: { autoScanEnabled: boolean }) => T
+) {
+  return useSettingsStore((state) =>
+    selector({ autoScanEnabled: state.autoScanEnabled })
+  )
+}
+
 export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   if (hasLoadedConfig) {
-    return getAutoScanEnabled()
+    return getAutoScanEnabledState()
   }
 
   if (loadPromise) {
@@ -44,12 +39,12 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   loadPromise = (async () => {
     const config = await loadIndexerConfig(
       AUTO_SCAN_FILE,
-      { enabled: DEFAULT_AUTO_SCAN_ENABLED },
+      { enabled: getDefaultAutoScanEnabled() },
       (parsed) => ({
         enabled:
           typeof parsed.enabled === "boolean"
             ? parsed.enabled
-            : DEFAULT_AUTO_SCAN_ENABLED,
+            : getDefaultAutoScanEnabled(),
       })
     )
 
