@@ -50,7 +50,8 @@ import {
   setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
-import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import { type Track, usePlayerStore } from "@/modules/player/player.store"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
 import type { Playlist } from "@/components/blocks/playlist-list"
 

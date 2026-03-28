@@ -54,7 +54,8 @@ import {
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
 import { useTracksByArtistName } from "@/modules/library/library.queries"
-import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import { type Track, usePlayerStore } from "@/modules/player/player.store"
 import { cn } from "@/utils/common"
 
 const SCREEN_WIDTH = Dimensions.get("window").width

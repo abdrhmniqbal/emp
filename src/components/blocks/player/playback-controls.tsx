@@ -14,9 +14,11 @@ import { useThemeColors } from "@/modules/ui/theme"
 import {
   playNext,
   playPrevious,
-  type RepeatModeType,
   togglePlayback,
   toggleRepeatMode,
+} from "@/modules/player/player.service"
+import {
+  type RepeatModeType,
   usePlayerStore,
 } from "@/modules/player/player.store"
 import { toggleShuffle } from "@/modules/player/queue.store"

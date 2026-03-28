@@ -119,21 +119,3 @@ export function setIsShuffledState(value: boolean) {
   usePlayerStore.setState({ isShuffled: value })
 }
 
-export {
-  loadTracks,
-  pauseTrack,
-  PlaybackService,
-  persistPlaybackSession,
-  playNext,
-  playPrevious,
-  playTrack,
-  restorePlaybackSession,
-  resumeTrack,
-  seekTo,
-  setRepeatMode,
-  setupPlayer,
-  syncCurrentTrackFromPlayer,
-  toggleFavorite,
-  togglePlayback,
-  toggleRepeatMode,
-} from "./player.service"

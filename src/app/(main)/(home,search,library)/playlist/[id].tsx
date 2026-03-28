@@ -28,7 +28,7 @@ import {
   useIsFavorite,
 } from "@/modules/favorites/favorites.queries"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
-import { playTrack } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
 import { usePlaylist } from "@/modules/playlist/playlist.queries"
 import { useDeletePlaylist } from "@/modules/playlist/playlist.mutations"
 import { formatDuration } from "@/modules/playlist/playlist.utils"

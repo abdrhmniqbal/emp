@@ -22,7 +22,8 @@ import {
   useIsFavorite,
 } from "@/modules/favorites/favorites.queries"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
-import { playTrack, type Track } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import type { Track } from "@/modules/player/player.store"
 import { addToQueue, playNext } from "@/modules/player/queue.store"
 import {
   useAddTrackToPlaylist,

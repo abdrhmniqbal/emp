@@ -144,6 +144,7 @@ Rules:
 - compatibility-style `$...` exports should keep shrinking until they are gone
 - player state helpers should use explicit getters and setters instead of compatibility-shaped wrapper objects
 - shared UI theme helpers should live under `src/modules/ui`, not `src/hooks`
+- player runtime commands should be imported from `player.service.ts`, not re-exported through `player.store.ts`
 
 ### Module Shape
 

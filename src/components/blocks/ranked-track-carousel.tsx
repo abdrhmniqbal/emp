@@ -3,11 +3,8 @@ import { View } from "react-native"
 
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
-import {
-  playTrack,
-  usePlayerStore,
-  type Track,
-} from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import { usePlayerStore, type Track } from "@/modules/player/player.store"
 import { chunkArray } from "@/utils/array"
 
 import { MediaCarousel } from "./media-carousel"

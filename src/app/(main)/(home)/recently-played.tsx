@@ -14,7 +14,7 @@ import { useThemeColors } from "@/modules/ui/theme"
 import { useRecentlyPlayedTracks } from "@/modules/history/history.queries"
 import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { playTrack } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
 
 const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 

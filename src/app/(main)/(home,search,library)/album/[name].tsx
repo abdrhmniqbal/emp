@@ -35,7 +35,8 @@ import {
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
 import { useTracksByAlbumName } from "@/modules/library/library.queries"
-import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import { type Track, usePlayerStore } from "@/modules/player/player.store"
 import { mergeText } from "@/utils/merge-text"
 
 const HEADER_COLLAPSE_THRESHOLD = 120

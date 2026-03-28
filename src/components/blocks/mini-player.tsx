@@ -12,11 +12,8 @@ import {
   openPlayer,
 } from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/modules/ui/theme"
-import {
-  playNext,
-  togglePlayback,
-  usePlayerStore,
-} from "@/modules/player/player.store"
+import { playNext, togglePlayback } from "@/modules/player/player.service"
+import { usePlayerStore } from "@/modules/player/player.store"
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
 import LocalQueueIcon from "../icons/local/queue"

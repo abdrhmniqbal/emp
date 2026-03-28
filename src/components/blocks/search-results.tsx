@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/modules/ui/theme"
-import { playTrack, type Track } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import type { Track } from "@/modules/player/player.store"
 
 const SEARCH_TABS = ["All", "Track", "Album", "Artist", "Playlist"] as const
 export type SearchTab = (typeof SEARCH_TABS)[number]

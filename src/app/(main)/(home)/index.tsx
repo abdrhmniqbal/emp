@@ -22,11 +22,8 @@ import {
 } from "@/modules/history/history.queries"
 import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import {
-  playTrack,
-  usePlayerStore,
-  type Track,
-} from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import { usePlayerStore, type Track } from "@/modules/player/player.store"
 
 const CHUNK_SIZE = 5
 const RECENTLY_PLAYED_LIMIT = 8

@@ -19,7 +19,7 @@ import {
 import { useThemeColors } from "@/modules/ui/theme"
 import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { playTrack } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
 import { useGenreTopTracks } from "@/modules/search/search.queries"
 
 export default function GenreTopTracksScreen() {

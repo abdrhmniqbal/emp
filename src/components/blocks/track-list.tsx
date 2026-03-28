@@ -22,11 +22,8 @@ import { TrackRow } from "@/components/patterns/track-row"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ScaleLoader } from "@/components/ui/scale-loader"
 import { useThemeColors } from "@/modules/ui/theme"
-import {
-  playTrack,
-  usePlayerStore,
-  type Track,
-} from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import { usePlayerStore, type Track } from "@/modules/player/player.store"
 
 interface TrackListProps {
   data: Track[]

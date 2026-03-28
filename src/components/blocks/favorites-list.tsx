@@ -33,7 +33,8 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/modules/ui/theme"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
-import { playTrack, usePlayerStore } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import { usePlayerStore } from "@/modules/player/player.store"
 
 interface FavoritesListProps {
   data: FavoriteEntry[]

@@ -21,7 +21,7 @@ import { useThemeColors } from "@/modules/ui/theme"
 import { useTopTracksByPeriod } from "@/modules/history/history.queries"
 import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { playTrack } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
 import type { HistoryTopTracksPeriod as TopTracksPeriod } from "@/modules/history/history.types"
 
 const TOP_TRACKS_TABS = ["Realtime", "Daily", "Weekly"] as const

@@ -12,7 +12,8 @@ import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
-import { playTrack, type Track } from "@/modules/player/player.store"
+import { playTrack } from "@/modules/player/player.service"
+import type { Track } from "@/modules/player/player.store"
 import {
   getQueueState,
   moveInQueue,

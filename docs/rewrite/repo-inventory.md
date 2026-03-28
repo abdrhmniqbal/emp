@@ -227,6 +227,7 @@ Progress:
 - dead compatibility file `src/modules/player/player.computed.ts` was removed
 - dead compatibility file `src/modules/player/player.queries.ts` was removed
 - player state and queue helpers no longer expose `$...` compatibility wrappers internally
+- player state and playback commands no longer share the same public import surface
 - `src/modules/player/queue.store.ts` no longer maintains the legacy `$queueInfo` export
 
 ### Slice 5
