@@ -35,10 +35,12 @@ export const useTrackDurationFilterStore =
     trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
   }))
 
-export const $trackDurationFilterConfig = {
-  get: () => useTrackDurationFilterStore.getState().trackDurationFilterConfig,
-  set: (value: TrackDurationFilterConfig) =>
-    useTrackDurationFilterStore.setState({ trackDurationFilterConfig: value }),
+function getTrackDurationFilterConfigState() {
+  return useTrackDurationFilterStore.getState().trackDurationFilterConfig
+}
+
+function setTrackDurationFilterConfigState(value: TrackDurationFilterConfig) {
+  useTrackDurationFilterStore.setState({ trackDurationFilterConfig: value })
 }
 
 let loadPromise: Promise<TrackDurationFilterConfig> | null = null
@@ -78,7 +80,7 @@ async function persistConfig(config: TrackDurationFilterConfig): Promise<void> {
 
 export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDurationFilterConfig> {
   if (hasLoadedConfig) {
-    return $trackDurationFilterConfig.get()
+    return getTrackDurationFilterConfigState()
   }
 
   if (loadPromise) {
@@ -91,7 +93,7 @@ export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDura
       DEFAULT_TRACK_DURATION_FILTER,
       sanitizeConfig
     )
-    $trackDurationFilterConfig.set(next)
+    setTrackDurationFilterConfigState(next)
     hasLoadedConfig = true
     return next
   })()
@@ -105,9 +107,9 @@ export async function setTrackDurationFilterConfig(
   updates: Partial<TrackDurationFilterConfig>
 ): Promise<TrackDurationFilterConfig> {
   await ensureTrackDurationFilterConfigLoaded()
-  const current = $trackDurationFilterConfig.get()
+  const current = getTrackDurationFilterConfigState()
   const next = sanitizeConfig({ ...current, ...updates })
-  $trackDurationFilterConfig.set(next)
+  setTrackDurationFilterConfigState(next)
   hasLoadedConfig = true
   await persistConfig(next)
   return next

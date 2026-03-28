@@ -34,9 +34,12 @@ export const useIndexerStore = create<IndexerStoreState>(() => ({
   indexerState: DEFAULT_INDEXER_STATE,
 }))
 
-export const $indexerState = {
-  get: () => useIndexerStore.getState().indexerState,
-  set: (value: IndexerState) => useIndexerStore.setState({ indexerState: value }),
+function getIndexerState() {
+  return useIndexerStore.getState().indexerState
+}
+
+function setIndexerState(value: IndexerState) {
+  useIndexerStore.setState({ indexerState: value })
 }
 
 let abortController: AbortController | null = null
@@ -47,14 +50,14 @@ let queuedForceFullScan = false
 let queuedShowProgress = false
 
 function updateState(updates: Partial<IndexerState>) {
-  $indexerState.set({ ...$indexerState.get(), ...updates })
+  setIndexerState({ ...getIndexerState(), ...updates })
 }
 
 export async function startIndexing(
   forceFullScan = false,
   showProgress = true
 ) {
-  const current = $indexerState.get()
+  const current = getIndexerState()
   if (current.isIndexing) {
     // Queue the next run so library changes that happen during indexing
     // (including deletions) are not dropped.
@@ -127,8 +130,8 @@ export async function startIndexing(
     })
     logInfo("Indexer completed successfully", {
       forceFullScan,
-      processedFiles: $indexerState.get().processedFiles,
-      totalFiles: $indexerState.get().totalFiles,
+      processedFiles: getIndexerState().processedFiles,
+      totalFiles: getIndexerState().totalFiles,
     })
 
     // Reset to idle after 3 seconds
@@ -210,7 +213,7 @@ export function pauseIndexing() {
 }
 
 export function resumeIndexing() {
-  const state = $indexerState.get()
+  const state = getIndexerState()
   if (state.phase === "paused" || !state.isIndexing) {
     logInfo("Indexer resume requested")
     startIndexing(false)

@@ -21,9 +21,12 @@ export const useAutoScanStore = create<AutoScanState>(() => ({
   autoScanEnabled: DEFAULT_AUTO_SCAN_ENABLED,
 }))
 
-export const $autoScanEnabled = {
-  get: () => useAutoScanStore.getState().autoScanEnabled,
-  set: (value: boolean) => useAutoScanStore.setState({ autoScanEnabled: value }),
+function getAutoScanEnabled() {
+  return useAutoScanStore.getState().autoScanEnabled
+}
+
+function setAutoScanEnabledState(value: boolean) {
+  useAutoScanStore.setState({ autoScanEnabled: value })
 }
 
 let loadPromise: Promise<boolean> | null = null
@@ -31,7 +34,7 @@ let hasLoadedConfig = false
 
 export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   if (hasLoadedConfig) {
-    return $autoScanEnabled.get()
+    return getAutoScanEnabled()
   }
 
   if (loadPromise) {
@@ -50,7 +53,7 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
       })
     )
 
-    $autoScanEnabled.set(config.enabled)
+    setAutoScanEnabledState(config.enabled)
     hasLoadedConfig = true
     return config.enabled
   })()
@@ -62,7 +65,7 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
 
 export async function setAutoScanEnabled(enabled: boolean): Promise<boolean> {
   await ensureAutoScanConfigLoaded()
-  $autoScanEnabled.set(enabled)
+  setAutoScanEnabledState(enabled)
   hasLoadedConfig = true
   await saveIndexerConfig(AUTO_SCAN_FILE, { enabled })
   return enabled

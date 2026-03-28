@@ -134,6 +134,7 @@ Rules:
 - repositories own database and native IO
 - services own imperative runtime integration
 - presentational components should not know how persistence works
+- compatibility-style `$...` exports should keep shrinking until they are gone
 
 ### Module Shape
 
@@ -413,6 +414,7 @@ Performance is a first-class rewrite track.
   - bootstrap now logs startup phases, permission resolution, and scheduled auto-index runs
   - indexer now logs run start, queueing, completion, stop, resume, and fatal failures
   - player runtime now logs setup, session restore, transport commands, and failure paths
+  - indexer config and state modules no longer use `$...` compatibility exports internally
 
 These are now treated as groundwork, not the finish line.
 
