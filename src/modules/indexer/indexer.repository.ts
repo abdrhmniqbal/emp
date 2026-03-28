@@ -13,7 +13,7 @@ import {
 import {
   ensureFolderFilterConfigLoaded,
   isAssetAllowedByFolderFilters,
-} from "@/modules/indexer/folder-filters"
+} from "@/modules/settings/folder-filters"
 
 import {
   ensureTrackDurationFilterConfigLoaded,

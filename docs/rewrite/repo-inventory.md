@@ -227,6 +227,7 @@ Progress:
 - auto scan, track duration filter, and logging config now share `src/modules/settings/settings.store.ts`
 - folder filter config now shares `src/modules/settings/settings.store.ts` too
 - auto scan and track-duration config ownership now live under `src/modules/settings`
+- folder-filter config helpers now live under `src/modules/settings/folder-filters.ts`
 - settings screens now read local preferences directly from `useSettingsStore`
 - local settings persistence now shares `src/modules/settings/settings.repository.ts`
 - local settings config is now preloaded during bootstrap instead of being loaded separately by library and logging settings screens
