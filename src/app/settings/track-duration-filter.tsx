@@ -7,7 +7,7 @@ import { useThemeColors } from "@/modules/ui/theme"
 import {
   setTrackDurationFilterConfig,
   type TrackDurationFilterMode,
-} from "@/modules/indexer/track-duration-filter"
+} from "@/modules/settings/track-duration-filter"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { useSettingsStore } from "@/modules/settings/settings.store"

@@ -18,7 +18,7 @@ import {
 import {
   ensureTrackDurationFilterConfigLoaded,
   isAssetAllowedByTrackDuration,
-} from "@/modules/indexer/track-duration-filter"
+} from "@/modules/settings/track-duration-filter"
 import { logError } from "@/modules/logging/logging.service"
 import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.repository"
 import { extractMetadata, saveArtworkToCache } from "./metadata.repository"

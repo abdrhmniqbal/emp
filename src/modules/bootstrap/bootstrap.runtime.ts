@@ -3,7 +3,7 @@ import { AppState, type AppStateStatus } from "react-native"
 
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
-import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
+import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import {
   initializeLogging,

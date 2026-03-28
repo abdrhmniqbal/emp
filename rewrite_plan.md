@@ -160,6 +160,7 @@ Rules:
 - settings screens should read local preferences from `useSettingsStore` directly instead of going through per-setting selector wrappers
 - local settings persistence should converge into `settings.repository.ts` instead of being split across feature modules
 - folder filter state should live in `useSettingsStore`, even when folder-filter logic still belongs to indexer helpers
+- auto scan and track-duration preference ownership should live under `src/modules/settings`, even when indexer consumes the resulting config
 
 ### Module Shape
 

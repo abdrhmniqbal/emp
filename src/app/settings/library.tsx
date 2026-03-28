@@ -6,12 +6,12 @@ import { ScrollView, View } from "react-native"
 import { SettingsRow } from "@/components/patterns/settings-row"
 import {
   setAutoScanEnabled,
-} from "@/modules/indexer/auto-scan"
+} from "@/modules/settings/auto-scan"
 import { forceReindexLibrary } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import {
   getTrackDurationFilterLabel,
-} from "@/modules/indexer/track-duration-filter"
+} from "@/modules/settings/track-duration-filter"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 
 export default function LibrarySettingsScreen() {
