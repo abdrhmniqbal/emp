@@ -48,6 +48,13 @@ A module is considered `aligned` only if it mostly satisfies these:
   - local settings config is now preloaded during bootstrap, which reduces mount-time effects in settings screens
   - should be revisited together with provider simplification
 
+### `providers`
+
+- status: `partial`
+- notes:
+  - `DatabaseProvider` is leaner now and reports ready/error from the actual async startup path
+  - provider/runtime effects still deserve another simplification pass later
+
 ### `device`
 
 - status: `partial`

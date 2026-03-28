@@ -225,6 +225,7 @@ Progress:
 - logging config now lives in `src/modules/logging/logging.store.ts`, while runtime logging and crash-log sharing now live in `src/modules/logging/logging.service.ts`
 - settings route metadata now lives in `src/modules/settings/settings.routes.ts`, and shared settings row UI now lives in `src/components/patterns/settings-row.tsx`
 - local settings config is now preloaded during bootstrap instead of being loaded separately by library and logging settings screens
+- `DatabaseProvider` now reports ready/error from the actual migration/load path instead of separate watcher effects
 - destructive track deletion and track file opening now log native and cleanup failures
 - battery optimization helpers now log unsupported paths, requests, and failures
 - track file opening now runs through `src/modules/device/file-viewer.ts` instead of living in `track-action-sheet.tsx`

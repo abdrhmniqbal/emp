@@ -153,6 +153,7 @@ Rules:
 - logging config state should live in `logging.store.ts`, while runtime logging, file persistence, and crash sharing should live in `logging.service.ts`
 - settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects
+- provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
 
 ### Module Shape
 

@@ -16,58 +16,63 @@ export function DatabaseProvider({
   onReady?: () => void
   onError?: () => void
 }) {
-  const [hasLoadedTracks, setHasLoadedTracks] = useState(false)
-  const [loadError, setLoadError] = useState<Error | null>(null)
-  const hasNotifiedReadyRef = useRef(false)
-  const hasNotifiedErrorRef = useRef(false)
+  const [databaseError, setDatabaseError] = useState<Error | null>(null)
+  const [isReady, setIsReady] = useState(false)
+  const lifecycleRef = useRef<"idle" | "loading" | "ready" | "error">("idle")
   const { success, error } = useMigrations(db, migrations)
 
   useEffect(() => {
-    if (!success) {
+    if (error) {
+      if (lifecycleRef.current === "error") {
+        return
+      }
+
+      lifecycleRef.current = "error"
+      setDatabaseError(error)
+      logError("Database provider failed", error)
+      onError?.()
       return
     }
 
-    const loadData = async () => {
+    if (!success || lifecycleRef.current === "loading" || isReady) {
+      return
+    }
+
+    lifecycleRef.current = "loading"
+    let isCancelled = false
+
+    void (async () => {
       try {
         logInfo("Database migrations completed, loading cached tracks")
         await loadTracks()
+        if (isCancelled) {
+          return
+        }
+
         logInfo("Cached tracks loaded")
-        setHasLoadedTracks(true)
-      } catch (dataError) {
-        logError("Database data loading failed", dataError)
-        setLoadError(dataError as Error)
+        lifecycleRef.current = "ready"
+        setIsReady(true)
+        onReady?.()
+      } catch (loadTracksError) {
+        if (isCancelled) {
+          return
+        }
+
+        const resolvedLoadError = loadTracksError as Error
+        lifecycleRef.current = "error"
+        setDatabaseError(resolvedLoadError)
+        logError("Database data loading failed", resolvedLoadError)
+        onError?.()
       }
+    })()
+
+    return () => {
+      isCancelled = true
     }
+  }, [error, isReady, onError, onReady, success])
 
-    void loadData()
-  }, [success])
-
-  const resolvedError = loadError ?? error
-  const isInitializing = !success || !hasLoadedTracks
-
-  useEffect(() => {
-    if (hasNotifiedReadyRef.current) {
-      return
-    }
-
-    if (!resolvedError && !isInitializing) {
-      hasNotifiedReadyRef.current = true
-      onReady?.()
-    }
-  }, [isInitializing, onReady, resolvedError])
-
-  useEffect(() => {
-    if (!resolvedError || hasNotifiedErrorRef.current) {
-      return
-    }
-
-    hasNotifiedErrorRef.current = true
-    logError("Database provider failed", resolvedError)
-    onError?.()
-  }, [onError, resolvedError])
-
-  if (resolvedError) {
-    const message = resolvedError.message || ""
+  if (databaseError) {
+    const message = databaseError.message || ""
     const isLegacySchemaConflict =
       message.includes("CREATE TABLE") || message.includes("already exists")
 
