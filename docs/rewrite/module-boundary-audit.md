@@ -79,10 +79,11 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 - status: `rewrite`
 - notes:
-  - store still mixes runtime orchestration, queueing, progress state, and query invalidation
+  - store is thinner now, but the module still carries heavy runtime scheduling and refresh responsibilities overall
   - settings-like files (`auto-scan`, `folder-filters`, `track-duration-filter`) are still spread across the indexer module
   - more repository/service separation is still needed
   - logging is better, but the boundary is still too heavy
+  - runtime controls are now separated into `indexer.service.ts`, which is a step toward a thinner state-only store
 
 ### `library`
 

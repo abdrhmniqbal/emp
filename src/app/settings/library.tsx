@@ -10,7 +10,8 @@ import {
   setAutoScanEnabled,
   useAutoScanStore,
 } from "@/modules/indexer/auto-scan"
-import { forceReindexLibrary, useIndexerStore } from "@/modules/indexer/indexer.store"
+import { forceReindexLibrary } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import {
   ensureTrackDurationFilterConfigLoaded,
   getTrackDurationFilterLabel,

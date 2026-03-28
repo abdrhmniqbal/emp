@@ -8,7 +8,7 @@ import { requestMediaLibraryPermission } from "@/core/storage/media-library.serv
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
-import { startIndexing } from "@/modules/indexer/indexer.store"
+import { startIndexing } from "@/modules/indexer/indexer.service"
 import { logInfo } from "@/modules/logging/logger"
 import { restorePlaybackSession } from "@/modules/player/player.service"
 

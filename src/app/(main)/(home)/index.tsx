@@ -20,7 +20,7 @@ import {
   useRecentlyPlayedTracks,
   useTopTracksByPeriod,
 } from "@/modules/history/history.queries"
-import { startIndexing } from "@/modules/indexer/indexer.store"
+import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { playTrack } from "@/modules/player/player.service"
 import { usePlayerStore, type Track } from "@/modules/player/player.store"

@@ -3,7 +3,7 @@ import * as MediaLibrary from "expo-media-library"
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
 import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
-import { startIndexing } from "@/modules/indexer/indexer.store"
+import { startIndexing } from "@/modules/indexer/indexer.service"
 import {
   initializeLogging,
   logError,

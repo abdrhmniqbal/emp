@@ -10,7 +10,8 @@ import {
   type TrackDurationFilterMode,
   useTrackDurationFilterStore,
 } from "@/modules/indexer/track-duration-filter"
-import { startIndexing, useIndexerStore } from "@/modules/indexer/indexer.store"
+import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 
 interface DurationOption {
   label: string

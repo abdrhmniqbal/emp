@@ -22,7 +22,7 @@ import {
   mapAlbumsToGridData,
 } from "@/modules/search/search.utils"
 import { useGenreAlbums } from "@/modules/search/search.queries"
-import { startIndexing } from "@/modules/indexer/indexer.store"
+import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
 import type {

@@ -19,7 +19,8 @@ import {
   getFolderPathFromUri,
   normalizeFolderPath,
 } from "@/modules/indexer/folder-filters"
-import { startIndexing, useIndexerStore } from "@/modules/indexer/indexer.store"
+import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { usePlayerStore } from "@/modules/player/player.store"
 
 interface FolderEntry {
