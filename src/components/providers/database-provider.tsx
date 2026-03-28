@@ -4,8 +4,8 @@ import { Text, View } from "react-native"
 
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
-import { logError, logInfo } from "@/modules/logging/logging.service"
-import { loadTracks } from "@/modules/player/player.service"
+import { loadInitialDatabaseState } from "@/modules/bootstrap/database-startup.service"
+import { logError } from "@/modules/logging/logging.service"
 
 export function DatabaseProvider({
   children,
@@ -43,13 +43,11 @@ export function DatabaseProvider({
 
     void (async () => {
       try {
-        logInfo("Database migrations completed, loading cached tracks")
-        await loadTracks()
+        await loadInitialDatabaseState()
         if (isCancelled) {
           return
         }
 
-        logInfo("Cached tracks loaded")
         lifecycleRef.current = "ready"
         setIsReady(true)
         onReady?.()

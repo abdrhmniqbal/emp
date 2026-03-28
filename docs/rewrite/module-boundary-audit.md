@@ -54,6 +54,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - status: `partial`
 - notes:
   - `DatabaseProvider` is leaner now and reports ready/error from the actual async startup path
+  - database startup loading now lives in `database-startup.service.ts` instead of an inline provider async block
   - provider/runtime effects still deserve another simplification pass later
 
 ### `device`
