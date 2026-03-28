@@ -248,6 +248,8 @@ Progress:
 - TrackPlayer mapping and repeat-mode translation helpers now live in `src/modules/player/player-adapter.ts`
 - player session persistence and restoration now live in `src/modules/player/player-session.service.ts`
 - active-track and playback-progress runtime sync helpers now live in `src/modules/player/player-runtime-state.ts`
+- TrackPlayer event wiring now lives in `src/modules/player/player-events.service.ts`
+- track-activation side effects now live in `src/modules/player/player-activity.service.ts`
 
 ### Slice 5
 

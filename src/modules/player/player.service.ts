@@ -1,20 +1,10 @@
 import { processColor } from "react-native"
 
-import { queryClient } from "@/lib/tanstack-query"
 import { invalidateFavoriteQueries } from "@/modules/favorites/favorites.keys"
 import { setTrackFavoriteFlag } from "@/modules/favorites/favorites.repository"
-import {
-  addTrackToHistory,
-  incrementTrackPlayCount,
-} from "@/modules/history/history.repository"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 import {
-  invalidatePlayerQueries,
-  optimisticallyUpdateRecentlyPlayedQueries,
-} from "@/modules/player/player.keys"
-import {
   persistPlaybackSession,
-  syncCurrentTrackFromPlayer,
 } from "@/modules/player/player-session.service"
 import type { RepeatModeType, Track } from "@/modules/player/player.types"
 import {
@@ -22,42 +12,26 @@ import {
   mapTrackToTrackPlayerInput,
 } from "@/modules/player/player-adapter"
 import { setActiveTrack, setPlaybackProgress } from "@/modules/player/player-runtime-state"
+import { handleTrackActivated } from "@/modules/player/player-activity.service"
 
 import {
   Capability,
-  Event,
   State,
   TrackPlayer,
 } from "@/modules/player/player.utils"
 
 import {
   getCurrentTrackState,
-  getPlaybackRefreshVersionState,
   getQueueState,
   getRepeatModeState,
   getTracksState,
   setIsPlayingState,
-  setPlaybackRefreshVersionState,
   setRepeatModeState,
   setTracksState,
   usePlayerStore,
 } from "./player.store"
 
 let isPlayerReady = false
-
-function bumpPlaybackRefreshVersion() {
-  setPlaybackRefreshVersionState(getPlaybackRefreshVersionState() + 1)
-}
-
-async function handleTrackActivated(track: Track) {
-  optimisticallyUpdateRecentlyPlayedQueries(queryClient, track)
-  await Promise.allSettled([
-    addTrackToHistory(track.id),
-    incrementTrackPlayCount(track.id),
-  ])
-  bumpPlaybackRefreshVersion()
-  void invalidatePlayerQueries(queryClient)
-}
 
 async function setQueueStore(tracks: Track[]): Promise<void> {
   const { setQueue } = await import("./queue.store")
@@ -104,56 +78,6 @@ export async function setupPlayer() {
 
     logError("Track player setup failed", error)
   }
-}
-
-export async function PlaybackService() {
-  TrackPlayer.addEventListener(Event.RemotePlay, () => {
-    TrackPlayer.play()
-  })
-
-  TrackPlayer.addEventListener(Event.RemotePause, () => {
-    TrackPlayer.pause()
-  })
-
-  TrackPlayer.addEventListener(Event.RemoteNext, () => {
-    playNext()
-  })
-
-  TrackPlayer.addEventListener(Event.RemotePrevious, () => {
-    playPrevious()
-  })
-
-  TrackPlayer.addEventListener(Event.RemoteSeek, (event) => {
-    if (event.position !== undefined) {
-      TrackPlayer.seekTo(event.position)
-    }
-  })
-
-  TrackPlayer.addEventListener(Event.PlaybackState, (event) => {
-    setIsPlayingState(event.state === State.Playing)
-    void persistPlaybackSession()
-  })
-
-  TrackPlayer.addEventListener(Event.PlaybackTrackChanged, async () => {
-    const previousTrackId = getCurrentTrackState()?.id ?? null
-    await syncCurrentTrackFromPlayer()
-    const currentTrack = getCurrentTrackState()
-    const isTrackRepeat = getRepeatModeState() === "track"
-    if (
-      !currentTrack ||
-      (currentTrack.id === previousTrackId && !isTrackRepeat)
-    ) {
-      return
-    }
-
-    await handleTrackActivated(currentTrack)
-    void persistPlaybackSession({ force: true })
-  })
-
-  TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (event) => {
-    setPlaybackProgress(event.position, event.duration)
-    void persistPlaybackSession()
-  })
 }
 
 export async function playTrack(track: Track, playlistTracks?: Track[]) {

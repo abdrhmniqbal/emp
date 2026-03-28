@@ -1,7 +1,7 @@
 import {
-  PlaybackService,
   setupPlayer,
 } from "@/modules/player/player.service"
+import { PlaybackService } from "@/modules/player/player-events.service"
 import { TrackPlayer } from "@/modules/player/player.utils"
 
 let isPlaybackServiceRegistered = false
