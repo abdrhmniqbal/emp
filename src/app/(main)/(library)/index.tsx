@@ -39,11 +39,15 @@ import {
   ARTIST_SORT_OPTIONS,
   FOLDER_SORT_OPTIONS,
   PLAYLIST_SORT_OPTIONS,
-  setSortConfig,
+  TRACK_SORT_OPTIONS,
+} from "@/modules/library/library-sort.constants"
+import type { SortField } from "@/modules/library/library-sort.types"
+import {
   sortGeneric,
   sortTracks,
-  TRACK_SORT_OPTIONS,
-  type SortField,
+} from "@/modules/library/library-sort.utils"
+import {
+  setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
 import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"

@@ -24,12 +24,12 @@ import {
 import { useGenreAlbums } from "@/modules/search/search.queries"
 import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import {
-  ALBUM_SORT_OPTIONS,
-  type AlbumSortField,
-  sortAlbums,
-  type SortOrder,
-} from "@/modules/library/library-sort.store"
+import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
+import type {
+  AlbumSortField,
+  SortOrder,
+} from "@/modules/library/library-sort.types"
+import { sortAlbums } from "@/modules/library/library-sort.utils"
 
 export default function GenreAlbumsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()

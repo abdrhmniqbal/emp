@@ -9,11 +9,9 @@ import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { EmptyState } from "@/components/ui/empty-state"
+import type { SortConfig } from "@/modules/library/library-sort.types"
+import { sortAlbums } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
-import {
-  sortAlbums,
-  type SortConfig,
-} from "@/modules/library/library-sort.store"
 import { useAlbums } from "@/modules/library/library.queries"
 
 interface AlbumsTabProps {

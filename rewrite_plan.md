@@ -158,6 +158,7 @@ Rules:
 - `store.ts` exists only if the feature truly needs local runtime state
 - `service.ts` exists only for imperative native/runtime orchestration
 - `utils.ts` is pure and side-effect free
+- library sorting should follow the same split: store state in `library-sort.store.ts`, static options in `library-sort.constants.ts`, and pure comparators in `library-sort.utils.ts`
 
 ### Components
 

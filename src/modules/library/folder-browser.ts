@@ -1,5 +1,5 @@
 import type { Folder, FolderBreadcrumb } from "@/components/blocks/folder-list"
-import type { SortConfig, SortOrder } from "@/modules/library/library-sort.store"
+import type { SortConfig, SortOrder } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.types"
 
 interface FolderNode {

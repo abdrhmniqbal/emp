@@ -9,11 +9,9 @@ import { type Artist, ArtistGrid } from "@/components/blocks/artist-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import { EmptyState } from "@/components/ui/empty-state"
+import type { SortConfig } from "@/modules/library/library-sort.types"
+import { sortArtists } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
-import {
-  sortArtists,
-  type SortConfig,
-} from "@/modules/library/library-sort.store"
 import { useArtists } from "@/modules/library/library.queries"
 
 interface ArtistsTabProps {

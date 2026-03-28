@@ -42,11 +42,15 @@ import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   ALBUM_SORT_OPTIONS,
-  type SortField,
-  setSortConfig,
+  TRACK_SORT_OPTIONS,
+} from "@/modules/library/library-sort.constants"
+import type { SortField } from "@/modules/library/library-sort.types"
+import {
   sortAlbums,
   sortTracks,
-  TRACK_SORT_OPTIONS,
+} from "@/modules/library/library-sort.utils"
+import {
+  setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
 import { useTracksByArtistName } from "@/modules/library/library.queries"

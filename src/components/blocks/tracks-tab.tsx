@@ -11,11 +11,9 @@ import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui/empty-state"
+import type { SortConfig } from "@/modules/library/library-sort.types"
+import { sortTracks } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
-import {
-  type SortConfig,
-  sortTracks,
-} from "@/modules/library/library-sort.store"
 import { useTracks } from "@/modules/tracks/tracks.queries"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 

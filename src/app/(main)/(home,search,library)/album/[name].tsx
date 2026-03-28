@@ -27,9 +27,11 @@ import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   ALBUM_TRACK_SORT_OPTIONS,
-  type AlbumTrackSortField,
+} from "@/modules/library/library-sort.constants"
+import type { AlbumTrackSortField } from "@/modules/library/library-sort.types"
+import { sortTracks } from "@/modules/library/library-sort.utils"
+import {
   setSortConfig,
-  sortTracks,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
 import { useTracksByAlbumName } from "@/modules/library/library.queries"
