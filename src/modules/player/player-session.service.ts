@@ -19,6 +19,7 @@ import {
   getRepeatModeState,
   getTracksState,
   setIsPlayingState,
+  setOriginalQueueState,
   setQueueState,
   setRepeatModeState,
 } from "./player.store"
@@ -26,6 +27,12 @@ import {
 const MIN_SESSION_SAVE_INTERVAL_MS = 2000
 
 let lastPlaybackSessionSavedAt = 0
+
+function mapNativeQueueToTracks(nativeQueue: Awaited<ReturnType<typeof TrackPlayer.getQueue>>) {
+  return nativeQueue
+    .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
+    .filter((track) => track.id && track.uri)
+}
 
 export async function persistPlaybackSession(options?: {
   force?: boolean
@@ -39,9 +46,7 @@ export async function persistPlaybackSession(options?: {
   }
 
   try {
-    const queue = (await TrackPlayer.getQueue())
-      .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
-      .filter((track) => track.id && track.uri)
+    const queue = mapNativeQueueToTracks(await TrackPlayer.getQueue())
     const currentIndex = await TrackPlayer.getCurrentTrack()
     const positionSeconds = await TrackPlayer.getPosition()
 
@@ -72,11 +77,10 @@ export async function restorePlaybackSession(): Promise<void> {
       logInfo("Restoring playback session from native queue", {
         queueLength: nativeQueue.length,
       })
-      const mappedQueue = nativeQueue
-        .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
-        .filter((track) => track.id && track.uri)
+      const mappedQueue = mapNativeQueueToTracks(nativeQueue)
       if (mappedQueue.length > 0) {
         setQueueState(mappedQueue)
+        setOriginalQueueState(mappedQueue)
       }
 
       const currentIndex = await TrackPlayer.getCurrentTrack()
@@ -132,6 +136,7 @@ export async function restorePlaybackSession(): Promise<void> {
 
     const currentTrack = snapshot.queue[targetIndex] || null
     setQueueState(snapshot.queue)
+    setOriginalQueueState(snapshot.queue)
     setActiveTrack(currentTrack)
     setPlaybackProgress(targetPosition, currentTrack?.duration || 0)
     setRepeatModeState(snapshot.repeatMode)
@@ -147,17 +152,28 @@ export async function restorePlaybackSession(): Promise<void> {
 
 export async function syncCurrentTrackFromPlayer(): Promise<void> {
   try {
-    const activeIndex = await TrackPlayer.getCurrentTrack()
-    if (activeIndex !== null && activeIndex >= 0) {
-      const queueTrack = getQueueState()[activeIndex]
-      if (queueTrack) {
-        setActiveTrack(queueTrack)
-        return
-      }
+    const [activeIndex, nativeQueue, activeTrack] = await Promise.all([
+      TrackPlayer.getCurrentTrack(),
+      TrackPlayer.getQueue(),
+      TrackPlayer.getActiveTrack(),
+    ])
+
+    const mappedQueue = mapNativeQueueToTracks(nativeQueue)
+    if (mappedQueue.length > 0) {
+      setQueueState(mappedQueue)
     }
 
-    const activeTrack = await TrackPlayer.getActiveTrack()
+    if (
+      activeIndex !== null &&
+      activeIndex >= 0 &&
+      activeIndex < mappedQueue.length
+    ) {
+      setActiveTrack(mappedQueue[activeIndex] || null)
+      return
+    }
+
     if (!activeTrack) {
+      setActiveTrack(mappedQueue[0] || null)
       return
     }
 

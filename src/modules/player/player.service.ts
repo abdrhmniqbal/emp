@@ -11,6 +11,8 @@ import { Capability, TrackPlayer } from "@/modules/player/player.utils"
 
 import {
   getTracksState,
+  setIsShuffledState,
+  setOriginalQueueState,
   setIsPlayingState,
   setQueueState,
 } from "./player.store"
@@ -83,6 +85,8 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
       .concat(tracks.slice(0, currentTrackIndex))
 
     setQueueState(queue)
+    setOriginalQueueState(queue)
+    setIsShuffledState(false)
 
     await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
 

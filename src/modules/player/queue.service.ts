@@ -151,54 +151,109 @@ export async function toggleShuffle() {
     setQueueState([...playedAndCurrent, ...upcoming])
     setIsShuffledState(true)
 
-    const trackPlayerQueue = await TrackPlayer.getQueue()
-    const currentTrackPlayerIndex = await TrackPlayer.getCurrentTrack()
+    try {
+      const [trackPlayerQueue, currentTrackPlayerIndex] = await Promise.all([
+        TrackPlayer.getQueue(),
+        TrackPlayer.getCurrentTrack(),
+      ])
 
-    if (currentTrackPlayerIndex !== null && currentTrackPlayerIndex !== undefined) {
-      for (
-        let queueIndex = trackPlayerQueue.length - 1;
-        queueIndex > currentTrackPlayerIndex;
-        queueIndex -= 1
+      if (
+        currentTrackPlayerIndex === null ||
+        currentTrackPlayerIndex < 0 ||
+        currentTrackPlayerIndex >= trackPlayerQueue.length
       ) {
-        await TrackPlayer.remove(queueIndex)
+        await syncCurrentTrackFromPlayer()
+        await persistPlaybackSession({ force: true })
+        return
       }
 
-      for (const track of upcoming) {
-        await TrackPlayer.add(mapTrackToTrackPlayerInput(track))
+      const indexesToRemove = Array.from(
+        { length: Math.max(0, trackPlayerQueue.length - currentTrackPlayerIndex - 1) },
+        (_, index) => currentTrackPlayerIndex + 1 + index
+      )
+
+      if (indexesToRemove.length > 0) {
+        await TrackPlayer.remove(indexesToRemove)
       }
 
+      if (upcoming.length > 0) {
+        await TrackPlayer.add(upcoming.map(mapTrackToTrackPlayerInput))
+      }
+
+      await syncCurrentTrackFromPlayer()
       await persistPlaybackSession({ force: true })
+    } catch (error) {
+      logError("Failed to enable queue shuffle", error, {
+        queueLength: queue.length,
+        currentTrackId: currentTrack?.id ?? null,
+      })
+      setQueueState(queue)
+      setIsShuffledState(false)
     }
 
     return
   }
 
   const originalQueue = getOriginalQueueState()
+  if (originalQueue.length === 0) {
+    setIsShuffledState(false)
+    return
+  }
   const currentIndex = currentTrack
     ? originalQueue.findIndex((track) => track.id === currentTrack.id)
     : 0
+
+  if (currentIndex < 0) {
+    setQueueState(originalQueue)
+    setIsShuffledState(false)
+    await syncCurrentTrackFromPlayer()
+    await persistPlaybackSession({ force: true })
+    return
+  }
 
   const playedAndCurrent = originalQueue.slice(0, currentIndex + 1)
   const originalUpcoming = originalQueue.slice(currentIndex + 1)
   setQueueState([...playedAndCurrent, ...originalUpcoming])
   setIsShuffledState(false)
 
-  const trackPlayerQueue = await TrackPlayer.getQueue()
-  const currentTrackPlayerIndex = await TrackPlayer.getCurrentTrack()
+  try {
+    const [trackPlayerQueue, currentTrackPlayerIndex] = await Promise.all([
+      TrackPlayer.getQueue(),
+      TrackPlayer.getCurrentTrack(),
+    ])
 
-  if (currentTrackPlayerIndex !== null && currentTrackPlayerIndex !== undefined) {
-    for (
-      let queueIndex = trackPlayerQueue.length - 1;
-      queueIndex > currentTrackPlayerIndex;
-      queueIndex -= 1
+    if (
+      currentTrackPlayerIndex === null ||
+      currentTrackPlayerIndex < 0 ||
+      currentTrackPlayerIndex >= trackPlayerQueue.length
     ) {
-      await TrackPlayer.remove(queueIndex)
+      await syncCurrentTrackFromPlayer()
+      await persistPlaybackSession({ force: true })
+      return
     }
 
-    for (const track of originalUpcoming) {
-      await TrackPlayer.add(mapTrackToTrackPlayerInput(track))
+    const indexesToRemove = Array.from(
+      { length: Math.max(0, trackPlayerQueue.length - currentTrackPlayerIndex - 1) },
+      (_, index) => currentTrackPlayerIndex + 1 + index
+    )
+
+    if (indexesToRemove.length > 0) {
+      await TrackPlayer.remove(indexesToRemove)
     }
 
+    if (originalUpcoming.length > 0) {
+      await TrackPlayer.add(originalUpcoming.map(mapTrackToTrackPlayerInput))
+    }
+
+    await syncCurrentTrackFromPlayer()
     await persistPlaybackSession({ force: true })
+  } catch (error) {
+    logError("Failed to disable queue shuffle", error, {
+      queueLength: queue.length,
+      originalQueueLength: originalQueue.length,
+      currentTrackId: currentTrack?.id ?? null,
+    })
+    setQueueState(queue)
+    setIsShuffledState(true)
   }
 }

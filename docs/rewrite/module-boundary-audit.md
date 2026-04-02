@@ -172,6 +172,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - queue runtime now reuses the shared TrackPlayer mapping adapter instead of duplicating it locally
   - dead `queue.store.ts` wrapper has been removed, and queue-derived data now lives with the queue view that uses it
   - player library loading now imports the repository directly instead of using a lazy pass-through import
+  - native TrackPlayer queue state now wins after shuffle and skip operations so active-track UI stays aligned with playback
 
 ### `playlist`
 

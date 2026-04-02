@@ -13,6 +13,7 @@ import {
   setRepeatModeState,
   usePlayerStore,
 } from "./player.store"
+import { syncCurrentTrackFromPlayer } from "./player-session.service"
 
 export async function pauseTrack() {
   try {
@@ -47,8 +48,38 @@ export async function togglePlayback() {
 
 export async function playNext() {
   try {
+    const [activeIndex, nativeQueue] = await Promise.all([
+      TrackPlayer.getCurrentTrack(),
+      TrackPlayer.getQueue(),
+    ])
+
+    if (
+      activeIndex === null ||
+      activeIndex < 0 ||
+      nativeQueue.length === 0
+    ) {
+      logWarn("Skipped next track because no active queue item is available")
+      return
+    }
+
+    if (activeIndex >= nativeQueue.length - 1) {
+      if (getRepeatModeState() === "queue" && nativeQueue.length > 0) {
+        logInfo("Wrapping to first track in queue")
+        await TrackPlayer.skip(0)
+        await syncCurrentTrackFromPlayer()
+        await persistPlaybackSession({ force: true })
+      } else {
+        logInfo("Ignored next track because queue is already at the end", {
+          activeIndex,
+          queueLength: nativeQueue.length,
+        })
+      }
+      return
+    }
+
     logInfo("Skipping to next track")
     await TrackPlayer.skipToNext()
+    await syncCurrentTrackFromPlayer()
     await persistPlaybackSession({ force: true })
   } catch (error) {
     logWarn("Failed to skip to next track, falling back to queue restart", {
@@ -70,6 +101,7 @@ export async function playPrevious() {
     } else {
       logInfo("Skipping to previous track")
       await TrackPlayer.skipToPrevious()
+      await syncCurrentTrackFromPlayer()
       await persistPlaybackSession({ force: true })
     }
   } catch (error) {

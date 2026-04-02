@@ -151,6 +151,7 @@ Rules:
 - UI stores should avoid internal pass-through setter wrappers when a direct state write is clearer
 - player runtime commands should be imported from `player.service.ts`, not re-exported through `player.store.ts`
 - queue mutations should be imported from `queue.service.ts`, while queue-derived view state should stay close to the UI that uses it
+- after shuffle, skip, and other native queue mutations, the native TrackPlayer queue should be treated as the source of truth for queue order and active-track sync
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
 - player session persistence should live in `player-session.repository.ts`
 - TrackPlayer mapping and repeat-mode adapter helpers should live outside `player.service.ts`
