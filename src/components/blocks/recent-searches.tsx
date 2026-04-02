@@ -1,5 +1,6 @@
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
+import { useCallback } from "react"
 import { Text, View } from "react-native"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
@@ -31,6 +32,40 @@ interface RecentSearchesProps {
   onRemoveItem: (id: string) => void
 }
 
+interface RecentSearchRowProps {
+  item: RecentSearchItem
+  icon: React.ReactNode
+  mutedColor: string
+  onPress: (item: RecentSearchItem) => void
+  onRemove: (id: string) => void
+}
+
+function RecentSearchRow({
+  item,
+  icon,
+  mutedColor,
+  onPress,
+  onRemove,
+}: RecentSearchRowProps) {
+  return (
+    <Item onPress={() => onPress(item)}>
+      <ItemImage icon={icon} />
+      <ItemContent>
+        <ItemTitle>{item.title}</ItemTitle>
+        <ItemDescription>{item.subtitle}</ItemDescription>
+      </ItemContent>
+      <ItemAction className="p-2" onPress={() => onRemove(item.id)}>
+        <LocalCancelIcon
+          fill="none"
+          width={20}
+          height={20}
+          color={mutedColor}
+        />
+      </ItemAction>
+    </Item>
+  )
+}
+
 export const RecentSearches: React.FC<RecentSearchesProps> = ({
   searches,
   onClear,
@@ -39,15 +74,7 @@ export const RecentSearches: React.FC<RecentSearchesProps> = ({
 }) => {
   const theme = useThemeColors()
 
-  const handleItemPress = (item: RecentSearchItem) => {
-    onItemPress(item)
-  }
-
-  const handleRemoveItem = (id: string) => {
-    onRemoveItem(id)
-  }
-
-  const getIconForType = (type?: string) => {
+  const getIconForType = useCallback((type?: string) => {
     switch (type) {
       case "artist":
         return (
@@ -86,7 +113,7 @@ export const RecentSearches: React.FC<RecentSearchesProps> = ({
           />
         )
     }
-  }
+  }, [theme.muted])
 
   if (searches.length === 0) {
     return null
@@ -104,24 +131,14 @@ export const RecentSearches: React.FC<RecentSearchesProps> = ({
       </View>
       <View className="gap-2">
         {searches.map((item) => (
-          <Item key={item.id} onPress={() => handleItemPress(item)}>
-            <ItemImage icon={getIconForType(item.type)} />
-            <ItemContent>
-              <ItemTitle>{item.title}</ItemTitle>
-              <ItemDescription>{item.subtitle}</ItemDescription>
-            </ItemContent>
-            <ItemAction
-              className="p-2"
-              onPress={() => handleRemoveItem(item.id)}
-            >
-              <LocalCancelIcon
-                fill="none"
-                width={20}
-                height={20}
-                color={theme.muted}
-              />
-            </ItemAction>
-          </Item>
+          <RecentSearchRow
+            key={item.id}
+            item={item}
+            icon={getIconForType(item.type)}
+            mutedColor={theme.muted}
+            onPress={onItemPress}
+            onRemove={onRemoveItem}
+          />
         ))}
       </View>
     </View>

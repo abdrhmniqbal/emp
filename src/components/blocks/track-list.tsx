@@ -5,7 +5,7 @@ import {
 } from "@legendapp/list"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -26,6 +26,81 @@ import { useThemeColors } from "@/modules/ui/theme"
 import { playTrack } from "@/modules/player/player.service"
 import { usePlayerStore, type Track } from "@/modules/player/player.store"
 import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
+
+interface TrackListItemProps {
+  track: Track
+  index: number
+  data: Track[]
+  currentTrackId?: string
+  mutedColor: string
+  showNumbers: boolean
+  hideCover: boolean
+  hideArtist: boolean
+  getNumber?: (track: Track, index: number) => number | string
+  onTrackPress: (track: Track) => void
+  onTrackLongPress: (track: Track) => void
+  renderItemPrefix?: (
+    track: Track,
+    index: number,
+    data: Track[]
+  ) => React.ReactNode
+}
+
+function TrackListItem({
+  track,
+  index,
+  data,
+  currentTrackId,
+  mutedColor,
+  showNumbers,
+  hideCover,
+  hideArtist,
+  getNumber,
+  onTrackPress,
+  onTrackLongPress,
+  renderItemPrefix,
+}: TrackListItemProps) {
+  const handleActionPress = useCallback(
+    (event: { stopPropagation: () => void }) => {
+      event.stopPropagation()
+      onTrackLongPress(track)
+    },
+    [onTrackLongPress, track]
+  )
+
+  return (
+    <>
+      {renderItemPrefix?.(track, index, data) || null}
+      <TrackRow
+        key={`${track.id}-${index}`}
+        track={track}
+        onPress={() => onTrackPress(track)}
+        onLongPress={() => onTrackLongPress(track)}
+        rank={
+          showNumbers
+            ? getNumber
+              ? getNumber(track, index)
+              : index + 1
+            : undefined
+        }
+        showCover={!hideCover}
+        showArtist={!hideArtist}
+        titleClassName={currentTrackId === track.id ? "text-accent" : undefined}
+        imageOverlay={currentTrackId === track.id ? <ScaleLoader size={16} /> : undefined}
+        rightAction={
+          <PressableFeedback onPress={handleActionPress} className="p-2">
+            <LocalMoreHorizontalCircleSolidIcon
+              fill="none"
+              width={24}
+              height={24}
+              color={mutedColor}
+            />
+          </PressableFeedback>
+        }
+      />
+    </>
+  )
+}
 
 interface TrackListProps {
   data: Track[]
@@ -83,58 +158,49 @@ export const TrackList: React.FC<TrackListProps> = ({
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
-  const handlePress = (track: Track) => {
+  const handleTrackPress = useCallback((track: Track) => {
     if (onTrackPress) {
       onTrackPress(track)
-    } else {
-      playTrack(track, data)
+      return
     }
-  }
 
-  const showActionMenu = (track: Track) => {
+    playTrack(track, data)
+  }, [data, onTrackPress])
+
+  const showActionMenu = useCallback((track: Track) => {
     setSelectedTrack(track)
     setIsSheetOpen(true)
-  }
+  }, [])
 
-  const renderTrackItem = (item: Track, index: number) => (
-    <>
-      {renderItemPrefix?.(item, index, data) || null}
-      <TrackRow
-        key={`${item.id}-${index}`}
+  const renderTrackItem = useCallback(
+    ({ item, index }: LegendListRenderItemProps<Track>) => (
+      <TrackListItem
         track={item}
-        onPress={() => handlePress(item)}
-        onLongPress={() => showActionMenu(item)}
-        rank={
-          showNumbers
-            ? getNumber
-              ? getNumber(item, index)
-              : index + 1
-            : undefined
-        }
-        showCover={!hideCover}
-        showArtist={!hideArtist}
-        titleClassName={currentTrackId === item.id ? "text-accent" : undefined}
-        imageOverlay={
-          currentTrackId === item.id ? <ScaleLoader size={16} /> : undefined
-        }
-        rightAction={
-          <PressableFeedback
-            onPress={(event) => {
-              event.stopPropagation()
-              showActionMenu(item)
-            }}
-            className="p-2"
-          >
-            <LocalMoreHorizontalCircleSolidIcon
-              fill="none"
-              width={24}
-              height={24}
-              color={theme.muted}
-            />
-          </PressableFeedback>
-        }
+        index={index}
+        data={data}
+        currentTrackId={currentTrackId}
+        mutedColor={theme.muted}
+        showNumbers={showNumbers}
+        hideCover={hideCover}
+        hideArtist={hideArtist}
+        getNumber={getNumber}
+        onTrackPress={handleTrackPress}
+        onTrackLongPress={showActionMenu}
+        renderItemPrefix={renderItemPrefix}
       />
-    </>
+    ),
+    [
+      currentTrackId,
+      data,
+      getNumber,
+      handleTrackPress,
+      hideArtist,
+      hideCover,
+      renderItemPrefix,
+      showActionMenu,
+      showNumbers,
+      theme.muted,
+    ]
   )
 
   return (
@@ -144,9 +210,7 @@ export const TrackList: React.FC<TrackListProps> = ({
         maintainVisibleContentPosition={false}
         dataVersion={resetScrollKey}
         data={data}
-        renderItem={({ item, index }: LegendListRenderItemProps<Track>) =>
-          renderTrackItem(item, index)
-        }
+        renderItem={renderTrackItem}
         keyExtractor={(item) => item.id}
         style={{ flex: 1, minHeight: 1 }}
         scrollEnabled={scrollEnabled}
