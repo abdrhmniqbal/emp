@@ -29,12 +29,14 @@
       "permissions": [
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_AUDIO_PLAYBACK"
+        "FOREGROUND_SERVICE_AUDIO_PLAYBACK",
+        "POST_NOTIFICATIONS"
       ]
     },
     "plugins": [
       "expo-router",
       "expo-media-library",
+      "expo-notifications",
       "@zoontek/react-native-navigation-bar",
       [
         "expo-splash-screen",

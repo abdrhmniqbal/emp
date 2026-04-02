@@ -17,7 +17,6 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useUniwind } from "uniwind"
 
-import { IndexingProgress } from "@/components/blocks/indexing-progress"
 import { PlayerSheet } from "@/components/blocks/player/player-sheet"
 import { RootProviders } from "@/components/providers/root-providers"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
@@ -172,7 +171,6 @@ export default function Layout() {
                   <Stack.Screen name="(main)" />
                   <Stack.Screen name="settings" options={ROOT_MODAL_SCREEN_OPTIONS} />
                 </Stack>
-                <IndexingProgress />
                 <PlayerSheet />
               </View>
             </RootProviders>
