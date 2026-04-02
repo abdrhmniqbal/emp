@@ -153,49 +153,6 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
     </Item>
   )
 
-  if (data.length === 0) {
-    return (
-      <View style={{ flex: 1 }}>
-        <LegendList
-          ref={listRef}
-          maintainVisibleContentPosition={false}
-          dataVersion={resetScrollKey}
-          data={[{ id: "create", rowType: "create" }]}
-          renderItem={() => renderCreateButton()}
-          keyExtractor={(item) => item.id}
-          getItemType={(item) => item.rowType}
-          scrollEnabled={scrollEnabled}
-          contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
-          onScroll={onScroll}
-          onScrollBeginDrag={onScrollBeginDrag}
-          onScrollEndDrag={onScrollEndDrag}
-          onMomentumScrollEnd={onMomentumScrollEnd}
-          scrollEventThrottle={16}
-          refreshControl={refreshControl || undefined}
-          recycleItems={true}
-          initialContainerPoolRatio={3}
-          ListEmptyComponent={
-            <EmptyState
-              icon={
-                <LocalPlaylistSolidIcon
-                  fill="none"
-                  width={48}
-                  height={48}
-                  color={theme.muted}
-                />
-              }
-              title="No Playlists"
-              message="Create your first playlist to organize your music."
-            />
-          }
-          estimatedItemSize={68}
-          drawDistance={180}
-          style={{ flex: 1, minHeight: 1 }}
-        />
-      </View>
-    )
-  }
-
   const listData: PlaylistListRow[] = [
     { id: "create", rowType: "create" },
     ...data.map((playlist) => ({ ...playlist, rowType: "playlist" as const })),
@@ -226,6 +183,22 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         refreshControl={refreshControl || undefined}
         recycleItems={true}
         initialContainerPoolRatio={3}
+        ListFooterComponent={
+          data.length === 0 ? (
+            <EmptyState
+              icon={
+                <LocalPlaylistSolidIcon
+                  fill="none"
+                  width={48}
+                  height={48}
+                  color={theme.muted}
+                />
+              }
+              title="No Playlists"
+              message="Create your first playlist to organize your music."
+            />
+          ) : null
+        }
         estimatedItemSize={68}
         drawDistance={180}
         style={{ flex: 1, minHeight: 1 }}

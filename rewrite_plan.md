@@ -213,6 +213,7 @@ Target component rules:
 - keep styling consistent with the rest of the app
 - do not split components unless the split creates a stable boundary
 - do not keep giant files just because they are already working
+- prefer one render path with small conditional sections over duplicating the same large list/tree structure for empty and non-empty states
 
 ### Navigation and Screen Flow
 

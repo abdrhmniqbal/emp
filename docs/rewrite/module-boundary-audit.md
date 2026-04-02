@@ -226,6 +226,10 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 - none at the moment
 
+### Shared blocks direction
+
+- shared blocks should prefer one render path with small conditional branches over duplicated full list trees
+
 ## Next Priority After This Audit
 
 1. Revisit `player`
