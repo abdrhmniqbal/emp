@@ -5,7 +5,7 @@ import { Text, View } from "react-native"
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
 import { loadInitialDatabaseState } from "@/modules/bootstrap/database-startup.service"
-import { logError } from "@/modules/logging/logging.service"
+import { logError, logInfo } from "@/modules/logging/logging.service"
 
 export function DatabaseProvider({
   children,
@@ -21,6 +21,10 @@ export function DatabaseProvider({
   const { success, error } = useMigrations(db, migrations)
 
   useEffect(() => {
+    if (lifecycleRef.current === "idle") {
+      logInfo("Database provider waiting for migrations")
+    }
+
     if (error) {
       if (lifecycleRef.current === "error") {
         return
@@ -42,6 +46,7 @@ export function DatabaseProvider({
     }
 
     lifecycleRef.current = "loading"
+    logInfo("Database migrations completed, loading initial database state")
     let isCancelled = false
 
     void (async () => {
@@ -52,6 +57,7 @@ export function DatabaseProvider({
         }
 
         lifecycleRef.current = "ready"
+        logInfo("Database provider ready")
         onReady?.()
       } catch (loadTracksError) {
         if (isCancelled) {
@@ -68,6 +74,7 @@ export function DatabaseProvider({
 
     return () => {
       isCancelled = true
+      logInfo("Database provider load cancelled")
     }
   }, [error, onError, onReady, success])
 

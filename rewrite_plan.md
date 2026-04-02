@@ -525,6 +525,11 @@ Performance is a first-class rewrite track.
   - `src/modules/indexer/indexer-progress.service.ts` now logs begin/complete/fail/hide transition points outside the hot progress-update path
 - [~] logging output signal quality improved:
   - `src/modules/logging/logging.service.ts` now avoids forwarding undefined context/error arguments to console output, removing noisy `... undefined` suffixes in runtime logs
+- [~] bootstrap/database/media-listener logging closure advanced:
+  - `src/modules/bootstrap/bootstrap-listeners.service.ts` now logs listener registration/unregistration and auto-scan trigger entry points
+  - `src/components/providers/database-provider.tsx` now logs migration wait, startup loading, ready, and cancellation states
+  - `src/modules/bootstrap/database-startup.service.ts` now logs startup load failure paths and rethrows with context
+  - `src/core/storage/media-library.service.ts` now logs permission read/request lifecycle and failure paths
 
 These are now treated as groundwork, not the finish line.
 
