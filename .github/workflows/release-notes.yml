@@ -34,7 +34,17 @@ jobs:
         run: |
           set -euo pipefail
           CURRENT_TAG="${{ inputs.release_tag }}"
-          PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || true)"
+
+          if [[ "${CURRENT_TAG}" == *-* ]]; then
+            PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || true)"
+            echo "Pre-release detected. Using nearest previous tag: ${PREVIOUS_TAG:-<none>}"
+          else
+            PREVIOUS_TAG="$(
+              git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname \
+                | awk -v current_tag="${CURRENT_TAG}" '$0 != current_tag { print; exit }'
+            )"
+            echo "Stable release detected. Using previous stable tag: ${PREVIOUS_TAG:-<none>}"
+          fi
 
           if [ -n "${PREVIOUS_TAG}" ]; then
             RANGE="${PREVIOUS_TAG}..${CURRENT_TAG}"
