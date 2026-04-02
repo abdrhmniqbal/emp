@@ -65,7 +65,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - route ownership is generally workable, but transition policy is still mostly default and duplicated across layout files
   - shared native stack presets now live in `src/modules/navigation/stack.tsx`
   - main tabs should continue prioritizing stability over animation
-  - media detail routes should be the first candidates for `react-native-screen-transitions`
+  - album, artist, and playlist detail groups now use the transition-enabled native stack wrapper
   - settings should remain modal at the root and use normal push transitions within the settings stack
   - migration plan lives in `docs/rewrite/navigation-migration-plan.md`
 

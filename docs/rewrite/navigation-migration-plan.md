@@ -189,6 +189,11 @@ It should cover:
 
 This should replace repeated `headerStyle`, `contentStyle`, back-button, and animation config across layout files.
 
+Status:
+
+- completed with `src/modules/navigation/stack.tsx`
+- home, search, library, and settings now share the same native stack preset helpers
+
 ### Slice 2: Normalize route ownership
 
 Audit all `router.push(...)` targets and classify them:
@@ -218,6 +223,14 @@ Add `react-native-screen-transitions` only for:
 - playlist detail entry
 
 Start with one route type first, verify behavior, then expand.
+
+Status:
+
+- started for the shared media detail groups:
+  - album
+  - artist
+  - playlist
+- still needs route-entry refinement later if we want shared-element style zoom from specific source components
 
 ### Slice 5: Normalize settings flow
 
