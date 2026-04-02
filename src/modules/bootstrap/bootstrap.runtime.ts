@@ -1,6 +1,3 @@
-import * as MediaLibrary from "expo-media-library"
-import { AppState, type AppStateStatus } from "react-native"
-
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
@@ -112,42 +109,5 @@ export async function runAutoScan(options?: { bypassThrottle?: boolean }) {
     await startIndexing(false, false)
   } catch (error) {
     logError("Auto scan failed", error, { bypassThrottle })
-  }
-}
-
-export function shouldTriggerAutoScanOnMediaLibraryEvent(
-  event: MediaLibrary.MediaLibraryAssetsChangeEvent
-) {
-  return (
-    event.hasIncrementalChanges === false ||
-    (event.deletedAssets?.length ?? 0) > 0
-  )
-}
-
-export function registerBootstrapListeners() {
-  let previousState: AppStateStatus = AppState.currentState
-
-  const appStateSubscription = AppState.addEventListener("change", (nextState) => {
-    const isReturningToForeground =
-      (previousState === "background" || previousState === "inactive") &&
-      nextState === "active"
-    previousState = nextState
-
-    if (!isReturningToForeground) {
-      return
-    }
-
-    void runAutoScan()
-  })
-
-  const mediaLibrarySubscription = MediaLibrary.addListener((event) => {
-    void runAutoScan({
-      bypassThrottle: shouldTriggerAutoScanOnMediaLibraryEvent(event),
-    })
-  })
-
-  return () => {
-    appStateSubscription.remove()
-    mediaLibrarySubscription.remove()
   }
 }

@@ -165,6 +165,7 @@ Rules:
 - provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
 - provider effect components should delegate listener orchestration to runtime modules instead of duplicating event setup locally
 - provider startup loading should live in runtime services instead of inline async blocks inside provider components
+- bootstrap listener registration should live outside `bootstrap.runtime.ts`
 - local preference state should converge into `useSettingsStore` instead of being spread across separate per-setting Zustand stores
 - settings screens should read local preferences from `useSettingsStore` directly instead of going through per-setting selector wrappers
 - local settings persistence should converge into `settings.repository.ts` instead of being split across feature modules
