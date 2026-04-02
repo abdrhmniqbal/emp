@@ -1,8 +1,9 @@
 import { QueryClientProvider } from "@tanstack/react-query"
+import { useEffect } from "react"
 
 import { queryClient } from "@/lib/tanstack-query"
+import { registerBootstrapListeners } from "@/modules/bootstrap/bootstrap-listeners.service"
 
-import { BootstrapEffects } from "./bootstrap-effects"
 import { DatabaseProvider } from "./database-provider"
 
 export function RootProviders({
@@ -14,10 +15,13 @@ export function RootProviders({
   onDatabaseReady?: () => void
   onDatabaseError?: () => void
 }) {
+  useEffect(() => {
+    return registerBootstrapListeners()
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <DatabaseProvider onReady={onDatabaseReady} onError={onDatabaseError}>
-        <BootstrapEffects />
         {children}
       </DatabaseProvider>
     </QueryClientProvider>

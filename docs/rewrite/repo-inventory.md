@@ -233,7 +233,7 @@ Progress:
 - `src/app/settings/folder-filters.tsx` now initializes directly from `useSettingsStore` instead of running a one-off config loading effect
 - `DatabaseProvider` now reports ready/error from the actual migration/load path instead of separate watcher effects
 - database startup loading now lives in `src/modules/bootstrap/database-startup.service.ts`
-- `BootstrapEffects` now delegates listener orchestration to `registerBootstrapListeners()` in `bootstrap.runtime.ts`
+- `RootProviders` now registers bootstrap listeners directly, and the single-use `BootstrapEffects` wrapper has been removed
 - bootstrap listener registration now lives in `src/modules/bootstrap/bootstrap-listeners.service.ts`
 - destructive track deletion and track file opening now log native and cleanup failures
 - battery optimization helpers now log unsupported paths, requests, and failures

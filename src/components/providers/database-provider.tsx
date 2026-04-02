@@ -17,7 +17,6 @@ export function DatabaseProvider({
   onError?: () => void
 }) {
   const [databaseError, setDatabaseError] = useState<Error | null>(null)
-  const [isReady, setIsReady] = useState(false)
   const lifecycleRef = useRef<"idle" | "loading" | "ready" | "error">("idle")
   const { success, error } = useMigrations(db, migrations)
 
@@ -34,7 +33,11 @@ export function DatabaseProvider({
       return
     }
 
-    if (!success || lifecycleRef.current === "loading" || isReady) {
+    if (
+      !success ||
+      lifecycleRef.current === "loading" ||
+      lifecycleRef.current === "ready"
+    ) {
       return
     }
 
@@ -49,7 +52,6 @@ export function DatabaseProvider({
         }
 
         lifecycleRef.current = "ready"
-        setIsReady(true)
         onReady?.()
       } catch (loadTracksError) {
         if (isCancelled) {
@@ -67,7 +69,7 @@ export function DatabaseProvider({
     return () => {
       isCancelled = true
     }
-  }, [error, isReady, onError, onReady, success])
+  }, [error, onError, onReady, success])
 
   if (databaseError) {
     const message = databaseError.message || ""

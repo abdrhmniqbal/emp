@@ -55,6 +55,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - notes:
   - `DatabaseProvider` is leaner now and reports ready/error from the actual async startup path
   - database startup loading now lives in `database-startup.service.ts` instead of an inline provider async block
+  - bootstrap listener registration now lives directly in `RootProviders`, so the single-use `BootstrapEffects` wrapper is gone
   - provider/runtime effects still deserve another simplification pass later
 
 ### `device`

@@ -166,7 +166,7 @@ Rules:
 - settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects
 - provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
-- provider effect components should delegate listener orchestration to runtime modules instead of duplicating event setup locally
+- bootstrap listener registration should live in the root provider layer without single-use wrapper components
 - provider startup loading should live in runtime services instead of inline async blocks inside provider components
 - bootstrap listener registration should live outside `bootstrap.runtime.ts`
 - local preference state should converge into `useSettingsStore` instead of being spread across separate per-setting Zustand stores
