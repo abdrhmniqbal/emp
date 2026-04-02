@@ -7,7 +7,13 @@ import { mapTrackToTrackPlayerInput } from "@/modules/player/player-adapter"
 import { setActiveTrack, setPlaybackProgress } from "@/modules/player/player-runtime-state"
 import { handleTrackActivated } from "@/modules/player/player-activity.service"
 
-import { Capability, TrackPlayer } from "@/modules/player/player.utils"
+import {
+  AndroidAudioContentType,
+  AppKilledPlaybackBehavior,
+  Capability,
+  IOSCategory,
+  TrackPlayer,
+} from "@/modules/player/player.utils"
 
 import {
   getTracksState,
@@ -28,10 +34,23 @@ export async function setupPlayer() {
     logInfo("Setting up track player")
     await TrackPlayer.setupPlayer({
       autoHandleInterruptions: true,
+      androidAudioContentType: AndroidAudioContentType.Music,
+      iosCategory: IOSCategory.Playback,
     })
 
     await TrackPlayer.updateOptions({
+      android: {
+        appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback,
+        stopForegroundGracePeriod: 30,
+      },
       capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+        Capability.SeekTo,
+      ],
+      notificationCapabilities: [
         Capability.Play,
         Capability.Pause,
         Capability.SkipToNext,
@@ -44,7 +63,7 @@ export async function setupPlayer() {
         Capability.SkipToNext,
         Capability.SkipToPrevious,
       ],
-      progressUpdateEventInterval: 0.1,
+      progressUpdateEventInterval: 0.5,
       color: processColor("#0088F6") as number,
     })
 

@@ -1,8 +1,20 @@
 import TrackPlayer, {
+  AndroidAudioContentType,
+  AppKilledPlaybackBehavior,
   Capability,
   Event,
+  IOSCategory,
   RepeatMode,
   State,
 } from "@weights-ai/react-native-track-player"
 
-export { Capability, Event, RepeatMode, State, TrackPlayer }
+export {
+  AndroidAudioContentType,
+  AppKilledPlaybackBehavior,
+  Capability,
+  Event,
+  IOSCategory,
+  RepeatMode,
+  State,
+  TrackPlayer,
+}

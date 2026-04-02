@@ -1,4 +1,4 @@
-import { logError } from "@/modules/logging/logging.service"
+import { logError, logWarn } from "@/modules/logging/logging.service"
 import {
   pauseTrack,
   playNext,
@@ -41,6 +41,21 @@ export async function PlaybackService() {
     if (event.position !== undefined) {
       void seekTo(event.position)
     }
+  })
+
+  TrackPlayer.addEventListener(Event.RemoteDuck, (event) => {
+    logWarn("Playback interruption event received", {
+      paused: event.paused,
+      permanent: event.permanent,
+    })
+  })
+
+  TrackPlayer.addEventListener(Event.ServiceKilled, () => {
+    logError("TrackPlayer service was killed while app in background")
+  })
+
+  TrackPlayer.addEventListener(Event.PlaybackError, (event) => {
+    logError("TrackPlayer playback error", event)
   })
 
   TrackPlayer.addEventListener(Event.PlaybackState, (event) => {
