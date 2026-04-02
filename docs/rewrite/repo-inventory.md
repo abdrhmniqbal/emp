@@ -235,6 +235,7 @@ Progress:
 - shared native stack presets now live in `src/modules/navigation/stack.tsx`, and the home/search/library/settings layouts now read from that shared navigation boundary instead of repeating stack config inline
 - album, artist, and playlist detail route groups now use the transition-enabled native stack wrapper from `src/modules/navigation/stack.tsx`
 - drill-down screens, hidden nested screens, and the root settings modal now use shared navigation screen-option helpers instead of repeating those route classes inline
+- repeated root stack header action buttons now share `src/components/patterns/stack-header-actions.tsx`
 - queue runtime commands now live in `src/modules/player/queue.service.ts`
 - player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - player session persistence now lives in `src/modules/player/player-session.repository.ts`
