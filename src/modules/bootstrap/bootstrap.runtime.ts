@@ -1,4 +1,4 @@
-import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
+import { getMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { startIndexing } from "@/modules/indexer/indexer.service"
@@ -99,8 +99,12 @@ export async function runAutoScan(options?: { bypassThrottle?: boolean }) {
       return
     }
 
-    const { status } = await requestMediaLibraryPermission()
+    const { status } = await getMediaLibraryPermission()
     if (status !== "granted") {
+      logInfo("Auto scan skipped because media permission is not granted", {
+        status,
+        bypassThrottle,
+      })
       return
     }
 

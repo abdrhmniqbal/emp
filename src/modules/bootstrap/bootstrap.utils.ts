@@ -4,7 +4,10 @@ import {
   initializeTrackPlayer,
   registerPlaybackService,
 } from "@/core/audio/track-player.service"
-import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
+import {
+  getMediaLibraryPermission,
+  requestMediaLibraryPermission,
+} from "@/core/storage/media-library.service"
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
@@ -34,7 +37,11 @@ export async function bootstrapApp(): Promise<void> {
   await restorePlaybackSession()
   await preloadLocalSettings()
 
-  const { status } = await requestMediaLibraryPermission()
+  const permission = await getMediaLibraryPermission()
+  const status =
+    permission.status === "undetermined" && permission.canAskAgain
+      ? (await requestMediaLibraryPermission()).status
+      : permission.status
   logInfo("Media library permission resolved during bootstrap", { status })
   if (status === "granted") {
     const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
