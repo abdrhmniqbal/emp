@@ -113,6 +113,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - library tab query field mapping is now explicit and typed instead of relying on `as any`
 - tracks tab now memoizes track transformation and sorting before handing data to `TrackList`
 - search results section construction now uses a small local helper instead of repeating nearly identical list-building branches
+- library screen now shares common list wiring locally and uses narrower selectors instead of repeating broad subscriptions and tab props
 - folder browser is reasonable, but library state is still spread across screen + sort store
 
 ### `logging`

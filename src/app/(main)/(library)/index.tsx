@@ -119,11 +119,10 @@ export default function LibraryScreen() {
   const router = useRouter()
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const hasMiniPlayer = usePlayerStore((state) => state.currentTrack !== null)
   const tracks = usePlayerStore((state) => state.tracks)
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const tabBarHeight = getTabBarHeight(insets.bottom)
-  const hasMiniPlayer = currentTrack !== null
   const libraryListBottomPadding =
     tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 200
   const [activeTab, setActiveTab] = React.useState<LibraryTab>("Tracks")
@@ -159,9 +158,9 @@ export default function LibraryScreen() {
   const { data: playlistsData = [] } =
     usePlaylistsWithOptions(shouldLoadPlaylists)
 
-  const playlists: Playlist[] = sortGeneric(
-    playlistsData,
-    allSortConfigs.Playlists
+  const playlists = React.useMemo<Playlist[]>(
+    () => sortGeneric(playlistsData, allSortConfigs.Playlists),
+    [allSortConfigs.Playlists, playlistsData]
   )
 
   const { folders, tracks: folderTracks, breadcrumbs: folderBreadcrumbs } =
@@ -180,7 +179,17 @@ export default function LibraryScreen() {
   const handleListScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     handleScroll(event.nativeEvent.contentOffset.y)
   }
-  const isRefreshing = isPullRefreshing || indexerState.isIndexing
+  const isRefreshing = isPullRefreshing || isIndexing
+  const sharedListEvents = {
+    onScroll: handleListScroll,
+    onScrollBeginDrag: handleScrollStart,
+    onScrollEndDrag: handleScrollStop,
+    onMomentumScrollEnd: handleScrollStop,
+  } as const
+  const listContentContainerStyle = {
+    paddingBottom: libraryListBottomPadding,
+  }
+  const listResetScrollKey = `${sortConfig.field}-${sortConfig.order}`
 
   function closeSortModal() {
     setSortModalVisible(false)
@@ -303,14 +312,14 @@ export default function LibraryScreen() {
     }
   }
 
-  function getSortLabel() {
+  const sortLabel = React.useMemo(() => {
     const selected = currentSortOptions.find(
       (option) => option.field === sortConfig.field
     )
     return selected?.label || "Sort"
-  }
+  }, [currentSortOptions, sortConfig.field])
 
-  function getItemCount() {
+  const itemCount = React.useMemo(() => {
     switch (activeTab) {
       case "Tracks":
         return tracks.length
@@ -327,10 +336,19 @@ export default function LibraryScreen() {
       default:
         return 0
     }
-  }
+  }, [
+    activeTab,
+    albumsData.length,
+    artistsData.length,
+    favorites.length,
+    folderTracks.length,
+    folders.length,
+    playlists.length,
+    tracks.length,
+  ])
 
   async function handleRefresh() {
-    if (indexerState.isIndexing) {
+    if (isIndexing) {
       return
     }
 
@@ -363,10 +381,7 @@ export default function LibraryScreen() {
             onTrackPress={playSingleTrack}
             contentBottomPadding={libraryListBottomPadding}
             refreshControl={refreshControl}
-            onScroll={handleListScroll}
-            onScrollBeginDrag={handleScrollStart}
-            onScrollEndDrag={handleScrollStop}
-            onMomentumScrollEnd={handleScrollStop}
+            {...sharedListEvents}
           />
         )
       case "Albums":
@@ -376,10 +391,7 @@ export default function LibraryScreen() {
             onAlbumPress={(album) => openAlbum(album.title)}
             contentBottomPadding={libraryListBottomPadding}
             refreshControl={refreshControl}
-            onScroll={handleListScroll}
-            onScrollBeginDrag={handleScrollStart}
-            onScrollEndDrag={handleScrollStop}
-            onMomentumScrollEnd={handleScrollStop}
+            {...sharedListEvents}
           />
         )
       case "Artists":
@@ -389,10 +401,7 @@ export default function LibraryScreen() {
             onArtistPress={(artist) => openArtist(artist.name)}
             contentBottomPadding={libraryListBottomPadding}
             refreshControl={refreshControl}
-            onScroll={handleListScroll}
-            onScrollBeginDrag={handleScrollStart}
-            onScrollEndDrag={handleScrollStop}
-            onMomentumScrollEnd={handleScrollStop}
+            {...sharedListEvents}
           />
         )
       case "Playlists":
@@ -401,13 +410,10 @@ export default function LibraryScreen() {
             data={playlists}
             onCreatePlaylist={openPlaylistForm}
             onPlaylistPress={(playlist) => openPlaylist(playlist.id)}
-            contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
-            resetScrollKey={`${sortConfig.field}-${sortConfig.order}`}
+            contentContainerStyle={listContentContainerStyle}
+            resetScrollKey={listResetScrollKey}
             refreshControl={refreshControl}
-            onScroll={handleListScroll}
-            onScrollBeginDrag={handleScrollStart}
-            onScrollEndDrag={handleScrollStop}
-            onMomentumScrollEnd={handleScrollStop}
+            {...sharedListEvents}
           />
         )
       case "Folders":
@@ -420,25 +426,19 @@ export default function LibraryScreen() {
             onBackFolder={goBackFolder}
             onNavigateToFolderPath={navigateToFolderPath}
             onTrackPress={playFolderTrack}
-            contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
-            resetScrollKey={`${sortConfig.field}-${sortConfig.order}`}
+            contentContainerStyle={listContentContainerStyle}
+            resetScrollKey={listResetScrollKey}
             refreshControl={refreshControl}
-            onScroll={handleListScroll}
-            onScrollBeginDrag={handleScrollStart}
-            onScrollEndDrag={handleScrollStop}
-            onMomentumScrollEnd={handleScrollStop}
+            {...sharedListEvents}
           />
         )
       case "Favorites":
         return (
           <FavoritesList
             data={favorites}
-            contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
+            contentContainerStyle={listContentContainerStyle}
             refreshControl={refreshControl}
-            onScroll={handleListScroll}
-            onScrollBeginDrag={handleScrollStart}
-            onScrollEndDrag={handleScrollStop}
-            onMomentumScrollEnd={handleScrollStop}
+            {...sharedListEvents}
           />
         )
       default:
@@ -491,11 +491,11 @@ export default function LibraryScreen() {
         <View className="flex-row items-center justify-between px-4 pb-4">
           <Text className="text-lg font-bold text-foreground">
             {activeTab === "Folders"
-              ? `${getItemCount()} Items`
-              : `${getItemCount()} ${activeTab}`}
+              ? `${itemCount} Items`
+              : `${itemCount} ${activeTab}`}
           </Text>
           {currentSortOptions.length > 0 && (
-            <SortSheet.Trigger label={getSortLabel()} iconSize={16} />
+            <SortSheet.Trigger label={sortLabel} iconSize={16} />
           )}
         </View>
 
