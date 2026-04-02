@@ -193,12 +193,20 @@ export async function initializeLogging(): Promise<void> {
 }
 
 export function logInfo(message: string, context?: unknown): void {
-  originalConsole.info(message, context)
+  if (context === undefined) {
+    originalConsole.info(message)
+  } else {
+    originalConsole.info(message, context)
+  }
   enqueueFileLog("info", message, context)
 }
 
 export function logWarn(message: string, context?: unknown): void {
-  originalConsole.warn(message, context)
+  if (context === undefined) {
+    originalConsole.warn(message)
+  } else {
+    originalConsole.warn(message, context)
+  }
   enqueueFileLog("warn", message, context)
 }
 
@@ -207,7 +215,13 @@ export function logError(
   error?: unknown,
   context?: unknown
 ): void {
-  originalConsole.error(message, error, context)
+  if (error === undefined && context === undefined) {
+    originalConsole.error(message)
+  } else if (context === undefined) {
+    originalConsole.error(message, error)
+  } else {
+    originalConsole.error(message, error, context)
+  }
   const fullMessage = normalizeErrorMessage(message, error)
   const mergedContext =
     context === undefined
@@ -221,7 +235,13 @@ export function logCritical(
   error?: unknown,
   context?: unknown
 ): void {
-  originalConsole.error(message, error, context)
+  if (error === undefined && context === undefined) {
+    originalConsole.error(message)
+  } else if (context === undefined) {
+    originalConsole.error(message, error)
+  } else {
+    originalConsole.error(message, error, context)
+  }
   const fullMessage = normalizeErrorMessage(message, error)
   const mergedContext =
     context === undefined

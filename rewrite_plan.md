@@ -523,6 +523,8 @@ Performance is a first-class rewrite track.
   - `src/modules/player/player-controls.service.ts` now logs start/success/failure paths for transport and repeat-mode workflows
   - `src/modules/player/queue.service.ts` now logs queue mutation lifecycle paths (add/queue-next/remove/clear) with rollback-context on failures
   - `src/modules/indexer/indexer-progress.service.ts` now logs begin/complete/fail/hide transition points outside the hot progress-update path
+- [~] logging output signal quality improved:
+  - `src/modules/logging/logging.service.ts` now avoids forwarding undefined context/error arguments to console output, removing noisy `... undefined` suffixes in runtime logs
 
 These are now treated as groundwork, not the finish line.
 
