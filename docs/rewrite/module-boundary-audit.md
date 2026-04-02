@@ -68,6 +68,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - repeated tab-root header actions now live in `src/components/patterns/stack-header-actions.tsx`
   - main tabs should continue prioritizing stability over animation, and now use the built-in `shift` transition as the safe baseline
   - album, artist, and playlist detail groups were moved back to Expo Router native `Stack` after the transition wrapper broke headers and back behavior
+  - drill-down routes now use a clearer slide transition, while detail routes use a stronger native detail transition baseline
   - settings should remain modal at the root and use normal push transitions within the settings stack
   - migration plan lives in `docs/rewrite/navigation-migration-plan.md`
 

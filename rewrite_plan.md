@@ -235,9 +235,10 @@ Target component rules:
 - use `react-native-screen-transitions` only when the dependency situation is stable enough to adopt it safely
 - keep routed layouts on Expo Router native `Stack` until any custom transition layer can preserve header visibility, title alignment, and back semantics
 - apply zoom transitions only to media-detail routes with a clear visual source
-- use simpler native push transitions for utility drill-down screens
+- use simpler native slide transitions for utility drill-down screens
 - keep tab switching animation-free unless profiling shows a safe native alternative
 - tab-root navigation can use the built-in bottom-tab `shift` animation when it improves feel without reintroducing blank-scene issues
+- keep detail-route shared zoom transitions deferred until they can coexist with native headers and back behavior
 - centralize repeated stack configuration in shared navigation presets before changing individual route transitions
 - encode route classes as shared screen-option helpers instead of re-declaring animation and visibility rules in each layout
 - shared route chrome, such as repeated stack header action buttons, should live in small reusable components instead of being hand-built in each layout

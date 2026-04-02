@@ -78,7 +78,7 @@ export function getDrillDownScreenOptions(
 ) {
   return {
     ...getBackButtonScreenOptions(title, headerLeft),
-    animation: "simple_push" as const,
+    animation: "slide_from_right" as const,
   }
 }
 
@@ -89,7 +89,7 @@ export function getMediaDetailTransitionOptions(
   return {
     ...getDefaultNativeStackOptions(theme),
     ...getBackButtonScreenOptions("", headerLeft),
-    animation: "simple_push" as const,
+    animation: "fade_from_bottom" as const,
   }
 }
 

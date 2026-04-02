@@ -94,7 +94,7 @@ Use transitions by route type:
   - only use zoom when we have a clear source element and native header behavior remains correct
 
 - text/list drill-down pages:
-  - use push-style transitions that feel native and low-friction:
+  - use slide-style transitions that feel native and low-friction:
     - search -> genre
     - genre -> top tracks
     - genre -> albums
@@ -153,7 +153,7 @@ Target:
 
 Target:
 
-- native push transition
+- native slide transition
 - fast and understated
 
 ### Class D: Modal task routes
@@ -253,6 +253,7 @@ Status:
   - artist
   - playlist
   use Expo Router native `Stack` with shared native screen options
+  and a stronger native detail transition baseline
 - revisit only after we have a header-safe transition path
 
 ## Stability Rules
@@ -261,6 +262,7 @@ Status:
 - header visibility regressions are release blockers
 - title alignment regressions are release blockers
 - if a transition package fights Expo Router stack behavior, keep the route native and defer the visual transition
+- actual shared zoom transitions for routed detail pages stay deferred until they can preserve native headers and back behavior
 
 ### Slice 5: Normalize settings flow
 
