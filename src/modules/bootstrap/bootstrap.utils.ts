@@ -12,6 +12,7 @@ import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { ensureFolderFilterConfigLoaded } from "@/modules/settings/folder-filters"
+import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/indexer-notifications"
 import { ensureTrackDurationFilterConfigLoaded } from "@/modules/settings/track-duration-filter"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { ensureLoggingConfigLoaded } from "@/modules/logging/logging.store"
@@ -23,6 +24,7 @@ async function preloadLocalSettings() {
   await Promise.all([
     ensureAutoScanConfigLoaded(),
     ensureFolderFilterConfigLoaded(),
+    ensureIndexerNotificationsConfigLoaded(),
     ensureTrackDurationFilterConfigLoaded(),
     ensureLoggingConfigLoaded(),
   ])

@@ -7,6 +7,7 @@ import type {
 } from "./settings.types"
 
 const DEFAULT_AUTO_SCAN_ENABLED = true
+const DEFAULT_INDEXER_NOTIFICATIONS_ENABLED = true
 const DEFAULT_FOLDER_FILTER_CONFIG: FolderFilterConfig = {
   whitelist: [],
   blacklist: [],
@@ -21,6 +22,7 @@ const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
 
 interface SettingsState {
   autoScanEnabled: boolean
+  indexerNotificationsEnabled: boolean
   folderFilterConfig: FolderFilterConfig
   loggingConfig: LoggingConfig
   trackDurationFilterConfig: TrackDurationFilterConfig
@@ -28,6 +30,7 @@ interface SettingsState {
 
 export const useSettingsStore = create<SettingsState>(() => ({
   autoScanEnabled: DEFAULT_AUTO_SCAN_ENABLED,
+  indexerNotificationsEnabled: DEFAULT_INDEXER_NOTIFICATIONS_ENABLED,
   folderFilterConfig: DEFAULT_FOLDER_FILTER_CONFIG,
   loggingConfig: DEFAULT_LOGGING_CONFIG,
   trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
@@ -39,6 +42,10 @@ export function getDefaultAutoScanEnabled() {
 
 export function getDefaultLoggingConfig() {
   return DEFAULT_LOGGING_CONFIG
+}
+
+export function getDefaultIndexerNotificationsEnabled() {
+  return DEFAULT_INDEXER_NOTIFICATIONS_ENABLED
 }
 
 export function getDefaultFolderFilterConfig() {

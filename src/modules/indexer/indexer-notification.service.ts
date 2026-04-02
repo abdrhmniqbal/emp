@@ -3,6 +3,7 @@ import { Platform } from "react-native"
 
 import type { IndexerScanProgress } from "@/modules/indexer/indexer.types"
 import { logError, logInfo } from "@/modules/logging/logging.service"
+import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/indexer-notifications"
 
 const INDEXER_NOTIFICATION_CHANNEL_ID = "indexer-progress"
 const INDEXER_NOTIFICATION_ROUTE = "/(main)/(library)"
@@ -89,6 +90,21 @@ async function ensureNotificationPermission() {
 }
 
 async function replaceIndexerNotification(title: string, body: string) {
+  const notificationsEnabled = await ensureIndexerNotificationsConfigLoaded()
+  if (!notificationsEnabled) {
+    if (activeNotificationId) {
+      try {
+        await Notifications.dismissNotificationAsync(activeNotificationId)
+      } catch (error) {
+        logError("Failed to dismiss indexer notification while disabled", error)
+      } finally {
+        activeNotificationId = null
+      }
+    }
+
+    return
+  }
+
   if (!(await ensureNotificationPermission())) {
     return
   }
