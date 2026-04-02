@@ -537,6 +537,8 @@ Performance is a first-class rewrite track.
   - `src/modules/player/queue.service.ts` now handles removing the currently active track by rebuilding native queue state safely, selecting a fallback active track, and keeping playback/session state in sync
 - [~] library tracks refresh UX bug fixed:
   - `src/components/blocks/track-list.tsx` now renders the empty state through `LegendList` `ListEmptyComponent` instead of short-circuiting the list render, so pull-to-refresh remains available even when the track list is empty
+- [~] artist artwork source consistency improved:
+  - `src/components/blocks/artists-tab.tsx` now prioritizes `trackArtwork` before `artist.artwork`, aligning artist-list artwork selection with artist detail screen behavior
 
 These are now treated as groundwork, not the finish line.
 

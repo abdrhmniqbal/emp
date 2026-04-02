@@ -73,8 +73,8 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
         name: artist.name,
         trackCount: artist.trackCount || 0,
         image:
-          artist.artwork ||
           artist.trackArtwork ||
+          artist.artwork ||
           artist.albumArtwork ||
           undefined,
         dateAdded: 0,
