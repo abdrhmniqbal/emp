@@ -48,7 +48,7 @@ export default function GenreDetailsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
   const router = useRouter()
   const theme = useThemeColors()
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
 
   const parsedGenreRouteName = React.useMemo(() => getSafeRouteName(name), [name])
   const genreName = parsedGenreRouteName.value
@@ -138,7 +138,7 @@ export default function GenreDetailsScreen() {
         scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
-            refreshing={indexerState.isIndexing || isLoading || isFetching}
+            refreshing={isIndexing || isLoading || isFetching}
             onRefresh={refresh}
             tintColor={theme.accent}
           />

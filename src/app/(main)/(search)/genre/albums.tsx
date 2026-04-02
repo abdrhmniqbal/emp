@@ -34,7 +34,7 @@ import { sortAlbums } from "@/modules/library/library-sort.utils"
 export default function GenreAlbumsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
   const router = useRouter()
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const theme = useThemeColors()
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const [sortConfig, setSortConfig] = useState<{
@@ -148,7 +148,7 @@ export default function GenreAlbumsScreen() {
             onScrollEndDrag={handleScrollStop}
             refreshControl={
               <RefreshControl
-                refreshing={indexerState.isIndexing || isLoading || isFetching}
+                refreshing={isIndexing || isLoading || isFetching}
                 onRefresh={refresh}
                 tintColor={theme.accent}
               />

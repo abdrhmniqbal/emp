@@ -32,8 +32,8 @@ const TOP_TRACKS_LIMIT = 25
 export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
-  const indexerState = useIndexerStore((state) => state.indexerState)
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
+  const currentTrackId = usePlayerStore((state) => state.currentTrack?.id)
   const {
     data: recentlyPlayedTracksData,
     isLoading: isRecentlyPlayedLoading,
@@ -77,10 +77,10 @@ export default function HomeScreen() {
         variant="grid"
         onPress={() => playTrack(item, recentlyPlayedTracks)}
         titleClassName={
-          currentTrack?.id === item.id ? "text-accent" : undefined
+          currentTrackId === item.id ? "text-accent" : undefined
         }
         imageOverlay={
-          currentTrack?.id === item.id ? <ScaleLoader size={16} /> : undefined
+          currentTrackId === item.id ? <ScaleLoader size={16} /> : undefined
         }
       />
     )
@@ -98,7 +98,7 @@ export default function HomeScreen() {
       scrollEventThrottle={16}
       refreshControl={
         <RefreshControl
-          refreshing={indexerState.isIndexing}
+          refreshing={isIndexing}
           onRefresh={refresh}
           colors={[theme.accent]}
           tintColor={theme.accent}

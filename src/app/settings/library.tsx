@@ -16,7 +16,7 @@ import { useSettingsStore } from "@/modules/settings/settings.store"
 
 export default function LibrarySettingsScreen() {
   const router = useRouter()
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const autoScanEnabled = useSettingsStore((state) => state.autoScanEnabled)
   const trackDurationFilterConfig = useSettingsStore(
     (state) => state.trackDurationFilterConfig
@@ -66,13 +66,13 @@ export default function LibrarySettingsScreen() {
           <SettingsRow
             title="Reindex Library"
             description={
-              indexerState.isIndexing
+              isIndexing
                 ? "Indexing in progress..."
                 : "Re-scan all tracks, including unchanged files."
             }
             onPress={() => setShowReindexDialog(true)}
             showChevron={false}
-            isDisabled={indexerState.isIndexing}
+            isDisabled={isIndexing}
           />
         </View>
       </ScrollView>

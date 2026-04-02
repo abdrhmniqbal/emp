@@ -134,7 +134,7 @@ export default function FolderFiltersScreen() {
   const theme = useThemeColors()
   const tracks = usePlayerStore((state) => state.tracks)
   const folderFilterConfig = useSettingsStore((state) => state.folderFilterConfig)
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const [pendingConfig, setPendingConfig] =
     React.useState<FolderFilterConfig>(folderFilterConfig)
   const [selectedMode, setSelectedMode] =
@@ -256,7 +256,7 @@ export default function FolderFiltersScreen() {
             <Button
               variant="secondary"
               onPress={() => setIsModeSheetOpen(true)}
-              isDisabled={indexerState.isIndexing}
+              isDisabled={isIndexing}
             >
               {getModeLabel()}
             </Button>
@@ -267,7 +267,7 @@ export default function FolderFiltersScreen() {
               void pickFolder()
             }}
             variant="secondary"
-            isDisabled={indexerState.isIndexing}
+            isDisabled={isIndexing}
             className="my-3"
           >
             <LocalAddIcon
@@ -285,7 +285,7 @@ export default function FolderFiltersScreen() {
           <Button
             variant="ghost"
             onPress={clearAllFolders}
-            isDisabled={!hasAnyFilters || indexerState.isIndexing}
+            isDisabled={!hasAnyFilters || isIndexing}
           >
             Clear All
           </Button>
@@ -315,7 +315,7 @@ export default function FolderFiltersScreen() {
                 removeIconColor={theme.muted}
                 isLast={index === folderPaths.length - 1}
                 onRemove={removeFolder}
-                isDisabled={indexerState.isIndexing}
+                isDisabled={isIndexing}
               />
             ))}
           </View>
@@ -330,9 +330,9 @@ export default function FolderFiltersScreen() {
           onPress={() => {
             void applyFilter()
           }}
-          isDisabled={!hasPendingChanges || indexerState.isIndexing}
+          isDisabled={!hasPendingChanges || isIndexing}
         >
-          {indexerState.isIndexing ? "Indexing..." : "Apply Filter"}
+          {isIndexing ? "Indexing..." : "Apply Filter"}
         </Button>
       </View>
 

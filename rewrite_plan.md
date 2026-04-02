@@ -530,6 +530,9 @@ Performance is a first-class rewrite track.
   - `src/components/providers/database-provider.tsx` now logs migration wait, startup loading, ready, and cancellation states
   - `src/modules/bootstrap/database-startup.service.ts` now logs startup load failure paths and rethrows with context
   - `src/core/storage/media-library.service.ts` now logs permission read/request lifecycle and failure paths
+- [~] hot-screen store subscription narrowing pass completed:
+  - home/search/genre and settings list screens now subscribe to primitive `isIndexing` selectors instead of full `indexerState` objects
+  - `src/app/(main)/(home)/index.tsx` now subscribes to `currentTrack?.id` for active-row styling instead of the full track object
 
 These are now treated as groundwork, not the finish line.
 

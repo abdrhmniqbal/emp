@@ -20,7 +20,7 @@ const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 
 export default function RecentlyPlayedScreen() {
   const theme = useThemeColors()
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const { data: historyData, isLoading, isFetching, refetch } =
     useRecentlyPlayedTracks(RECENTLY_PLAYED_SCREEN_LIMIT)
 
@@ -82,7 +82,7 @@ export default function RecentlyPlayedScreen() {
           onScrollEndDrag={handleScrollStop}
           refreshControl={
             <RefreshControl
-              refreshing={indexerState.isIndexing}
+              refreshing={isIndexing}
               onRefresh={refresh}
               tintColor={theme.accent}
             />

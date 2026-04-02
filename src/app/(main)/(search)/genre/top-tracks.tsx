@@ -24,7 +24,7 @@ import { useGenreTopTracks } from "@/modules/search/search.queries"
 
 export default function GenreTopTracksScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const theme = useThemeColors()
 
   const genreName = decodeURIComponent(name || "")
@@ -106,7 +106,7 @@ export default function GenreTopTracksScreen() {
           onScrollEndDrag={handleScrollStop}
           refreshControl={
             <RefreshControl
-              refreshing={indexerState.isIndexing || isLoading || isFetching}
+              refreshing={isIndexing || isLoading || isFetching}
               onRefresh={refresh}
               tintColor={theme.accent}
             />

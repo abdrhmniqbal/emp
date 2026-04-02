@@ -41,7 +41,7 @@ function tabToPeriod(tab: TopTracksTab): TopTracksPeriod {
 }
 
 export default function TopTracksScreen() {
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const theme = useThemeColors()
   const [activeTab, setActiveTab] = useState<TopTracksTab>("Realtime")
   const period = tabToPeriod(activeTab)
@@ -139,7 +139,7 @@ export default function TopTracksScreen() {
             onScrollEndDrag={handleScrollStop}
             refreshControl={
               <RefreshControl
-                refreshing={indexerState.isIndexing}
+                refreshing={isIndexing}
                 onRefresh={refresh}
                 tintColor={theme.accent}
               />

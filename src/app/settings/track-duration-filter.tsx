@@ -59,7 +59,7 @@ function getSliderNumericValue(value: number | number[]): number {
 
 export default function TrackDurationFilterScreen() {
   const theme = useThemeColors()
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const config = useSettingsStore(
     (state) => state.trackDurationFilterConfig
   )
@@ -96,7 +96,7 @@ export default function TrackDurationFilterScreen() {
               void handleModeSelect(option.value)
             }}
             className="flex-row items-center bg-background px-6 py-4 active:opacity-70"
-            isDisabled={indexerState.isIndexing}
+            isDisabled={isIndexing}
           >
             <View className="flex-1 gap-0.5 pr-2">
               <Text className="text-[17px] font-normal text-foreground">
@@ -132,7 +132,7 @@ export default function TrackDurationFilterScreen() {
               maxValue={600}
               step={5}
               value={resolvedCustomSliderValue}
-              isDisabled={indexerState.isIndexing}
+              isDisabled={isIndexing}
               onChange={(value) => {
                 setCustomSliderValue(getSliderNumericValue(value))
               }}

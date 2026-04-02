@@ -23,7 +23,7 @@ import { useIndexerStore } from "@/modules/indexer/indexer.store"
 export default function SearchScreen() {
   const theme = useThemeColors()
   const router = useRouter()
-  const indexerState = useIndexerStore((state) => state.indexerState)
+  const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const { data, refetch, isLoading, isFetching } = useGenres()
 
   const categories = mapGenresToCategories(data ?? [])
@@ -58,7 +58,7 @@ export default function SearchScreen() {
       scrollEventThrottle={16}
       refreshControl={
         <RefreshControl
-          refreshing={indexerState.isIndexing}
+          refreshing={isIndexing}
           onRefresh={refresh}
           tintColor={theme.accent}
         />
