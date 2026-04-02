@@ -25,6 +25,10 @@ Reason:
 - route ownership is mostly in the right place
 - screens still need a consistency pass for loading, empty, error, and navigation behavior
 - some screens still carry too much orchestration or UI-specific logic that should be normalized
+- next major slice is a navigation rewrite:
+  - prefer native navigation where possible
+  - standardize transitions by route class
+  - reduce repeated stack config across layout files
 
 ### `src/components/blocks`
 
@@ -85,6 +89,8 @@ Reason:
 
 - detailed audit document:
   - `docs/rewrite/module-boundary-audit.md`
+- navigation migration plan:
+  - `docs/rewrite/navigation-migration-plan.md`
 
 - closest to target shape:
   - `favorites`

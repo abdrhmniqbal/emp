@@ -58,6 +58,16 @@ A module is considered `aligned` only if it mostly satisfies these:
   - bootstrap listener registration now lives directly in `RootProviders`, so the single-use `BootstrapEffects` wrapper is gone
   - provider/runtime effects still deserve another simplification pass later
 
+### `navigation`
+
+- status: `partial`
+- notes:
+  - route ownership is generally workable, but transition policy is still mostly default and duplicated across layout files
+  - main tabs should continue prioritizing stability over animation
+  - media detail routes should be the first candidates for `react-native-screen-transitions`
+  - settings should remain modal at the root and use normal push transitions within the settings stack
+  - migration plan lives in `docs/rewrite/navigation-migration-plan.md`
+
 ### `device`
 
 - status: `partial`

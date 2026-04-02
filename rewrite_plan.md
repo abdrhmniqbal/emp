@@ -56,6 +56,8 @@ We do not keep code just because it already works.
 - [ ] Prefer compound components over prop-heavy escape-hatch APIs
 - [ ] Prefer `uniwind` first, then inline styles only when needed
 - [ ] Prefer native navigation state over custom navigation-history workarounds
+- [ ] Rewrite navigation to use native navigation wherever it is the better fit
+- [ ] Use `react-native-screen-transitions` selectively for detail routes that benefit from visual continuity
 - [ ] Avoid `useEffect` unless the behavior is materially worse or impossible without it
 - [ ] Add structured logging anywhere failure, async work, native bridging, or state transitions can become hard to debug
 - [ ] Treat performance as a product requirement, not a cleanup task
@@ -229,6 +231,13 @@ Target component rules:
 - make route transitions consistent
 - keep sheets and overlays out of route semantics unless they are truly screens
 - use `react-native-screen-transitions` only when the dependency situation is stable enough to adopt it safely
+- apply zoom transitions only to media-detail routes with a clear visual source
+- use simpler native push transitions for utility drill-down screens
+- keep tab switching animation-free unless profiling shows a safe native alternative
+
+See also:
+
+- `docs/rewrite/navigation-migration-plan.md`
 
 ## Logging Plan
 
