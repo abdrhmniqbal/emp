@@ -2,6 +2,7 @@ import { and, desc, eq, gt } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import { albums, artists, playlists, tracks } from "@/db/schema"
+import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 
 import type { FavoriteEntry, FavoriteType } from "./favorites.types"
 
@@ -139,11 +140,11 @@ export async function getFavorites(
           type: "artist" as const,
           name: artist.name,
           subtitle: `${artist.trackCount} tracks`,
-          image:
-            artist.tracks[0]?.artwork ||
-            artist.artwork ||
-            artist.tracks[0]?.album?.artwork ||
-            undefined,
+          image: resolveArtistArtwork(
+            artist.tracks[0]?.artwork,
+            artist.artwork,
+            artist.tracks[0]?.album?.artwork
+          ),
           dateAdded: artist.favoritedAt || Date.now(),
         }))
       )

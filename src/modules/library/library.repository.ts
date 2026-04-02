@@ -14,6 +14,7 @@ import {
 
 import { db } from "@/db/client"
 import { albums, artists, playlists, playlistTracks, tracks } from "@/db/schema"
+import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 import { logError } from "@/modules/logging/logging.service"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
@@ -457,11 +458,11 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
         type: "Artist",
         followerCount: 0,
         isVerified: false,
-        image:
-          artist.tracks[0]?.artwork ||
-          artist.artwork ||
-          artist.albums[0]?.artwork ||
-          undefined,
+        image: resolveArtistArtwork(
+          artist.tracks[0]?.artwork,
+          artist.artwork,
+          artist.albums[0]?.artwork
+        ),
       })),
       albums: albumResults.map((album) => ({
         id: album.id,

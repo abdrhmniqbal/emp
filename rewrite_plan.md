@@ -540,6 +540,7 @@ Performance is a first-class rewrite track.
 - [~] artist artwork source consistency improved:
   - `src/components/blocks/artists-tab.tsx` now prioritizes `trackArtwork` before `artist.artwork`, aligning artist-list artwork selection with artist detail screen behavior
   - `src/modules/library/library.repository.ts` search artist mapping and `src/modules/favorites/favorites.repository.ts` favorite artist mapping now use the same track-first artwork fallback order
+  - shared fallback logic now lives in `src/modules/artists/artist-artwork.ts` and is reused by artist tab, search, and favorites mappings
 
 These are now treated as groundwork, not the finish line.
 

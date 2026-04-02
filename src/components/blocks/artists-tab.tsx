@@ -12,6 +12,7 @@ import type { SortConfig } from "@/modules/library/library-sort.types"
 import { sortArtists } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
 import { useArtists } from "@/modules/library/library.queries"
+import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 
 type ArtistOrderByField = Parameters<typeof useArtists>[0]
 type ArtistOrder = Parameters<typeof useArtists>[1]
@@ -72,11 +73,11 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
         id: artist.id,
         name: artist.name,
         trackCount: artist.trackCount || 0,
-        image:
-          artist.trackArtwork ||
-          artist.artwork ||
-          artist.albumArtwork ||
-          undefined,
+        image: resolveArtistArtwork(
+          artist.trackArtwork,
+          artist.artwork,
+          artist.albumArtwork
+        ),
         dateAdded: 0,
       })),
     [artistsData]
