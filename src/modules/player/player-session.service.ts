@@ -20,17 +20,13 @@ import {
   getRepeatModeState,
   getTracksState,
   setIsPlayingState,
+  setQueueState,
   setRepeatModeState,
 } from "./player.store"
 
 const MIN_SESSION_SAVE_INTERVAL_MS = 2000
 
 let lastPlaybackSessionSavedAt = 0
-
-async function setQueueStore(tracks: Track[]): Promise<void> {
-  const { setQueue } = await import("./queue.store")
-  setQueue(tracks)
-}
 
 export async function persistPlaybackSession(options?: {
   force?: boolean
@@ -81,7 +77,7 @@ export async function restorePlaybackSession(): Promise<void> {
         .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
         .filter((track) => track.id && track.uri)
       if (mappedQueue.length > 0) {
-        await setQueueStore(mappedQueue)
+        setQueueState(mappedQueue)
       }
 
       const currentIndex = await TrackPlayer.getCurrentTrack()
@@ -136,7 +132,7 @@ export async function restorePlaybackSession(): Promise<void> {
     await TrackPlayer.setRepeatMode(mapRepeatMode(snapshot.repeatMode))
 
     const currentTrack = snapshot.queue[targetIndex] || null
-    await setQueueStore(snapshot.queue)
+    setQueueState(snapshot.queue)
     setActiveTrack(currentTrack)
     setPlaybackProgress(targetPosition, currentTrack?.duration || 0)
     setRepeatModeState(snapshot.repeatMode)

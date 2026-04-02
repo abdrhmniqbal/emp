@@ -12,14 +12,10 @@ import { Capability, TrackPlayer } from "@/modules/player/player.utils"
 import {
   getTracksState,
   setIsPlayingState,
+  setQueueState,
 } from "./player.store"
 
 let isPlayerReady = false
-
-async function setQueueStore(tracks: Track[]): Promise<void> {
-  const { setQueue } = await import("./queue.store")
-  setQueue(tracks)
-}
 
 export async function setupPlayer() {
   try {
@@ -86,7 +82,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
       .slice(currentTrackIndex)
       .concat(tracks.slice(0, currentTrackIndex))
 
-    await setQueueStore(queue)
+    setQueueState(queue)
 
     await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
 

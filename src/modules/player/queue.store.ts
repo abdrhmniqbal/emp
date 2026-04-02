@@ -1,9 +1,6 @@
 import { useMemo } from "react"
 
-import {
-  usePlayerStore,
-  type Track,
-} from "./player.store"
+import { usePlayerStore, type Track } from "./player.store"
 
 function buildQueueInfo(queue: Track[], currentTrack: Track | null) {
   const currentIndex = currentTrack
@@ -28,8 +25,4 @@ export function useQueueInfo() {
     () => buildQueueInfo(queue, currentTrack),
     [currentTrack, queue]
   )
-}
-
-export function setQueue(tracks: Track[]) {
-  usePlayerStore.setState({ queue: tracks })
 }

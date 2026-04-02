@@ -148,6 +148,7 @@ Rules:
 - shared UI theme helpers should live under `src/modules/ui`, not `src/hooks`
 - player runtime commands should be imported from `player.service.ts`, not re-exported through `player.store.ts`
 - queue mutations should be imported from `queue.service.ts`, while derived queue state stays in `queue.store.ts`
+- `queue.store.ts` should stay focused on derived queue state, not setter wrappers
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
 - player session persistence should live in `player-session.repository.ts`
 - TrackPlayer mapping and repeat-mode adapter helpers should live outside `player.service.ts`
