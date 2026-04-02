@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import * as React from "react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
@@ -32,6 +32,7 @@ import { playTrack } from "@/modules/player/player.service"
 import { usePlaylist } from "@/modules/playlist/playlist.queries"
 import { useDeletePlaylist } from "@/modules/playlist/playlist.mutations"
 import { formatDuration } from "@/modules/playlist/playlist.utils"
+import { logWarn } from "@/modules/logging/logging.service"
 import {
   buildPlaylistImages,
   buildPlaylistTracks,
@@ -47,11 +48,23 @@ export default function PlaylistDetailsScreen() {
   const { id } = useLocalSearchParams<{
     id: string
   }>()
+  const playlistId = useMemo(
+    () => (Array.isArray(id) ? (id[0] ?? "") : (id ?? "")),
+    [id]
+  )
+
+  React.useEffect(() => {
+    if (!playlistId.trim()) {
+      logWarn("Playlist details route missing id param", {
+        route: "/playlist/[id]",
+      })
+    }
+  }, [playlistId])
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
   const [showActionSheet, setShowActionSheet] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const { data: playlist, isLoading } = usePlaylist(id || "")
-  const { data: isFavoriteData = false } = useIsFavorite("playlist", id || "")
+  const { data: playlist, isLoading } = usePlaylist(playlistId)
+  const { data: isFavoriteData = false } = useIsFavorite("playlist", playlistId)
   const toggleFavoriteMutation = useToggleFavorite()
   const deletePlaylistMutation = useDeletePlaylist()
   const isFavorite = Boolean(isFavoriteData)

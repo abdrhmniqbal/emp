@@ -517,6 +517,8 @@ Performance is a first-class rewrite track.
 - [~] search and playlist high-traffic list surfaces now use narrower render-time work:
   - `src/components/blocks/search-results.tsx` now memoizes section list data and stabilizes key callbacks for list rendering
   - `src/components/blocks/playlist-list.tsx` now memoizes row data, empty footer state, and row render callbacks
+- [~] route-level invalid-param diagnostics expanded:
+  - `src/app/(main)/(home,search,library)/album/[name].tsx`, `artist/[name].tsx`, `playlist/[id].tsx`, and `src/app/(main)/(search)/genre/[name].tsx` now log missing or decode-failed route params
 
 These are now treated as groundwork, not the finish line.
 

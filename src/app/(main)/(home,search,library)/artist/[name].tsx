@@ -53,6 +53,7 @@ import {
   setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
+import { logWarn } from "@/modules/logging/logging.service"
 import { useTracksByArtistName } from "@/modules/library/library.queries"
 import { playTrack } from "@/modules/player/player.service"
 import { type Track, usePlayerStore } from "@/modules/player/player.store"
@@ -68,9 +69,17 @@ function setAnimatedValue<T>(target: { value: T }, nextValue: T) {
 function getSafeRouteName(value: string | string[] | undefined) {
   const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
   try {
-    return decodeURIComponent(raw)
+    return {
+      value: decodeURIComponent(raw),
+      raw,
+      decodeFailed: false,
+    }
   } catch {
-    return raw
+    return {
+      value: raw,
+      raw,
+      decodeFailed: true,
+    }
   }
 }
 
@@ -89,7 +98,29 @@ export default function ArtistDetailsScreen() {
   const currentTrack = usePlayerStore((state) => state.currentTrack)
   const allTracks = usePlayerStore((state) => state.tracks)
   const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
-  const artistName = getSafeRouteName(name).trim() || "Unknown Artist"
+  const parsedArtistRouteName = React.useMemo(() => getSafeRouteName(name), [name])
+  const artistName = parsedArtistRouteName.value.trim() || "Unknown Artist"
+
+  React.useEffect(() => {
+    if (!parsedArtistRouteName.value.trim()) {
+      logWarn("Artist details route missing name param", {
+        route: "/artist/[name]",
+      })
+      return
+    }
+
+    if (parsedArtistRouteName.decodeFailed) {
+      logWarn("Artist details route name decode failed", {
+        route: "/artist/[name]",
+        rawName: parsedArtistRouteName.raw,
+      })
+    }
+  }, [
+    parsedArtistRouteName.decodeFailed,
+    parsedArtistRouteName.raw,
+    parsedArtistRouteName.value,
+  ])
+
   const normalizedArtistName = artistName.toLowerCase()
   const {
     data: artistTracksFromQuery = [],

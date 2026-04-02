@@ -23,6 +23,24 @@ import { useGenreDetails } from "@/modules/search/search.queries"
 import type { GenreAlbumInfo } from "@/modules/search/search.types"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { logWarn } from "@/modules/logging/logging.service"
+
+function getSafeRouteName(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
+  try {
+    return {
+      value: decodeURIComponent(raw),
+      raw,
+      decodeFailed: false,
+    }
+  } catch {
+    return {
+      value: raw,
+      raw,
+      decodeFailed: true,
+    }
+  }
+}
 
 const CHUNK_SIZE = 5
 
@@ -32,7 +50,25 @@ export default function GenreDetailsScreen() {
   const theme = useThemeColors()
   const indexerState = useIndexerStore((state) => state.indexerState)
 
-  const genreName = decodeURIComponent(name || "")
+  const parsedGenreRouteName = React.useMemo(() => getSafeRouteName(name), [name])
+  const genreName = parsedGenreRouteName.value
+
+  React.useEffect(() => {
+    if (!genreName.trim()) {
+      logWarn("Genre details route missing name param", {
+        route: "/genre/[name]",
+      })
+      return
+    }
+
+    if (parsedGenreRouteName.decodeFailed) {
+      logWarn("Genre details route name decode failed", {
+        route: "/genre/[name]",
+        rawName: parsedGenreRouteName.raw,
+      })
+    }
+  }, [genreName, parsedGenreRouteName.decodeFailed, parsedGenreRouteName.raw])
+
   const { data, isLoading, isFetching, refetch } = useGenreDetails(genreName)
   const topTracks = data?.topTracks ?? []
   const albums = data?.albums ?? []

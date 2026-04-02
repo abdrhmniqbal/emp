@@ -34,6 +34,7 @@ import {
   setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
+import { logWarn } from "@/modules/logging/logging.service"
 import { useTracksByAlbumName } from "@/modules/library/library.queries"
 import { playTrack } from "@/modules/player/player.service"
 import { type Track, usePlayerStore } from "@/modules/player/player.store"
@@ -48,9 +49,17 @@ function getRandomIndex(max: number) {
 function getSafeRouteName(value: string | string[] | undefined) {
   const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
   try {
-    return decodeURIComponent(raw)
+    return {
+      value: decodeURIComponent(raw),
+      raw,
+      decodeFailed: false,
+    }
   } catch {
-    return raw
+    return {
+      value: raw,
+      raw,
+      decodeFailed: true,
+    }
   }
 }
 
@@ -63,7 +72,25 @@ export default function AlbumDetailsScreen() {
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
   const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
   const allTracks = usePlayerStore((state) => state.tracks)
-  const albumName = getSafeRouteName(name)
+  const parsedAlbumRouteName = React.useMemo(() => getSafeRouteName(name), [name])
+  const albumName = parsedAlbumRouteName.value
+
+  React.useEffect(() => {
+    if (!albumName.trim()) {
+      logWarn("Album details route missing name param", {
+        route: "/album/[name]",
+      })
+      return
+    }
+
+    if (parsedAlbumRouteName.decodeFailed) {
+      logWarn("Album details route name decode failed", {
+        route: "/album/[name]",
+        rawName: parsedAlbumRouteName.raw,
+      })
+    }
+  }, [albumName, parsedAlbumRouteName.decodeFailed, parsedAlbumRouteName.raw])
+
   const normalizedAlbumName = albumName.trim().toLowerCase()
   const {
     data: albumTracksFromQuery = [],
