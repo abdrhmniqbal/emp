@@ -6,7 +6,10 @@ import {
 } from "react-native"
 
 import { runAutoScan } from "@/modules/bootstrap/bootstrap.runtime"
-import { logInfo } from "@/modules/logging/logging.service"
+import {
+  isExtraLoggingEnabled,
+  logInfo,
+} from "@/modules/logging/logging.service"
 
 const FOREGROUND_AUTO_SCAN_DELAY_MS = 1500
 const LONG_BACKGROUND_THRESHOLD_MS = 2 * 60 * 1000
@@ -86,12 +89,14 @@ export function registerBootstrapListeners() {
 
   const mediaLibrarySubscription = MediaLibrary.addListener((event) => {
     const bypassThrottle = shouldTriggerAutoScanOnMediaLibraryEvent(event)
-    logInfo("Media library changed, running auto scan", {
-      bypassThrottle,
-      hasIncrementalChanges: event.hasIncrementalChanges,
-      deletedAssetsCount: event.deletedAssets?.length ?? 0,
-      insertedAssetsCount: event.insertedAssets?.length ?? 0,
-    })
+    if (isExtraLoggingEnabled()) {
+      logInfo("Media library changed, running auto scan", {
+        bypassThrottle,
+        hasIncrementalChanges: event.hasIncrementalChanges,
+        deletedAssetsCount: event.deletedAssets?.length ?? 0,
+        insertedAssetsCount: event.insertedAssets?.length ?? 0,
+      })
+    }
     void runAutoScan({
       bypassThrottle,
     })

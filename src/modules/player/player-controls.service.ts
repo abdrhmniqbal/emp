@@ -1,4 +1,9 @@
-import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
+import {
+  isExtraLoggingEnabled,
+  logError,
+  logInfo,
+  logWarn,
+} from "@/modules/logging/logging.service"
 import { persistPlaybackSession } from "@/modules/player/player-session.service"
 import type { RepeatModeType } from "@/modules/player/player.types"
 import { mapRepeatMode } from "@/modules/player/player-adapter"
@@ -100,8 +105,12 @@ export async function playNext() {
     })
     const queue = getQueueState()
     if (queue.length > 0) {
-      await playTrack(queue[0], queue)
-      logInfo("Recovered playback by restarting queue from first track")
+      try {
+        await playTrack(queue[0], queue)
+        logInfo("Recovered playback by restarting queue from first track")
+      } catch (fallbackError) {
+        logError("Failed queue restart fallback after next-track error", fallbackError)
+      }
     }
   }
 }
@@ -128,11 +137,15 @@ export async function playPrevious() {
 
 export async function seekTo(seconds: number) {
   try {
-    logInfo("Seeking playback", { seconds })
+    if (isExtraLoggingEnabled()) {
+      logInfo("Seeking playback", { seconds })
+    }
     await TrackPlayer.seekTo(seconds)
     setPlaybackProgress(seconds, usePlayerStore.getState().duration)
     await persistPlaybackSession({ force: true })
-    logInfo("Playback seek completed", { seconds })
+    if (isExtraLoggingEnabled()) {
+      logInfo("Playback seek completed", { seconds })
+    }
   } catch (error) {
     logError("Failed to seek playback", error, { seconds })
   }

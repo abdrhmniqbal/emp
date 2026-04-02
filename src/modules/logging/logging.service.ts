@@ -43,6 +43,10 @@ function shouldPersistLog(severity: LogSeverity): boolean {
   return severity === "error" || severity === "critical"
 }
 
+export function isExtraLoggingEnabled(): boolean {
+  return getLoggingConfigState().level === "extra"
+}
+
 function stringifyLogPayload(payload: unknown): string {
   if (payload instanceof Error) {
     const stack = payload.stack ? `\n${payload.stack}` : ""
