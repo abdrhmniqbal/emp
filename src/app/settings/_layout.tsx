@@ -3,9 +3,9 @@ import { PressableFeedback } from "heroui-native"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import {
+  getCenteredRootScreenOptions,
   getDefaultNativeStackOptions,
   getDrillDownScreenOptions,
-  getLargeTitleRootScreenOptions,
 } from "@/modules/navigation/stack"
 import { BackButton } from "@/components/patterns/back-button"
 import { SETTINGS_SCREEN_TITLES } from "@/modules/settings/settings.routes"
@@ -37,7 +37,7 @@ export default function SettingsLayout() {
     <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
       <Stack.Screen
         name="index"
-        options={getLargeTitleRootScreenOptions({
+        options={getCenteredRootScreenOptions({
           title: "Settings",
           headerLeft: () => (
             <PressableFeedback onPress={handleClose} hitSlop={20}>

@@ -80,8 +80,9 @@ Not every route should zoom.
 Use transitions by route type:
 
 - tabs:
-  - no content animation
-  - prioritize stability and responsiveness
+  - keep transitions lightweight and stability-first
+  - prefer tab-level shift animation over custom routed transitions
+  - do not reintroduce complex transition wrappers into the main tab shell
 
 - list -> detail:
   - prefer native stack transitions first
@@ -126,7 +127,7 @@ Avoid:
 - `(main)` tabs
 - behavior:
   - stable
-  - no visual flourish
+  - light horizontal motion is acceptable if it does not reintroduce blank-scene bugs
   - should never blank, hitch, or detach unexpectedly
 
 ### Class B: Media detail routes
@@ -224,6 +225,11 @@ Keep the current stability fix:
 - `animation: "none"`
 
 Treat this as a hard stability baseline unless profiling proves otherwise.
+
+Status:
+
+- tab switching now uses the built-in `shift` animation instead of `none`
+- this keeps the shell lightweight without pushing `react-native-screen-transitions` back into routed native stacks
 
 ### Slice 4: Reintroduce media detail transitions carefully
 

@@ -100,7 +100,7 @@ export default function MainLayout() {
           fontSize: 12,
           fontWeight: "600" as const,
         },
-        animation: "none",
+        animation: "shift",
       }}
     >
       <Tabs.Screen

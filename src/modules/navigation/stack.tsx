@@ -44,6 +44,19 @@ export function getLargeTitleRootScreenOptions(options: {
   }
 }
 
+export function getCenteredRootScreenOptions(options: {
+  title: string
+  headerRight?: () => ReactNode
+  headerLeft?: () => ReactNode
+}) {
+  return {
+    title: options.title,
+    headerTitleAlign: "center" as const,
+    headerRight: options.headerRight,
+    headerLeft: options.headerLeft,
+  }
+}
+
 export function getBackButtonScreenOptions(
   title: string,
   headerLeft: () => ReactNode
