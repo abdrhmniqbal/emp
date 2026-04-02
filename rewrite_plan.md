@@ -533,6 +533,8 @@ Performance is a first-class rewrite track.
 - [~] hot-screen store subscription narrowing pass completed:
   - home/search/genre and settings list screens now subscribe to primitive `isIndexing` selectors instead of full `indexerState` objects
   - `src/app/(main)/(home)/index.tsx` now subscribes to `currentTrack?.id` for active-row styling instead of the full track object
+- [~] playback deletion edge-case handling improved:
+  - `src/modules/player/queue.service.ts` now handles removing the currently active track by rebuilding native queue state safely, selecting a fallback active track, and keeping playback/session state in sync
 
 These are now treated as groundwork, not the finish line.
 

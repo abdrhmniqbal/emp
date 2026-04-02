@@ -4,10 +4,12 @@ import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
 import { mapTrackToTrackPlayerInput } from "./player-adapter"
 import {
+  getIsPlayingState,
   getCurrentTrackState,
   getIsShuffledState,
   getOriginalQueueState,
   getQueueState,
+  setIsPlayingState,
   setIsShuffledState,
   setOriginalQueueState,
   setQueueState,
@@ -17,6 +19,7 @@ import {
   persistPlaybackSession,
   syncCurrentTrackFromPlayer,
 } from "./player-session.service"
+import { setActiveTrack } from "./player-runtime-state"
 
 export async function addToQueue(track: Track) {
   const queue = getQueueState()
@@ -103,30 +106,82 @@ export async function queueTrackNext(track: Track) {
 
 export async function removeFromQueue(trackId: string) {
   const queue = getQueueState()
+  const originalQueue = getOriginalQueueState()
+  const currentTrack = getCurrentTrackState()
+  const wasPlaying = getIsPlayingState()
+  const wasCurrentTrack = currentTrack?.id === trackId
+
+  const nextQueue = queue.filter((track) => track.id !== trackId)
+  const nextOriginalQueue = originalQueue.filter((track) => track.id !== trackId)
+
   logInfo("Removing track from queue", {
     trackId,
     queueLength: queue.length,
+    wasCurrentTrack,
   })
 
-  setQueueState(queue.filter((track) => track.id !== trackId))
+  setQueueState(nextQueue)
+  setOriginalQueueState(nextOriginalQueue)
 
   try {
-    const trackPlayerQueue = await TrackPlayer.getQueue()
-    const trackIndex = trackPlayerQueue.findIndex((track) => track.id === trackId)
+    if (wasCurrentTrack) {
+      const removedTrackIndex = queue.findIndex((track) => track.id === trackId)
+      const fallbackIndex =
+        nextQueue.length === 0
+          ? -1
+          : Math.min(
+              removedTrackIndex < 0 ? 0 : removedTrackIndex,
+              nextQueue.length - 1
+            )
+      const fallbackTrack =
+        fallbackIndex >= 0 ? (nextQueue[fallbackIndex] ?? null) : null
 
-    if (trackIndex !== -1) {
-      await TrackPlayer.remove(trackIndex)
+      await TrackPlayer.reset()
+
+      if (nextQueue.length > 0) {
+        await TrackPlayer.add(nextQueue.map(mapTrackToTrackPlayerInput))
+
+        if (fallbackIndex > 0) {
+          await TrackPlayer.skip(fallbackIndex)
+        }
+
+        setActiveTrack(fallbackTrack)
+        setIsPlayingState(wasPlaying)
+
+        if (wasPlaying) {
+          await TrackPlayer.play()
+        }
+      } else {
+        setActiveTrack(null)
+        setIsPlayingState(false)
+      }
+
+      await syncCurrentTrackFromPlayer()
+      logInfo("Removed currently active track from queue", {
+        trackId,
+        fallbackTrackId: fallbackTrack?.id ?? null,
+        remainingQueueLength: nextQueue.length,
+      })
     } else {
-      logWarn("Track not found in native queue while removing", { trackId })
+      const trackPlayerQueue = await TrackPlayer.getQueue()
+      const trackIndex = trackPlayerQueue.findIndex((track) => track.id === trackId)
+
+      if (trackIndex !== -1) {
+        await TrackPlayer.remove(trackIndex)
+      } else {
+        logWarn("Track not found in native queue while removing", { trackId })
+      }
     }
 
     await persistPlaybackSession({ force: true })
     logInfo("Removed track from queue", { trackId })
   } catch (error) {
     setQueueState(queue)
+    setOriginalQueueState(originalQueue)
     logError("Failed to remove track from queue", error, {
       trackId,
       queueLength: queue.length,
+      wasCurrentTrack,
     })
     throw error
   }
