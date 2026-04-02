@@ -108,6 +108,8 @@ A module is considered `aligned` only if it mostly satisfies these:
 - notes:
   - query and repository split is good
   - sorting is now split into state, constants, types, and pure utilities
+  - internal sort-store pass-through helpers have been trimmed down
+  - library screen sort-field resolution is now easier to read without nested ternaries
   - folder browser is reasonable, but library state is still spread across screen + sort store
 
 ### `logging`

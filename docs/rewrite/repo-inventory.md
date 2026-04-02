@@ -217,6 +217,8 @@ Progress:
 - bootstrap, indexer, and player runtime boundaries now have first-pass structured logging
 - favorites and playlist mutation hooks now log start, success, and failure paths
 - library sort state, sort options, and pure sorting helpers are now split into separate files
+- internal helpers in `src/modules/library/library-sort.store.ts` have been trimmed down
+- `src/app/(main)/(library)/index.tsx` now resolves album and artist sort fields with small local helpers instead of nested ternaries
 - queue runtime commands now live in `src/modules/player/queue.service.ts`
 - player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - player session persistence now lives in `src/modules/player/player-session.repository.ts`

@@ -70,6 +70,42 @@ interface LibrarySortOption {
   field: SortField
 }
 
+function getAlbumOrderByField(
+  field: SortField
+): "title" | "artist" | "year" | "trackCount" | "dateAdded" {
+  if (field === "artist") {
+    return "artist"
+  }
+
+  if (field === "year") {
+    return "year"
+  }
+
+  if (field === "trackCount") {
+    return "trackCount"
+  }
+
+  if (field === "dateAdded") {
+    return "dateAdded"
+  }
+
+  return "title"
+}
+
+function getArtistOrderByField(
+  field: SortField
+): "name" | "trackCount" | "dateAdded" {
+  if (field === "trackCount") {
+    return "trackCount"
+  }
+
+  if (field === "dateAdded") {
+    return "dateAdded"
+  }
+
+  return "name"
+}
+
 const LIBRARY_SORT_OPTIONS: Record<LibraryTab, LibrarySortOption[]> = {
   Tracks: TRACK_SORT_OPTIONS,
   Albums: ALBUM_SORT_OPTIONS,
@@ -105,23 +141,10 @@ export default function LibraryScreen() {
     enabled: shouldLoadFavorites,
   })
 
-  const albumOrderByField =
-    allSortConfigs.Albums.field === "artist"
-      ? "artist"
-      : allSortConfigs.Albums.field === "year"
-        ? "year"
-        : allSortConfigs.Albums.field === "trackCount"
-          ? "trackCount"
-          : allSortConfigs.Albums.field === "dateAdded"
-            ? "dateAdded"
-            : "title"
-
-  const artistOrderByField =
-    allSortConfigs.Artists.field === "trackCount"
-      ? "trackCount"
-      : allSortConfigs.Artists.field === "dateAdded"
-        ? "dateAdded"
-        : "name"
+  const albumOrderByField = getAlbumOrderByField(allSortConfigs.Albums.field)
+  const artistOrderByField = getArtistOrderByField(
+    allSortConfigs.Artists.field
+  )
 
   const { data: albumsData = [] } = useAlbums(
     albumOrderByField,
