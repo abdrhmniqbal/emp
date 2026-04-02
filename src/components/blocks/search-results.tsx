@@ -54,6 +54,39 @@ type SearchResultsListItem =
   | { id: string; type: "playlist"; playlist: SearchPlaylistResult }
   | { id: string; type: "track"; track: Track }
 
+function appendSection(
+  listData: SearchResultsListItem[],
+  options: {
+    headerId: string
+    title: string
+    showHeader: boolean
+    showSeeMore?: boolean
+    items: SearchResultsListItem[]
+  }
+) {
+  if (options.items.length === 0) {
+    return
+  }
+
+  if (listData.length > 0) {
+    listData.push({
+      id: `section-spacer-${listData.length}`,
+      type: "section-spacer",
+    })
+  }
+
+  if (options.showHeader) {
+    listData.push({
+      id: options.headerId,
+      type: "section-header",
+      title: options.title,
+      showSeeMore: options.showSeeMore,
+    })
+  }
+
+  listData.push(...options.items)
+}
+
 export const SearchResults: React.FC<SearchResultsProps> = ({
   tracks,
   artists,
@@ -90,87 +123,56 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   const hasQuery = query.trim().length > 0
   const listData: SearchResultsListItem[] = []
 
-  const pushSectionSpacer = () => {
-    if (listData.length === 0) {
-      return
-    }
-
-    listData.push({
-      id: `section-spacer-${listData.length}`,
-      type: "section-spacer",
-    })
-  }
-
   if (hasQuery && showArtists && artists.length > 0) {
-    pushSectionSpacer()
-    if (isAllTab) {
-      listData.push({
-        id: "artists-header",
-        type: "section-header",
-        title: "Artists",
-      })
-    }
-    artists.forEach((artist) => {
-      listData.push({
+    appendSection(listData, {
+      headerId: "artists-header",
+      title: "Artists",
+      showHeader: isAllTab,
+      items: artists.map((artist) => ({
         id: `artist-${artist.id}`,
-        type: "artist",
+        type: "artist" as const,
         artist,
-      })
+      })),
     })
   }
 
   if (hasQuery && showAlbums && albums.length > 0) {
-    pushSectionSpacer()
-    if (isAllTab) {
-      listData.push({
-        id: "albums-header",
-        type: "section-header",
-        title: "Albums",
-      })
-    }
-    albums.forEach((album) => {
-      listData.push({
+    appendSection(listData, {
+      headerId: "albums-header",
+      title: "Albums",
+      showHeader: isAllTab,
+      items: albums.map((album) => ({
         id: `album-${album.id}`,
-        type: "album",
+        type: "album" as const,
         album,
-      })
+      })),
     })
   }
 
   if (hasQuery && showPlaylists && playlists.length > 0) {
-    pushSectionSpacer()
-    if (isAllTab) {
-      listData.push({
-        id: "playlists-header",
-        type: "section-header",
-        title: "Playlists",
-      })
-    }
-    playlists.forEach((playlist) => {
-      listData.push({
+    appendSection(listData, {
+      headerId: "playlists-header",
+      title: "Playlists",
+      showHeader: isAllTab,
+      items: playlists.map((playlist) => ({
         id: `playlist-${playlist.id}`,
-        type: "playlist",
+        type: "playlist" as const,
         playlist,
-      })
+      })),
     })
   }
 
   if (hasQuery && showTracks && tracks.length > 0) {
-    pushSectionSpacer()
-    if (isAllTab || onSeeMoreTracks) {
-      listData.push({
-        id: "tracks-header",
-        type: "section-header",
-        title: "Tracks",
-        showSeeMore: Boolean(onSeeMoreTracks),
-      })
-    }
-    tracks.forEach((track) => {
-      listData.push({
+    appendSection(listData, {
+      headerId: "tracks-header",
+      title: "Tracks",
+      showHeader: isAllTab || Boolean(onSeeMoreTracks),
+      showSeeMore: Boolean(onSeeMoreTracks),
+      items: tracks.map((track) => ({
         id: `track-${track.id}`,
-        type: "track",
+        type: "track" as const,
         track,
-      })
+      })),
     })
   }
 
