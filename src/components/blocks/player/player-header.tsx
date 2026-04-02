@@ -1,9 +1,9 @@
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
+import { CastButton } from "react-native-google-cast"
 
 import { useComingSoonToast } from "@/components/blocks/player/use-coming-soon-toast"
-import LocalLiveStreamingIcon from "@/components/icons/local/live-streaming"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 
 interface PlayerHeaderProps {
@@ -19,17 +19,9 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
 
   return (
     <View className="relative mt-2 h-10 justify-center">
-      <PressableFeedback
-        onPress={() => showComingSoon("Cast songs")}
-        className="absolute left-0 z-20 p-1"
-      >
-        <LocalLiveStreamingIcon
-          fill="none"
-          width={24}
-          height={24}
-          color="white"
-        />
-      </PressableFeedback>
+      <View className="absolute left-0 z-20 p-1">
+        <CastButton style={{ width: 24, height: 24, tintColor: "white" }} />
+      </View>
 
       <PressableFeedback
         onPress={onClose}

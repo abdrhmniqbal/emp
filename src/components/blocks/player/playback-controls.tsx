@@ -2,6 +2,7 @@ import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
 import Animated, { Layout } from "react-native-reanimated"
+import { MediaPlayerState, useCastState, useMediaStatus, useRemoteMediaClient } from "react-native-google-cast"
 
 import LocalNextSolidIcon from "@/components/icons/local/next-solid"
 import LocalPauseCircleSolidIcon from "@/components/icons/local/pause-circle-solid"
@@ -11,6 +12,12 @@ import LocalRepeatIcon from "@/components/icons/local/repeat"
 import LocalRepeatOneIcon from "@/components/icons/local/repeat-one"
 import LocalShuffleIcon from "@/components/icons/local/shuffle"
 import { useThemeColors } from "@/modules/ui/theme"
+import {
+  isCastConnected,
+  playCastNext,
+  playCastPrevious,
+  toggleCastPlayback,
+} from "@/modules/cast/cast.service"
 import {
   playNext,
   playPrevious,
@@ -38,12 +45,45 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   compact = false,
 }) => {
   const theme = useThemeColors()
+  const castState = useCastState()
+  const remoteMediaClient = useRemoteMediaClient()
+  const mediaStatus = useMediaStatus()
   const iconSize = compact ? 32 : 36
   const playButtonSize = compact ? 64 : 80
   const containerClass = compact ? "w-16 h-16" : "w-20 h-20"
   const gapClass = compact ? "gap-6" : "gap-8"
   const repeatMode = usePlayerStore((state) => state.repeatMode)
   const isShuffled = usePlayerStore((state) => state.isShuffled)
+  const isCasting = isCastConnected(castState, remoteMediaClient)
+  const isCastPlaying = mediaStatus?.playerState === MediaPlayerState.PLAYING
+  const effectiveIsPlaying = isCasting ? isCastPlaying : isPlaying
+
+  const handleTogglePlayback = async () => {
+    if (isCasting) {
+      await toggleCastPlayback(remoteMediaClient, isCastPlaying)
+      return
+    }
+
+    await togglePlayback()
+  }
+
+  const handlePlayNext = async () => {
+    if (isCasting) {
+      await playCastNext(remoteMediaClient)
+      return
+    }
+
+    await playNext()
+  }
+
+  const handlePlayPrevious = async () => {
+    if (isCasting) {
+      await playCastPrevious(remoteMediaClient)
+      return
+    }
+
+    await playPrevious()
+  }
 
   const getRepeatColor = (mode: RepeatModeType) => {
     return mode === "off" ? "white" : theme.accent
@@ -79,7 +119,11 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
       </PressableFeedback>
 
       <View className={cn("flex-row items-center", gapClass)}>
-        <PressableFeedback onPress={playPrevious}>
+        <PressableFeedback
+          onPress={() => {
+            void handlePlayPrevious()
+          }}
+        >
           <LocalPreviousSolidIcon
             fill="none"
             width={iconSize}
@@ -90,9 +134,11 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
 
         <PressableFeedback
           className={cn("items-center justify-center", containerClass)}
-          onPress={togglePlayback}
+          onPress={() => {
+            void handleTogglePlayback()
+          }}
         >
-          {isPlaying ? (
+          {effectiveIsPlaying ? (
             <LocalPauseCircleSolidIcon
               fill="none"
               width={playButtonSize}
@@ -109,7 +155,11 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
           )}
         </PressableFeedback>
 
-        <PressableFeedback onPress={playNext}>
+        <PressableFeedback
+          onPress={() => {
+            void handlePlayNext()
+          }}
+        >
           <LocalNextSolidIcon
             fill="none"
             width={iconSize}

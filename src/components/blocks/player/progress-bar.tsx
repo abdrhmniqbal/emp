@@ -10,9 +10,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated"
+import { useCastState, useMediaStatus, useRemoteMediaClient, useStreamPosition } from "react-native-google-cast"
 
 import { seekTo } from "@/modules/player/player-controls.service"
 import { usePlayerStore } from "@/modules/player/player.store"
+import { isCastConnected, seekCastPlayback } from "@/modules/cast/cast.service"
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
@@ -25,21 +27,38 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => {
   const currentTime = usePlayerStore((state) => state.currentTime)
   const duration = usePlayerStore((state) => state.duration)
+  const castState = useCastState()
+  const remoteMediaClient = useRemoteMediaClient()
+  const mediaStatus = useMediaStatus()
+  const castStreamPosition = useStreamPosition()
   const progress = useSharedValue(0)
   const isSeeking = useSharedValue(false)
   const barWidth = useSharedValue(0)
   const pressed = useSharedValue(false)
   const durationSv = useSharedValue(0)
+  const isCasting = isCastConnected(castState, remoteMediaClient)
+  const castDuration = Number(mediaStatus?.mediaInfo?.streamDuration ?? 0)
+  const effectiveCurrentTime = isCasting ? castStreamPosition : currentTime
+  const effectiveDuration = isCasting ? castDuration : duration
 
   useEffect(() => {
-    durationSv.value = duration
-  }, [duration, durationSv])
+    durationSv.value = effectiveDuration
+  }, [effectiveDuration, durationSv])
 
   useEffect(() => {
-    if (duration > 0) {
-      progress.value = currentTime / duration
+    if (effectiveDuration > 0) {
+      progress.value = effectiveCurrentTime / effectiveDuration
     }
-  }, [currentTime, duration, progress])
+  }, [effectiveCurrentTime, effectiveDuration, progress])
+
+  const seekPlayback = async (seekTime: number) => {
+    if (isCasting) {
+      await seekCastPlayback(remoteMediaClient, seekTime)
+      return
+    }
+
+    await seekTo(seekTime)
+  }
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -71,8 +90,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       }
     })
     .onEnd(() => {
-      const seekTime = progress.value * duration
-      runOnJS(seekTo)(seekTime)
+      const seekTime = progress.value * effectiveDuration
+      runOnJS(seekPlayback)(seekTime)
       isSeeking.value = false
       pressed.value = false
     })
@@ -86,8 +105,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       }
     })
     .onEnd(() => {
-      const seekTime = progress.value * duration
-      runOnJS(seekTo)(seekTime)
+      const seekTime = progress.value * effectiveDuration
+      runOnJS(seekPlayback)(seekTime)
       isSeeking.value = false
       pressed.value = false
     })
@@ -128,10 +147,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
           animatedProps={animatedTextProps}
           className="font-variant-numeric-tabular-nums p-0 text-xs text-white/50"
           editable={false}
-          value={formatTime(currentTime)}
+          value={formatTime(effectiveCurrentTime)}
           style={{ color: "rgba(255, 255, 255, 0.5)" }}
         />
-        <Text className="text-xs text-white/50">{formatTime(duration)}</Text>
+        <Text className="text-xs text-white/50">{formatTime(effectiveDuration)}</Text>
       </View>
     </Animated.View>
   )

@@ -53,7 +53,8 @@
         {
           "mimeTypes": ["*/*"]
         }
-      ]
+      ],
+      "react-native-google-cast"
     ]
   }
 }
