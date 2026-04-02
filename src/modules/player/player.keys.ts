@@ -1,11 +1,12 @@
 import type { QueryClient } from "@tanstack/react-query"
 
+import {
+  HISTORY_KEY,
+  HISTORY_RECENTLY_PLAYED_KEY,
+  HISTORY_TOP_TRACKS_KEY,
+} from "@/modules/history/history.keys"
 import type { Track } from "@/modules/player/player.types"
-
-const RECENTLY_PLAYED_SCREEN_KEY = ["recently-played-screen"] as const
-const HOME_TOP_TRACKS_KEY = ["home", "top-tracks"] as const
-const TOP_TRACKS_SCREEN_KEY = ["top-tracks-screen"] as const
-const TRACKS_KEY = ["tracks"] as const
+import { TRACKS_KEY } from "@/modules/tracks/tracks.keys"
 
 const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 const HOME_RECENTLY_PLAYED_LIMIT = 8
@@ -26,11 +27,13 @@ export function optimisticallyUpdateRecentlyPlayedQueries(
   queryClient: QueryClient,
   track: Track
 ) {
-  queryClient.setQueryData<Track[]>(RECENTLY_PLAYED_SCREEN_KEY, (previous) =>
-    prependUniqueTrack(previous, track, RECENTLY_PLAYED_SCREEN_LIMIT)
+  queryClient.setQueryData<Track[]>(
+    [HISTORY_RECENTLY_PLAYED_KEY, RECENTLY_PLAYED_SCREEN_LIMIT],
+    (previous) =>
+      prependUniqueTrack(previous, track, RECENTLY_PLAYED_SCREEN_LIMIT)
   )
   queryClient.setQueryData<Track[]>(
-    ["home", "recently-played", HOME_RECENTLY_PLAYED_LIMIT],
+    [HISTORY_RECENTLY_PLAYED_KEY, HOME_RECENTLY_PLAYED_LIMIT],
     (previous) =>
       prependUniqueTrack(previous, track, HOME_RECENTLY_PLAYED_LIMIT)
   )
@@ -38,12 +41,9 @@ export function optimisticallyUpdateRecentlyPlayedQueries(
 
 export async function invalidatePlayerQueries(queryClient: QueryClient) {
   await Promise.all([
-    queryClient.invalidateQueries({ queryKey: RECENTLY_PLAYED_SCREEN_KEY }),
-    queryClient.invalidateQueries({
-      queryKey: ["home", "recently-played"],
-    }),
-    queryClient.invalidateQueries({ queryKey: HOME_TOP_TRACKS_KEY }),
-    queryClient.invalidateQueries({ queryKey: TOP_TRACKS_SCREEN_KEY }),
-    queryClient.invalidateQueries({ queryKey: TRACKS_KEY }),
+    queryClient.invalidateQueries({ queryKey: [HISTORY_KEY] }),
+    queryClient.invalidateQueries({ queryKey: [HISTORY_RECENTLY_PLAYED_KEY] }),
+    queryClient.invalidateQueries({ queryKey: [HISTORY_TOP_TRACKS_KEY] }),
+    queryClient.invalidateQueries({ queryKey: [TRACKS_KEY] }),
   ])
 }
