@@ -232,6 +232,7 @@ Progress:
 - `src/app/(main)/(library)/index.tsx` now narrows store subscriptions and shares common list wiring locally instead of repeating the same props in each tab branch
 - playlist-related blocks now share artwork image resolution from `src/components/patterns/playlist-artwork.tsx` instead of repeating the same image fallback shaping in each caller
 - dead wrapper file `src/components/blocks/folder-tab.tsx` has been removed, and the library screen now uses `FolderList` directly
+- `LegendList` tuning now shares pool and estimate presets from `src/components/blocks/legend-list-config.ts`, with per-grid overrides only where item geometry is genuinely different
 - shared native stack presets now live in `src/modules/navigation/stack.tsx`, and the home/search/library/settings layouts now read from that shared navigation boundary instead of repeating stack config inline
 - album, artist, and playlist detail route groups now use the transition-enabled native stack wrapper from `src/modules/navigation/stack.tsx`
 - drill-down screens, hidden nested screens, and the root settings modal now use shared navigation screen-option helpers instead of repeating those route classes inline

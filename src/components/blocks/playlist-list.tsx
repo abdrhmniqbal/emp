@@ -14,6 +14,7 @@ import {
   type ViewStyle,
 } from "react-native"
 
+import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
@@ -154,8 +155,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
         refreshControl={refreshControl || undefined}
-        recycleItems={true}
-        initialContainerPoolRatio={3}
+        {...LEGEND_LIST_ROW_CONFIG}
         ListFooterComponent={
           data.length === 0 ? (
             <EmptyState
@@ -172,8 +172,6 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
             />
           ) : null
         }
-        estimatedItemSize={68}
-        drawDistance={180}
         style={{ flex: 1, minHeight: 1 }}
       />
     </View>

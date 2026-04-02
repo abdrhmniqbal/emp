@@ -4,6 +4,7 @@ import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { BottomSheet, Button } from "heroui-native"
 import { Text, View } from "react-native"
 
+import { LEGEND_LIST_PICKER_CONFIG } from "@/components/blocks/legend-list-config"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -83,10 +84,7 @@ export function TrackPickerSheetContent({
             className="py-10"
           />
         )}
-        recycleItems={true}
-        initialContainerPoolRatio={3}
-        estimatedItemSize={68}
-        drawDistance={180}
+        {...LEGEND_LIST_PICKER_CONFIG}
       />
       <View
         className="border-t border-border/60 px-4 pt-3"

@@ -9,6 +9,7 @@ import * as React from "react"
 import { useState } from "react"
 
 import { ScrollView, Text, View } from "react-native"
+import { LEGEND_LIST_SECTION_CONFIG } from "@/components/blocks/legend-list-config"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalCheckmarkCircleSolidIcon from "@/components/icons/local/checkmark-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
@@ -341,10 +342,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         keyboardShouldPersistTaps="handled"
         contentInsetAdjustmentBehavior="never"
         automaticallyAdjustContentInsets={false}
-        recycleItems={true}
-        initialContainerPoolRatio={4}
-        estimatedItemSize={72}
-        drawDistance={220}
+        {...LEGEND_LIST_SECTION_CONFIG}
       />
       {isLoading && hasQuery && listData.length === 0 ? (
         <View className="absolute inset-x-0 top-16 px-4">

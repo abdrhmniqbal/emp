@@ -16,6 +16,7 @@ import {
 } from "react-native"
 
 import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
+import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { TrackRow } from "@/components/patterns/track-row"
@@ -179,10 +180,7 @@ export const TrackList: React.FC<TrackListProps> = ({
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={scrollEventThrottle}
         refreshControl={refreshControl || undefined}
-        recycleItems={true}
-        initialContainerPoolRatio={3}
-        estimatedItemSize={68}
-        drawDistance={180}
+        {...LEGEND_LIST_ROW_CONFIG}
       />
       <TrackActionSheet
         track={selectedTrack}

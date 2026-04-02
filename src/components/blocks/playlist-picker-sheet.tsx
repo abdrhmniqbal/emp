@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native"
 
+import { LEGEND_LIST_PICKER_CONFIG } from "@/components/blocks/legend-list-config"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
@@ -208,10 +209,7 @@ export function PlaylistPickerSheet({
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            recycleItems={true}
-            initialContainerPoolRatio={3}
-            estimatedItemSize={72}
-            drawDistance={180}
+            {...LEGEND_LIST_PICKER_CONFIG}
             renderItem={({
               item,
             }: LegendListRenderItemProps<

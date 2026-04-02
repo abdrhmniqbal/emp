@@ -16,6 +16,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
@@ -258,10 +259,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
         refreshControl={refreshControl || undefined}
-        recycleItems={true}
-        initialContainerPoolRatio={3}
-        estimatedItemSize={68}
-        drawDistance={180}
+        {...LEGEND_LIST_ROW_CONFIG}
         style={{ flex: 1, minHeight: 1 }}
       />
     </View>

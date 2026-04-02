@@ -252,6 +252,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - small local helper functions are acceptable when they remove repetitive list-section construction inside one shared block
 - tiny helper utilities can live next to a shared pattern when they only exist to normalize that pattern’s input props
 - one-off wrapper components should be removed once their only job is forwarding props to a shared block
+- virtualized list tuning should use shared presets unless a specific list has a well-justified custom geometry
 
 ## Next Priority After This Audit
 

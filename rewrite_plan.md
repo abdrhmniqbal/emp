@@ -173,6 +173,7 @@ Rules:
 - player-facing UI should avoid subscribing to playback progress unless the current mode actually needs it
 - player-facing list rows should prefer subscribing to `currentTrack?.id` instead of the full track object when they only need active-state styling
 - screen-level list wiring should use shared local props and narrow store selectors when that reduces repeated render setup without hiding ownership
+- virtualized list tuning should use shared defaults for pool ratio and item estimates instead of drifting list by list without review
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects
 - provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
 - bootstrap listener registration should live in the root provider layer without single-use wrapper components

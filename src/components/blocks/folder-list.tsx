@@ -18,6 +18,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
@@ -213,10 +214,7 @@ export const FolderList: React.FC<FolderListProps> = ({
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
         refreshControl={refreshControl || undefined}
-        recycleItems={true}
-        initialContainerPoolRatio={3}
-        estimatedItemSize={68}
-        drawDistance={180}
+        {...LEGEND_LIST_ROW_CONFIG}
         style={{ flex: 1, minHeight: 1 }}
         ListHeaderComponent={
           hasNestedPath ? (

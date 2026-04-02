@@ -14,6 +14,10 @@ import {
   type ViewStyle,
 } from "react-native"
 
+import {
+  LEGEND_LIST_GRID_CONFIG,
+  LEGEND_LIST_GRID_HORIZONTAL_CONFIG,
+} from "@/components/blocks/legend-list-config"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import {
   MediaItem as Item,
@@ -185,10 +189,8 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
         contentContainerStyle={{ paddingTop: 2, paddingBottom: 6 }}
         style={{ minHeight: HORIZONTAL_ROW_HEIGHT }}
         className={containerClassName}
-        recycleItems={true}
-        initialContainerPoolRatio={2.5}
+        {...LEGEND_LIST_GRID_HORIZONTAL_CONFIG}
         estimatedItemSize={144}
-        drawDistance={160}
       />
     )
   }
@@ -229,10 +231,8 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
         refreshControl={refreshControl}
         style={{ flex: 1, minHeight: 1 }}
         className={containerClassName}
-        recycleItems={true}
-        initialContainerPoolRatio={2.5}
+        {...LEGEND_LIST_GRID_CONFIG}
         estimatedItemSize={176}
-        drawDistance={160}
       />
     </View>
   )

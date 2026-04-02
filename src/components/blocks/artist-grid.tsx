@@ -15,6 +15,7 @@ import {
   type ViewStyle,
 } from "react-native"
 
+import { LEGEND_LIST_GRID_CONFIG } from "@/components/blocks/legend-list-config"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import {
   MediaItem as Item,
@@ -154,10 +155,8 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
         scrollEventThrottle={16}
         refreshControl={refreshControl || undefined}
         style={{ flex: 1, minHeight: 1 }}
-        recycleItems={true}
-        initialContainerPoolRatio={2.5}
+        {...LEGEND_LIST_GRID_CONFIG}
         estimatedItemSize={132}
-        drawDistance={160}
       />
     </View>
   )
