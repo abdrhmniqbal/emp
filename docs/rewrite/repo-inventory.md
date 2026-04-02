@@ -253,6 +253,8 @@ Progress:
 - TrackPlayer event wiring now lives in `src/modules/player/player-events.service.ts`
 - track-activation side effects now live in `src/modules/player/player-activity.service.ts`
 - playback transport controls now live in `src/modules/player/player-controls.service.ts`
+- player library loading now lives in `src/modules/player/player-library.service.ts`
+- local favorite-toggle helper now lives in `src/modules/player/player-favorites.service.ts`
 - post-scan media reload and query invalidation now live in `src/modules/indexer/indexer-refresh.service.ts`
 - indexer run coordination state now lives in `src/modules/indexer/indexer-runtime.ts`
 

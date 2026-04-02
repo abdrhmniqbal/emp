@@ -1,8 +1,5 @@
 import { processColor } from "react-native"
 
-import { queryClient } from "@/lib/tanstack-query"
-import { invalidateFavoriteQueries } from "@/modules/favorites/favorites.keys"
-import { setTrackFavoriteFlag } from "@/modules/favorites/favorites.repository"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 import { persistPlaybackSession } from "@/modules/player/player-session.service"
 import type { Track } from "@/modules/player/player.types"
@@ -13,10 +10,8 @@ import { handleTrackActivated } from "@/modules/player/player-activity.service"
 import { Capability, TrackPlayer } from "@/modules/player/player.utils"
 
 import {
-  getCurrentTrackState,
   getTracksState,
   setIsPlayingState,
-  setTracksState,
 } from "./player.store"
 
 let isPlayerReady = false
@@ -104,43 +99,5 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     await persistPlaybackSession({ force: true })
   } catch (error) {
     logError("Failed to play track", error, { trackId: track.id })
-  }
-}
-
-export function toggleFavorite(trackId: string) {
-  const tracks = getTracksState()
-  const index = tracks.findIndex((track) => track.id === trackId)
-  if (index === -1) {
-    return
-  }
-
-  const track = tracks[index]
-  if (!track) {
-    return
-  }
-
-  const newStatus = !track.isFavorite
-  const newTracks = [...tracks]
-  newTracks[index] = { ...track, isFavorite: newStatus }
-  setTracksState(newTracks)
-
-  const current = getCurrentTrackState()
-  if (current?.id === trackId) {
-    setActiveTrack({ ...current, isFavorite: newStatus })
-  }
-
-  void setTrackFavoriteFlag(trackId, newStatus).then(async () => {
-    await invalidateFavoriteQueries(queryClient)
-  })
-}
-
-export async function loadTracks() {
-  try {
-    const { getAllTracks } = await import("./player.repository")
-    const trackList = await getAllTracks()
-    setTracksState(trackList)
-    logInfo("Loaded tracks into player store", { trackCount: trackList.length })
-  } catch (error) {
-    logError("Failed to load tracks into player store", error)
   }
 }

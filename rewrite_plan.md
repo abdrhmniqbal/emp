@@ -154,6 +154,7 @@ Rules:
 - player session lifecycle should live in `player-session.service.ts`, and runtime state sync helpers should live outside `player.service.ts`
 - TrackPlayer event wiring should live outside `player.service.ts`
 - playback transport controls should live outside `player.service.ts`
+- player library loading and favorite-toggle helpers should live outside `player.service.ts`
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
 - post-scan media reload and query invalidation should live outside `indexer.service.ts`
 - indexer run coordination state should live outside `indexer.service.ts`

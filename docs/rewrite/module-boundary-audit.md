@@ -138,6 +138,8 @@ A module is considered `aligned` only if it mostly satisfies these:
   - TrackPlayer event wiring now lives in `player-events.service.ts`
   - track-activation side effects now live in `player-activity.service.ts`
   - playback transport controls now live in `player-controls.service.ts`
+  - player library loading now lives in `player-library.service.ts`
+  - local favorite-toggle helper now lives in `player-favorites.service.ts`
 
 ### `playlist`
 
