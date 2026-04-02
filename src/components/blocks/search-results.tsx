@@ -6,7 +6,7 @@ import type {
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { Chip, PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
 import { ScrollView, Text, View } from "react-native"
 import { LEGEND_LIST_SECTION_CONFIG } from "@/components/blocks/legend-list-config"
@@ -109,14 +109,17 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   const [internalActiveTab, setInternalActiveTab] = useState<SearchTab>("All")
   const activeTab = activeTabProp ?? internalActiveTab
 
-  function setActiveTab(tab: SearchTab) {
-    if (onActiveTabChange) {
-      onActiveTabChange(tab)
-      return
-    }
+  const setActiveTab = useCallback(
+    (tab: SearchTab) => {
+      if (onActiveTabChange) {
+        onActiveTabChange(tab)
+        return
+      }
 
-    setInternalActiveTab(tab)
-  }
+      setInternalActiveTab(tab)
+    },
+    [onActiveTabChange]
+  )
 
   const showArtists = activeTab === "All" || activeTab === "Artist"
   const showAlbums = activeTab === "All" || activeTab === "Album"
@@ -125,185 +128,204 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   const isAllTab = activeTab === "All"
 
   const hasQuery = query.trim().length > 0
-  const listData: SearchResultsListItem[] = []
+  const listData = useMemo(() => {
+    const nextListData: SearchResultsListItem[] = []
 
-  if (hasQuery && showArtists && artists.length > 0) {
-    appendSection(listData, {
-      headerId: "artists-header",
-      title: "Artists",
-      showHeader: isAllTab,
-      items: artists.map((artist) => ({
-        id: `artist-${artist.id}`,
-        type: "artist" as const,
-        artist,
-      })),
-    })
-  }
-
-  if (hasQuery && showAlbums && albums.length > 0) {
-    appendSection(listData, {
-      headerId: "albums-header",
-      title: "Albums",
-      showHeader: isAllTab,
-      items: albums.map((album) => ({
-        id: `album-${album.id}`,
-        type: "album" as const,
-        album,
-      })),
-    })
-  }
-
-  if (hasQuery && showPlaylists && playlists.length > 0) {
-    appendSection(listData, {
-      headerId: "playlists-header",
-      title: "Playlists",
-      showHeader: isAllTab,
-      items: playlists.map((playlist) => ({
-        id: `playlist-${playlist.id}`,
-        type: "playlist" as const,
-        playlist,
-      })),
-    })
-  }
-
-  if (hasQuery && showTracks && tracks.length > 0) {
-    appendSection(listData, {
-      headerId: "tracks-header",
-      title: "Tracks",
-      showHeader: isAllTab || Boolean(onSeeMoreTracks),
-      showSeeMore: Boolean(onSeeMoreTracks),
-      items: tracks.map((track) => ({
-        id: `track-${track.id}`,
-        type: "track" as const,
-        track,
-      })),
-    })
-  }
-
-  const renderListItem = ({
-    item,
-  }: LegendListRenderItemProps<SearchResultsListItem>) => {
-    switch (item.type) {
-      case "section-spacer":
-        return <View className="h-5" />
-      case "section-header":
-        return (
-          <View className="mb-2 flex-row items-center justify-between">
-            <Text className="text-lg font-bold text-foreground">
-              {item.title}
-            </Text>
-            {item.showSeeMore && onSeeMoreTracks && (
-              <PressableFeedback onPress={onSeeMoreTracks}>
-                <Text className="text-xs text-muted">See more</Text>
-              </PressableFeedback>
-            )}
-          </View>
-        )
-      case "artist":
-        return (
-          <Item
-            variant="list"
-            className="py-1"
-            onPress={() => onArtistPress?.(item.artist)}
-          >
-            <ItemImage
-              icon={
-                <LocalUserSolidIcon
-                  fill="none"
-                  width={ICON_SIZES.listFallback}
-                  height={ICON_SIZES.listFallback}
-                  color={theme.muted}
-                />
-              }
-              image={item.artist.image}
-              className="h-14 w-14 rounded-full bg-default"
-            />
-            <ItemContent>
-              <ItemTitle className="text-lg">{item.artist.name}</ItemTitle>
-              <Text className="text-xs text-muted">{item.artist.type}</Text>
-            </ItemContent>
-          </Item>
-        )
-      case "album":
-        return (
-          <Item onPress={() => onAlbumPress?.(item.album)}>
-            <ItemImage
-              icon={
-                <LocalVynilSolidIcon
-                  fill="none"
-                  width={ICON_SIZES.listFallback}
-                  height={ICON_SIZES.listFallback}
-                  color={theme.muted}
-                />
-              }
-              image={item.album.image}
-              className="rounded-md"
-            />
-            <ItemContent>
-              <ItemTitle>{item.album.title || "Unknown Album"}</ItemTitle>
-              <ItemDescription>
-                {item.album.artist || "Unknown Artist"}
-              </ItemDescription>
-            </ItemContent>
-            {item.album.isVerified && (
-              <ItemAction>
-                <LocalCheckmarkCircleSolidIcon
-                  fill="none"
-                  width={20}
-                  height={20}
-                  color={theme.accent}
-                />
-              </ItemAction>
-            )}
-          </Item>
-        )
-      case "playlist":
-        return (
-          <Item onPress={() => onPlaylistPress?.(item.playlist)}>
-            <ItemImage className="items-center justify-center overflow-hidden bg-default">
-              <PlaylistArtwork
-                images={resolvePlaylistArtworkImages(
-                  item.playlist.images,
-                  item.playlist.image
-                )}
-              />
-            </ItemImage>
-            <ItemContent>
-              <ItemTitle>{item.playlist.title}</ItemTitle>
-              <ItemDescription>
-                {item.playlist.trackCount}{" "}
-                {item.playlist.trackCount === 1 ? "track" : "tracks"}
-              </ItemDescription>
-            </ItemContent>
-          </Item>
-        )
-      case "track":
-        return (
-          <Item onPress={() => playTrack(item.track)}>
-            <ItemImage
-              icon={
-                <LocalMusicNoteSolidIcon
-                  fill="none"
-                  width={ICON_SIZES.listFallback}
-                  height={ICON_SIZES.listFallback}
-                  color={theme.muted}
-                />
-              }
-              image={item.track.image}
-              className="rounded-md"
-            />
-            <ItemContent>
-              <ItemTitle>{item.track.title}</ItemTitle>
-              <ItemDescription>
-                {item.track.artist || "Unknown Artist"}
-              </ItemDescription>
-            </ItemContent>
-          </Item>
-        )
-      default:
-        return null
+    if (hasQuery && showArtists && artists.length > 0) {
+      appendSection(nextListData, {
+        headerId: "artists-header",
+        title: "Artists",
+        showHeader: isAllTab,
+        items: artists.map((artist) => ({
+          id: `artist-${artist.id}`,
+          type: "artist" as const,
+          artist,
+        })),
+      })
     }
-  }
+
+    if (hasQuery && showAlbums && albums.length > 0) {
+      appendSection(nextListData, {
+        headerId: "albums-header",
+        title: "Albums",
+        showHeader: isAllTab,
+        items: albums.map((album) => ({
+          id: `album-${album.id}`,
+          type: "album" as const,
+          album,
+        })),
+      })
+    }
+
+    if (hasQuery && showPlaylists && playlists.length > 0) {
+      appendSection(nextListData, {
+        headerId: "playlists-header",
+        title: "Playlists",
+        showHeader: isAllTab,
+        items: playlists.map((playlist) => ({
+          id: `playlist-${playlist.id}`,
+          type: "playlist" as const,
+          playlist,
+        })),
+      })
+    }
+
+    if (hasQuery && showTracks && tracks.length > 0) {
+      appendSection(nextListData, {
+        headerId: "tracks-header",
+        title: "Tracks",
+        showHeader: isAllTab || Boolean(onSeeMoreTracks),
+        showSeeMore: Boolean(onSeeMoreTracks),
+        items: tracks.map((track) => ({
+          id: `track-${track.id}`,
+          type: "track" as const,
+          track,
+        })),
+      })
+    }
+
+    return nextListData
+  }, [
+    albums,
+    artists,
+    hasQuery,
+    isAllTab,
+    onSeeMoreTracks,
+    playlists,
+    showAlbums,
+    showArtists,
+    showPlaylists,
+    showTracks,
+    tracks,
+  ])
+
+  const showInitialLoading = isLoading && hasQuery && listData.length === 0
+
+  const renderListItem = useCallback(
+    ({ item }: LegendListRenderItemProps<SearchResultsListItem>) => {
+      switch (item.type) {
+        case "section-spacer":
+          return <View className="h-5" />
+        case "section-header":
+          return (
+            <View className="mb-2 flex-row items-center justify-between">
+              <Text className="text-lg font-bold text-foreground">
+                {item.title}
+              </Text>
+              {item.showSeeMore && onSeeMoreTracks && (
+                <PressableFeedback onPress={onSeeMoreTracks}>
+                  <Text className="text-xs text-muted">See more</Text>
+                </PressableFeedback>
+              )}
+            </View>
+          )
+        case "artist":
+          return (
+            <Item
+              variant="list"
+              className="py-1"
+              onPress={() => onArtistPress?.(item.artist)}
+            >
+              <ItemImage
+                icon={
+                  <LocalUserSolidIcon
+                    fill="none"
+                    width={ICON_SIZES.listFallback}
+                    height={ICON_SIZES.listFallback}
+                    color={theme.muted}
+                  />
+                }
+                image={item.artist.image}
+                className="h-14 w-14 rounded-full bg-default"
+              />
+              <ItemContent>
+                <ItemTitle className="text-lg">{item.artist.name}</ItemTitle>
+                <Text className="text-xs text-muted">{item.artist.type}</Text>
+              </ItemContent>
+            </Item>
+          )
+        case "album":
+          return (
+            <Item onPress={() => onAlbumPress?.(item.album)}>
+              <ItemImage
+                icon={
+                  <LocalVynilSolidIcon
+                    fill="none"
+                    width={ICON_SIZES.listFallback}
+                    height={ICON_SIZES.listFallback}
+                    color={theme.muted}
+                  />
+                }
+                image={item.album.image}
+                className="rounded-md"
+              />
+              <ItemContent>
+                <ItemTitle>{item.album.title || "Unknown Album"}</ItemTitle>
+                <ItemDescription>
+                  {item.album.artist || "Unknown Artist"}
+                </ItemDescription>
+              </ItemContent>
+              {item.album.isVerified && (
+                <ItemAction>
+                  <LocalCheckmarkCircleSolidIcon
+                    fill="none"
+                    width={20}
+                    height={20}
+                    color={theme.accent}
+                  />
+                </ItemAction>
+              )}
+            </Item>
+          )
+        case "playlist":
+          return (
+            <Item onPress={() => onPlaylistPress?.(item.playlist)}>
+              <ItemImage className="items-center justify-center overflow-hidden bg-default">
+                <PlaylistArtwork
+                  images={resolvePlaylistArtworkImages(
+                    item.playlist.images,
+                    item.playlist.image
+                  )}
+                />
+              </ItemImage>
+              <ItemContent>
+                <ItemTitle>{item.playlist.title}</ItemTitle>
+                <ItemDescription>
+                  {item.playlist.trackCount}{" "}
+                  {item.playlist.trackCount === 1 ? "track" : "tracks"}
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          )
+        case "track":
+          return (
+            <Item onPress={() => playTrack(item.track)}>
+              <ItemImage
+                icon={
+                  <LocalMusicNoteSolidIcon
+                    fill="none"
+                    width={ICON_SIZES.listFallback}
+                    height={ICON_SIZES.listFallback}
+                    color={theme.muted}
+                  />
+                }
+                image={item.track.image}
+                className="rounded-md"
+              />
+              <ItemContent>
+                <ItemTitle>{item.track.title}</ItemTitle>
+                <ItemDescription>
+                  {item.track.artist || "Unknown Artist"}
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          )
+        default:
+          return null
+      }
+    },
+    [onAlbumPress, onArtistPress, onPlaylistPress, onSeeMoreTracks, theme]
+  )
 
   return (
     <View className="flex-1">
@@ -344,7 +366,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         automaticallyAdjustContentInsets={false}
         {...LEGEND_LIST_SECTION_CONFIG}
       />
-      {isLoading && hasQuery && listData.length === 0 ? (
+      {showInitialLoading ? (
         <View className="absolute inset-x-0 top-16 px-4">
           <LibrarySkeleton type="search-results" />
         </View>

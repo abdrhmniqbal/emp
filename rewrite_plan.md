@@ -514,6 +514,9 @@ Performance is a first-class rewrite track.
 - [~] shared library tab state normalization started:
   - `src/components/blocks/library-tab-state.tsx` now centralizes loading/empty/content gating for library tabs
   - `src/components/blocks/albums-tab.tsx`, `artists-tab.tsx`, and `tracks-tab.tsx` now use one shared render-path boundary for loading and empty states
+- [~] search and playlist high-traffic list surfaces now use narrower render-time work:
+  - `src/components/blocks/search-results.tsx` now memoizes section list data and stabilizes key callbacks for list rendering
+  - `src/components/blocks/playlist-list.tsx` now memoizes row data, empty footer state, and row render callbacks
 
 These are now treated as groundwork, not the finish line.
 

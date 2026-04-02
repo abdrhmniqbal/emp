@@ -4,7 +4,7 @@ import {
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import * as React from "react"
-import { useRef } from "react"
+import { useCallback, useMemo, useRef } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -78,59 +78,105 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
-  const handlePress = (playlist: Playlist) => {
-    onPlaylistPress?.(playlist)
-  }
+  const handlePress = useCallback(
+    (playlist: Playlist) => {
+      onPlaylistPress?.(playlist)
+    },
+    [onPlaylistPress]
+  )
 
-  const handleCreate = () => {
+  const handleCreate = useCallback(() => {
     onCreatePlaylist?.()
-  }
+  }, [onCreatePlaylist])
 
-  const formatTrackCount = (count: number) =>
-    `${count} ${count === 1 ? "track" : "tracks"}`
-
-  const renderCreateButton = () => (
-    <Item key="create" onPress={handleCreate}>
-      <ItemImage className="items-center justify-center bg-surface">
-        <LocalAddIcon
-          fill="none"
-          width={24}
-          height={24}
-          color={theme.foreground}
-        />
-      </ItemImage>
-      <ItemContent>
-        <ItemTitle>New Playlist</ItemTitle>
-      </ItemContent>
-    </Item>
+  const formatTrackCount = useCallback(
+    (count: number) => `${count} ${count === 1 ? "track" : "tracks"}`,
+    []
   )
 
-  const renderPlaylistItem = (item: Playlist) => (
-    <Item key={item.id} onPress={() => handlePress(item)}>
-      <ItemImage className="items-center justify-center overflow-hidden bg-default">
-        <PlaylistArtwork
-          images={resolvePlaylistArtworkImages(item.images, item.image)}
-        />
-      </ItemImage>
-      <ItemContent>
-        <ItemTitle>{item.title}</ItemTitle>
-        <ItemDescription>{formatTrackCount(item.trackCount)}</ItemDescription>
-      </ItemContent>
-      <ItemAction>
-        <LocalChevronRightIcon
-          fill="none"
-          width={24}
-          height={24}
-          color={theme.muted}
-        />
-      </ItemAction>
-    </Item>
+  const renderCreateButton = useCallback(
+    () => (
+      <Item key="create" onPress={handleCreate}>
+        <ItemImage className="items-center justify-center bg-surface">
+          <LocalAddIcon
+            fill="none"
+            width={24}
+            height={24}
+            color={theme.foreground}
+          />
+        </ItemImage>
+        <ItemContent>
+          <ItemTitle>New Playlist</ItemTitle>
+        </ItemContent>
+      </Item>
+    ),
+    [handleCreate, theme.foreground]
   )
 
-  const listData: PlaylistListRow[] = [
-    { id: "create", rowType: "create" },
-    ...data.map((playlist) => ({ ...playlist, rowType: "playlist" as const })),
-  ]
+  const renderPlaylistItem = useCallback(
+    (item: Playlist) => (
+      <Item key={item.id} onPress={() => handlePress(item)}>
+        <ItemImage className="items-center justify-center overflow-hidden bg-default">
+          <PlaylistArtwork
+            images={resolvePlaylistArtworkImages(item.images, item.image)}
+          />
+        </ItemImage>
+        <ItemContent>
+          <ItemTitle>{item.title}</ItemTitle>
+          <ItemDescription>{formatTrackCount(item.trackCount)}</ItemDescription>
+        </ItemContent>
+        <ItemAction>
+          <LocalChevronRightIcon
+            fill="none"
+            width={24}
+            height={24}
+            color={theme.muted}
+          />
+        </ItemAction>
+      </Item>
+    ),
+    [formatTrackCount, handlePress, theme.muted]
+  )
+
+  const listData: PlaylistListRow[] = useMemo(
+    () => [
+      { id: "create", rowType: "create" },
+      ...data.map((playlist) => ({
+        ...playlist,
+        rowType: "playlist" as const,
+      })),
+    ],
+    [data]
+  )
+
+  const renderItem = useCallback(
+    ({ item }: LegendListRenderItemProps<PlaylistListRow>) => {
+      if (item.rowType === "create") {
+        return renderCreateButton()
+      }
+      return renderPlaylistItem(item)
+    },
+    [renderCreateButton, renderPlaylistItem]
+  )
+
+  const emptyFooter = useMemo(
+    () =>
+      data.length === 0 ? (
+        <EmptyState
+          icon={
+            <LocalPlaylistSolidIcon
+              fill="none"
+              width={48}
+              height={48}
+              color={theme.muted}
+            />
+          }
+          title="No Playlists"
+          message="Create your first playlist to organize your music."
+        />
+      ) : null,
+    [data.length, theme.muted]
+  )
 
   return (
     <View style={{ flex: 1 }}>
@@ -139,12 +185,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         maintainVisibleContentPosition={false}
         dataVersion={resetScrollKey}
         data={listData}
-        renderItem={({ item }: LegendListRenderItemProps<PlaylistListRow>) => {
-          if (item.rowType === "create") {
-            return renderCreateButton()
-          }
-          return renderPlaylistItem(item)
-        }}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
         getItemType={(item) => item.rowType}
         scrollEnabled={scrollEnabled}
@@ -156,22 +197,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         scrollEventThrottle={16}
         refreshControl={refreshControl || undefined}
         {...LEGEND_LIST_ROW_CONFIG}
-        ListFooterComponent={
-          data.length === 0 ? (
-            <EmptyState
-              icon={
-                <LocalPlaylistSolidIcon
-                  fill="none"
-                  width={48}
-                  height={48}
-                  color={theme.muted}
-                />
-              }
-              title="No Playlists"
-              message="Create your first playlist to organize your music."
-            />
-          ) : null
-        }
+        ListFooterComponent={emptyFooter}
         style={{ flex: 1, minHeight: 1 }}
       />
     </View>
