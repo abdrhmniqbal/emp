@@ -42,12 +42,22 @@ export const TracksTab: React.FC<TracksTabProps> = ({
 
   const { data: dbTracks = [], isLoading, isPending } = useTracks()
 
-  const tracks = (dbTracks as DBTrack[]).map(transformDBTrackToTrack)
-  const effectiveSortConfig: SortConfig = sortConfig ?? {
-    field: "title",
-    order: "asc",
-  }
-  const sortedTracks = sortTracks(tracks, effectiveSortConfig)
+  const tracks = React.useMemo(
+    () => (dbTracks as DBTrack[]).map(transformDBTrackToTrack),
+    [dbTracks]
+  )
+  const effectiveSortConfig = React.useMemo<SortConfig>(
+    () =>
+      sortConfig ?? {
+        field: "title",
+        order: "asc",
+      },
+    [sortConfig]
+  )
+  const sortedTracks = React.useMemo(
+    () => sortTracks(tracks, effectiveSortConfig),
+    [tracks, effectiveSortConfig]
+  )
 
   const handleTrackPress = (track: Track) => {
     onTrackPress?.(track, sortedTracks)

@@ -106,11 +106,13 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 - status: `partial`
 - notes:
-  - query and repository split is good
-  - sorting is now split into state, constants, types, and pure utilities
-  - internal sort-store pass-through helpers have been trimmed down
-  - library screen sort-field resolution is now easier to read without nested ternaries
-  - folder browser is reasonable, but library state is still spread across screen + sort store
+- query and repository split is good
+- sorting is now split into state, constants, types, and pure utilities
+- internal sort-store pass-through helpers have been trimmed down
+- library screen sort-field resolution is now easier to read without nested ternaries
+- library tab query field mapping is now explicit and typed instead of relying on `as any`
+- tracks tab now memoizes track transformation and sorting before handing data to `TrackList`
+- folder browser is reasonable, but library state is still spread across screen + sort store
 
 ### `logging`
 

@@ -219,6 +219,8 @@ Progress:
 - library sort state, sort options, and pure sorting helpers are now split into separate files
 - internal helpers in `src/modules/library/library-sort.store.ts` have been trimmed down
 - `src/app/(main)/(library)/index.tsx` now resolves album and artist sort fields with small local helpers instead of nested ternaries
+- `src/components/blocks/albums-tab.tsx` and `src/components/blocks/artists-tab.tsx` now map query sort fields with explicit typed helpers instead of `as any`
+- `src/components/blocks/tracks-tab.tsx` now memoizes track transformation and sorting instead of recalculating both on every render
 - queue runtime commands now live in `src/modules/player/queue.service.ts`
 - player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - player session persistence now lives in `src/modules/player/player-session.repository.ts`

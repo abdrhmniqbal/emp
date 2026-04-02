@@ -14,6 +14,22 @@ import { sortAlbums } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
 import { useAlbums } from "@/modules/library/library.queries"
 
+type AlbumOrderByField = Parameters<typeof useAlbums>[0]
+type AlbumOrder = Parameters<typeof useAlbums>[1]
+
+function getAlbumOrderByField(field: SortConfig["field"]): AlbumOrderByField {
+  switch (field) {
+    case "year":
+    case "trackCount":
+    case "dateAdded":
+    case "title":
+      return field
+    case "artist":
+    default:
+      return "title"
+  }
+}
+
 interface AlbumsTabProps {
   onAlbumPress?: (album: Album) => void
   sortConfig?: SortConfig
@@ -36,34 +52,41 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
-  const effectiveSortConfig: SortConfig = sortConfig ?? {
-    field: "title",
-    order: "asc",
-  }
-  const orderByField =
-    effectiveSortConfig.field === "artist"
-      ? "title"
-      : effectiveSortConfig.field || "title"
-  const order = effectiveSortConfig.order || "asc"
+  const effectiveSortConfig = React.useMemo<SortConfig>(
+    () =>
+      sortConfig ?? {
+        field: "title",
+        order: "asc",
+      },
+    [sortConfig]
+  )
+  const orderByField = getAlbumOrderByField(effectiveSortConfig.field)
+  const order: AlbumOrder = effectiveSortConfig.order
 
   const {
     data: albumsData,
     isLoading,
     isPending,
-  } = useAlbums(orderByField as any, order)
+  } = useAlbums(orderByField, order)
 
-  const albums: Album[] =
-    albumsData?.map((album) => ({
-      id: album.id,
-      title: album.title,
-      artist: album.artist?.name || "Unknown Artist",
-      albumArtist: album.artist?.name,
-      image: album.artwork || undefined,
-      trackCount: album.trackCount || 0,
-      year: album.year || 0,
-      dateAdded: 0,
-    })) || []
-  const sortedAlbums = sortAlbums(albums, effectiveSortConfig) as Album[]
+  const albums = React.useMemo<Album[]>(
+    () =>
+      (albumsData || []).map((album) => ({
+        id: album.id,
+        title: album.title,
+        artist: album.artist?.name || "Unknown Artist",
+        albumArtist: album.artist?.name,
+        image: album.artwork || undefined,
+        trackCount: album.trackCount || 0,
+        year: album.year || 0,
+        dateAdded: 0,
+      })),
+    [albumsData]
+  )
+  const sortedAlbums = React.useMemo(
+    () => sortAlbums(albums, effectiveSortConfig) as Album[],
+    [albums, effectiveSortConfig]
+  )
 
   const handleAlbumPress = (album: Album) => {
     onAlbumPress?.(album)

@@ -14,6 +14,20 @@ import { sortArtists } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
 import { useArtists } from "@/modules/library/library.queries"
 
+type ArtistOrderByField = Parameters<typeof useArtists>[0]
+type ArtistOrder = Parameters<typeof useArtists>[1]
+
+function getArtistOrderByField(field: SortConfig["field"]): ArtistOrderByField {
+  switch (field) {
+    case "trackCount":
+    case "dateAdded":
+    case "name":
+      return field
+    default:
+      return "name"
+  }
+}
+
 interface ArtistsTabProps {
   onArtistPress?: (artist: Artist) => void
   sortConfig?: SortConfig
@@ -36,32 +50,42 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
-  const effectiveSortConfig: SortConfig = sortConfig ?? {
-    field: "name",
-    order: "asc",
-  }
-  const orderByField = effectiveSortConfig.field || "name"
-  const order = effectiveSortConfig.order || "asc"
+  const effectiveSortConfig = React.useMemo<SortConfig>(
+    () =>
+      sortConfig ?? {
+        field: "name",
+        order: "asc",
+      },
+    [sortConfig]
+  )
+  const orderByField = getArtistOrderByField(effectiveSortConfig.field)
+  const order: ArtistOrder = effectiveSortConfig.order
 
   const {
     data: artistsData,
     isLoading,
     isPending,
-  } = useArtists(orderByField as any, order)
+  } = useArtists(orderByField, order)
 
-  const artists: Artist[] =
-    artistsData?.map((artist) => ({
-      id: artist.id,
-      name: artist.name,
-      trackCount: artist.trackCount || 0,
-      image:
-        artist.artwork ||
-        artist.trackArtwork ||
-        artist.albumArtwork ||
-        undefined,
-      dateAdded: 0,
-    })) || []
-  const sortedArtists = sortArtists(artists, effectiveSortConfig) as Artist[]
+  const artists = React.useMemo<Artist[]>(
+    () =>
+      (artistsData || []).map((artist) => ({
+        id: artist.id,
+        name: artist.name,
+        trackCount: artist.trackCount || 0,
+        image:
+          artist.artwork ||
+          artist.trackArtwork ||
+          artist.albumArtwork ||
+          undefined,
+        dateAdded: 0,
+      })),
+    [artistsData]
+  )
+  const sortedArtists = React.useMemo(
+    () => sortArtists(artists, effectiveSortConfig) as Artist[],
+    [artists, effectiveSortConfig]
+  )
 
   const handleArtistPress = (artist: Artist) => {
     onArtistPress?.(artist)
