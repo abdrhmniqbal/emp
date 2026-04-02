@@ -2,6 +2,7 @@ import { TrackPlayer } from "@/modules/player/player.utils"
 
 import { logError } from "@/modules/logging/logging.service"
 
+import { mapTrackToTrackPlayerInput } from "./player-adapter"
 import {
   getCurrentTrackState,
   getIsShuffledState,
@@ -16,18 +17,6 @@ import {
   persistPlaybackSession,
   syncCurrentTrackFromPlayer,
 } from "./player-session.service"
-
-function mapTrackToTrackPlayerInput(track: Track) {
-  return {
-    id: track.id,
-    url: track.uri,
-    title: track.title,
-    artist: track.artist,
-    album: track.album,
-    artwork: track.image,
-    duration: track.duration,
-  }
-}
 
 export async function addToQueue(track: Track) {
   const queue = getQueueState()

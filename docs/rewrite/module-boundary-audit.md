@@ -98,6 +98,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - post-scan media reload and query invalidation now live in `indexer-refresh.service.ts`
   - abort token, queued-run, and completion-timeout coordination now live in `indexer-runtime.ts`
   - progress mapping and terminal state transitions now live in `indexer-progress.service.ts`
+  - dead compatibility-style `indexer.utils.ts` has been removed
 
 ### `library`
 
@@ -143,6 +144,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - player library loading now lives in `player-library.service.ts`
   - local favorite-toggle helper now lives in `player-favorites.service.ts`
   - playback-driven history cache invalidation no longer lives in the player module
+  - queue runtime now reuses the shared TrackPlayer mapping adapter instead of duplicating it locally
 
 ### `playlist`
 

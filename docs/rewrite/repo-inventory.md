@@ -245,6 +245,7 @@ Progress:
 - player color state no longer uses `$...` compatibility helpers internally
 - dead compatibility file `src/modules/player/player.computed.ts` was removed
 - dead compatibility file `src/modules/player/player.queries.ts` was removed
+- dead compatibility file `src/modules/indexer/indexer.utils.ts` was removed
 - player state and queue helpers no longer expose `$...` compatibility wrappers internally
 - player state and playback commands no longer share the same public import surface
 - `src/modules/player/queue.store.ts` no longer maintains the legacy `$queueInfo` export
@@ -256,6 +257,7 @@ Progress:
 - playback transport controls now live in `src/modules/player/player-controls.service.ts`
 - player library loading now lives in `src/modules/player/player-library.service.ts`
 - local favorite-toggle helper now lives in `src/modules/player/player-favorites.service.ts`
+- queue runtime now reuses the shared TrackPlayer mapping adapter instead of duplicating it
 - playback-driven history cache updates now live in `src/modules/history/history-cache.service.ts`
 - post-scan media reload and query invalidation now live in `src/modules/indexer/indexer-refresh.service.ts`
 - indexer run coordination state now lives in `src/modules/indexer/indexer-runtime.ts`

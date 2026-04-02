@@ -151,6 +151,7 @@ Rules:
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
 - player session persistence should live in `player-session.repository.ts`
 - TrackPlayer mapping and repeat-mode adapter helpers should live outside `player.service.ts`
+- queue runtime should reuse shared TrackPlayer mapping helpers instead of duplicating them locally
 - player session lifecycle should live in `player-session.service.ts`, and runtime state sync helpers should live outside `player.service.ts`
 - TrackPlayer event wiring should live outside `player.service.ts`
 - playback transport controls should live outside `player.service.ts`
