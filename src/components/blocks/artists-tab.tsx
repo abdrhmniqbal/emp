@@ -6,9 +6,8 @@ import type {
 import * as React from "react"
 
 import { type Artist, ArtistGrid } from "@/components/blocks/artist-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
-import { EmptyState } from "@/components/ui/empty-state"
 import type { SortConfig } from "@/modules/library/library-sort.types"
 import { sortArtists } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -87,42 +86,40 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
     [artists, effectiveSortConfig]
   )
 
-  const handleArtistPress = (artist: Artist) => {
-    onArtistPress?.(artist)
-  }
-
-  if (isLoading || isPending) {
-    return <LibrarySkeleton type="artists" />
-  }
-
-  if (artists.length === 0) {
-    return (
-      <EmptyState
-        icon={
-          <LocalUserSolidIcon
-            fill="none"
-            width={48}
-            height={48}
-            color={theme.muted}
-          />
-        }
-        title="No Artists"
-        message="Artists from your music library will appear here."
-      />
-    )
-  }
+  const handleArtistPress = React.useCallback(
+    (artist: Artist) => {
+      onArtistPress?.(artist)
+    },
+    [onArtistPress]
+  )
 
   return (
-    <ArtistGrid
-      data={sortedArtists}
-      onArtistPress={handleArtistPress}
-      contentContainerStyle={{ paddingBottom: contentBottomPadding }}
-      resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
-      refreshControl={refreshControl}
-      onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
-      onMomentumScrollEnd={onMomentumScrollEnd}
-    />
+    <LibraryTabState
+      isLoading={isLoading || isPending}
+      hasData={artists.length > 0}
+      skeletonType="artists"
+      emptyIcon={
+        <LocalUserSolidIcon
+          fill="none"
+          width={48}
+          height={48}
+          color={theme.muted}
+        />
+      }
+      emptyTitle="No Artists"
+      emptyMessage="Artists from your music library will appear here."
+    >
+      <ArtistGrid
+        data={sortedArtists}
+        onArtistPress={handleArtistPress}
+        contentContainerStyle={{ paddingBottom: contentBottomPadding }}
+        resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
+        refreshControl={refreshControl}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+      />
+    </LibraryTabState>
   )
 }

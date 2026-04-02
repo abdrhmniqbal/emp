@@ -7,10 +7,9 @@ import type { Track } from "@/modules/player/player.store"
 
 import type { DBTrack } from "@/types/database"
 import * as React from "react"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { EmptyState } from "@/components/ui/empty-state"
 import type { SortConfig } from "@/modules/library/library-sort.types"
 import { sortTracks } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -59,42 +58,40 @@ export const TracksTab: React.FC<TracksTabProps> = ({
     [tracks, effectiveSortConfig]
   )
 
-  const handleTrackPress = (track: Track) => {
-    onTrackPress?.(track, sortedTracks)
-  }
-
-  if (isLoading || isPending) {
-    return <LibrarySkeleton type="tracks" />
-  }
-
-  if (tracks.length === 0) {
-    return (
-      <EmptyState
-        icon={
-          <LocalMusicNoteSolidIcon
-            fill="none"
-            width={48}
-            height={48}
-            color={theme.muted}
-          />
-        }
-        title="No Tracks"
-        message="Tracks you add to your library will appear here."
-      />
-    )
-  }
+  const handleTrackPress = React.useCallback(
+    (track: Track) => {
+      onTrackPress?.(track, sortedTracks)
+    },
+    [onTrackPress, sortedTracks]
+  )
 
   return (
-    <TrackList
-      data={sortedTracks}
-      onTrackPress={handleTrackPress}
-      contentContainerStyle={{ paddingBottom: contentBottomPadding }}
-      resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
-      refreshControl={refreshControl}
-      onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
-      onMomentumScrollEnd={onMomentumScrollEnd}
-    />
+    <LibraryTabState
+      isLoading={isLoading || isPending}
+      hasData={tracks.length > 0}
+      skeletonType="tracks"
+      emptyIcon={
+        <LocalMusicNoteSolidIcon
+          fill="none"
+          width={48}
+          height={48}
+          color={theme.muted}
+        />
+      }
+      emptyTitle="No Tracks"
+      emptyMessage="Tracks you add to your library will appear here."
+    >
+      <TrackList
+        data={sortedTracks}
+        onTrackPress={handleTrackPress}
+        contentContainerStyle={{ paddingBottom: contentBottomPadding }}
+        resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
+        refreshControl={refreshControl}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+      />
+    </LibraryTabState>
   )
 }

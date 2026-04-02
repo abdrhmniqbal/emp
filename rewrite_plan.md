@@ -20,6 +20,16 @@ The goal is to make the app:
 
 This plan applies to the whole repo. Every file is in scope.
 
+## Merged Baseline (Single Source of Truth)
+
+This document now merges and supersedes planning status previously tracked across:
+
+- `docs/rewrite/repo-inventory.md`
+- `docs/rewrite/module-boundary-audit.md`
+- `docs/rewrite/navigation-migration-plan.md`
+
+Those documents remain useful as detailed history, but execution should now follow this file as the primary rewrite plan.
+
 ## Core Rule For Every File
 
 For every file we touch, we will ask:
@@ -76,11 +86,17 @@ We do not keep code just because it already works.
 ## Boundary Audit
 
 - [x] Initial module boundary audit completed
-- [~] `favorites`, `genres`, `history`, and `search` are closest to the target module shape
+- [x] `favorites`, `genres`, `history`, and `search` are aligned with the target module shape
 - [~] `library`, `playlist`, `tracks`, `device`, `logging`, `bootstrap`, `lyrics`, `ui`, and `settings` need another cleanup pass
 - [x] `player` and `indexer` no longer need a shrinking-first rewrite pass
 - [~] `player` is improving, and queue runtime commands are now split from queue state surfaces
 - [~] `settings` is improving, and folder filter state now lives in `useSettingsStore` with the other local preferences
+
+Module status reference:
+
+- `aligned`: `albums`, `artists`, `favorites`, `genres`, `history`, `search`
+- `partial`: `bootstrap`, `device`, `library`, `logging`, `lyrics`, `player`, `playlist`, `providers`, `settings`, `tracks`, `ui`, `navigation`, `indexer`
+- `rewrite`: none currently
 
 ## Keep / Rewrite Decision Matrix
 
@@ -334,7 +350,7 @@ Performance is a first-class rewrite track.
 
 ### Phase 0: Inventory and Rules
 
-- [ ] create a full inventory of:
+- [x] create a full inventory of:
   - providers
   - stores
   - services
@@ -343,28 +359,28 @@ Performance is a first-class rewrite track.
   - `useEffect` usage
   - logging coverage
   - performance hotspots
-- [ ] classify every file as:
+- [x] classify every file as:
   - keep
   - improve
   - split
   - merge
   - delete
-- [ ] define the final store boundaries
-- [ ] define logging coverage expectations before implementation starts
+- [~] define the final store boundaries
+- [~] define logging coverage expectations before implementation starts
 
 ### Phase 1: Foundation and Providers
 
-- [ ] flatten provider composition
-- [ ] ensure bootstrap, database, and app-shell ownership are explicit
-- [ ] reduce provider-level effects and derived state
+- [~] flatten provider composition
+- [~] ensure bootstrap, database, and app-shell ownership are explicit
+- [~] reduce provider-level effects and derived state
 - [ ] ensure global error and logging initialization are reliable
 
 ### Phase 2: Core Runtime Domains
 
-- [ ] finish player architecture cleanup
-- [ ] finish indexer architecture cleanup
-- [ ] finalize settings persistence ownership
-- [ ] remove compatibility APIs that still imitate older patterns
+- [~] finish player architecture cleanup
+- [~] finish indexer architecture cleanup
+- [~] finalize settings persistence ownership
+- [~] remove compatibility APIs that still imitate older patterns
 
 ### Phase 3: Feature Modules
 
@@ -495,6 +511,9 @@ Performance is a first-class rewrite track.
   - library sort store no longer exposes `$...` wrappers
   - player color state no longer exposes `$...` wrappers
   - dead computed compatibility file `src/modules/player/player.computed.ts` was removed
+- [~] shared library tab state normalization started:
+  - `src/components/blocks/library-tab-state.tsx` now centralizes loading/empty/content gating for library tabs
+  - `src/components/blocks/albums-tab.tsx`, `artists-tab.tsx`, and `tracks-tab.tsx` now use one shared render-path boundary for loading and empty states
 
 These are now treated as groundwork, not the finish line.
 
@@ -520,6 +539,41 @@ We execute it in slices, but every slice must satisfy these rules:
 - reduce performance cost where visible
 - avoid introducing new workaround code
 
+## Active Next Steps (Priority Order)
+
+The rewrite is in progress and not yet complete. Execute the next slices in this order:
+
+### Next Slice A: Shared component composition + state normalization
+
+- [ ] normalize loading, empty, and error states for high-traffic blocks (`library`, `search`, `playlist`, `player` surfaces)
+- [ ] remove remaining pass-through wrappers and prop-heavy escape hatches in `src/components/blocks` and `src/components/patterns`
+- [ ] enforce one render path per list block (conditional sections, no duplicated full trees)
+
+### Next Slice B: Logging closure for failure-prone workflows
+
+- [ ] complete start/success/failure logs for bootstrap, DB startup, media permission/listeners, player transport, and indexer lifecycle
+- [ ] add route-level invalid-param and dead-end logging where navigation can trap the user
+- [ ] verify logging level gating (`minimal` vs `extra`) in hot paths
+
+### Next Slice C: Performance closure on hot screens
+
+- [ ] audit and reduce broad Zustand subscriptions on library/search/player surfaces
+- [ ] verify list row memoization and stable callbacks across detail and results screens
+- [ ] isolate playback-progress subscriptions to only views that truly need high-frequency updates
+
+### Next Slice D: Provider/runtime simplification final pass
+
+- [ ] collapse remaining provider effects that mirror runtime state
+- [ ] ensure provider startup and failure signaling only comes from real async boundaries
+- [ ] finalize global error pipeline initialization and crash-log export reliability
+
+## Definition of Done For The Next 3 Slices
+
+- [ ] each touched area has explicit ownership (`repository`/`queries`/`mutations`/`service`/`store`) with no compatibility shim reintroduced
+- [ ] each changed async workflow has structured start/success/failure logs
+- [ ] each changed list or hot-path view shows reduced unnecessary rerenders versus baseline
+- [ ] no added `useEffect` without a short in-file reason and no new screen wrapper hooks
+
 ## Immediate Next Step
 
-- [ ] perform the Phase 0 inventory and classify the remaining files before writing more production code
+- [ ] execute Next Slice A on `src/components/blocks` and `src/components/patterns`, then update this file with module-by-module completion notes

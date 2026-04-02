@@ -6,9 +6,8 @@ import type {
 import * as React from "react"
 
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { EmptyState } from "@/components/ui/empty-state"
 import type { SortConfig } from "@/modules/library/library-sort.types"
 import { sortAlbums } from "@/modules/library/library-sort.utils"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -88,42 +87,40 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
     [albums, effectiveSortConfig]
   )
 
-  const handleAlbumPress = (album: Album) => {
-    onAlbumPress?.(album)
-  }
-
-  if (isLoading || isPending) {
-    return <LibrarySkeleton type="albums" />
-  }
-
-  if (albums.length === 0) {
-    return (
-      <EmptyState
-        icon={
-          <LocalVynilSolidIcon
-            fill="none"
-            width={48}
-            height={48}
-            color={theme.muted}
-          />
-        }
-        title="No Albums"
-        message="Albums you add to your library will appear here."
-      />
-    )
-  }
+  const handleAlbumPress = React.useCallback(
+    (album: Album) => {
+      onAlbumPress?.(album)
+    },
+    [onAlbumPress]
+  )
 
   return (
-    <AlbumGrid
-      data={sortedAlbums}
-      onAlbumPress={handleAlbumPress}
-      contentContainerStyle={{ paddingBottom: contentBottomPadding }}
-      resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
-      refreshControl={refreshControl}
-      onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
-      onMomentumScrollEnd={onMomentumScrollEnd}
-    />
+    <LibraryTabState
+      isLoading={isLoading || isPending}
+      hasData={albums.length > 0}
+      skeletonType="albums"
+      emptyIcon={
+        <LocalVynilSolidIcon
+          fill="none"
+          width={48}
+          height={48}
+          color={theme.muted}
+        />
+      }
+      emptyTitle="No Albums"
+      emptyMessage="Albums you add to your library will appear here."
+    >
+      <AlbumGrid
+        data={sortedAlbums}
+        onAlbumPress={handleAlbumPress}
+        contentContainerStyle={{ paddingBottom: contentBottomPadding }}
+        resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
+        refreshControl={refreshControl}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+      />
+    </LibraryTabState>
   )
 }
