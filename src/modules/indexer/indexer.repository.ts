@@ -325,6 +325,36 @@ async function processDeletedTracksInScopes(
   }
 }
 
+async function hardDeleteSoftDeletedTracksInScopes(
+  signal?: AbortSignal
+): Promise<void> {
+  const softDeletedTracks = await db.query.tracks.findMany({
+    columns: { id: true },
+    where: eq(tracks.isDeleted, 1),
+  })
+
+  const softDeletedIds = softDeletedTracks.map((track) => track.id)
+  if (softDeletedIds.length === 0) {
+    return
+  }
+
+  const deleteScopes = chunkArray(softDeletedIds, DELETE_SCOPE_SIZE)
+
+  for (const scope of deleteScopes) {
+    if (signal?.aborted) {
+      return
+    }
+
+    await waitForIndexerResume(signal)
+    if (signal?.aborted) {
+      return
+    }
+
+    await db.delete(tracks).where(inArray(tracks.id, scope))
+    await yieldToEventLoop()
+  }
+}
+
 export async function scanMediaLibrary(
   onProgress?: (progress: IndexerScanProgress) => void,
   forceFullScan = false,
@@ -490,7 +520,7 @@ export async function scanMediaLibrary(
   })
 
   if (signal?.aborted) return
-  await db.delete(tracks).where(eq(tracks.isDeleted, 1))
+  await hardDeleteSoftDeletedTracksInScopes(signal)
 
   await saveIndexerRunSnapshot({
     startedAt,
