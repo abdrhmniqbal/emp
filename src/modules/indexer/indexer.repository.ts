@@ -279,7 +279,6 @@ async function processBatch(
             return
           }
 
-          await upsertPreparedAsset(prepared, signal)
           await upsertPreparedAsset(prepared, signal, lookupCache)
         }
       })
