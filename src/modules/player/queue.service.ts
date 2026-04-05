@@ -337,6 +337,7 @@ export async function removeFromQueue(trackId: string) {
     const queueTrackIds = getQueueTrackIdsState()
     const currentTrackId = getCurrentTrackState()?.id ?? null
     const wasCurrentTrack = currentTrackId === trackId
+    const removedTrackIndex = queueTrackIds.findIndex((id) => id === trackId)
 
     const nextQueueTrackIds = queueTrackIds.filter((id) => id !== trackId)
     const nextBaseQueueTrackIds =
@@ -361,7 +362,15 @@ export async function removeFromQueue(trackId: string) {
 
     try {
       if (wasCurrentTrack) {
-        const nextCurrentTrackId = nextQueueTrackIds[0] || null
+        const fallbackIndex =
+          nextQueueTrackIds.length === 0
+            ? -1
+            : Math.min(
+                removedTrackIndex < 0 ? 0 : removedTrackIndex,
+                nextQueueTrackIds.length - 1
+              )
+        const nextCurrentTrackId =
+          fallbackIndex >= 0 ? (nextQueueTrackIds[fallbackIndex] ?? null) : null
         await rebuildNativeQueueFromStore(nextCurrentTrackId)
       } else {
         const trackPlayerQueue = await TrackPlayer.getQueue()
