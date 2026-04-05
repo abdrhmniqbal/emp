@@ -24,6 +24,100 @@ function normalizeLookup(value: string | null | undefined) {
   return (value || "").trim().toLowerCase()
 }
 
+function selectDominantArtwork(
+  tracksForAlbum: Array<{ artwork: string | null; dateAdded?: number | null }>
+) {
+  const artworkStats = new Map<string, { count: number; latestDateAdded: number }>()
+
+  for (const track of tracksForAlbum) {
+    const artwork = track.artwork
+    if (!artwork) {
+      continue
+    }
+
+    const existing = artworkStats.get(artwork)
+    const dateAdded = track.dateAdded ?? 0
+
+    if (!existing) {
+      artworkStats.set(artwork, {
+        count: 1,
+        latestDateAdded: dateAdded,
+      })
+      continue
+    }
+
+    existing.count += 1
+    existing.latestDateAdded = Math.max(existing.latestDateAdded, dateAdded)
+  }
+
+  let dominantArtwork: string | undefined
+  let dominantCount = -1
+  let dominantLatestDateAdded = -1
+
+  for (const [artwork, stats] of artworkStats.entries()) {
+    if (
+      stats.count > dominantCount ||
+      (stats.count === dominantCount &&
+        stats.latestDateAdded > dominantLatestDateAdded)
+    ) {
+      dominantArtwork = artwork
+      dominantCount = stats.count
+      dominantLatestDateAdded = stats.latestDateAdded
+    }
+  }
+
+  return dominantArtwork
+}
+
+async function getDominantAlbumArtworkMap(albumIds: string[]) {
+  if (albumIds.length === 0) {
+    return new Map<string, string>()
+  }
+
+  const albumTracks = await db.query.tracks.findMany({
+    where: and(
+      eq(tracks.isDeleted, 0),
+      inArray(tracks.albumId, albumIds),
+      isNotNull(tracks.artwork)
+    ),
+    columns: {
+      albumId: true,
+      artwork: true,
+      dateAdded: true,
+    },
+  })
+
+  const tracksByAlbumId = new Map<
+    string,
+    Array<{ artwork: string | null; dateAdded?: number | null }>
+  >()
+
+  for (const track of albumTracks) {
+    const albumId = track.albumId
+    if (!albumId) {
+      continue
+    }
+
+    const bucket = tracksByAlbumId.get(albumId)
+    if (bucket) {
+      bucket.push(track)
+      continue
+    }
+
+    tracksByAlbumId.set(albumId, [track])
+  }
+
+  const dominantArtworkByAlbumId = new Map<string, string>()
+  for (const [albumId, tracksForAlbum] of tracksByAlbumId.entries()) {
+    const dominantArtwork = selectDominantArtwork(tracksForAlbum)
+    if (dominantArtwork) {
+      dominantArtworkByAlbumId.set(albumId, dominantArtwork)
+    }
+  }
+
+  return dominantArtworkByAlbumId
+}
+
 export async function listArtists(
   orderByField: "name" | "trackCount" | "dateAdded" = "name",
   order: "asc" | "desc" = "asc"
@@ -146,12 +240,16 @@ export async function listAlbums(
     orderBy: orderByField === "artist" ? undefined : orderBy,
   })
 
+  const dominantArtworkByAlbumId = await getDominantAlbumArtworkMap(
+    results.map((album) => album.id)
+  )
+
   const mapped = results.map((album) => ({
     id: album.id,
     title: album.title,
     artistId: album.artistId,
     year: album.year,
-    artwork: album.artwork,
+    artwork: dominantArtworkByAlbumId.get(album.id) || album.artwork,
     createdAt: album.createdAt,
     artist: album.artist,
     trackCount: album.trackCount || 0,
@@ -182,7 +280,7 @@ export async function listAlbums(
 }
 
 export async function getAlbumById(id: string) {
-  return db.query.albums.findFirst({
+  const album = await db.query.albums.findFirst({
     where: and(eq(albums.id, id), gt(albums.trackCount, 0)),
     with: {
       artist: true,
@@ -204,6 +302,22 @@ export async function getAlbumById(id: string) {
       },
     },
   })
+
+  if (!album) {
+    return null
+  }
+
+  const dominantArtwork = selectDominantArtwork(
+    album.tracks.map((track) => ({
+      artwork: track.artwork,
+      dateAdded: track.dateAdded,
+    }))
+  )
+
+  return {
+    ...album,
+    artwork: dominantArtwork || album.artwork,
+  }
 }
 
 export async function getTracksByAlbumName(albumName: string): Promise<Track[]> {
