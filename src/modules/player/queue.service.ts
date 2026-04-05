@@ -185,7 +185,10 @@ function applyQueueModel(options: {
   }
 }
 
-async function rebuildNativeQueueFromStore(currentTrackId?: string | null) {
+async function rebuildNativeQueueFromStore(
+  currentTrackId?: string | null,
+  options?: { positionSeconds?: number }
+) {
   const queueTracks = getQueueState()
   const trackLookup = new Map(queueTracks.map((track) => [track.id, track]))
   const resolvedCurrentTrackId =
@@ -193,6 +196,10 @@ async function rebuildNativeQueueFromStore(currentTrackId?: string | null) {
       ? currentTrackId
       : queueTracks[0]?.id || null
   const wasPlaying = getIsPlayingState()
+  const positionSeconds =
+    Number.isFinite(options?.positionSeconds) && (options?.positionSeconds ?? 0) > 0
+      ? (options?.positionSeconds ?? 0)
+      : 0
 
   await TrackPlayer.reset()
 
@@ -212,6 +219,10 @@ async function rebuildNativeQueueFromStore(currentTrackId?: string | null) {
     await TrackPlayer.skip(targetIndex)
   }
 
+  if (positionSeconds > 0) {
+    await TrackPlayer.seekTo(positionSeconds)
+  }
+
   const activeTrack =
     targetIndex >= 0 ? (queueTracks[targetIndex] ?? queueTracks[0]) : queueTracks[0]
   setActiveTrack(activeTrack)
@@ -220,6 +231,46 @@ async function rebuildNativeQueueFromStore(currentTrackId?: string | null) {
   if (wasPlaying) {
     await TrackPlayer.play()
   }
+}
+
+async function replaceUpcomingNativeQueue(
+  upcomingTracks: Track[],
+  options?: { preservePosition?: boolean }
+) {
+  const preservePosition = options?.preservePosition ?? true
+  const [activeIndex, nativeQueue, nativeState, positionSeconds] = await Promise.all([
+    TrackPlayer.getCurrentTrack(),
+    TrackPlayer.getQueue(),
+    TrackPlayer.getState(),
+    preservePosition ? TrackPlayer.getPosition() : Promise.resolve(0),
+  ])
+
+  if (activeIndex === null || activeIndex < 0 || activeIndex >= nativeQueue.length) {
+    return false
+  }
+
+  const upcomingStartIndex = activeIndex + 1
+  if (nativeQueue.length > upcomingStartIndex) {
+    const indexesToRemove = Array.from(
+      { length: nativeQueue.length - upcomingStartIndex },
+      (_, index) => upcomingStartIndex + index
+    )
+    await TrackPlayer.remove(indexesToRemove)
+  }
+
+  if (upcomingTracks.length > 0) {
+    await TrackPlayer.add(upcomingTracks.map(mapTrackToTrackPlayerInput))
+  }
+
+  if (preservePosition && positionSeconds > 0) {
+    await TrackPlayer.seekTo(positionSeconds)
+  }
+
+  if (nativeState === "playing") {
+    await TrackPlayer.play()
+  }
+
+  return true
 }
 
 export async function addToQueue(track: Track) {
@@ -518,7 +569,19 @@ export async function toggleShuffle() {
       })
 
       try {
-        await rebuildNativeQueueFromStore(currentTrackId)
+        const shuffledUpcomingTracks = resolveTracksFromIds(upcoming, getTrackLookupMap())
+        const didReplaceUpcoming = await replaceUpcomingNativeQueue(
+          shuffledUpcomingTracks,
+          { preservePosition: true }
+        )
+
+        if (!didReplaceUpcoming) {
+          const currentPositionSeconds = await TrackPlayer.getPosition()
+          await rebuildNativeQueueFromStore(currentTrackId, {
+            positionSeconds: currentPositionSeconds,
+          })
+        }
+
         await syncCurrentTrackFromPlayer()
         await persistPlaybackSession({ force: true })
       } catch (error) {
@@ -545,7 +608,31 @@ export async function toggleShuffle() {
     })
 
     try {
-      await rebuildNativeQueueFromStore(currentTrackId)
+      const trackLookup = getTrackLookupMap()
+      const normalizedBaseIds = dedupeTrackIds(baseQueueTrackIds)
+      const currentBaseIndex = currentTrackId
+        ? normalizedBaseIds.indexOf(currentTrackId)
+        : -1
+      const originalUpcomingIds =
+        currentBaseIndex >= 0
+          ? normalizedBaseIds.slice(currentBaseIndex + 1)
+          : normalizedBaseIds
+      const restoredUpcomingTracks = resolveTracksFromIds(
+        originalUpcomingIds,
+        trackLookup
+      )
+      const didReplaceUpcoming = await replaceUpcomingNativeQueue(
+        restoredUpcomingTracks,
+        { preservePosition: true }
+      )
+
+      if (!didReplaceUpcoming) {
+        const currentPositionSeconds = await TrackPlayer.getPosition()
+        await rebuildNativeQueueFromStore(currentTrackId, {
+          positionSeconds: currentPositionSeconds,
+        })
+      }
+
       await syncCurrentTrackFromPlayer()
       await persistPlaybackSession({ force: true })
     } catch (error) {
