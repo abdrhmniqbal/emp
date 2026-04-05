@@ -3,6 +3,7 @@ import { State, TrackPlayer } from "@/modules/player/player.utils"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
 import { mapTrackToTrackPlayerInput } from "./player-adapter"
+import { mapRepeatMode } from "./player-adapter"
 import {
   getImmediateQueueTrackIdsState,
   getIsPlayingState,
@@ -12,6 +13,7 @@ import {
   getOriginalQueueTrackIdsState,
   getQueueState,
   getQueueTrackIdsState,
+  getRepeatModeState,
   setIsPlayingState,
   setImmediateQueueTrackIdsState,
   setIsShuffledState,
@@ -210,6 +212,7 @@ async function rebuildNativeQueueFromStore(
   }
 
   await TrackPlayer.add(queueTracks.map(mapTrackToTrackPlayerInput))
+  await TrackPlayer.setRepeatMode(mapRepeatMode(getRepeatModeState()))
 
   const targetIndex = resolvedCurrentTrackId
     ? queueTracks.findIndex((track) => track.id === resolvedCurrentTrackId)

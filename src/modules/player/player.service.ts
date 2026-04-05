@@ -3,7 +3,10 @@ import { processColor } from "react-native"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 import { persistPlaybackSession } from "@/modules/player/player-session.service"
 import type { Track } from "@/modules/player/player.types"
-import { mapTrackToTrackPlayerInput } from "@/modules/player/player-adapter"
+import {
+  mapRepeatMode,
+  mapTrackToTrackPlayerInput,
+} from "@/modules/player/player-adapter"
 import { setActiveTrack, setPlaybackProgress } from "@/modules/player/player-runtime-state"
 import { handleTrackActivated } from "@/modules/player/player-activity.service"
 
@@ -19,6 +22,7 @@ import {
   setImmediateQueueTrackIdsState,
   getTracksState,
   setIsShuffledState,
+  getRepeatModeState,
   setOriginalQueueState,
   setOriginalQueueTrackIdsState,
   setIsPlayingState,
@@ -115,6 +119,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     setIsShuffledState(false)
 
     await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
+    await TrackPlayer.setRepeatMode(mapRepeatMode(getRepeatModeState()))
 
     setActiveTrack(track)
 
