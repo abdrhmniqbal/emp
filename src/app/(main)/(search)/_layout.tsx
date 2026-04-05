@@ -59,9 +59,6 @@ export default function SearchLayout() {
           <BackButton className="-ml-2" />
         ))}
       />
-      <Stack.Screen name="album" options={HIDDEN_STACK_SCREEN_OPTIONS} />
-      <Stack.Screen name="artist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
-      <Stack.Screen name="playlist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
       <Stack.Screen name="search" options={HIDDEN_STACK_SCREEN_OPTIONS} />
     </Stack>
   )

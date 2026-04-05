@@ -62,7 +62,6 @@ export default function LibraryLayout() {
         ))}
       />
       <Stack.Screen name="playlist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
-      <Stack.Screen name="search" options={HIDDEN_STACK_SCREEN_OPTIONS} />
     </Stack>
   )
 }
