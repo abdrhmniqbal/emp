@@ -125,6 +125,89 @@ function chunkArray<T>(items: T[], size: number): T[][] {
   return chunks
 }
 
+function normalizeText(value?: string): string | undefined {
+  if (!value) {
+    return undefined
+  }
+
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
+function stripFileExtension(filename: string): string {
+  const lastDotIndex = filename.lastIndexOf(".")
+  if (lastDotIndex <= 0) {
+    return filename
+  }
+
+  return filename.slice(0, lastDotIndex)
+}
+
+function extractFallbackTitle(filename: string): string {
+  const fromFilename = stripFileExtension(filename).trim()
+  if (fromFilename.length > 0) {
+    return fromFilename
+  }
+
+  return "Unknown Title"
+}
+
+function normalizeGenres(genres: string[]): string[] {
+  const seen = new Set<string>()
+  const normalized: string[] = []
+
+  for (const genre of genres) {
+    const normalizedGenre = normalizeText(genre)
+    if (!normalizedGenre) {
+      continue
+    }
+
+    const key = normalizedGenre.toLowerCase()
+    if (seen.has(key)) {
+      continue
+    }
+
+    seen.add(key)
+    normalized.push(normalizedGenre)
+  }
+
+  return normalized
+}
+
+function normalizeMetadata(
+  metadata: ExtractedMetadata,
+  filename: string
+): ExtractedMetadata {
+  const normalizedTitle =
+    normalizeText(metadata.title) || extractFallbackTitle(filename)
+  const normalizedArtist = normalizeText(metadata.artist)
+  const normalizedGenres = normalizeGenres(metadata.genres)
+  const normalizedArtists = Array.from(
+    new Set(
+      metadata.artists
+        .map((artist) => normalizeText(artist))
+        .filter((artist): artist is string => Boolean(artist))
+    )
+  )
+
+  if (normalizedArtists.length === 0 && normalizedArtist) {
+    normalizedArtists.push(normalizedArtist)
+  }
+
+  return {
+    ...metadata,
+    title: normalizedTitle,
+    artist: normalizedArtist,
+    artists: normalizedArtists,
+    album: normalizeText(metadata.album),
+    albumArtist: normalizeText(metadata.albumArtist),
+    genres: normalizedGenres,
+    composer: normalizeText(metadata.composer),
+    comment: normalizeText(metadata.comment),
+    lyrics: normalizeText(metadata.lyrics),
+  }
+}
+
 function isSupportedAssetByExtension(asset: MediaLibrary.Asset): boolean {
   const filename = (asset.filename || "").toLowerCase()
   const extension = filename.split(".").pop()
@@ -611,6 +694,8 @@ async function prepareAssetForIndexing(
       : new Error("Metadata extraction failed")
   }
 
+  const normalizedMetadata = normalizeMetadata(metadata, asset.filename || "")
+
   if (signal?.aborted) {
     return null
   }
@@ -623,7 +708,7 @@ async function prepareAssetForIndexing(
   return {
     asset,
     fileHash,
-    metadata,
+    metadata: normalizedMetadata,
     artworkPath,
   }
 }
