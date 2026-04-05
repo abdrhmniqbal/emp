@@ -34,6 +34,7 @@ import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 const BATCH_SIZE = 10
 const BATCH_CONCURRENCY = 4
 const COMMIT_SCOPE_SIZE = 5
+const DELETE_SCOPE_SIZE = 300
 const COMMIT_SCOPE_MAX_ATTEMPTS = 3
 const COMMIT_SCOPE_RETRY_DELAY_MS = 160
 const METADATA_EXTRACTION_MAX_ATTEMPTS = 2
@@ -110,6 +111,18 @@ function wait(ms: number) {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, ms)
   })
+}
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+  if (size <= 0) {
+    return [items]
+  }
+
+  const chunks: T[][] = []
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+  return chunks
 }
 
 function isSupportedAssetByExtension(asset: MediaLibrary.Asset): boolean {
@@ -201,6 +214,32 @@ async function saveIndexerRunSnapshot(
         updatedAt: now,
       },
     })
+}
+
+async function processDeletedTracksInScopes(
+  deletedTrackIds: string[],
+  signal?: AbortSignal
+): Promise<void> {
+  const deleteScopes = chunkArray(deletedTrackIds, DELETE_SCOPE_SIZE)
+
+  for (const scope of deleteScopes) {
+    if (signal?.aborted) {
+      return
+    }
+
+    await waitForIndexerResume(signal)
+    if (signal?.aborted) {
+      return
+    }
+
+    await removeTracksFromFavoritesAndPlaylists(scope)
+    await db
+      .update(tracks)
+      .set({ isDeleted: 1 })
+      .where(inArray(tracks.id, scope))
+
+    await yieldToEventLoop()
+  }
 }
 
 export async function scanMediaLibrary(
@@ -303,11 +342,7 @@ export async function scanMediaLibrary(
     .map((t) => t.id)
 
   if (deletedTrackIds.length > 0) {
-    await removeTracksFromFavoritesAndPlaylists(deletedTrackIds)
-    await db
-      .update(tracks)
-      .set({ isDeleted: 1 })
-      .where(inArray(tracks.id, deletedTrackIds))
+    await processDeletedTracksInScopes(deletedTrackIds, signal)
     if (signal?.aborted) return
   }
 
