@@ -1,4 +1,4 @@
-import { TrackPlayer } from "@/modules/player/player.utils"
+import { State, TrackPlayer } from "@/modules/player/player.utils"
 
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
@@ -266,7 +266,7 @@ async function replaceUpcomingNativeQueue(
     await TrackPlayer.seekTo(positionSeconds)
   }
 
-  if (nativeState === "playing") {
+  if (nativeState === State.Playing) {
     await TrackPlayer.play()
   }
 
