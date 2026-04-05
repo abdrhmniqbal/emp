@@ -227,6 +227,16 @@ export async function syncCurrentTrackFromPlayer(): Promise<void> {
     if (mappedQueue.length > 0) {
       setQueueState(mappedQueue)
       setQueueTrackIdsState(mappedQueue.map((track) => track.id))
+
+      const mappedQueueIdSet = new Set(mappedQueue.map((track) => track.id))
+      const currentImmediateIds = getImmediateQueueTrackIdsState()
+      const nextImmediateIds = currentImmediateIds.filter((trackId) =>
+        mappedQueueIdSet.has(trackId)
+      )
+
+      if (nextImmediateIds.length !== currentImmediateIds.length) {
+        setImmediateQueueTrackIdsState(nextImmediateIds)
+      }
     }
 
     if (
@@ -234,6 +244,18 @@ export async function syncCurrentTrackFromPlayer(): Promise<void> {
       activeIndex >= 0 &&
       activeIndex < mappedQueue.length
     ) {
+      const consumedTrackIds = new Set(
+        mappedQueue.slice(0, activeIndex + 1).map((track) => track.id)
+      )
+      const currentImmediateIds = getImmediateQueueTrackIdsState()
+      const nextImmediateIds = currentImmediateIds.filter(
+        (trackId) => !consumedTrackIds.has(trackId)
+      )
+
+      if (nextImmediateIds.length !== currentImmediateIds.length) {
+        setImmediateQueueTrackIdsState(nextImmediateIds)
+      }
+
       setActiveTrack(mappedQueue[activeIndex] || null)
       return
     }
