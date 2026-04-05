@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { useEffect, useMemo } from "react"
 import { RefreshControl, ScrollView, View } from "react-native"
 
 import Animated from "react-native-reanimated"
@@ -50,10 +51,10 @@ export default function GenreDetailsScreen() {
   const theme = useThemeColors()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
 
-  const parsedGenreRouteName = React.useMemo(() => getSafeRouteName(name), [name])
+  const parsedGenreRouteName = useMemo(() => getSafeRouteName(name), [name])
   const genreName = parsedGenreRouteName.value
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!genreName.trim()) {
       logWarn("Genre details route missing name param", {
         route: "/genre/[name]",

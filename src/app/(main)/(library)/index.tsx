@@ -5,12 +5,14 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   RefreshControl,
+  ScrollView,
   Text,
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "tailwind-variants"
 
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
@@ -19,6 +21,9 @@ import { FolderList } from "@/components/blocks/folder-list"
 import { PlaylistList } from "@/components/blocks/playlist-list"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TracksTab } from "@/components/blocks/tracks-tab"
+import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { GenreCard } from "@/components/patterns/genre-card"
+import { EmptyState } from "@/components/ui/empty-state"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
 import {
   handleScroll,
@@ -50,6 +55,9 @@ import {
   setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
+import { useGenres } from "@/modules/search/search.queries"
+import type { Category } from "@/modules/search/search.types"
+import { mapGenresToCategories } from "@/modules/search/search.utils"
 import { playTrack } from "@/modules/player/player.service"
 import { type Track, usePlayerStore } from "@/modules/player/player.store"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
@@ -59,6 +67,7 @@ const LIBRARY_TABS = [
   "Tracks",
   "Albums",
   "Artists",
+  "Genres",
   "Playlists",
   "Folders",
   "Favorites",
@@ -110,6 +119,7 @@ const LIBRARY_SORT_OPTIONS: Record<LibraryTab, LibrarySortOption[]> = {
   Tracks: TRACK_SORT_OPTIONS,
   Albums: ALBUM_SORT_OPTIONS,
   Artists: ARTIST_SORT_OPTIONS,
+  Genres: [{ label: "Name", field: "name" }],
   Playlists: PLAYLIST_SORT_OPTIONS,
   Folders: FOLDER_SORT_OPTIONS,
   Favorites: [],
@@ -157,6 +167,33 @@ export default function LibraryScreen() {
   )
   const { data: playlistsData = [] } =
     usePlaylistsWithOptions(shouldLoadPlaylists)
+  const {
+    data: genresData = [],
+    isLoading: isGenresLoading,
+    isFetching: isGenresFetching,
+    refetch: refetchGenres,
+  } = useGenres()
+
+  const genres = React.useMemo<Category[]>(
+    () => mapGenresToCategories(genresData),
+    [genresData]
+  )
+
+  const sortedGenres = React.useMemo<Category[]>(() => {
+    const order = allSortConfigs.Genres.order
+
+    return [...genres].sort((a, b) => {
+      if (order === "asc") {
+        return a.title.localeCompare(b.title, undefined, {
+          sensitivity: "base",
+        })
+      }
+
+      return b.title.localeCompare(a.title, undefined, {
+        sensitivity: "base",
+      })
+    })
+  }, [allSortConfigs.Genres.order, genres])
 
   const playlists = React.useMemo<Playlist[]>(
     () => sortGeneric(playlistsData, allSortConfigs.Playlists),
@@ -215,6 +252,13 @@ export default function LibraryScreen() {
 
   function openPlaylistForm() {
     router.push("/playlist/form")
+  }
+
+  function openGenre(genreName: string) {
+    router.push({
+      pathname: "/genre/[name]",
+      params: { name: genreName },
+    })
   }
 
   function openFolder(path: string) {
@@ -327,6 +371,8 @@ export default function LibraryScreen() {
         return albumsData.length
       case "Artists":
         return artistsData.length
+      case "Genres":
+        return sortedGenres.length
       case "Favorites":
         return favorites.length
       case "Playlists":
@@ -343,6 +389,7 @@ export default function LibraryScreen() {
     favorites.length,
     folderTracks.length,
     folders.length,
+    sortedGenres.length,
     playlists.length,
     tracks.length,
   ])
@@ -355,6 +402,7 @@ export default function LibraryScreen() {
     setIsPullRefreshing(true)
     try {
       await startIndexing(false, true)
+      await refetchGenres()
     } finally {
       setIsPullRefreshing(false)
     }
@@ -403,6 +451,48 @@ export default function LibraryScreen() {
             refreshControl={refreshControl}
             {...sharedListEvents}
           />
+        )
+      case "Genres":
+        return (
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={listContentContainerStyle}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentInsetAdjustmentBehavior="automatic"
+            refreshControl={refreshControl}
+            {...sharedListEvents}
+          >
+            {isGenresLoading || isGenresFetching ? (
+              <LibrarySkeleton type="genres" itemCount={8} />
+            ) : sortedGenres.length > 0 ? (
+              <View className="flex-row flex-wrap justify-between gap-y-4">
+                {sortedGenres.map((genre) => (
+                  <GenreCard
+                    key={genre.id}
+                    title={genre.title}
+                    color={genre.color}
+                    pattern={genre.pattern}
+                    onPress={() => openGenre(genre.title)}
+                  />
+                ))}
+              </View>
+            ) : (
+              <EmptyState
+                icon={
+                  <LocalMusicNoteSolidIcon
+                    fill="none"
+                    width={48}
+                    height={48}
+                    color={theme.muted}
+                  />
+                }
+                title="No genres found"
+                message="Start playing music to see genres here!"
+                className="mt-8"
+              />
+            )}
+          </ScrollView>
         )
       case "Playlists":
         return (

@@ -1,6 +1,5 @@
 import { Stack, useRouter } from "expo-router"
 
-import LocalSearchIcon from "@/components/icons/local/search"
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { StackHeaderActions } from "@/components/patterns/stack-header-actions"
 import {
@@ -26,18 +25,6 @@ export default function HomeLayout() {
           headerRight: () => (
             <StackHeaderActions
               actions={[
-                {
-                  key: "search",
-                  onPress: () => router.push("/search"),
-                  icon: (
-                    <LocalSearchIcon
-                      fill="none"
-                      width={24}
-                      height={24}
-                      color={theme.foreground}
-                    />
-                  ),
-                },
                 {
                   key: "settings",
                   onPress: () => router.push("/settings"),
