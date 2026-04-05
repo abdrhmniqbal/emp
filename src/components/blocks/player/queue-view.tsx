@@ -1,6 +1,6 @@
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { type FlatList, Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import ReorderableList, {
@@ -90,6 +90,8 @@ export const QueueItem: React.FC<QueueItemProps> = ({
   )
 }
 
+const MemoizedQueueItem = React.memo(QueueItem)
+
 interface QueueViewProps {
   currentTrack: Track | null
 }
@@ -117,6 +119,7 @@ function useQueueInfo() {
 export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
   const queueInfo = useQueueInfo()
   const { queue, upNext, currentIndex } = queueInfo
+  const currentTrackId = currentTrack?.id ?? null
   const listRef = useRef<FlatList>(null)
 
   useEffect(() => {
@@ -134,20 +137,33 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
 
   if (!currentTrack || queue.length === 0) return null
 
-  const handleRemove = async (trackId: string) => {
+  const handleRemove = useCallback(async (trackId: string) => {
     await removeFromQueue(trackId)
-  }
+  }, [])
 
-  const handleReorder = ({ from, to }: { from: number; to: number }) => {
+  const handleReorder = useCallback(({ from, to }: { from: number; to: number }) => {
     if (from === to) {
       return
     }
     void moveInQueue(from, to)
-  }
+  }, [])
 
-  const handlePlayFromQueue = (track: Track) => {
+  const handlePlayFromQueue = useCallback((track: Track) => {
     void playTrack(track, getQueueState())
-  }
+  }, [])
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: Track; index: number }) => (
+      <MemoizedQueueItem
+        track={item}
+        isCurrentTrack={item.id === currentTrackId}
+        isPlayedTrack={currentIndex >= 0 && index < currentIndex}
+        onPress={() => handlePlayFromQueue(item)}
+        onRemove={() => handleRemove(item.id)}
+      />
+    ),
+    [currentIndex, currentTrackId, handlePlayFromQueue, handleRemove]
+  )
 
   return (
     <Animated.View
@@ -167,15 +183,7 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
           data={queue}
           keyExtractor={(item) => item.id}
           onReorder={handleReorder}
-          renderItem={({ item, index }) => (
-            <QueueItem
-              track={item}
-              isCurrentTrack={item.id === currentTrack.id}
-              isPlayedTrack={currentIndex >= 0 && index < currentIndex}
-              onPress={() => handlePlayFromQueue(item)}
-              onRemove={() => handleRemove(item.id)}
-            />
-          )}
+          renderItem={renderItem}
           getItemLayout={(_, index) => ({
             length: ITEM_HEIGHT,
             offset: (ITEM_HEIGHT + ITEM_GAP) * index,
