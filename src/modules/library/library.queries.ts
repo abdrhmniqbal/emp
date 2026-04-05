@@ -15,7 +15,7 @@ import {
   listArtists,
   searchLibrary,
 } from "./library.repository"
-import type { SearchResults } from "./library.types"
+import type { RecentSearchEntry, SearchResults } from "./library.types"
 
 interface QueryOptions {
   enabled?: boolean
@@ -126,7 +126,7 @@ export function useSearch(query: string) {
 }
 
 export function useRecentSearches() {
-  return useQuery(
+  return useQuery<RecentSearchEntry[]>(
     {
       queryKey: libraryKeys.recentSearches(),
       queryFn: getRecentSearches,

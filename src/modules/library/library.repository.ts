@@ -13,15 +13,145 @@ import {
 } from "drizzle-orm"
 
 import { db } from "@/db/client"
-import { albums, artists, playlists, playlistTracks, tracks } from "@/db/schema"
+import {
+  albums,
+  appSettings,
+  artists,
+  playlists,
+  playlistTracks,
+  tracks,
+} from "@/db/schema"
 import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 import { logError } from "@/modules/logging/logging.service"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
-import type { SearchResults } from "./library.types"
+import type {
+  AddRecentSearchInput,
+  RecentSearchEntry,
+  SearchResults,
+} from "./library.types"
+
+const RECENT_SEARCHES_SETTINGS_KEY = "library:recent-searches"
+const MAX_RECENT_SEARCHES = 30
 
 function normalizeLookup(value: string | null | undefined) {
   return (value || "").trim().toLowerCase()
+}
+
+function normalizeRecentSearchQuery(value: string | null | undefined) {
+  return (value || "").trim()
+}
+
+function createRecentSearchId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+function isRecentSearchType(
+  value: unknown
+): value is RecentSearchEntry["type"] {
+  return (
+    value === "track" ||
+    value === "album" ||
+    value === "artist" ||
+    value === "playlist"
+  )
+}
+
+function normalizeRecentSearchEntry(
+  value: unknown
+): RecentSearchEntry | null {
+  if (!value || typeof value !== "object") {
+    return null
+  }
+
+  const entry = value as Partial<RecentSearchEntry>
+  const query = normalizeRecentSearchQuery(entry.query)
+  if (!query) {
+    return null
+  }
+
+  const title = normalizeRecentSearchQuery(entry.title) || query
+  const subtitle = normalizeRecentSearchQuery(entry.subtitle) || "Search"
+  const id = normalizeRecentSearchQuery(entry.id) || createRecentSearchId()
+  const createdAt =
+    typeof entry.createdAt === "number" && Number.isFinite(entry.createdAt)
+      ? entry.createdAt
+      : Date.now()
+
+  return {
+    id,
+    query,
+    title,
+    subtitle,
+    type: isRecentSearchType(entry.type) ? entry.type : undefined,
+    createdAt,
+  }
+}
+
+function parseRecentSearches(raw: string): RecentSearchEntry[] {
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+
+    const normalized = parsed
+      .map(normalizeRecentSearchEntry)
+      .filter((item): item is RecentSearchEntry => item !== null)
+      .sort((left, right) => right.createdAt - left.createdAt)
+
+    const seenQueries = new Set<string>()
+    const deduped: RecentSearchEntry[] = []
+    for (const item of normalized) {
+      const key = item.query.toLowerCase()
+      if (seenQueries.has(key)) {
+        continue
+      }
+
+      seenQueries.add(key)
+      deduped.push(item)
+
+      if (deduped.length >= MAX_RECENT_SEARCHES) {
+        break
+      }
+    }
+
+    return deduped
+  } catch {
+    return []
+  }
+}
+
+async function readRecentSearches(): Promise<RecentSearchEntry[]> {
+  const row = await db.query.appSettings.findFirst({
+    where: eq(appSettings.key, RECENT_SEARCHES_SETTINGS_KEY),
+  })
+
+  if (!row) {
+    return []
+  }
+
+  return parseRecentSearches(row.value)
+}
+
+async function writeRecentSearches(items: RecentSearchEntry[]): Promise<void> {
+  const now = Date.now()
+  const payload = JSON.stringify(items.slice(0, MAX_RECENT_SEARCHES))
+
+  await db
+    .insert(appSettings)
+    .values({
+      key: RECENT_SEARCHES_SETTINGS_KEY,
+      value: payload,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: appSettings.key,
+      set: {
+        value: payload,
+        updatedAt: now,
+      },
+    })
 }
 
 function selectDominantArtwork(
@@ -623,5 +753,66 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
 }
 
 export async function getRecentSearches() {
-  return [] as string[]
+  return readRecentSearches()
+}
+
+export async function addRecentSearch(
+  input: AddRecentSearchInput
+): Promise<RecentSearchEntry[]> {
+  const query = normalizeRecentSearchQuery(input.query)
+  if (!query) {
+    return readRecentSearches()
+  }
+
+  const now = Date.now()
+  const title = normalizeRecentSearchQuery(input.title) || query
+  const subtitle = normalizeRecentSearchQuery(input.subtitle) || "Search"
+  const normalizedQuery = query.toLowerCase()
+  const existing = await readRecentSearches()
+  const existingMatch = existing.find(
+    (item) => item.query.toLowerCase() === normalizedQuery
+  )
+
+  const nextItem: RecentSearchEntry = {
+    id: existingMatch?.id || createRecentSearchId(),
+    query,
+    title,
+    subtitle,
+    type: input.type,
+    createdAt: now,
+  }
+
+  const nextItems = [
+    nextItem,
+    ...existing.filter((item) => item.query.toLowerCase() !== normalizedQuery),
+  ].slice(0, MAX_RECENT_SEARCHES)
+
+  await writeRecentSearches(nextItems)
+  return nextItems
+}
+
+export async function deleteRecentSearch(
+  id: string
+): Promise<RecentSearchEntry[]> {
+  const normalizedId = normalizeRecentSearchQuery(id)
+  if (!normalizedId) {
+    return readRecentSearches()
+  }
+
+  const existing = await readRecentSearches()
+  const nextItems = existing.filter((item) => item.id !== normalizedId)
+
+  if (nextItems.length === 0) {
+    await clearRecentSearches()
+    return []
+  }
+
+  await writeRecentSearches(nextItems)
+  return nextItems
+}
+
+export async function clearRecentSearches() {
+  await db
+    .delete(appSettings)
+    .where(eq(appSettings.key, RECENT_SEARCHES_SETTINGS_KEY))
 }

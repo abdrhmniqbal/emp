@@ -47,6 +47,7 @@ interface SearchResultsProps {
   onArtistPress?: (artist: SearchArtistResult) => void
   onAlbumPress?: (album: SearchAlbumResult) => void
   onPlaylistPress?: (playlist: SearchPlaylistResult) => void
+  onTrackPress?: (track: Track) => void
   onSeeMoreTracks?: () => void
 }
 
@@ -102,6 +103,7 @@ interface SearchResultRowProps {
   onArtistPress?: (artist: SearchArtistResult) => void
   onAlbumPress?: (album: SearchAlbumResult) => void
   onPlaylistPress?: (playlist: SearchPlaylistResult) => void
+  onTrackPress?: (track: Track) => void
 }
 
 function SearchResultRow({
@@ -110,6 +112,7 @@ function SearchResultRow({
   onArtistPress,
   onAlbumPress,
   onPlaylistPress,
+  onTrackPress,
 }: SearchResultRowProps) {
   if (item.type === "artist") {
     return (
@@ -195,7 +198,12 @@ function SearchResultRow({
   }
 
   return (
-    <Item onPress={() => playTrack(item.track)}>
+    <Item
+      onPress={() => {
+        onTrackPress?.(item.track)
+        playTrack(item.track)
+      }}
+    >
       <ItemImage
         icon={
           <LocalMusicNoteSolidIcon
@@ -228,6 +236,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   onArtistPress,
   onAlbumPress,
   onPlaylistPress,
+  onTrackPress,
   onSeeMoreTracks,
 }) => {
   const theme = useThemeColors()
@@ -352,11 +361,19 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
               onArtistPress={onArtistPress}
               onAlbumPress={onAlbumPress}
               onPlaylistPress={onPlaylistPress}
+              onTrackPress={onTrackPress}
             />
           )
       }
     },
-    [onAlbumPress, onArtistPress, onPlaylistPress, onSeeMoreTracks, theme]
+    [
+      onAlbumPress,
+      onArtistPress,
+      onPlaylistPress,
+      onSeeMoreTracks,
+      onTrackPress,
+      theme,
+    ]
   )
 
   return (

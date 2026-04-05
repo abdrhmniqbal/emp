@@ -31,3 +31,19 @@ export interface SearchResults {
   albums: SearchAlbumResult[]
   playlists: SearchPlaylistResult[]
 }
+
+export interface RecentSearchEntry {
+  id: string
+  query: string
+  title: string
+  subtitle: string
+  type?: "track" | "album" | "artist" | "playlist"
+  createdAt: number
+}
+
+export interface AddRecentSearchInput {
+  query: string
+  title?: string
+  subtitle?: string
+  type?: "track" | "album" | "artist" | "playlist"
+}

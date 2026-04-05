@@ -20,6 +20,7 @@ import { useThemeColors } from "@/modules/ui/theme"
 
 export interface RecentSearchItem {
   id: string
+  query: string
   title: string
   subtitle: string
   type?: "track" | "album" | "artist" | "playlist"

@@ -2,6 +2,7 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useMutation } from "@tanstack/react-query"
 import {
   BackHandler,
   Platform,
@@ -20,13 +21,22 @@ import {
 } from "@/components/blocks/search-results"
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
+import { queryClient } from "@/lib/tanstack-query"
+import { libraryKeys } from "@/modules/library/library.keys"
+import {
+  addRecentSearch,
+  clearRecentSearches,
+  deleteRecentSearch,
+} from "@/modules/library/library.repository"
 import { useThemeColors } from "@/modules/ui/theme"
-import { useSearch } from "@/modules/library/library.queries"
+import { useRecentSearches, useSearch } from "@/modules/library/library.queries"
+import type { Track } from "@/modules/player/player.types"
 
 interface HeaderSearchInputProps {
   theme: ReturnType<typeof useThemeColors>
   initialValue: string
   onChangeText: (text: string) => void
+  onSubmit: () => void
   onBack: () => void
 }
 
@@ -34,6 +44,7 @@ function HeaderSearchInput({
   theme,
   initialValue,
   onChangeText,
+  onSubmit,
   onBack,
 }: HeaderSearchInputProps) {
   const [inputValue, setInputValue] = useState(initialValue)
@@ -85,6 +96,7 @@ function HeaderSearchInput({
           placeholderTextColor={theme.muted}
           value={inputValue}
           onChangeText={handleChangeText}
+          onSubmitEditing={onSubmit}
           variant="secondary"
           className="pr-9 pl-12"
           selectionColor={theme.accent}
@@ -118,14 +130,44 @@ export default function SearchInteractionScreen() {
   const [searchQuery, setSearchQuery] = useState(initialValue)
   const [activeSearchTab, setActiveSearchTab] = useState<SearchTab>("All")
   const [headerInputKey, setHeaderInputKey] = useState(0)
-  const [recentSearches, setRecentSearches] = useState<RecentSearchItem[]>([])
   const searchQueryRef = useRef(searchQuery)
 
   const { data: searchResults, isLoading, isFetching } = useSearch(searchQuery)
+  const { data: recentSearches = [] } = useRecentSearches()
   const tracks = searchResults?.tracks ?? []
   const artists = searchResults?.artists ?? []
   const albums = searchResults?.albums ?? []
   const playlists = searchResults?.playlists ?? []
+
+  const addRecentSearchMutation = useMutation(
+    {
+      mutationFn: addRecentSearch,
+      onSuccess: async (nextRecentSearches) => {
+        queryClient.setQueryData(libraryKeys.recentSearches(), nextRecentSearches)
+      },
+    },
+    queryClient
+  )
+
+  const deleteRecentSearchMutation = useMutation(
+    {
+      mutationFn: deleteRecentSearch,
+      onSuccess: async (nextRecentSearches) => {
+        queryClient.setQueryData(libraryKeys.recentSearches(), nextRecentSearches)
+      },
+    },
+    queryClient
+  )
+
+  const clearRecentSearchesMutation = useMutation(
+    {
+      mutationFn: clearRecentSearches,
+      onSuccess: async () => {
+        queryClient.setQueryData(libraryKeys.recentSearches(), [])
+      },
+    },
+    queryClient
+  )
 
   const isSearching = searchQuery.trim().length > 0
 
@@ -177,6 +219,7 @@ export default function SearchInteractionScreen() {
           theme={theme}
           initialValue={searchQueryRef.current}
           onChangeText={setSearchQuery}
+          onSubmit={handleSubmitSearch}
           onBack={handleBackNavigation}
         />
       ),
@@ -187,19 +230,109 @@ export default function SearchInteractionScreen() {
       },
       headerShadowVisible: false,
     })
-  }, [navigation, theme, handleBackNavigation, headerInputKey])
+  }, [
+    navigation,
+    theme,
+    handleBackNavigation,
+    headerInputKey,
+    handleSubmitSearch,
+  ])
+
+  function pushRecentSearch(item: {
+    query: string
+    title?: string
+    subtitle?: string
+    type?: RecentSearchItem["type"]
+  }) {
+    if (!item.query.trim()) {
+      return
+    }
+
+    void addRecentSearchMutation.mutateAsync(item)
+  }
+
+  function handleSubmitSearch() {
+    const query = searchQuery.trim()
+    if (!query) {
+      return
+    }
+
+    pushRecentSearch({
+      query,
+      title: query,
+      subtitle: "Search",
+    })
+  }
 
   function handleClearRecentSearches() {
-    setRecentSearches([])
+    void clearRecentSearchesMutation.mutateAsync()
   }
 
   function handleRecentItemPress(item: RecentSearchItem) {
-    setSearchQuery(item.title)
+    setSearchQuery(item.query || item.title)
     setHeaderInputKey((prev) => prev + 1)
+    pushRecentSearch({
+      query: item.query || item.title,
+      title: item.title,
+      subtitle: item.subtitle,
+      type: item.type,
+    })
   }
 
   function handleRemoveRecentItem(id: string) {
-    setRecentSearches((prev) => prev.filter((item) => item.id !== id))
+    void deleteRecentSearchMutation.mutateAsync(id)
+  }
+
+  function handleTrackPress(track: Track) {
+    const title = track.title || "Unknown Track"
+    pushRecentSearch({
+      query: title,
+      title,
+      subtitle: track.artist || "Track",
+      type: "track",
+    })
+  }
+
+  function handleArtistPress(artist: { name: string }) {
+    pushRecentSearch({
+      query: artist.name,
+      title: artist.name,
+      subtitle: "Artist",
+      type: "artist",
+    })
+
+    router.push({
+      pathname: "/artist/[name]",
+      params: { name: artist.name },
+    })
+  }
+
+  function handleAlbumPress(album: { title: string; artist: string }) {
+    pushRecentSearch({
+      query: album.title,
+      title: album.title,
+      subtitle: album.artist || "Album",
+      type: "album",
+    })
+
+    router.push({
+      pathname: "/album/[name]",
+      params: { name: album.title },
+    })
+  }
+
+  function handlePlaylistPress(playlist: { id: string; title: string }) {
+    pushRecentSearch({
+      query: playlist.title,
+      title: playlist.title,
+      subtitle: "Playlist",
+      type: "playlist",
+    })
+
+    router.push({
+      pathname: "/playlist/[id]",
+      params: { id: playlist.id },
+    })
   }
 
   return (
@@ -214,24 +347,10 @@ export default function SearchInteractionScreen() {
           isLoading={isLoading || isFetching}
           activeTab={activeSearchTab}
           onActiveTabChange={setActiveSearchTab}
-          onArtistPress={(artist) =>
-            router.push({
-              pathname: "/artist/[name]",
-              params: { name: artist.name },
-            })
-          }
-          onAlbumPress={(album) =>
-            router.push({
-              pathname: "/album/[name]",
-              params: { name: album.title },
-            })
-          }
-          onPlaylistPress={(playlist) =>
-            router.push({
-              pathname: "/playlist/[id]",
-              params: { id: playlist.id },
-            })
-          }
+          onTrackPress={handleTrackPress}
+          onArtistPress={handleArtistPress}
+          onAlbumPress={handleAlbumPress}
+          onPlaylistPress={handlePlaylistPress}
         />
       ) : (
         <ScrollView
