@@ -72,7 +72,7 @@ export async function startIndexing(
     })
 
     scheduleIndexerCompletePhaseReset(currentRunToken, () => {
-      hideIndexerProgress()
+      hideIndexerProgress({ keepNotification: showProgress })
     })
   } catch (error) {
     if (isIndexerRunStale(controller, currentRunToken)) {

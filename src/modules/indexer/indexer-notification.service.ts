@@ -21,6 +21,7 @@ let notificationsGranted = false
 let permissionRequestedThisSession = false
 let activeNotificationId: string | null = null
 let lastNotificationSignature: string | null = null
+let currentIndexerRunStartedAt: number | null = null
 
 function isIndexerNotification(notification: Notifications.Notification) {
   const payload = notification.request.content.data as
@@ -50,17 +51,37 @@ async function dismissPresentedIndexerNotifications(
   }
 }
 
+function formatElapsedMs(elapsedMs: number) {
+  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+
+  if (minutes <= 0) {
+    return `${seconds}s`
+  }
+
+  return `${minutes}m ${seconds}s`
+}
+
+function getElapsedLabel() {
+  if (currentIndexerRunStartedAt === null) {
+    return "0s"
+  }
+
+  return formatElapsedMs(Date.now() - currentIndexerRunStartedAt)
+}
+
 function formatProgressBody(progress: IndexerScanProgress) {
   const fileName = progress.currentFile || "Preparing..."
   if (progress.total <= 0) {
-    return `${fileName}`
+    return `${getElapsedLabel()} • ${fileName}`
   }
 
   const percent = Math.min(
     100,
     Math.max(0, Math.round((progress.current / progress.total) * 100))
   )
-  return `${progress.current}/${progress.total} • ${percent}% • ${fileName}`
+  return `${progress.current}/${progress.total} • ${percent}% • ${getElapsedLabel()} • ${fileName}`
 }
 
 async function configureNotifications() {
@@ -227,9 +248,10 @@ async function replaceIndexerNotification(
 }
 
 export async function beginIndexerProgressNotification() {
+  currentIndexerRunStartedAt = Date.now()
   await replaceIndexerNotification(
     "Indexing music library",
-    "Preparing your library scan...",
+    `Preparing your library scan... • ${getElapsedLabel()}`,
     { interactive: true }
   )
 }
@@ -252,7 +274,7 @@ export async function completeIndexerProgressNotification(
 ) {
   await replaceIndexerNotification(
     "Library indexing complete",
-    `${totalFiles} tracks updated`,
+    `${totalFiles} tracks updated • ${getElapsedLabel()}`,
     { interactive: false }
   )
 }
@@ -305,5 +327,6 @@ export async function dismissIndexerProgressNotification() {
     await dismissPresentedIndexerNotifications()
     activeNotificationId = null
     lastNotificationSignature = null
+    currentIndexerRunStartedAt = null
   }
 }

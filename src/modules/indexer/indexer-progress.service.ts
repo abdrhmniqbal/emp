@@ -158,15 +158,21 @@ export function failIndexerProgress() {
   logWarn("Indexer progress failed")
 }
 
-export function hideIndexerProgress() {
+export function hideIndexerProgress(options?: { keepNotification?: boolean }) {
+  const keepNotification = options?.keepNotification ?? false
+
   if (!getIndexerState().showProgress) {
     logInfo("Indexer progress hide requested while already hidden")
-    void dismissIndexerProgressNotification()
+    if (!keepNotification) {
+      void dismissIndexerProgressNotification()
+    }
     resetIndexerProgress()
     return
   }
 
-  void dismissIndexerProgressNotification()
+  if (!keepNotification) {
+    void dismissIndexerProgressNotification()
+  }
   updateIndexerState({ phase: "idle", showProgress: false })
   logInfo("Indexer progress hidden")
 }
