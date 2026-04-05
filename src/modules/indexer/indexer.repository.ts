@@ -51,6 +51,12 @@ interface PreparedAssetForIndex {
   artworkPath: string | undefined
 }
 
+interface IndexingLookupCache {
+  artistIdsByName: Map<string, string>
+  albumIdsByArtistAndTitle: Map<string, string>
+  genreIdsByName: Map<string, string>
+}
+
 function yieldToEventLoop() {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, 0)
@@ -155,6 +161,11 @@ export async function scanMediaLibrary(
     existingTracks.map((t) => [t.id, t.fileHash])
   )
   const currentAssetIds = new Set(scopedAssets.map((a) => a.id))
+  const lookupCache: IndexingLookupCache = {
+    artistIdsByName: new Map(),
+    albumIdsByArtistAndTitle: new Map(),
+    genreIdsByName: new Map(),
+  }
 
   // Find deleted tracks
   const deletedTrackIds = existingTracks
@@ -200,7 +211,8 @@ export async function scanMediaLibrary(
         })
       },
       signal,
-      currentAssetHashMap
+      currentAssetHashMap,
+      lookupCache
     )
 
     await yieldToEventLoop()
@@ -230,7 +242,8 @@ async function processBatch(
   assets: MediaLibrary.Asset[],
   onFileStart?: (asset: MediaLibrary.Asset) => void,
   signal?: AbortSignal,
-  precomputedHashMap?: Map<string, string>
+  precomputedHashMap?: Map<string, string>,
+  lookupCache?: IndexingLookupCache
 ): Promise<void> {
   const preparedAssets = await prepareBatchAssets(
     assets,
@@ -259,6 +272,7 @@ async function processBatch(
           }
 
           await upsertPreparedAsset(prepared, signal)
+          await upsertPreparedAsset(prepared, signal, lookupCache)
         }
       })
     } catch (error) {
@@ -272,7 +286,7 @@ async function processBatch(
         }
 
         try {
-          await upsertPreparedAsset(prepared, signal)
+          await upsertPreparedAsset(prepared, signal, lookupCache)
         } catch (assetError) {
           logError("Failed to index prepared asset", assetError, {
             assetId: prepared.asset.id,
@@ -370,27 +384,38 @@ async function prepareAssetForIndexing(
 
 async function upsertPreparedAsset(
   prepared: PreparedAssetForIndex,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  lookupCache?: IndexingLookupCache
 ): Promise<void> {
   const { asset, fileHash, metadata, artworkPath } = prepared
   if (signal?.aborted) {
     return
   }
 
-  const artistId = metadata.artist ? await getOrCreateArtist(metadata.artist) : null
+  const artistId = metadata.artist
+    ? await getOrCreateArtist(metadata.artist, lookupCache)
+    : null
 
   const albumArtistId =
     metadata.albumArtist && metadata.albumArtist !== metadata.artist
-      ? await getOrCreateArtist(metadata.albumArtist)
+      ? await getOrCreateArtist(metadata.albumArtist, lookupCache)
       : artistId
 
   const albumId =
     metadata.album && albumArtistId
-      ? await getOrCreateAlbum(metadata.album, albumArtistId, artworkPath, metadata.year)
+      ? await getOrCreateAlbum(
+          metadata.album,
+          albumArtistId,
+          artworkPath,
+          metadata.year,
+          lookupCache
+        )
       : null
 
   const genresToProcess = metadata.genres.length > 0 ? metadata.genres : ["Unknown"]
-  const genreIds = await Promise.all(genresToProcess.map((genre) => getOrCreateGenre(genre)))
+  const genreIds = await Promise.all(
+    genresToProcess.map((genre) => getOrCreateGenre(genre, lookupCache))
+  )
   if (signal?.aborted) {
     return
   }
@@ -473,13 +498,22 @@ async function upsertPreparedAsset(
   )
 }
 
-async function getOrCreateArtist(name: string): Promise<string> {
+async function getOrCreateArtist(
+  name: string,
+  lookupCache?: IndexingLookupCache
+): Promise<string> {
+  const cachedArtistId = lookupCache?.artistIdsByName.get(name)
+  if (cachedArtistId) {
+    return cachedArtistId
+  }
+
   const sortName = generateSortName(name)
   const existing = await db.query.artists.findFirst({
     where: eq(artists.name, name),
   })
 
   if (existing) {
+    lookupCache?.artistIdsByName.set(name, existing.id)
     return existing.id
   }
 
@@ -492,6 +526,8 @@ async function getOrCreateArtist(name: string): Promise<string> {
     updatedAt: Date.now(),
   })
 
+  lookupCache?.artistIdsByName.set(name, id)
+
   return id
 }
 
@@ -499,13 +535,21 @@ async function getOrCreateAlbum(
   title: string,
   artistId: string,
   artwork?: string,
-  year?: number
+  year?: number,
+  lookupCache?: IndexingLookupCache
 ): Promise<string> {
+  const cacheKey = `${artistId}::${title}`
+  const cachedAlbumId = lookupCache?.albumIdsByArtistAndTitle.get(cacheKey)
+  if (cachedAlbumId) {
+    return cachedAlbumId
+  }
+
   const existing = await db.query.albums.findFirst({
     where: and(eq(albums.title, title), eq(albums.artistId, artistId)),
   })
 
   if (existing) {
+    lookupCache?.albumIdsByArtistAndTitle.set(cacheKey, existing.id)
     return existing.id
   }
 
@@ -520,15 +564,26 @@ async function getOrCreateAlbum(
     updatedAt: Date.now(),
   })
 
+  lookupCache?.albumIdsByArtistAndTitle.set(cacheKey, id)
+
   return id
 }
 
-async function getOrCreateGenre(name: string): Promise<string> {
+async function getOrCreateGenre(
+  name: string,
+  lookupCache?: IndexingLookupCache
+): Promise<string> {
+  const cachedGenreId = lookupCache?.genreIdsByName.get(name)
+  if (cachedGenreId) {
+    return cachedGenreId
+  }
+
   const existing = await db.query.genres.findFirst({
     where: eq(genres.name, name),
   })
 
   if (existing) {
+    lookupCache?.genreIdsByName.set(name, existing.id)
     return existing.id
   }
 
@@ -550,6 +605,8 @@ async function getOrCreateGenre(name: string): Promise<string> {
       createdAt: Date.now(),
     })
   }
+
+  lookupCache?.genreIdsByName.set(name, id)
 
   return id
 }
@@ -686,7 +743,9 @@ async function updateGenreCounts(): Promise<void> {
 }
 
 function generateAssetHash(asset: MediaLibrary.Asset): string {
-  const info = getFileInfo(asset.uri)
+  const shouldReadFileInfo =
+    asset.modificationTime === undefined || asset.modificationTime === null
+  const info = shouldReadFileInfo ? getFileInfo(asset.uri) : null
   const modificationTime =
     info?.modificationTime ?? asset.modificationTime ?? asset.creationTime ?? 0
   const size = info?.size ?? asset.duration ?? 0
