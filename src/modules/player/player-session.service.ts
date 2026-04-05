@@ -36,6 +36,7 @@ function mapNativeQueueToTracks(nativeQueue: Awaited<ReturnType<typeof TrackPlay
 
 export async function persistPlaybackSession(options?: {
   force?: boolean
+  skipQueueSync?: boolean
 }): Promise<void> {
   const now = Date.now()
   if (
@@ -46,14 +47,27 @@ export async function persistPlaybackSession(options?: {
   }
 
   try {
-    const queue = mapNativeQueueToTracks(await TrackPlayer.getQueue())
-    const currentIndex = await TrackPlayer.getCurrentTrack()
-    const positionSeconds = await TrackPlayer.getPosition()
+    const shouldSyncQueueWithNativePlayer =
+      options?.skipQueueSync !== true &&
+      (options?.force === true || getQueueState().length === 0)
 
-    const currentTrackId =
-      currentIndex !== null && currentIndex >= 0 && currentIndex < queue.length
-        ? (queue[currentIndex]?.id ?? null)
-        : (getCurrentTrackState()?.id ?? null)
+    const queue = shouldSyncQueueWithNativePlayer
+      ? mapNativeQueueToTracks(await TrackPlayer.getQueue())
+      : getQueueState()
+
+    let currentTrackId = getCurrentTrackState()?.id ?? null
+
+    if (shouldSyncQueueWithNativePlayer) {
+      const currentIndex = await TrackPlayer.getCurrentTrack()
+      currentTrackId =
+        currentIndex !== null &&
+        currentIndex >= 0 &&
+        currentIndex < queue.length
+          ? (queue[currentIndex]?.id ?? null)
+          : (getCurrentTrackState()?.id ?? null)
+    }
+
+    const positionSeconds = await TrackPlayer.getPosition()
 
     await savePlaybackSession({
       queue,
@@ -103,7 +117,7 @@ export async function restorePlaybackSession(): Promise<void> {
       setPlaybackProgress(position, getCurrentTrackState()?.duration || 0)
       setIsPlayingState(playbackState === State.Playing)
       setRepeatModeState(mapTrackPlayerRepeatMode(repeatMode as RepeatMode))
-      await persistPlaybackSession({ force: true })
+      await persistPlaybackSession({ force: true, skipQueueSync: true })
       return
     }
 
@@ -144,7 +158,7 @@ export async function restorePlaybackSession(): Promise<void> {
     await TrackPlayer.pause()
     setIsPlayingState(false)
 
-    await persistPlaybackSession({ force: true })
+    await persistPlaybackSession({ force: true, skipQueueSync: true })
   } catch (error) {
     logError("Failed to restore playback session", error)
   }

@@ -57,14 +57,13 @@ export function registerBootstrapListeners() {
   }
 
   const appStateSubscription = AppState.addEventListener("change", (nextState) => {
-    if (nextState === "background" || nextState === "inactive") {
+    if (nextState === "background") {
       backgroundedAt = Date.now()
       clearPendingForegroundAutoScan()
     }
 
     const isReturningToForeground =
-      (previousState === "background" || previousState === "inactive") &&
-      nextState === "active"
+      previousState === "background" && nextState === "active"
     previousState = nextState
 
     if (!isReturningToForeground) {
