@@ -36,6 +36,11 @@ const SUPPORTED_EXTENSIONS = new Set([
   "opus",
   "wav",
 ])
+const EXCLUDED_URI_SEGMENTS = [
+  "/android/",
+  "/android/data/",
+  "/android/obb/",
+]
 
 type ExtractedMetadata = Awaited<ReturnType<typeof extractMetadata>>
 
@@ -43,7 +48,7 @@ interface PreparedAssetForIndex {
   asset: MediaLibrary.Asset
   fileHash: string
   metadata: ExtractedMetadata
-  artworkPath: string | null
+  artworkPath: string | undefined
 }
 
 function yieldToEventLoop() {
@@ -61,6 +66,18 @@ function isSupportedAssetByExtension(asset: MediaLibrary.Asset): boolean {
   }
 
   return SUPPORTED_EXTENSIONS.has(extension)
+}
+
+function isAllowedAssetUri(uri: string): boolean {
+  const normalizedUri = uri.toLowerCase()
+
+  if (EXCLUDED_URI_SEGMENTS.some((segment) => normalizedUri.includes(segment))) {
+    return false
+  }
+
+  const pathWithoutScheme = normalizedUri.replace(/^file:\/\//, "")
+  const segments = pathWithoutScheme.split("/").filter(Boolean)
+  return !segments.some((segment) => segment.startsWith("."))
 }
 
 async function runWithScopeCommit(work: () => Promise<void>): Promise<void> {
@@ -115,6 +132,7 @@ export async function scanMediaLibrary(
   const durationFilterConfig = await ensureTrackDurationFilterConfigLoaded()
   const scopedAssets = assets.filter(
     (asset) =>
+      isAllowedAssetUri(asset.uri) &&
       isSupportedAssetByExtension(asset) &&
       isAssetAllowedByFolderFilters(asset.uri, folderFilterConfig) &&
       isAssetAllowedByTrackDuration(asset.duration, durationFilterConfig)
@@ -368,12 +386,7 @@ async function upsertPreparedAsset(
 
   const albumId =
     metadata.album && albumArtistId
-      ? await getOrCreateAlbum(
-          metadata.album,
-          albumArtistId,
-          artworkPath,
-          metadata.year
-        )
+      ? await getOrCreateAlbum(metadata.album, albumArtistId, artworkPath, metadata.year)
       : null
 
   const genresToProcess = metadata.genres.length > 0 ? metadata.genres : ["Unknown"]
@@ -401,7 +414,7 @@ async function upsertPreparedAsset(
       audioSampleRate: metadata.sampleRate || null,
       audioCodec: metadata.codec || null,
       audioFormat: metadata.format || null,
-      artwork: artworkPath,
+      artwork: artworkPath || null,
       lyrics: metadata.lyrics || null,
       composer: metadata.composer || null,
       comment: metadata.comment || null,
@@ -430,7 +443,7 @@ async function upsertPreparedAsset(
         audioSampleRate: metadata.sampleRate || null,
         audioCodec: metadata.codec || null,
         audioFormat: metadata.format || null,
-        artwork: artworkPath,
+        artwork: artworkPath || null,
         lyrics: metadata.lyrics || null,
         composer: metadata.composer || null,
         scanTime: now,
@@ -688,7 +701,7 @@ function generateAssetHash(asset: MediaLibrary.Asset): string {
 
 function getFileInfo(
   uri: string
-): { size: number; modificationTime: number | null } | null {
+): { size?: number; modificationTime?: number | null } | null {
   try {
     const file = new File(uri)
     return file.info()
