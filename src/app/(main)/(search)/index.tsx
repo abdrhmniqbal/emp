@@ -3,6 +3,14 @@ import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
 
 import { ScrollView, View } from "react-native"
+import { ContentSection } from "@/components/blocks/content-section"
+import { MediaCarousel } from "@/components/blocks/media-carousel"
+import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
+import { TrackRow } from "@/components/patterns/track-row"
+import { ScaleLoader } from "@/components/ui/scale-loader"
+import { playTrack } from "@/modules/player/player.service"
+import { usePlayerStore, type Track } from "@/modules/player/player.store"
+import { useTracks } from "@/modules/tracks/tracks.queries"
 import LocalSearchIcon from "@/components/icons/local/search"
 import {
   handleScroll,
@@ -10,10 +18,40 @@ import {
   handleScrollStop,
 } from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/modules/ui/theme"
+import type { DBTrack } from "@/types/database"
+import { transformDBTrackToTrack } from "@/utils/transformers"
+
+const RECENTLY_ADDED_LIMIT = 8
 
 export default function SearchScreen() {
   const theme = useThemeColors()
   const router = useRouter()
+  const currentTrackId = usePlayerStore((state) => state.currentTrack?.id)
+  const { data: dbTracks = [] } = useTracks({
+    sortBy: "dateAdded",
+    sortOrder: "desc",
+  })
+
+  const recentlyAddedTracks = React.useMemo(() => {
+    return (dbTracks as DBTrack[])
+      .map(transformDBTrackToTrack)
+      .slice(0, RECENTLY_ADDED_LIMIT)
+  }, [dbTracks])
+
+  const renderRecentlyAddedItem = React.useCallback(
+    (item: Track) => (
+      <TrackRow
+        track={item}
+        variant="grid"
+        onPress={() => playTrack(item, recentlyAddedTracks)}
+        titleClassName={currentTrackId === item.id ? "text-accent" : undefined}
+        imageOverlay={
+          currentTrackId === item.id ? <ScaleLoader size={16} /> : undefined
+        }
+      />
+    ),
+    [currentTrackId, recentlyAddedTracks]
+  )
 
   function handleSearchPress() {
     router.push("/search")
@@ -22,7 +60,7 @@ export default function SearchScreen() {
   return (
     <ScrollView
       className="flex-1 bg-background"
-      contentContainerStyle={{ padding: 20, paddingBottom: 200 }}
+      contentContainerStyle={{ paddingBottom: 200 }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
@@ -32,8 +70,8 @@ export default function SearchScreen() {
       onScrollEndDrag={handleScrollStop}
       scrollEventThrottle={16}
     >
-      <View className="relative mb-6">
-        <View className="absolute top-1/2 left-4 z-10 -translate-y-1/2">
+      <View className="relative my-6 px-3">
+        <View className="absolute top-1/2 left-7 z-10 -translate-y-1/2">
           <LocalSearchIcon
             fill="none"
             width={24}
@@ -55,6 +93,31 @@ export default function SearchScreen() {
           accessibilityLabel="Open search"
         />
       </View>
+
+      <ContentSection
+        title="Recently Added"
+        data={recentlyAddedTracks}
+        emptyState={{
+          icon: (
+            <LocalClockSolidIcon
+              fill="none"
+              width={48}
+              height={48}
+              color={theme.muted}
+            />
+          ),
+          title: "No recently added",
+          message: "New tracks added to your library will appear here.",
+        }}
+        renderContent={(data) => (
+          <MediaCarousel
+            data={data}
+            renderItem={renderRecentlyAddedItem}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            gap={10}
+          />
+        )}
+      />
     </ScrollView>
   )
 }
