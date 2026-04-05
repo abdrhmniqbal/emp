@@ -26,11 +26,57 @@ import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 
 const BATCH_SIZE = 10
 const BATCH_CONCURRENCY = 4
+const COMMIT_SCOPE_SIZE = 5
+const SUPPORTED_EXTENSIONS = new Set([
+  "mp3",
+  "flac",
+  "aac",
+  "ogg",
+  "m4a",
+  "opus",
+  "wav",
+])
+
+type ExtractedMetadata = Awaited<ReturnType<typeof extractMetadata>>
+
+interface PreparedAssetForIndex {
+  asset: MediaLibrary.Asset
+  fileHash: string
+  metadata: ExtractedMetadata
+  artworkPath: string | null
+}
 
 function yieldToEventLoop() {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, 0)
   })
+}
+
+function isSupportedAssetByExtension(asset: MediaLibrary.Asset): boolean {
+  const filename = (asset.filename || "").toLowerCase()
+  const extension = filename.split(".").pop()
+
+  if (!extension) {
+    return false
+  }
+
+  return SUPPORTED_EXTENSIONS.has(extension)
+}
+
+async function runWithScopeCommit(work: () => Promise<void>): Promise<void> {
+  await db.run(sql`BEGIN IMMEDIATE`)
+
+  try {
+    await work()
+    await db.run(sql`COMMIT`)
+  } catch (error) {
+    try {
+      await db.run(sql`ROLLBACK`)
+    } catch {
+      // Ignore rollback failures so the original error is preserved.
+    }
+    throw error
+  }
 }
 
 export async function scanMediaLibrary(
@@ -69,6 +115,7 @@ export async function scanMediaLibrary(
   const durationFilterConfig = await ensureTrackDurationFilterConfigLoaded()
   const scopedAssets = assets.filter(
     (asset) =>
+      isSupportedAssetByExtension(asset) &&
       isAssetAllowedByFolderFilters(asset.uri, folderFilterConfig) &&
       isAssetAllowedByTrackDuration(asset.duration, durationFilterConfig)
   )
@@ -167,6 +214,67 @@ async function processBatch(
   signal?: AbortSignal,
   precomputedHashMap?: Map<string, string>
 ): Promise<void> {
+  const preparedAssets = await prepareBatchAssets(
+    assets,
+    onFileStart,
+    signal,
+    precomputedHashMap
+  )
+
+  for (let index = 0; index < preparedAssets.length; index += COMMIT_SCOPE_SIZE) {
+    if (signal?.aborted) {
+      return
+    }
+
+    await waitForIndexerResume(signal)
+    if (signal?.aborted) {
+      return
+    }
+
+    const scope = preparedAssets.slice(index, index + COMMIT_SCOPE_SIZE)
+
+    try {
+      await runWithScopeCommit(async () => {
+        for (const prepared of scope) {
+          if (signal?.aborted) {
+            return
+          }
+
+          await upsertPreparedAsset(prepared, signal)
+        }
+      })
+    } catch (error) {
+      logError("Failed to commit indexing scope; retrying asset-by-asset", error, {
+        scopeSize: scope.length,
+      })
+
+      for (const prepared of scope) {
+        if (signal?.aborted) {
+          return
+        }
+
+        try {
+          await upsertPreparedAsset(prepared, signal)
+        } catch (assetError) {
+          logError("Failed to index prepared asset", assetError, {
+            assetId: prepared.asset.id,
+            filename: prepared.asset.filename,
+          })
+        }
+      }
+    }
+
+    await yieldToEventLoop()
+  }
+}
+
+async function prepareBatchAssets(
+  assets: MediaLibrary.Asset[],
+  onFileStart?: (asset: MediaLibrary.Asset) => void,
+  signal?: AbortSignal,
+  precomputedHashMap?: Map<string, string>
+): Promise<PreparedAssetForIndex[]> {
+  const preparedAssets: PreparedAssetForIndex[] = []
   let nextAssetIndex = 0
   const workerCount = Math.min(BATCH_CONCURRENCY, assets.length)
 
@@ -183,129 +291,172 @@ async function processBatch(
           continue
         }
 
-      if (signal?.aborted) return
-
-      onFileStart?.(asset)
-
-      try {
-        const fileHash =
-          precomputedHashMap?.get(asset.id) || generateAssetHash(asset)
-        const metadata = await extractMetadata(
-          asset.uri,
-          asset.filename || "",
-          asset.duration
-        )
-        if (signal?.aborted) return
-        const artworkPath = await saveArtworkToCache(metadata.artwork)
         if (signal?.aborted) return
 
-        const artistId = metadata.artist
-          ? await getOrCreateArtist(metadata.artist)
-          : null
+        onFileStart?.(asset)
 
-        const albumArtistId =
-          metadata.albumArtist && metadata.albumArtist !== metadata.artist
-            ? await getOrCreateArtist(metadata.albumArtist)
-            : artistId
-
-        const albumId =
-          metadata.album && albumArtistId
-            ? await getOrCreateAlbum(
-                metadata.album,
-                albumArtistId,
-                artworkPath,
-                metadata.year
-              )
-            : null
-
-        // Get or create genres - use "Unknown" if no genres found
-        const genresToProcess =
-          metadata.genres.length > 0 ? metadata.genres : ["Unknown"]
-        const genreIds = await Promise.all(
-          genresToProcess.map((g) => getOrCreateGenre(g))
-        )
-        if (signal?.aborted) return
-
-        // Insert track
-        const now = Date.now()
-        await db
-          .insert(tracks)
-          .values({
-            id: asset.id,
-            title: metadata.title,
-            artistId,
-            albumId,
-            duration: metadata.duration,
-            uri: asset.uri,
-            trackNumber: metadata.trackNumber,
-            discNumber: metadata.discNumber,
-            year: metadata.year,
-            filename: asset.filename || "",
-            fileHash,
-            audioBitrate: metadata.bitrate || null,
-            audioSampleRate: metadata.sampleRate || null,
-            audioCodec: metadata.codec || null,
-            audioFormat: metadata.format || null,
-            artwork: artworkPath,
-            lyrics: metadata.lyrics || null,
-            composer: metadata.composer || null,
-            comment: metadata.comment || null,
-            dateAdded: asset.creationTime || now,
-            scanTime: now,
-            isDeleted: 0,
-            isFavorite: 0,
-            playCount: 0,
-            rating: null,
-            lastPlayedAt: null,
-            createdAt: now,
-            updatedAt: now,
-          })
-          .onConflictDoUpdate({
-            target: tracks.id,
-            set: {
-              title: metadata.title,
-              artistId,
-              albumId,
-              duration: metadata.duration,
-              trackNumber: metadata.trackNumber,
-              discNumber: metadata.discNumber,
-              year: metadata.year,
-              fileHash,
-              audioBitrate: metadata.bitrate || null,
-              audioSampleRate: metadata.sampleRate || null,
-              audioCodec: metadata.codec || null,
-              audioFormat: metadata.format || null,
-              artwork: artworkPath,
-              lyrics: metadata.lyrics || null,
-              composer: metadata.composer || null,
-              scanTime: now,
-              isDeleted: 0,
-              updatedAt: now,
-            },
-          })
-        if (signal?.aborted) return
-
-        // Link genres
-        if (genreIds.length > 0) {
-          await db.delete(trackGenres).where(eq(trackGenres.trackId, asset.id))
-          if (signal?.aborted) return
-
-          await db.insert(trackGenres).values(
-            genreIds.map((genreId) => ({
-              trackId: asset.id,
-              genreId,
-            }))
+        try {
+          const prepared = await prepareAssetForIndexing(
+            asset,
+            signal,
+            precomputedHashMap
           )
-          if (signal?.aborted) return
+          if (prepared) {
+            preparedAssets.push(prepared)
+          }
+        } catch (error) {
+          logError("Failed to index asset", error, {
+            assetId: asset.id,
+            filename: asset.filename,
+          })
         }
-      } catch (error) {
-        logError("Failed to index asset", error, {
-          assetId: asset.id,
-          filename: asset.filename,
-        })
-      }
       }
     })
+  )
+
+  return preparedAssets
+}
+
+async function prepareAssetForIndexing(
+  asset: MediaLibrary.Asset,
+  signal?: AbortSignal,
+  precomputedHashMap?: Map<string, string>
+): Promise<PreparedAssetForIndex | null> {
+  if (signal?.aborted) {
+    return null
+  }
+
+  const fileHash = precomputedHashMap?.get(asset.id) || generateAssetHash(asset)
+  const metadata = await extractMetadata(
+    asset.uri,
+    asset.filename || "",
+    asset.duration
+  )
+
+  if (signal?.aborted) {
+    return null
+  }
+
+  const artworkPath = await saveArtworkToCache(metadata.artwork)
+  if (signal?.aborted) {
+    return null
+  }
+
+  return {
+    asset,
+    fileHash,
+    metadata,
+    artworkPath,
+  }
+}
+
+async function upsertPreparedAsset(
+  prepared: PreparedAssetForIndex,
+  signal?: AbortSignal
+): Promise<void> {
+  const { asset, fileHash, metadata, artworkPath } = prepared
+  if (signal?.aborted) {
+    return
+  }
+
+  const artistId = metadata.artist ? await getOrCreateArtist(metadata.artist) : null
+
+  const albumArtistId =
+    metadata.albumArtist && metadata.albumArtist !== metadata.artist
+      ? await getOrCreateArtist(metadata.albumArtist)
+      : artistId
+
+  const albumId =
+    metadata.album && albumArtistId
+      ? await getOrCreateAlbum(
+          metadata.album,
+          albumArtistId,
+          artworkPath,
+          metadata.year
+        )
+      : null
+
+  const genresToProcess = metadata.genres.length > 0 ? metadata.genres : ["Unknown"]
+  const genreIds = await Promise.all(genresToProcess.map((genre) => getOrCreateGenre(genre)))
+  if (signal?.aborted) {
+    return
+  }
+
+  const now = Date.now()
+  await db
+    .insert(tracks)
+    .values({
+      id: asset.id,
+      title: metadata.title,
+      artistId,
+      albumId,
+      duration: metadata.duration,
+      uri: asset.uri,
+      trackNumber: metadata.trackNumber,
+      discNumber: metadata.discNumber,
+      year: metadata.year,
+      filename: asset.filename || "",
+      fileHash,
+      audioBitrate: metadata.bitrate || null,
+      audioSampleRate: metadata.sampleRate || null,
+      audioCodec: metadata.codec || null,
+      audioFormat: metadata.format || null,
+      artwork: artworkPath,
+      lyrics: metadata.lyrics || null,
+      composer: metadata.composer || null,
+      comment: metadata.comment || null,
+      dateAdded: asset.creationTime || now,
+      scanTime: now,
+      isDeleted: 0,
+      isFavorite: 0,
+      playCount: 0,
+      rating: null,
+      lastPlayedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: tracks.id,
+      set: {
+        title: metadata.title,
+        artistId,
+        albumId,
+        duration: metadata.duration,
+        trackNumber: metadata.trackNumber,
+        discNumber: metadata.discNumber,
+        year: metadata.year,
+        fileHash,
+        audioBitrate: metadata.bitrate || null,
+        audioSampleRate: metadata.sampleRate || null,
+        audioCodec: metadata.codec || null,
+        audioFormat: metadata.format || null,
+        artwork: artworkPath,
+        lyrics: metadata.lyrics || null,
+        composer: metadata.composer || null,
+        scanTime: now,
+        isDeleted: 0,
+        updatedAt: now,
+      },
+    })
+
+  if (signal?.aborted) {
+    return
+  }
+
+  if (genreIds.length === 0) {
+    return
+  }
+
+  await db.delete(trackGenres).where(eq(trackGenres.trackId, asset.id))
+  if (signal?.aborted) {
+    return
+  }
+
+  await db.insert(trackGenres).values(
+    genreIds.map((genreId) => ({
+      trackId: asset.id,
+      genreId,
+    }))
   )
 }
 
