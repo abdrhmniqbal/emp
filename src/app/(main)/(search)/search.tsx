@@ -302,7 +302,7 @@ export default function SearchInteractionScreen() {
     })
 
     router.push({
-      pathname: "/artist/[name]",
+      pathname: "/(main)/(search)/artist/[name]",
       params: { name: artist.name },
     })
   }
@@ -316,7 +316,7 @@ export default function SearchInteractionScreen() {
     })
 
     router.push({
-      pathname: "/album/[name]",
+      pathname: "/(main)/(search)/album/[name]",
       params: { name: album.title },
     })
   }
@@ -330,7 +330,7 @@ export default function SearchInteractionScreen() {
     })
 
     router.push({
-      pathname: "/playlist/[id]",
+      pathname: "/(main)/(search)/playlist/[id]",
       params: { id: playlist.id },
     })
   }
