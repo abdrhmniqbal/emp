@@ -2,6 +2,7 @@ import * as React from "react"
 import { useEffect } from "react"
 import { Text, TextInput, View } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
+import { useCastState, useMediaStatus, useRemoteMediaClient, useStreamPosition } from "react-native-google-cast"
 import Animated, {
   Layout,
   runOnJS,
@@ -10,11 +11,10 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated"
-import { useCastState, useMediaStatus, useRemoteMediaClient, useStreamPosition } from "react-native-google-cast"
 
-import { seekTo } from "@/modules/player/player-controls.service"
-import { usePlayerStore } from "@/modules/player/player.store"
 import { isCastConnected, seekCastPlayback } from "@/modules/cast/cast.service"
+import { seekTo } from "@/modules/player/player-controls.service"
+import { usePlaybackProgressState } from "@/modules/player/player-selectors"
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
@@ -25,8 +25,7 @@ interface ProgressBarProps {
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   compact = false,
 }) => {
-  const currentTime = usePlayerStore((state) => state.currentTime)
-  const duration = usePlayerStore((state) => state.duration)
+  const { currentTime, duration } = usePlaybackProgressState()
   const castState = useCastState()
   const remoteMediaClient = useRemoteMediaClient()
   const mediaStatus = useMediaStatus()

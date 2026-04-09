@@ -2,8 +2,11 @@ import { useRouter } from "expo-router"
 import { BottomSheet } from "heroui-native"
 import { useState } from "react"
 
+import {
+  useCurrentTrack,
+  useIsPlaying,
+} from "@/modules/player/player-selectors"
 import { closePlayer, useUIStore } from "@/modules/ui/ui.store"
-import { usePlayerStore } from "@/modules/player/player.store"
 
 import { FullPlayerContent } from "./full-player-content"
 import { PlayerActionSheet } from "./player-action-sheet"
@@ -14,8 +17,8 @@ export function PlayerSheet() {
   const router = useRouter()
   const isExpanded = useUIStore((state) => state.isPlayerExpanded)
   const playerExpandedView = useUIStore((state) => state.playerExpandedView)
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
-  const isPlaying = usePlayerStore((state) => state.isPlaying)
+  const currentTrack = useCurrentTrack()
+  const isPlaying = useIsPlaying()
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false)
 
   const dismissPlayer = () => {

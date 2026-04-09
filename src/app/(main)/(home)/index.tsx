@@ -1,7 +1,8 @@
+import type { Track } from "@/modules/player/player.store"
 import { useRouter } from "expo-router"
 import * as React from "react"
-import { RefreshControl, ScrollView, View } from "react-native"
 
+import { RefreshControl, ScrollView, View } from "react-native"
 import { ContentSection } from "@/components/blocks/content-section"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
@@ -11,19 +12,19 @@ import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
 import {
-  handleScroll,
-  handleScrollStart,
-  handleScrollStop,
-} from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import {
   useRecentlyPlayedTracks,
   useTopTracksByPeriod,
 } from "@/modules/history/history.queries"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { useCurrentTrackId } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
-import { usePlayerStore, type Track } from "@/modules/player/player.store"
+import { useThemeColors } from "@/modules/ui/theme"
+import {
+  handleScroll,
+  handleScrollStart,
+  handleScrollStop,
+} from "@/modules/ui/ui.store"
 
 const CHUNK_SIZE = 5
 const RECENTLY_PLAYED_LIMIT = 8
@@ -33,7 +34,7 @@ export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
-  const currentTrackId = usePlayerStore((state) => state.currentTrack?.id)
+  const currentTrackId = useCurrentTrackId()
   const {
     data: recentlyPlayedTracksData,
     isLoading: isRecentlyPlayedLoading,

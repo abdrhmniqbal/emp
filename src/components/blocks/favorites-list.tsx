@@ -26,6 +26,7 @@ import {
   PlaylistArtwork,
   resolvePlaylistArtworkImages,
 } from "@/components/patterns/playlist-artwork"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   MediaItem as Item,
   MediaItemAction as ItemAction,
@@ -34,12 +35,11 @@ import {
   MediaItemImage as ItemImage,
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
-import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/modules/ui/theme"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
+import { usePlayerTracks } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
-import { usePlayerStore } from "@/modules/player/player.store"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface FavoritesListProps {
   data: FavoriteEntry[]
@@ -156,7 +156,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   onScrollEndDrag,
   onMomentumScrollEnd,
 }) => {
-  const tracks = usePlayerStore((state) => state.tracks)
+  const tracks = usePlayerTracks()
   const toggleFavoriteMutation = useToggleFavorite()
   const router = useRouter()
 

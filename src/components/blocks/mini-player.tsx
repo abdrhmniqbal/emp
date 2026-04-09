@@ -8,12 +8,16 @@ import LocalNextSolidIcon from "@/components/icons/local/next-solid"
 import LocalPauseSolidIcon from "@/components/icons/local/pause-solid"
 import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
 import { MarqueeText } from "@/components/ui/marquee-text"
+import { playNext, togglePlayback } from "@/modules/player/player-controls.service"
+import {
+  useCurrentTrack,
+  useIsPlaying,
+  usePlaybackProgressState,
+} from "@/modules/player/player-selectors"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   openPlayer,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import { playNext, togglePlayback } from "@/modules/player/player-controls.service"
-import { usePlayerStore } from "@/modules/player/player.store"
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
 import LocalQueueIcon from "../icons/local/queue"
@@ -126,8 +130,8 @@ function MiniPlayerControls({
 export const MiniPlayer: React.FC<MiniPlayerProps> = ({
   bottomOffset = 90,
 }) => {
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
-  const isPlaying = usePlayerStore((state) => state.isPlaying)
+  const currentTrack = useCurrentTrack()
+  const isPlaying = useIsPlaying()
 
   const theme = useThemeColors()
 
@@ -170,8 +174,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 }
 
 function MiniPlayerProgress({ themeAccent }: { themeAccent: string }) {
-  const currentTime = usePlayerStore((state) => state.currentTime)
-  const duration = usePlayerStore((state) => state.duration)
+  const { currentTime, duration } = usePlaybackProgressState()
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (

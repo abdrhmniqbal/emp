@@ -39,7 +39,7 @@ Work in slices so each step can be validated, documented, and committed independ
 
 ### Slice 0: Baseline And Guardrails
 
-Status: `pending`
+Status: `completed`
 
 Scope:
 
@@ -59,7 +59,7 @@ Completion criteria:
 
 ### Slice 1: Player Domain Boundary Cleanup
 
-Status: `pending`
+Status: `completed`
 
 Scope:
 
@@ -90,6 +90,15 @@ Completion criteria:
 - Repeated queue/session logic is consolidated.
 - UI consumers read player state through narrower selectors or dedicated hooks.
 - No playback regressions.
+
+Completed notes:
+
+- Added a dedicated runtime coordination module for queue-replacement lifecycle state instead of keeping transient orchestration flags inside `player.service.ts`.
+- Added a player selector layer so player UI and route consumers no longer read the raw player store directly.
+- Updated player-facing screens and blocks to depend on player selectors rather than store internals.
+- Simplified `QueueView` so it reads queue state through a player hook and no longer needs prop-threaded current-track context.
+- Extracted queue-building logic in `player.service.ts` into a focused helper to keep track-selection orchestration smaller and easier to test.
+- Preserved playback behavior while keeping the previous shuffle/playback fixes intact.
 
 Planned commit message:
 
@@ -284,7 +293,7 @@ Planned commit message:
 ## Done Log
 
 - [x] Slice 0: create initial `refactor_plan.md`
-- [ ] Slice 1: player domain boundary cleanup
+- [x] Slice 1: player domain boundary cleanup
 - [ ] Slice 2: remove unsafe typing and compatibility-like paths
 - [ ] Slice 3: list and screen rendering hygiene
 - [ ] Slice 4: repository and query layer simplification

@@ -1,9 +1,12 @@
+import type { SortField } from "@/modules/library/library-sort.types"
+import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useState } from "react"
+
 import { Dimensions, ScrollView, Text, View } from "react-native"
 import Animated, {
   Extrapolation,
@@ -13,10 +16,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated"
-
-import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
@@ -31,32 +33,34 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
+import { buildArtistAlbums } from "@/modules/artists/artists.utils"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
+import { useIsFavorite } from "@/modules/favorites/favorites.queries"
+import {
+  ALBUM_SORT_OPTIONS,
+  TRACK_SORT_OPTIONS,
+} from "@/modules/library/library-sort.constants"
+import {
+  setSortConfig,
+  useLibrarySortStore,
+} from "@/modules/library/library-sort.store"
+import {
+  sortAlbums,
+  sortTracks,
+} from "@/modules/library/library-sort.utils"
+import { useTracksByArtistName } from "@/modules/library/library.queries"
+import { logWarn } from "@/modules/logging/logging.service"
+import {
+  useCurrentTrack,
+  usePlayerTracks,
+} from "@/modules/player/player-selectors"
+import { playTrack } from "@/modules/player/player.service"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import { buildArtistAlbums } from "@/modules/artists/artists.utils"
-import { useIsFavorite } from "@/modules/favorites/favorites.queries"
-import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
-import {
-  ALBUM_SORT_OPTIONS,
-  TRACK_SORT_OPTIONS,
-} from "@/modules/library/library-sort.constants"
-import type { SortField } from "@/modules/library/library-sort.types"
-import {
-  sortAlbums,
-  sortTracks,
-} from "@/modules/library/library-sort.utils"
-import {
-  setSortConfig,
-  useLibrarySortStore,
-} from "@/modules/library/library-sort.store"
-import { logWarn } from "@/modules/logging/logging.service"
-import { useTracksByArtistName } from "@/modules/library/library.queries"
-import { playTrack } from "@/modules/player/player.service"
-import { type Track, usePlayerStore } from "@/modules/player/player.store"
 import { cn } from "@/utils/common"
 
 const SCREEN_WIDTH = Dimensions.get("window").width
@@ -64,6 +68,10 @@ const HEADER_COLLAPSE_THRESHOLD = SCREEN_WIDTH - 120
 
 function setAnimatedValue<T>(target: { value: T }, nextValue: T) {
   target.value = nextValue
+}
+
+function getRandomTrackIndex(trackCount: number) {
+  return Math.floor(Math.random() * trackCount)
 }
 
 function getSafeRouteName(value: string | string[] | undefined) {
@@ -95,8 +103,8 @@ export default function ArtistDetailsScreen() {
   >("overview")
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const scrollY = useSharedValue(0)
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
-  const allTracks = usePlayerStore((state) => state.tracks)
+  const currentTrack = useCurrentTrack()
+  const allTracks = usePlayerTracks()
   const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
   const parsedArtistRouteName = React.useMemo(() => getSafeRouteName(name), [name])
   const artistName = parsedArtistRouteName.value.trim() || "Unknown Artist"
@@ -227,7 +235,7 @@ export default function ArtistDetailsScreen() {
       return
     }
 
-    const randomIndex = Math.floor(Math.random() * sortedArtistTracks.length)
+    const randomIndex = getRandomTrackIndex(sortedArtistTracks.length)
     playTrack(sortedArtistTracks[randomIndex], sortedArtistTracks)
   }
 

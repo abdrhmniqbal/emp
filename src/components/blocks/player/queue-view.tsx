@@ -1,6 +1,6 @@
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { type FlatList, Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import ReorderableList, {
@@ -12,10 +12,13 @@ import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
+import {
+  useCurrentTrack,
+  usePlayerQueueInfo,
+} from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import {
   getQueueState,
-  usePlayerStore,
   type Track,
 } from "@/modules/player/player.store"
 import { moveInQueue, removeFromQueue } from "@/modules/player/queue.service"
@@ -92,35 +95,37 @@ export const QueueItem: React.FC<QueueItemProps> = ({
 
 const MemoizedQueueItem = React.memo(QueueItem)
 
-interface QueueViewProps {
-  currentTrack: Track | null
-}
-
 const ITEM_HEIGHT = 64
 const ITEM_GAP = 6
 
-function useQueueInfo() {
-  const queue = usePlayerStore((state) => state.queue)
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
-
-  return useMemo(() => {
-    const currentIndex = currentTrack
-      ? queue.findIndex((track) => track.id === currentTrack.id)
-      : -1
-
-    return {
-      queue,
-      currentIndex,
-      upNext: currentIndex >= 0 ? queue.slice(currentIndex + 1) : queue,
-    }
-  }, [currentTrack, queue])
-}
-
-export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
-  const queueInfo = useQueueInfo()
-  const { queue, upNext, currentIndex } = queueInfo
-  const currentTrackId = currentTrack?.id ?? null
+export const QueueView: React.FC = () => {
+  const currentTrack = useCurrentTrack()
+  const { queue, upNext, currentIndex, currentTrackId } = usePlayerQueueInfo()
   const listRef = useRef<FlatList>(null)
+  const handleRemove = useCallback(async (trackId: string) => {
+    await removeFromQueue(trackId)
+  }, [])
+  const handleReorder = useCallback(({ from, to }: { from: number; to: number }) => {
+    if (from === to) {
+      return
+    }
+    void moveInQueue(from, to)
+  }, [])
+  const handlePlayFromQueue = useCallback((track: Track) => {
+    void playTrack(track, getQueueState())
+  }, [])
+  const renderItem = useCallback(
+    ({ item, index }: { item: Track; index: number }) => (
+      <MemoizedQueueItem
+        track={item}
+        isCurrentTrack={item.id === currentTrackId}
+        isPlayedTrack={currentIndex >= 0 && index < currentIndex}
+        onPress={() => handlePlayFromQueue(item)}
+        onRemove={() => handleRemove(item.id)}
+      />
+    ),
+    [currentIndex, currentTrackId, handlePlayFromQueue, handleRemove]
+  )
 
   useEffect(() => {
     if (currentIndex >= 0 && queue.length > 0) {
@@ -136,34 +141,6 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
   }, [currentIndex, queue.length])
 
   if (!currentTrack || queue.length === 0) return null
-
-  const handleRemove = useCallback(async (trackId: string) => {
-    await removeFromQueue(trackId)
-  }, [])
-
-  const handleReorder = useCallback(({ from, to }: { from: number; to: number }) => {
-    if (from === to) {
-      return
-    }
-    void moveInQueue(from, to)
-  }, [])
-
-  const handlePlayFromQueue = useCallback((track: Track) => {
-    void playTrack(track, getQueueState())
-  }, [])
-
-  const renderItem = useCallback(
-    ({ item, index }: { item: Track; index: number }) => (
-      <MemoizedQueueItem
-        track={item}
-        isCurrentTrack={item.id === currentTrackId}
-        isPlayedTrack={currentIndex >= 0 && index < currentIndex}
-        onPress={() => handlePlayFromQueue(item)}
-        onRemove={() => handleRemove(item.id)}
-      />
-    ),
-    [currentIndex, currentTrackId, handlePlayFromQueue, handleRemove]
-  )
 
   return (
     <Animated.View

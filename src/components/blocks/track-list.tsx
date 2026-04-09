@@ -1,3 +1,4 @@
+import type { Track } from "@/modules/player/player.store"
 import {
   LegendList,
   type LegendListRef,
@@ -6,6 +7,7 @@ import {
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useCallback, useRef, useState } from "react"
+
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -14,18 +16,17 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
-
-import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
+import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { TrackRow } from "@/components/patterns/track-row"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ScaleLoader } from "@/components/ui/scale-loader"
-import { useThemeColors } from "@/modules/ui/theme"
+import { useCurrentTrackId } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
-import { usePlayerStore, type Track } from "@/modules/player/player.store"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface TrackListItemProps {
   track: Track
@@ -154,7 +155,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const listRef = useRef<LegendListRef | null>(null)
   const isCompactNumberedList = hideCover && showNumbers
-  const currentTrackId = usePlayerStore((state) => state.currentTrack?.id)
+  const currentTrackId = useCurrentTrackId()
 
   useResetScrollOnKey(listRef, resetScrollKey)
 

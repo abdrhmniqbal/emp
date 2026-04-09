@@ -9,6 +9,9 @@ import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { EmptyState } from "@/components/ui/empty-state"
+import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { usePlayerTracks } from "@/modules/player/player-selectors"
 import {
   commitFolderFilterConfig,
   type FolderFilterConfig,
@@ -17,9 +20,6 @@ import {
   getFolderPathFromUri,
   normalizeFolderPath,
 } from "@/modules/settings/folder-filters"
-import { startIndexing } from "@/modules/indexer/indexer.service"
-import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { usePlayerStore } from "@/modules/player/player.store"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -132,7 +132,7 @@ function getModeFromConfig(config: FolderFilterConfig): FolderFilterMode {
 export default function FolderFiltersScreen() {
   const insets = useSafeAreaInsets()
   const theme = useThemeColors()
-  const tracks = usePlayerStore((state) => state.tracks)
+  const tracks = usePlayerTracks()
   const folderFilterConfig = useSettingsStore((state) => state.folderFilterConfig)
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const [pendingConfig, setPendingConfig] =

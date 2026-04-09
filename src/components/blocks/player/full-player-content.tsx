@@ -1,5 +1,5 @@
-import type { PlayerExpandedView } from "@/modules/ui/ui.store"
 import type { Track } from "@/modules/player/player.types"
+import type { PlayerExpandedView } from "@/modules/ui/ui.store"
 
 import { LinearGradient } from "expo-linear-gradient"
 import { StyleSheet, View } from "react-native"
@@ -56,7 +56,7 @@ export function FullPlayerContent({
         <PlayerHeader onClose={onClose} onOpenMore={onOpenMore} />
 
         {playerExpandedView === "queue" ? (
-          <QueueView currentTrack={currentTrack} />
+          <QueueView />
         ) : playerExpandedView === "lyrics" ? (
           <LyricsView track={currentTrack} />
         ) : (

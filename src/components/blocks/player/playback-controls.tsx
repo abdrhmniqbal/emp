@@ -1,9 +1,12 @@
+import type {
+  RepeatModeType,
+} from "@/modules/player/player.store"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
-import Animated, { Layout } from "react-native-reanimated"
 import { MediaPlayerState, useCastState, useMediaStatus, useRemoteMediaClient } from "react-native-google-cast"
 
+import Animated, { Layout } from "react-native-reanimated"
 import LocalNextSolidIcon from "@/components/icons/local/next-solid"
 import LocalPauseCircleSolidIcon from "@/components/icons/local/pause-circle-solid"
 import LocalPlayCircleSolidIcon from "@/components/icons/local/play-circle-solid"
@@ -11,7 +14,6 @@ import LocalPreviousSolidIcon from "@/components/icons/local/previous-solid"
 import LocalRepeatIcon from "@/components/icons/local/repeat"
 import LocalRepeatOneIcon from "@/components/icons/local/repeat-one"
 import LocalShuffleIcon from "@/components/icons/local/shuffle"
-import { useThemeColors } from "@/modules/ui/theme"
 import {
   isCastConnected,
   playCastNext,
@@ -25,10 +27,11 @@ import {
   toggleRepeatMode,
 } from "@/modules/player/player-controls.service"
 import {
-  type RepeatModeType,
-  usePlayerStore,
-} from "@/modules/player/player.store"
+  useIsShuffled,
+  usePlaybackRepeatMode,
+} from "@/modules/player/player-selectors"
 import { toggleShuffle } from "@/modules/player/queue.service"
+import { useThemeColors } from "@/modules/ui/theme"
 import { cn } from "@/utils/common"
 
 interface PlaybackControlsProps {
@@ -52,8 +55,8 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   const playButtonSize = compact ? 64 : 80
   const containerClass = compact ? "w-16 h-16" : "w-20 h-20"
   const gapClass = compact ? "gap-6" : "gap-8"
-  const repeatMode = usePlayerStore((state) => state.repeatMode)
-  const isShuffled = usePlayerStore((state) => state.isShuffled)
+  const repeatMode = usePlaybackRepeatMode()
+  const isShuffled = useIsShuffled()
   const isCasting = isCastConnected(castState, remoteMediaClient)
   const isCastPlaying = mediaStatus?.playerState === MediaPlayerState.PLAYING
   const effectiveIsPlaying = isCasting ? isCastPlaying : isPlaying

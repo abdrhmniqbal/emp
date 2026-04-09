@@ -11,8 +11,8 @@ import { type ReactNode, useCallback, useEffect, useRef } from "react"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import Animated, {
-  useDerivedValue,
   useAnimatedStyle,
+  useDerivedValue,
   withTiming,
 } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -36,9 +36,9 @@ import {
   resumeIndexing,
 } from "@/modules/indexer/indexer.service"
 import { ROOT_MODAL_SCREEN_OPTIONS } from "@/modules/navigation/stack"
-import { useUIStore } from "@/modules/ui/ui.store"
+import { useHasCurrentTrack } from "@/modules/player/player-selectors"
 import { useThemeColors } from "@/modules/ui/theme"
-import { usePlayerStore } from "@/modules/player/player.store"
+import { useUIStore } from "@/modules/ui/ui.store"
 
 import "../global.css"
 
@@ -92,7 +92,7 @@ export default function Layout() {
   const segments = useSegments()
   const insets = useSafeAreaInsets()
   const barsVisible = useUIStore((state) => state.barsVisible)
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const hasMiniPlayer = useHasCurrentTrack()
   const hasHiddenSplashRef = useRef(false)
   const handledNotificationResponseRef = useRef<string | null>(null)
 
@@ -170,7 +170,6 @@ export default function Layout() {
     hideSplash()
   }, [hideSplash])
   const tabBarHeight = getTabBarHeight(insets.bottom)
-  const hasMiniPlayer = currentTrack !== null
   const isMainTabsRoute = segments[0] === "(main)"
   const isFolderFiltersRoute =
     segments[0] === "settings" && segments[1] === "folder-filters"

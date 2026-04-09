@@ -1,14 +1,18 @@
-import { processColor } from "react-native"
-
-import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
-import { persistPlaybackSession } from "@/modules/player/player-session.service"
 import type { Track } from "@/modules/player/player.types"
+
+import { processColor } from "react-native"
+import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
+import { handleTrackActivated } from "@/modules/player/player-activity.service"
 import {
   mapRepeatMode,
   mapTrackToTrackPlayerInput,
 } from "@/modules/player/player-adapter"
 import { setActiveTrack, setPlaybackProgress } from "@/modules/player/player-runtime-state"
-import { handleTrackActivated } from "@/modules/player/player-activity.service"
+import {
+  beginPlayerQueueReplacement,
+  endPlayerQueueReplacement,
+} from "@/modules/player/player-runtime.service"
+import { persistPlaybackSession } from "@/modules/player/player-session.service"
 
 import {
   AndroidAudioContentType,
@@ -19,30 +23,30 @@ import {
 } from "@/modules/player/player.utils"
 
 import {
-  setImmediateQueueTrackIdsState,
-  getTracksState,
-  setIsShuffledState,
   getRepeatModeState,
+  getTracksState,
+  setImmediateQueueTrackIdsState,
+  setIsPlayingState,
+  setIsShuffledState,
   setOriginalQueueState,
   setOriginalQueueTrackIdsState,
-  setIsPlayingState,
   setQueueState,
   setQueueTrackIdsState,
 } from "./player.store"
 
 let isPlayerReady = false
-let playerQueueReplacementDepth = 0
 
-export function isPlayerQueueReplacementInFlight() {
-  return playerQueueReplacementDepth > 0
-}
+function buildPlaybackQueue(tracks: Track[], selectedTrackId: string) {
+  const selectedTrackIndex = tracks.findIndex((track) => track.id === selectedTrackId)
+  const currentTrackIndex = selectedTrackIndex >= 0 ? selectedTrackIndex : 0
+  const queue = tracks
+    .slice(currentTrackIndex)
+    .concat(tracks.slice(0, currentTrackIndex))
 
-function beginPlayerQueueReplacement() {
-  playerQueueReplacementDepth += 1
-}
-
-function endPlayerQueueReplacement() {
-  playerQueueReplacementDepth = Math.max(0, playerQueueReplacementDepth - 1)
+  return {
+    queue,
+    queueTrackIds: queue.map((track) => track.id),
+  }
 }
 
 export async function setupPlayer() {
@@ -117,13 +121,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     })
 
     const tracks = playlistTracks || getTracksState()
-    const selectedTrackIndex = tracks.findIndex((t) => t.id === track.id)
-    const currentTrackIndex = selectedTrackIndex >= 0 ? selectedTrackIndex : 0
-
-    const queue = tracks
-      .slice(currentTrackIndex)
-      .concat(tracks.slice(0, currentTrackIndex))
-    const queueTrackIds = queue.map((item) => item.id)
+    const { queue, queueTrackIds } = buildPlaybackQueue(tracks, track.id)
 
     setQueueState(queue)
     setOriginalQueueState(queue)

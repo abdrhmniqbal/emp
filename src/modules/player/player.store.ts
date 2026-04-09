@@ -9,7 +9,7 @@ import { create } from "zustand"
 
 export type { Album, Artist, LyricLine, RepeatModeType, Track }
 
-interface PlayerState {
+export interface PlayerState {
   tracks: Track[]
   currentTrack: Track | null
   isPlaying: boolean
@@ -148,4 +148,3 @@ export function getIsShuffledState() {
 export function setIsShuffledState(value: boolean) {
   usePlayerStore.setState({ isShuffled: value })
 }
-

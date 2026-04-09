@@ -1,43 +1,44 @@
+import type { AlbumTrackSortField } from "@/modules/library/library-sort.types"
+import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import * as React from "react"
 import { useState } from "react"
+
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
-
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { BackButton } from "@/components/patterns/back-button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
+import { formatAlbumDuration } from "@/modules/albums/albums.utils"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
+import { useIsFavorite } from "@/modules/favorites/favorites.queries"
+import {
+  ALBUM_TRACK_SORT_OPTIONS,
+} from "@/modules/library/library-sort.constants"
+import {
+  setSortConfig,
+  useLibrarySortStore,
+} from "@/modules/library/library-sort.store"
+import { sortTracks } from "@/modules/library/library-sort.utils"
+import { useTracksByAlbumName } from "@/modules/library/library.queries"
+import { logWarn } from "@/modules/logging/logging.service"
+import { usePlayerTracks } from "@/modules/player/player-selectors"
+import { playTrack } from "@/modules/player/player.service"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import { formatAlbumDuration, groupTracksByDisc } from "@/modules/albums/albums.utils"
-import { useIsFavorite } from "@/modules/favorites/favorites.queries"
-import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
-import {
-  ALBUM_TRACK_SORT_OPTIONS,
-} from "@/modules/library/library-sort.constants"
-import type { AlbumTrackSortField } from "@/modules/library/library-sort.types"
-import { sortTracks } from "@/modules/library/library-sort.utils"
-import {
-  setSortConfig,
-  useLibrarySortStore,
-} from "@/modules/library/library-sort.store"
-import { logWarn } from "@/modules/logging/logging.service"
-import { useTracksByAlbumName } from "@/modules/library/library.queries"
-import { playTrack } from "@/modules/player/player.service"
-import { type Track, usePlayerStore } from "@/modules/player/player.store"
 import { mergeText } from "@/utils/merge-text"
 
 const HEADER_COLLAPSE_THRESHOLD = 120
@@ -71,7 +72,7 @@ export default function AlbumDetailsScreen() {
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
   const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
-  const allTracks = usePlayerStore((state) => state.tracks)
+  const allTracks = usePlayerTracks()
   const parsedAlbumRouteName = React.useMemo(() => getSafeRouteName(name), [name])
   const albumName = parsedAlbumRouteName.value
 

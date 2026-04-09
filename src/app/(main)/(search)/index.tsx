@@ -1,24 +1,25 @@
+import type { Track } from "@/modules/player/player.store"
+import type { DBTrack } from "@/types/database"
 import { useRouter } from "expo-router"
+
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
-
 import { ScrollView, View } from "react-native"
 import { ContentSection } from "@/components/blocks/content-section"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
+import LocalSearchIcon from "@/components/icons/local/search"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
+import { useCurrentTrackId } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
-import { usePlayerStore, type Track } from "@/modules/player/player.store"
 import { useTracks } from "@/modules/tracks/tracks.queries"
-import LocalSearchIcon from "@/components/icons/local/search"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import type { DBTrack } from "@/types/database"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 const RECENTLY_ADDED_LIMIT = 8
@@ -26,7 +27,7 @@ const RECENTLY_ADDED_LIMIT = 8
 export default function SearchScreen() {
   const theme = useThemeColors()
   const router = useRouter()
-  const currentTrackId = usePlayerStore((state) => state.currentTrack?.id)
+  const currentTrackId = useCurrentTrackId()
   const { data: dbTracks = [] } = useTracks({
     sortBy: "dateAdded",
     sortOrder: "desc",

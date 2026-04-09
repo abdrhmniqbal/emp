@@ -7,12 +7,12 @@ import {
   seekTo,
 } from "@/modules/player/player-controls.service"
 import { setPlaybackProgress } from "@/modules/player/player-runtime-state"
+import { isPlayerQueueReplacementInFlight } from "@/modules/player/player-runtime.service"
 import {
   persistPlaybackSession,
   syncCurrentTrackFromPlayer,
 } from "@/modules/player/player-session.service"
 import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
-import { isPlayerQueueReplacementInFlight } from "@/modules/player/player.service"
 
 import { handleTrackActivated } from "./player-activity.service"
 import {

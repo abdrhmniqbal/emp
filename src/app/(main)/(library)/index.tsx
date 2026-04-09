@@ -1,5 +1,10 @@
-import { Tabs } from "heroui-native"
+import type { Playlist } from "@/components/blocks/playlist-list"
+import type { SortField } from "@/modules/library/library-sort.types"
+import type { Track } from "@/modules/player/player.store"
+import type { Category } from "@/modules/search/search.types"
 import { useRouter } from "expo-router"
+import { Tabs } from "heroui-native"
+
 import * as React from "react"
 import {
   type NativeScrollEvent,
@@ -11,13 +16,12 @@ import {
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "tailwind-variants"
-
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
 import { FavoritesList } from "@/components/blocks/favorites-list"
 import { FolderList } from "@/components/blocks/folder-list"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { PlaylistList } from "@/components/blocks/playlist-list"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TracksTab } from "@/components/blocks/tracks-tab"
@@ -25,12 +29,6 @@ import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { GenreCard } from "@/components/patterns/genre-card"
 import { EmptyState } from "@/components/ui/empty-state"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
-import {
-  handleScroll,
-  handleScrollStart,
-  handleScrollStop,
-} from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
 import { useFavorites } from "@/modules/favorites/favorites.queries"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
@@ -38,7 +36,6 @@ import {
   buildFolderBrowserState,
   getParentFolderPath,
 } from "@/modules/library/folder-browser"
-import { useAlbums, useArtists } from "@/modules/library/library.queries"
 import {
   ALBUM_SORT_OPTIONS,
   ARTIST_SORT_OPTIONS,
@@ -46,22 +43,29 @@ import {
   PLAYLIST_SORT_OPTIONS,
   TRACK_SORT_OPTIONS,
 } from "@/modules/library/library-sort.constants"
-import type { SortField } from "@/modules/library/library-sort.types"
-import {
-  sortGeneric,
-  sortTracks,
-} from "@/modules/library/library-sort.utils"
 import {
   setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
-import { useGenres } from "@/modules/search/search.queries"
-import type { Category } from "@/modules/search/search.types"
-import { mapGenresToCategories } from "@/modules/search/search.utils"
+import {
+  sortGeneric,
+  sortTracks,
+} from "@/modules/library/library-sort.utils"
+import { useAlbums, useArtists } from "@/modules/library/library.queries"
+import {
+  useHasCurrentTrack,
+  usePlayerTracks,
+} from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
-import { type Track, usePlayerStore } from "@/modules/player/player.store"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
-import type { Playlist } from "@/components/blocks/playlist-list"
+import { useGenres } from "@/modules/search/search.queries"
+import { mapGenresToCategories } from "@/modules/search/search.utils"
+import { useThemeColors } from "@/modules/ui/theme"
+import {
+  handleScroll,
+  handleScrollStart,
+  handleScrollStop,
+} from "@/modules/ui/ui.store"
 
 const LIBRARY_TABS = [
   "Tracks",
@@ -129,8 +133,8 @@ export default function LibraryScreen() {
   const router = useRouter()
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
-  const hasMiniPlayer = usePlayerStore((state) => state.currentTrack !== null)
-  const tracks = usePlayerStore((state) => state.tracks)
+  const hasMiniPlayer = useHasCurrentTrack()
+  const tracks = usePlayerTracks()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const libraryListBottomPadding =
