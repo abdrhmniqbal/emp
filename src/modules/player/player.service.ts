@@ -31,6 +31,19 @@ import {
 } from "./player.store"
 
 let isPlayerReady = false
+let playerQueueReplacementDepth = 0
+
+export function isPlayerQueueReplacementInFlight() {
+  return playerQueueReplacementDepth > 0
+}
+
+function beginPlayerQueueReplacement() {
+  playerQueueReplacementDepth += 1
+}
+
+function endPlayerQueueReplacement() {
+  playerQueueReplacementDepth = Math.max(0, playerQueueReplacementDepth - 1)
+}
 
 export async function setupPlayer() {
   try {
@@ -95,12 +108,13 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     return
   }
 
+  beginPlayerQueueReplacement()
+
   try {
     logInfo("Playing track", {
       trackId: track.id,
       queueLength: playlistTracks?.length ?? getTracksState().length,
     })
-    await TrackPlayer.reset()
 
     const tracks = playlistTracks || getTracksState()
     const selectedTrackIndex = tracks.findIndex((t) => t.id === track.id)
@@ -117,18 +131,21 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     setOriginalQueueTrackIdsState(queueTrackIds)
     setImmediateQueueTrackIdsState([])
     setIsShuffledState(false)
+    setActiveTrack(track)
+    setIsPlayingState(true)
+    setPlaybackProgress(0, track.duration || 0)
+
+    await TrackPlayer.reset()
 
     await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
     await TrackPlayer.setRepeatMode(mapRepeatMode(getRepeatModeState()))
 
-    setActiveTrack(track)
-
     await TrackPlayer.play()
-    setIsPlayingState(true)
-    setPlaybackProgress(0, track.duration || 0)
     await handleTrackActivated(track)
     await persistPlaybackSession({ force: true })
   } catch (error) {
     logError("Failed to play track", error, { trackId: track.id })
+  } finally {
+    endPlayerQueueReplacement()
   }
 }

@@ -1,4 +1,4 @@
-import { State, TrackPlayer } from "@/modules/player/player.utils"
+import { TrackPlayer } from "@/modules/player/player.utils"
 
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
@@ -236,16 +236,10 @@ async function rebuildNativeQueueFromStore(
   }
 }
 
-async function replaceUpcomingNativeQueue(
-  upcomingTracks: Track[],
-  options?: { preservePosition?: boolean }
-) {
-  const preservePosition = options?.preservePosition ?? true
-  const [activeIndex, nativeQueue, nativeState, positionSeconds] = await Promise.all([
+async function replaceUpcomingNativeQueue(upcomingTracks: Track[]) {
+  const [activeIndex, nativeQueue] = await Promise.all([
     TrackPlayer.getCurrentTrack(),
     TrackPlayer.getQueue(),
-    TrackPlayer.getState(),
-    preservePosition ? TrackPlayer.getPosition() : Promise.resolve(0),
   ])
 
   if (activeIndex === null || activeIndex < 0 || activeIndex >= nativeQueue.length) {
@@ -263,14 +257,6 @@ async function replaceUpcomingNativeQueue(
 
   if (upcomingTracks.length > 0) {
     await TrackPlayer.add(upcomingTracks.map(mapTrackToTrackPlayerInput))
-  }
-
-  if (preservePosition && positionSeconds > 0) {
-    await TrackPlayer.seekTo(positionSeconds)
-  }
-
-  if (nativeState === State.Playing) {
-    await TrackPlayer.play()
   }
 
   return true
@@ -574,8 +560,7 @@ export async function toggleShuffle() {
       try {
         const shuffledUpcomingTracks = resolveTracksFromIds(upcoming, getTrackLookupMap())
         const didReplaceUpcoming = await replaceUpcomingNativeQueue(
-          shuffledUpcomingTracks,
-          { preservePosition: true }
+          shuffledUpcomingTracks
         )
 
         if (!didReplaceUpcoming) {
@@ -625,8 +610,7 @@ export async function toggleShuffle() {
         trackLookup
       )
       const didReplaceUpcoming = await replaceUpcomingNativeQueue(
-        restoredUpcomingTracks,
-        { preservePosition: true }
+        restoredUpcomingTracks
       )
 
       if (!didReplaceUpcoming) {

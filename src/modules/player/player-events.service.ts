@@ -12,6 +12,7 @@ import {
   syncCurrentTrackFromPlayer,
 } from "@/modules/player/player-session.service"
 import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
+import { isPlayerQueueReplacementInFlight } from "@/modules/player/player.service"
 
 import { handleTrackActivated } from "./player-activity.service"
 import {
@@ -59,7 +60,13 @@ export async function PlaybackService() {
   })
 
   TrackPlayer.addEventListener(Event.PlaybackState, (event) => {
-    setIsPlayingState(event.state === State.Playing)
+    const isPlaying = event.state === State.Playing
+
+    if (isPlayerQueueReplacementInFlight() && !isPlaying) {
+      return
+    }
+
+    setIsPlayingState(isPlaying)
     void persistPlaybackSession()
   })
 
