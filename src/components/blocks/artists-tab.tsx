@@ -61,11 +61,7 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
   const orderByField = getArtistOrderByField(effectiveSortConfig.field)
   const order: ArtistOrder = effectiveSortConfig.order
 
-  const {
-    data: artistsData,
-    isLoading,
-    isPending,
-  } = useArtists(orderByField, order)
+  const { data: artistsData } = useArtists(orderByField, order)
 
   const artists = React.useMemo<Artist[]>(
     () =>
@@ -96,9 +92,7 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
 
   return (
     <LibraryTabState
-      isLoading={isLoading || isPending}
       hasData={artists.length > 0}
-      skeletonType="artists"
       emptyIcon={
         <LocalUserSolidIcon
           fill="none"

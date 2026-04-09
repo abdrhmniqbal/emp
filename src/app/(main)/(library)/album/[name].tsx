@@ -8,7 +8,6 @@ import { useState } from "react"
 
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
@@ -137,14 +136,6 @@ export default function AlbumDetailsScreen() {
   const hasMultipleDiscs =
     new Set(sortedTracks.map((track) => track.discNumber || 1)).size > 1
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 bg-background">
-        <LibrarySkeleton type="album-detail" />
-      </View>
-    )
-  }
-
   function handleSortSelect(
     field: AlbumTrackSortField,
     order?: "asc" | "desc"
@@ -157,6 +148,10 @@ export default function AlbumDetailsScreen() {
   }
 
   if (!albumInfo) {
+    if (isLoading) {
+      return <View className="flex-1 bg-background" />
+    }
+
     return (
       <EmptyState
         icon={

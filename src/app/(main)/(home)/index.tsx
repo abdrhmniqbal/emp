@@ -4,7 +4,6 @@ import * as React from "react"
 
 import { RefreshControl, ScrollView, View } from "react-native"
 import { ContentSection } from "@/components/blocks/content-section"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
 import { RankedTrackCarousel } from "@/components/blocks/ranked-track-carousel"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
@@ -63,14 +62,6 @@ export default function HomeScreen() {
     await Promise.all([refetchRecentlyPlayedTracks(), refetchTopTracks()])
   }
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 bg-background pt-6">
-        <LibrarySkeleton type="home" />
-      </View>
-    )
-  }
-
   function renderRecentlyPlayedItem(item: Track) {
     return (
       <TrackRow
@@ -97,12 +88,12 @@ export default function HomeScreen() {
       onMomentumScrollEnd={handleScrollStop}
       onScrollEndDrag={handleScrollStop}
       scrollEventThrottle={16}
-      refreshControl={
-        <RefreshControl
-          refreshing={isIndexing}
-          onRefresh={refresh}
-          colors={[theme.accent]}
-          tintColor={theme.accent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isIndexing || isLoading}
+            onRefresh={refresh}
+            colors={[theme.accent]}
+            tintColor={theme.accent}
           progressBackgroundColor={theme.default}
         />
       }

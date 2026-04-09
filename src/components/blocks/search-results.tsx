@@ -3,14 +3,14 @@ import type {
   SearchArtistResult,
   SearchPlaylistResult,
 } from "@/modules/library/library.types"
+import type { Track } from "@/modules/player/player.store"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { Chip, PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useCallback, useMemo, useState } from "react"
 
+import { useCallback, useMemo, useState } from "react"
 import { ScrollView, Text, View } from "react-native"
 import { LEGEND_LIST_SECTION_CONFIG } from "@/components/blocks/legend-list-config"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalCheckmarkCircleSolidIcon from "@/components/icons/local/checkmark-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
@@ -28,9 +28,8 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import { useThemeColors } from "@/modules/ui/theme"
 import { playTrack } from "@/modules/player/player.service"
-import type { Track } from "@/modules/player/player.store"
+import { useThemeColors } from "@/modules/ui/theme"
 
 const SEARCH_TABS = ["All", "Track", "Album", "Artist", "Playlist"] as const
 export type SearchTab = (typeof SEARCH_TABS)[number]
@@ -230,7 +229,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   albums,
   playlists,
   query,
-  isLoading = false,
+  isLoading: _isLoading = false,
   activeTab: activeTabProp,
   onActiveTabChange,
   onArtistPress,
@@ -333,8 +332,6 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     tracks,
   ])
 
-  const showInitialLoading = isLoading && hasQuery && listData.length === 0
-
   const renderListItem = useCallback(
     ({ item }: LegendListRenderItemProps<SearchResultsListItem>) => {
       switch (item.type) {
@@ -415,11 +412,6 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         automaticallyAdjustContentInsets={false}
         {...LEGEND_LIST_SECTION_CONFIG}
       />
-      {showInitialLoading ? (
-        <View className="absolute inset-x-0 top-16 px-4">
-          <LibrarySkeleton type="search-results" />
-        </View>
-      ) : null}
     </View>
   )
 }

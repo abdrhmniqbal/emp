@@ -62,11 +62,7 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
   const orderByField = getAlbumOrderByField(effectiveSortConfig.field)
   const order: AlbumOrder = effectiveSortConfig.order
 
-  const {
-    data: albumsData,
-    isLoading,
-    isPending,
-  } = useAlbums(orderByField, order)
+  const { data: albumsData } = useAlbums(orderByField, order)
 
   const albums = React.useMemo<Album[]>(
     () =>
@@ -96,9 +92,7 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
 
   return (
     <LibraryTabState
-      isLoading={isLoading || isPending}
       hasData={albums.length > 0}
-      skeletonType="albums"
       emptyIcon={
         <LocalVynilSolidIcon
           fill="none"

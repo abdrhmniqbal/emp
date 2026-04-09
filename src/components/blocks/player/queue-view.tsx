@@ -39,6 +39,20 @@ export const QueueItem: React.FC<QueueItemProps> = ({
   onRemove,
 }) => {
   const drag = useReorderableDrag()
+  const handleDragPress = useCallback(
+    (event: { stopPropagation: () => void }) => {
+      event.stopPropagation()
+      drag()
+    },
+    [drag]
+  )
+  const handleRemovePress = useCallback(
+    (event: { stopPropagation: () => void }) => {
+      event.stopPropagation()
+      onRemove()
+    },
+    [onRemove]
+  )
 
   return (
     <TrackRow
@@ -46,10 +60,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({
       onPress={onPress}
       leftAction={
         <PressableFeedback
-          onPressIn={(event) => {
-            event.stopPropagation()
-            drag()
-          }}
+          onPressIn={handleDragPress}
           className="p-2 opacity-60"
         >
           <LocalDragDropVerticalIcon
@@ -73,10 +84,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({
         <View className="flex-row items-center">
           {!isCurrentTrack ? (
             <PressableFeedback
-              onPress={(event) => {
-                event.stopPropagation()
-                onRemove()
-              }}
+              onPress={handleRemovePress}
               className="p-2 opacity-60"
             >
               <LocalCancelIcon
@@ -126,19 +134,26 @@ export const QueueView: React.FC = () => {
     ),
     [currentIndex, currentTrackId, handlePlayFromQueue, handleRemove]
   )
+  const scrollToCurrentTrack = useCallback(() => {
+    if (currentIndex < 0) {
+      return
+    }
+
+    listRef.current?.scrollToIndex({
+      index: currentIndex,
+      animated: false,
+      viewPosition: 0,
+    })
+  }, [currentIndex])
 
   useEffect(() => {
     if (currentIndex >= 0 && queue.length > 0) {
       const timer = setTimeout(() => {
-        listRef.current?.scrollToIndex({
-          index: currentIndex,
-          animated: false,
-          viewPosition: 0,
-        })
+        scrollToCurrentTrack()
       }, 50)
       return () => clearTimeout(timer)
     }
-  }, [currentIndex, queue.length])
+  }, [currentIndex, queue.length, scrollToCurrentTrack])
 
   if (!currentTrack || queue.length === 0) return null
 

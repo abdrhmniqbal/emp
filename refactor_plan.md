@@ -154,7 +154,7 @@ Completed notes:
 
 ### Slice 3: List And Screen Rendering Hygiene
 
-Status: `pending`
+Status: `completed`
 
 Scope:
 
@@ -187,6 +187,14 @@ Completion criteria:
 Planned commit message:
 
 - `refactor(ui): streamline list and screen render paths`
+
+Completed notes:
+
+- Removed skeleton-driven loading branches from home, library, genre, album, artist, playlist, and playlist-form screens so the offline player shows real content, empty states, or lightweight blank shells instead of placeholder shimmer UIs.
+- Deleted the now-unused shared skeleton components once all screen callers were removed.
+- Simplified `LibraryTabState` so library tabs render directly from data presence rather than switching through screen-specific skeleton modes.
+- Tightened hot list blocks by stabilizing row callbacks and memoized row components in `TrackList`, `FavoritesList`, `RankedTrackCarousel`, and `QueueView`.
+- Kept pull-to-refresh and existing empty states intact while reducing render-time branching across the library, home, and search surfaces.
 
 ### Slice 4: Repository And Query Layer Simplification
 

@@ -1,20 +1,19 @@
 import { RefreshControl, View } from "react-native"
 
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import { EmptyState } from "@/components/ui/empty-state"
+import { useRecentlyPlayedTracks } from "@/modules/history/history.queries"
+import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { playTrack } from "@/modules/player/player.service"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import { useRecentlyPlayedTracks } from "@/modules/history/history.queries"
-import { startIndexing } from "@/modules/indexer/indexer.service"
-import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { playTrack } from "@/modules/player/player.service"
 
 const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 
@@ -48,14 +47,6 @@ export default function RecentlyPlayedScreen() {
     playTrack(history[randomIndex], history)
   }
 
-  if ((isLoading || isFetching) && history.length === 0) {
-    return (
-      <View className="flex-1 bg-background px-4 pt-4">
-        <LibrarySkeleton type="tracks" itemCount={10} />
-      </View>
-    )
-  }
-
   return (
     <View className="flex-1 bg-background">
       {history.length === 0 ? (
@@ -82,7 +73,7 @@ export default function RecentlyPlayedScreen() {
           onScrollEndDrag={handleScrollStop}
           refreshControl={
             <RefreshControl
-              refreshing={isIndexing}
+              refreshing={isIndexing || isLoading || isFetching}
               onRefresh={refresh}
               tintColor={theme.accent}
             />

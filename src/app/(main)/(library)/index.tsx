@@ -20,7 +20,6 @@ import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
 import { FavoritesList } from "@/components/blocks/favorites-list"
 import { FolderList } from "@/components/blocks/folder-list"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { PlaylistList } from "@/components/blocks/playlist-list"
 import { SortSheet } from "@/components/blocks/sort-sheet"
@@ -173,8 +172,6 @@ export default function LibraryScreen() {
     usePlaylistsWithOptions(shouldLoadPlaylists)
   const {
     data: genresData = [],
-    isLoading: isGenresLoading,
-    isFetching: isGenresFetching,
     refetch: refetchGenres,
   } = useGenres()
 
@@ -467,9 +464,7 @@ export default function LibraryScreen() {
             refreshControl={refreshControl}
             {...sharedListEvents}
           >
-            {isGenresLoading || isGenresFetching ? (
-              <LibrarySkeleton type="genres" itemCount={8} />
-            ) : sortedGenres.length > 0 ? (
+            {sortedGenres.length > 0 ? (
               <View className="flex-row flex-wrap justify-between gap-y-4">
                 {sortedGenres.map((genre) => (
                   <GenreCard

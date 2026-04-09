@@ -25,6 +25,41 @@ interface RankedTrackCarouselProps {
   className?: string
 }
 
+interface RankedTrackChunkProps {
+  chunk: Track[]
+  chunkIndex: number
+  chunkSize: number
+  currentTrackId?: string
+  onTrackPress: (track: Track) => void
+}
+
+function RankedTrackChunk({
+  chunk,
+  chunkIndex,
+  chunkSize,
+  currentTrackId,
+  onTrackPress,
+}: RankedTrackChunkProps) {
+  return (
+    <View className="w-75">
+      {chunk.map((track, index) => (
+        <TrackRow
+          key={track.id}
+          track={track}
+          rank={chunkIndex * chunkSize + index + 1}
+          onPress={() => onTrackPress(track)}
+          titleClassName={currentTrackId === track.id ? "text-accent" : undefined}
+          imageOverlay={
+            currentTrackId === track.id ? <ScaleLoader size={16} /> : undefined
+          }
+        />
+      ))}
+    </View>
+  )
+}
+
+const MemoizedRankedTrackChunk = React.memo(RankedTrackChunk)
+
 export function RankedTrackCarousel({
   data,
   chunkSize = 5,
@@ -38,14 +73,14 @@ export function RankedTrackCarousel({
     [data, chunkSize]
   )
 
-  const handlePress = (track: Track) => {
+  const handlePress = React.useCallback((track: Track) => {
     if (onItemPress) {
       onItemPress(track)
       return
     }
 
     playTrack(track, data)
-  }
+  }, [data, onItemPress])
 
   return (
     <MediaCarousel
@@ -55,24 +90,13 @@ export function RankedTrackCarousel({
       gap={24}
       className={className}
       renderItem={(chunk, chunkIndex) => (
-        <View className="w-75">
-          {chunk.map((track, index) => (
-            <TrackRow
-              key={track.id}
-              track={track}
-              rank={chunkIndex * chunkSize + index + 1}
-              onPress={() => handlePress(track)}
-              titleClassName={
-                currentTrackId === track.id ? "text-accent" : undefined
-              }
-              imageOverlay={
-                currentTrackId === track.id ? (
-                  <ScaleLoader size={16} />
-                ) : undefined
-              }
-            />
-          ))}
-        </View>
+        <MemoizedRankedTrackChunk
+          chunk={chunk}
+          chunkIndex={chunkIndex}
+          chunkSize={chunkSize}
+          currentTrackId={currentTrackId}
+          onTrackPress={handlePress}
+        />
       )}
     />
   )

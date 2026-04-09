@@ -54,9 +54,9 @@ export default function SearchScreen() {
     [currentTrackId, recentlyAddedTracks]
   )
 
-  function handleSearchPress() {
+  const handleSearchPress = React.useCallback(() => {
     router.push("/search")
-  }
+  }, [router])
 
   return (
     <ScrollView

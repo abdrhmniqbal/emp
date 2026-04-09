@@ -1,10 +1,10 @@
+import type { HistoryTopTracksPeriod as TopTracksPeriod } from "@/modules/history/history.types"
 import { Tabs } from "heroui-native"
 import { useState } from "react"
 import { RefreshControl, View } from "react-native"
-import Animated from "react-native-reanimated"
 
+import Animated from "react-native-reanimated"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -12,17 +12,16 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
+import { useTopTracksByPeriod } from "@/modules/history/history.queries"
+import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { playTrack } from "@/modules/player/player.service"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import { useTopTracksByPeriod } from "@/modules/history/history.queries"
-import { startIndexing } from "@/modules/indexer/indexer.service"
-import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { playTrack } from "@/modules/player/player.service"
-import type { HistoryTopTracksPeriod as TopTracksPeriod } from "@/modules/history/history.types"
 
 const TOP_TRACKS_TABS = ["Realtime", "Daily", "Weekly"] as const
 type TopTracksTab = (typeof TOP_TRACKS_TABS)[number]
@@ -89,16 +88,7 @@ export default function TopTracksScreen() {
         </Tabs.List>
       </Tabs>
 
-      {(isLoading || isFetching) && currentTracks.length === 0 ? (
-        <Animated.View
-          key={`loading-${activeTab}`}
-          entering={screenEnterTransition()}
-          exiting={screenExitTransition()}
-          className="px-4 pt-2"
-        >
-          <LibrarySkeleton type="tracks" itemCount={9} />
-        </Animated.View>
-      ) : currentTracks.length === 0 ? (
+      {currentTracks.length === 0 ? (
         <Animated.View
           key={`empty-${activeTab}`}
           entering={screenEnterTransition()}
@@ -139,7 +129,7 @@ export default function TopTracksScreen() {
             onScrollEndDrag={handleScrollStop}
             refreshControl={
               <RefreshControl
-                refreshing={isIndexing}
+                refreshing={isIndexing || isLoading || isFetching}
                 onRefresh={refresh}
                 tintColor={theme.accent}
               />

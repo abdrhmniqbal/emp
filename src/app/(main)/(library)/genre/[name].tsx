@@ -1,30 +1,29 @@
+import type { GenreAlbumInfo } from "@/modules/search/search.types"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo } from "react"
-import { RefreshControl, ScrollView, View } from "react-native"
 
+import { RefreshControl, ScrollView, View } from "react-native"
 import Animated from "react-native-reanimated"
 import { ContentSection } from "@/components/blocks/content-section"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
 import { RankedTrackCarousel } from "@/components/blocks/ranked-track-carousel"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { MusicCard } from "@/components/patterns/music-card"
 import { screenEnterTransition } from "@/constants/animations"
+import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { logWarn } from "@/modules/logging/logging.service"
+import { useGenreDetails } from "@/modules/search/search.queries"
+import {
+  getPreviewAlbums,
+} from "@/modules/search/search.utils"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import {
-  getPreviewAlbums,
-} from "@/modules/search/search.utils"
-import { useGenreDetails } from "@/modules/search/search.queries"
-import type { GenreAlbumInfo } from "@/modules/search/search.types"
-import { startIndexing } from "@/modules/indexer/indexer.service"
-import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { logWarn } from "@/modules/logging/logging.service"
 
 function getSafeRouteName(value: string | string[] | undefined) {
   const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
@@ -78,19 +77,6 @@ export default function GenreDetailsScreen() {
   async function refresh() {
     await startIndexing(false)
     await refetch()
-  }
-
-  if ((isLoading || isFetching) && topTracks.length === 0 && albums.length === 0) {
-    return (
-      <View className="flex-1 bg-background pt-5">
-        <Stack.Screen
-          options={{
-            title: genreName,
-          }}
-        />
-        <LibrarySkeleton type="genre-overview" />
-      </View>
-    )
   }
 
   function renderAlbumItem(album: GenreAlbumInfo) {

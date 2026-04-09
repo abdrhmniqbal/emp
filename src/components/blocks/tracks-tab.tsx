@@ -3,17 +3,17 @@ import type {
   NativeSyntheticEvent,
   RefreshControlProps,
 } from "react-native"
-import type { Track } from "@/modules/player/player.store"
+import type { SortConfig } from "@/modules/library/library-sort.types"
 
+import type { Track } from "@/modules/player/player.store"
 import type { DBTrack } from "@/types/database"
 import * as React from "react"
 import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import type { SortConfig } from "@/modules/library/library-sort.types"
 import { sortTracks } from "@/modules/library/library-sort.utils"
-import { useThemeColors } from "@/modules/ui/theme"
 import { useTracks } from "@/modules/tracks/tracks.queries"
+import { useThemeColors } from "@/modules/ui/theme"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 interface TracksTabProps {
@@ -39,7 +39,7 @@ export const TracksTab: React.FC<TracksTabProps> = ({
 }) => {
   const theme = useThemeColors()
 
-  const { data: dbTracks = [], isLoading, isPending } = useTracks()
+  const { data: dbTracks = [] } = useTracks()
 
   const tracks = React.useMemo(
     () => (dbTracks as DBTrack[]).map(transformDBTrackToTrack),
@@ -67,9 +67,7 @@ export const TracksTab: React.FC<TracksTabProps> = ({
 
   return (
     <LibraryTabState
-      isLoading={isLoading || isPending}
       hasData={tracks.length > 0}
-      skeletonType="tracks"
       emptyIcon={
         <LocalMusicNoteSolidIcon
           fill="none"

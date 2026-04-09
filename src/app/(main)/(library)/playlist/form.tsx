@@ -1,25 +1,23 @@
+import type { Track } from "@/modules/player/player.types"
+import { useDebouncedValue } from "@tanstack/react-pacer"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { BottomSheet, Button } from "heroui-native"
 import * as React from "react"
-import { View } from "react-native"
-import { useDebouncedValue } from "@tanstack/react-pacer"
-import { useMutation, useQuery } from "@tanstack/react-query"
 
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { View } from "react-native"
 import { PlaylistForm } from "@/components/blocks/playlist-form/playlist-form"
 import { TrackPickerSheetContent } from "@/components/blocks/playlist-form/track-picker-sheet-content"
 import LocalTickIcon from "@/components/icons/local/tick"
-import { useThemeColors } from "@/modules/ui/theme"
 import { queryClient } from "@/lib/tanstack-query"
 import { logError } from "@/modules/logging/logging.service"
 import { getAllTracks } from "@/modules/player/player.repository"
-import type { Track } from "@/modules/player/player.types"
-import { invalidatePlaylistQueries } from "@/modules/playlist/playlist.keys"
 import {
   buildSelectedTracksList,
   buildTrackPickerResults,
   reorderTrackIds,
 } from "@/modules/playlist/playlist-form"
+import { invalidatePlaylistQueries } from "@/modules/playlist/playlist.keys"
 import { usePlaylist } from "@/modules/playlist/playlist.queries"
 import { createPlaylist, updatePlaylist } from "@/modules/playlist/playlist.repository"
 import {
@@ -27,6 +25,7 @@ import {
   clampPlaylistName,
   toggleTrackSelection,
 } from "@/modules/playlist/playlist.utils"
+import { useThemeColors } from "@/modules/ui/theme"
 
 const SEARCH_DEBOUNCE_MS = 140
 const LIBRARY_TRACKS_QUERY_KEY = ["library", "tracks"] as const
@@ -288,7 +287,6 @@ export default function PlaylistFormScreen() {
             title: "Edit Playlist",
           }}
         />
-        <LibrarySkeleton type="playlist-form" />
       </View>
     )
   }

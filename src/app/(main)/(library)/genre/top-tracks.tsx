@@ -4,7 +4,6 @@ import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
 
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -12,17 +11,17 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
-import {
-  handleScroll,
-  handleScrollStart,
-  handleScrollStop,
-} from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { logWarn } from "@/modules/logging/logging.service"
 import { playTrack } from "@/modules/player/player.service"
 import { useGenreTopTracks } from "@/modules/search/search.queries"
+import { useThemeColors } from "@/modules/ui/theme"
+import {
+  handleScroll,
+  handleScrollStart,
+  handleScrollStop,
+} from "@/modules/ui/ui.store"
 
 function getSafeRouteName(value: string | string[] | undefined) {
   const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
@@ -90,19 +89,6 @@ export default function GenreTopTracksScreen() {
 
     const randomIndex = Math.floor(Math.random() * tracks.length)
     playTrack(tracks[randomIndex], tracks)
-  }
-
-  if ((isLoading || isFetching) && tracks.length === 0) {
-    return (
-      <View className="flex-1 bg-background px-4 pt-4">
-        <Stack.Screen
-          options={{
-            title: `${genreName} Top Tracks`,
-          }}
-        />
-        <LibrarySkeleton type="tracks" itemCount={8} />
-      </View>
-    )
   }
 
   return (

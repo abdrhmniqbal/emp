@@ -6,7 +6,6 @@ import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
 import { DeletePlaylistDialog } from "@/components/blocks/delete-playlist-dialog"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { PlaylistActionsSheet } from "@/components/blocks/playlist-actions-sheet"
 import { TrackList } from "@/components/blocks/track-list"
@@ -18,26 +17,26 @@ import { BackButton } from "@/components/patterns/back-button"
 import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
-import {
-  handleScroll,
-  handleScrollStart,
-  handleScrollStop,
-} from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   useIsFavorite,
 } from "@/modules/favorites/favorites.queries"
-import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
-import { playTrack } from "@/modules/player/player.service"
-import { usePlaylist } from "@/modules/playlist/playlist.queries"
-import { useDeletePlaylist } from "@/modules/playlist/playlist.mutations"
-import { formatDuration } from "@/modules/playlist/playlist.utils"
 import { logWarn } from "@/modules/logging/logging.service"
+import { playTrack } from "@/modules/player/player.service"
+import { useDeletePlaylist } from "@/modules/playlist/playlist.mutations"
+import { usePlaylist } from "@/modules/playlist/playlist.queries"
+import { formatDuration } from "@/modules/playlist/playlist.utils"
 import {
   buildPlaylistImages,
   buildPlaylistTracks,
   getPlaylistDuration,
 } from "@/modules/playlist/playlist.utils"
+import { useThemeColors } from "@/modules/ui/theme"
+import {
+  handleScroll,
+  handleScrollStart,
+  handleScrollStop,
+} from "@/modules/ui/ui.store"
 import { mergeText } from "@/utils/merge-text"
 
 const HEADER_COLLAPSE_THRESHOLD = 120
@@ -86,14 +85,6 @@ export default function PlaylistDetailsScreen() {
       setShowDeleteDialog(false)
       router.replace("/(main)")
     }
-  }
-
-  if (isLoading) {
-    return (
-      <View className="flex-1 bg-background">
-        <LibrarySkeleton type="playlist-detail" />
-      </View>
-    )
   }
 
   function playFromPlaylist(trackId: string) {
@@ -149,6 +140,10 @@ export default function PlaylistDetailsScreen() {
   }
 
   if (!playlist) {
+    if (isLoading) {
+      return <View className="flex-1 bg-background" />
+    }
+
     return (
       <EmptyState
         icon={

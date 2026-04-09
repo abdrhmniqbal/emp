@@ -52,6 +52,12 @@ interface FavoritesListProps {
   onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
+interface FavoriteRowProps {
+  favorite: FavoriteEntry
+  onPress: (favorite: FavoriteEntry) => void
+  onRemove: (favorite: FavoriteEntry) => void
+}
+
 const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({
   favorite,
 }) => {
@@ -146,6 +152,48 @@ const TypeBadge: React.FC<{ type: FavoriteType }> = ({ type }) => {
   )
 }
 
+function FavoriteRow({ favorite, onPress, onRemove }: FavoriteRowProps) {
+  const handlePress = useCallback(() => {
+    onPress(favorite)
+  }, [favorite, onPress])
+
+  const handleRemove = useCallback(
+    (event: { stopPropagation: () => void }) => {
+      event.stopPropagation()
+      onRemove(favorite)
+    },
+    [favorite, onRemove]
+  )
+
+  return (
+    <Item onPress={handlePress}>
+      <FavoriteItemImage favorite={favorite} />
+      <ItemContent>
+        <ItemTitle>{favorite.name}</ItemTitle>
+        <View className="flex-row items-center">
+          <TypeBadge type={favorite.type} />
+          <ItemDescription>{favorite.subtitle || ""}</ItemDescription>
+        </View>
+      </ItemContent>
+      <ItemAction>
+        <PressableFeedback
+          onPress={handleRemove}
+          className="p-2 active:opacity-50"
+        >
+          <LocalFavouriteSolidIcon
+            fill="none"
+            width={22}
+            height={22}
+            color="#ef4444"
+          />
+        </PressableFeedback>
+      </ItemAction>
+    </Item>
+  )
+}
+
+const MemoizedFavoriteRow = React.memo(FavoriteRow)
+
 export const FavoritesList: React.FC<FavoritesListProps> = ({
   data,
   scrollEnabled = true,
@@ -202,33 +250,12 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   }, [toggleFavoriteMutation])
 
   const renderFavoriteItem = useCallback(
-    (item: FavoriteEntry) => (
-      <Item key={item.id} onPress={() => handlePress(item)}>
-        <FavoriteItemImage favorite={item} />
-        <ItemContent>
-          <ItemTitle>{item.name}</ItemTitle>
-          <View className="flex-row items-center">
-            <TypeBadge type={item.type} />
-            <ItemDescription>{item.subtitle || ""}</ItemDescription>
-          </View>
-        </ItemContent>
-        <ItemAction>
-          <PressableFeedback
-            onPress={(event) => {
-              event.stopPropagation()
-              handleRemoveFavorite(item)
-            }}
-            className="p-2 active:opacity-50"
-          >
-            <LocalFavouriteSolidIcon
-              fill="none"
-              width={22}
-              height={22}
-              color="#ef4444"
-            />
-          </PressableFeedback>
-        </ItemAction>
-      </Item>
+    ({ item }: LegendListRenderItemProps<FavoriteEntry>) => (
+      <MemoizedFavoriteRow
+        favorite={item}
+        onPress={handlePress}
+        onRemove={handleRemoveFavorite}
+      />
     ),
     [handlePress, handleRemoveFavorite]
   )
@@ -237,10 +264,9 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
     <View style={{ flex: 1, minHeight: 1 }}>
       <LegendList
         data={data}
-        renderItem={({ item }: LegendListRenderItemProps<FavoriteEntry>) =>
-          renderFavoriteItem(item)
-        }
+        renderItem={renderFavoriteItem}
         keyExtractor={(item) => item.id}
+        getItemType={(item) => item.type}
         scrollEnabled={scrollEnabled}
         contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
         onScroll={onScroll}

@@ -17,7 +17,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
@@ -208,11 +207,7 @@ export default function ArtistDetailsScreen() {
   })
 
   if (isLoading) {
-    return (
-      <View className="flex-1 bg-background">
-        <LibrarySkeleton type="artist-detail" />
-      </View>
-    )
+    return <View className="flex-1 bg-background" />
   }
 
   function handleSortSelect(field: SortField, order?: "asc" | "desc") {

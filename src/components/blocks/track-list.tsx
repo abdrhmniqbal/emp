@@ -68,22 +68,26 @@ function TrackListItem({
     },
     [onTrackLongPress, track]
   )
+  const handlePress = useCallback(() => {
+    onTrackPress(track)
+  }, [onTrackPress, track])
+  const handleLongPress = useCallback(() => {
+    onTrackLongPress(track)
+  }, [onTrackLongPress, track])
+  const rank = showNumbers
+    ? getNumber
+      ? getNumber(track, index)
+      : index + 1
+    : undefined
 
   return (
     <>
       {renderItemPrefix?.(track, index, data) || null}
       <TrackRow
-        key={`${track.id}-${index}`}
         track={track}
-        onPress={() => onTrackPress(track)}
-        onLongPress={() => onTrackLongPress(track)}
-        rank={
-          showNumbers
-            ? getNumber
-              ? getNumber(track, index)
-              : index + 1
-            : undefined
-        }
+        onPress={handlePress}
+        onLongPress={handleLongPress}
+        rank={rank}
         showCover={!hideCover}
         showArtist={!hideArtist}
         titleClassName={currentTrackId === track.id ? "text-accent" : undefined}
@@ -102,6 +106,8 @@ function TrackListItem({
     </>
   )
 }
+
+const MemoizedTrackListItem = React.memo(TrackListItem)
 
 interface TrackListProps {
   data: Track[]
@@ -175,7 +181,7 @@ export const TrackList: React.FC<TrackListProps> = ({
 
   const renderTrackItem = useCallback(
     ({ item, index }: LegendListRenderItemProps<Track>) => (
-      <TrackListItem
+      <MemoizedTrackListItem
         track={item}
         index={index}
         data={data}
@@ -203,6 +209,9 @@ export const TrackList: React.FC<TrackListProps> = ({
       theme.muted,
     ]
   )
+  const handleSheetClose = useCallback(() => {
+    setIsSheetOpen(false)
+  }, [])
 
   return (
     <View style={{ flex: 1 }}>
@@ -247,7 +256,7 @@ export const TrackList: React.FC<TrackListProps> = ({
       <TrackActionSheet
         track={selectedTrack}
         isOpen={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
+        onClose={handleSheetClose}
         tracks={data}
       />
     </View>

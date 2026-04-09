@@ -8,7 +8,6 @@ import { RefreshControl, Text, View } from "react-native"
 
 import Animated from "react-native-reanimated"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
-import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -91,19 +90,6 @@ export default function GenreAlbumsScreen() {
   async function refresh() {
     await startIndexing(false)
     await refetch()
-  }
-
-  if ((isLoading || isFetching) && sortedAlbumData.length === 0) {
-    return (
-      <View className="flex-1 bg-background px-4 pt-4">
-        <Stack.Screen
-          options={{
-            title: `${genreName.trim()} Albums`,
-          }}
-        />
-        <LibrarySkeleton type="albums" itemCount={8} />
-      </View>
-    )
   }
 
   function handleAlbumPress(album: Album) {
