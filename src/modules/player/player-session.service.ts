@@ -1,10 +1,11 @@
+import type { RepeatModeType, Track } from "@/modules/player/player.types"
+import type { RepeatMode } from "@/modules/player/player.utils"
 import { logError, logInfo } from "@/modules/logging/logging.service"
 import {
   loadPlaybackSession,
   savePlaybackSession,
 } from "@/modules/player/player-session.repository"
-import { getQueueState } from "@/modules/player/player.store"
-import { RepeatMode, State, TrackPlayer } from "@/modules/player/player.utils"
+import { State, TrackPlayer } from "@/modules/player/player.utils"
 
 import {
   mapRepeatMode,
@@ -14,11 +15,17 @@ import {
 } from "./player-adapter"
 import { setActiveTrack, setPlaybackProgress } from "./player-runtime-state"
 import {
+  beginPlayerQueueReplacement,
+  endPlayerQueueReplacement,
+} from "./player-runtime.service"
+import {
+  getCurrentTimeState,
   getCurrentTrackState,
   getImmediateQueueTrackIdsState,
-  getIsShuffledState,
   getIsPlayingState,
+  getIsShuffledState,
   getOriginalQueueTrackIdsState,
+  getQueueState,
   getQueueTrackIdsState,
   getRepeatModeState,
   getTracksState,
@@ -36,9 +43,26 @@ const MIN_SESSION_SAVE_INTERVAL_MS = 2000
 const MAX_TRACKMAP_SIZE = 300
 const TRACKMAP_ACTIVE_WINDOW = 120
 
+type NativeQueue = Awaited<ReturnType<typeof TrackPlayer.getQueue>>
+
+interface ResolvedPlaybackSession {
+  currentTrackId: string | null
+  immediateQueueTrackIds: string[]
+  isPlaying: boolean
+  isShuffled: boolean
+  originalQueue: Track[]
+  positionSeconds: number
+  queue: Track[]
+  repeatMode: RepeatModeType
+}
+
 let lastPlaybackSessionSavedAt = 0
 
-function mapNativeQueueToTracks(nativeQueue: Awaited<ReturnType<typeof TrackPlayer.getQueue>>) {
+function dedupeTrackIds(trackIds: string[]) {
+  return trackIds.filter((trackId, index) => trackIds.indexOf(trackId) === index)
+}
+
+function mapNativeQueueToTracks(nativeQueue: NativeQueue) {
   return nativeQueue
     .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
     .filter((track) => track.id && track.uri)
@@ -53,14 +77,12 @@ function createPersistedTrackMap(queueTracks: ReturnType<typeof getQueueState>) 
   const currentIndex = currentTrackId
     ? queueTracks.findIndex((track) => track.id === currentTrackId)
     : 0
-
   const startIndex =
     currentIndex >= 0 ? Math.max(0, currentIndex - TRACKMAP_ACTIVE_WINDOW) : 0
   const endIndex =
     currentIndex >= 0
       ? Math.min(queueTracks.length, currentIndex + TRACKMAP_ACTIVE_WINDOW + 1)
       : Math.min(queueTracks.length, MAX_TRACKMAP_SIZE)
-
   const selectedIds = new Set(
     queueTracks.slice(startIndex, endIndex).map((track) => track.id)
   )
@@ -94,6 +116,110 @@ function createPersistedTrackMap(queueTracks: ReturnType<typeof getQueueState>) 
   )
 }
 
+function applyResolvedPlaybackSession(session: ResolvedPlaybackSession) {
+  const queueTrackIds = session.queue.map((track) => track.id)
+  const originalQueueTrackIds = session.originalQueue.map((track) => track.id)
+  const currentTrack =
+    (session.currentTrackId
+      ? session.queue.find((track) => track.id === session.currentTrackId)
+      : null) ||
+    session.queue[0] ||
+    null
+
+  setQueueState(session.queue)
+  setQueueTrackIdsState(queueTrackIds)
+  setOriginalQueueState(session.originalQueue)
+  setOriginalQueueTrackIdsState(
+    originalQueueTrackIds.length > 0 ? originalQueueTrackIds : queueTrackIds
+  )
+  setImmediateQueueTrackIdsState(session.immediateQueueTrackIds)
+  setIsShuffledState(session.isShuffled)
+  setRepeatModeState(session.repeatMode)
+  setActiveTrack(currentTrack)
+  setPlaybackProgress(session.positionSeconds, currentTrack?.duration || 0)
+  setIsPlayingState(session.isPlaying)
+}
+
+function resolveTracksFromIds(
+  trackIds: string[],
+  resolveTrack: (trackId: string) => Track | undefined
+) {
+  return dedupeTrackIds(trackIds)
+    .map((trackId) => resolveTrack(trackId))
+    .filter((track): track is Track => Boolean(track))
+}
+
+async function readNativePlaybackSession(): Promise<ResolvedPlaybackSession | null> {
+  const [nativeQueue, activeIndex, positionSeconds, playbackState, repeatMode] =
+    await Promise.all([
+      TrackPlayer.getQueue(),
+      TrackPlayer.getCurrentTrack(),
+      TrackPlayer.getPosition(),
+      TrackPlayer.getState(),
+      TrackPlayer.getRepeatMode(),
+    ])
+
+  const mappedQueue = mapNativeQueueToTracks(nativeQueue)
+  if (mappedQueue.length === 0) {
+    return null
+  }
+
+  const currentTrackId =
+    activeIndex !== null && activeIndex >= 0 && activeIndex < mappedQueue.length
+      ? (mappedQueue[activeIndex]?.id ?? null)
+      : (mappedQueue[0]?.id ?? null)
+
+  return {
+    queue: mappedQueue,
+    originalQueue: mappedQueue,
+    immediateQueueTrackIds: [],
+    currentTrackId,
+    positionSeconds: Math.max(0, positionSeconds),
+    repeatMode: mapTrackPlayerRepeatMode(repeatMode as RepeatMode),
+    isPlaying: playbackState === State.Playing,
+    isShuffled: false,
+  }
+}
+
+async function readStoredPlaybackSession(): Promise<ResolvedPlaybackSession | null> {
+  const snapshot = await loadPlaybackSession()
+  if (!snapshot || snapshot.queueTrackIds.length === 0) {
+    return null
+  }
+
+  const libraryTrackMap = new Map(getTracksState().map((track) => [track.id, track]))
+  const resolveTrack = (trackId: string) =>
+    libraryTrackMap.get(trackId) || snapshot.trackMap[trackId]
+
+  const resolvedQueue = resolveTracksFromIds(snapshot.queueTrackIds, resolveTrack)
+  if (resolvedQueue.length === 0) {
+    return null
+  }
+
+  const resolvedOriginalQueue = resolveTracksFromIds(
+    snapshot.originalQueueTrackIds,
+    resolveTrack
+  )
+  const resolvedQueueIdSet = new Set(resolvedQueue.map((track) => track.id))
+  const currentTrackId =
+    snapshot.currentTrackId && resolvedQueueIdSet.has(snapshot.currentTrackId)
+      ? snapshot.currentTrackId
+      : (resolvedQueue[0]?.id ?? null)
+
+  return {
+    queue: resolvedQueue,
+    originalQueue: resolvedOriginalQueue.length > 0 ? resolvedOriginalQueue : resolvedQueue,
+    immediateQueueTrackIds: dedupeTrackIds(snapshot.immediateQueueTrackIds).filter(
+      (trackId) => resolvedQueueIdSet.has(trackId)
+    ),
+    currentTrackId,
+    positionSeconds: Math.max(0, snapshot.positionSeconds || 0),
+    repeatMode: snapshot.repeatMode,
+    isPlaying: false,
+    isShuffled: snapshot.isShuffled,
+  }
+}
+
 export async function persistPlaybackSession(options?: {
   force?: boolean
   skipQueueSync?: boolean
@@ -110,13 +236,11 @@ export async function persistPlaybackSession(options?: {
     const shouldSyncQueueWithNativePlayer =
       options?.skipQueueSync !== true &&
       (options?.force === true || getQueueTrackIdsState().length === 0)
-
     const queueTracks = shouldSyncQueueWithNativePlayer
       ? mapNativeQueueToTracks(await TrackPlayer.getQueue())
       : getQueueState()
     const queueTrackIds = queueTracks.map((track) => track.id)
     const trackMap = createPersistedTrackMap(queueTracks)
-
     let currentTrackId = getCurrentTrackState()?.id ?? null
 
     if (shouldSyncQueueWithNativePlayer) {
@@ -154,116 +278,92 @@ export async function persistPlaybackSession(options?: {
 
 export async function restorePlaybackSession(): Promise<void> {
   try {
-    const nativeQueue = await TrackPlayer.getQueue()
-
-    if (nativeQueue.length > 0) {
+    const nativeSession = await readNativePlaybackSession()
+    if (nativeSession) {
       logInfo("Restoring playback session from native queue", {
-        queueLength: nativeQueue.length,
+        queueLength: nativeSession.queue.length,
       })
-      const mappedQueue = mapNativeQueueToTracks(nativeQueue)
-      if (mappedQueue.length > 0) {
-        setQueueState(mappedQueue)
-        setOriginalQueueState(mappedQueue)
-        setQueueTrackIdsState(mappedQueue.map((track) => track.id))
-        setOriginalQueueTrackIdsState(mappedQueue.map((track) => track.id))
-        setImmediateQueueTrackIdsState([])
-      }
-
-      const currentIndex = await TrackPlayer.getCurrentTrack()
-      if (
-        currentIndex !== null &&
-        currentIndex >= 0 &&
-        currentIndex < mappedQueue.length
-      ) {
-        setActiveTrack(mappedQueue[currentIndex] || null)
-      } else {
-        setActiveTrack(mappedQueue[0] || null)
-      }
-
-      const [position, playbackState, repeatMode] = await Promise.all([
-        TrackPlayer.getPosition(),
-        TrackPlayer.getState(),
-        TrackPlayer.getRepeatMode(),
-      ])
-
-      setPlaybackProgress(position, getCurrentTrackState()?.duration || 0)
-      setIsPlayingState(playbackState === State.Playing)
-      setRepeatModeState(mapTrackPlayerRepeatMode(repeatMode as RepeatMode))
-      await persistPlaybackSession({ force: true, skipQueueSync: true })
+      applyResolvedPlaybackSession(nativeSession)
       return
     }
 
-    const snapshot = await loadPlaybackSession()
-    if (!snapshot || snapshot.queueTrackIds.length === 0) {
+    const storedSession = await readStoredPlaybackSession()
+    if (!storedSession) {
       logInfo("No playback session snapshot available to restore")
       return
     }
 
-    const libraryTrackMap = new Map(getTracksState().map((track) => [track.id, track]))
-    const resolveTrack = (trackId: string) =>
-      libraryTrackMap.get(trackId) || snapshot.trackMap[trackId]
-
-    const resolvedQueue = snapshot.queueTrackIds
-      .map((trackId) => resolveTrack(trackId))
-      .filter((track): track is NonNullable<typeof track> => Boolean(track))
-
-    if (resolvedQueue.length === 0) {
-      logInfo("Playback session queue could not be resolved from IDs")
-      return
-    }
-
-    const resolvedOriginalQueue = snapshot.originalQueueTrackIds
-      .map((trackId) => resolveTrack(trackId))
-      .filter((track): track is NonNullable<typeof track> => Boolean(track))
-
-    const resolvedImmediateQueueIds = snapshot.immediateQueueTrackIds.filter((trackId) =>
-      resolvedQueue.some((track) => track.id === trackId)
-    )
-
-    logInfo("Restoring playback session from saved snapshot", {
-      queueLength: resolvedQueue.length,
-      currentTrackId: snapshot.currentTrackId,
-      wasPlaying: snapshot.wasPlaying,
+    logInfo("Hydrating playback session from saved snapshot", {
+      queueLength: storedSession.queue.length,
+      currentTrackId: storedSession.currentTrackId,
     })
-
-    await TrackPlayer.reset()
-    await TrackPlayer.add(resolvedQueue.map(mapTrackToTrackPlayerInput))
-
-    const currentIndex =
-      snapshot.currentTrackId !== null
-        ? resolvedQueue.findIndex(
-            (track) => track.id === snapshot.currentTrackId
-          )
-        : 0
-    const targetIndex = currentIndex >= 0 ? currentIndex : 0
-    const targetPosition = Math.max(0, snapshot.positionSeconds || 0)
-
-    await TrackPlayer.skip(targetIndex, targetPosition)
-    await TrackPlayer.setRepeatMode(mapRepeatMode(snapshot.repeatMode))
-
-    const currentTrack = resolvedQueue[targetIndex] || null
-    setQueueState(resolvedQueue)
-    setQueueTrackIdsState(resolvedQueue.map((track) => track.id))
-    setOriginalQueueState(
-      resolvedOriginalQueue.length > 0 ? resolvedOriginalQueue : resolvedQueue
-    )
-    setOriginalQueueTrackIdsState(
-      (resolvedOriginalQueue.length > 0 ? resolvedOriginalQueue : resolvedQueue).map(
-        (track) => track.id
-      )
-    )
-    setImmediateQueueTrackIdsState(resolvedImmediateQueueIds)
-    setIsShuffledState(snapshot.isShuffled)
-    setActiveTrack(currentTrack)
-    setPlaybackProgress(targetPosition, currentTrack?.duration || 0)
-    setRepeatModeState(snapshot.repeatMode)
-
-    await TrackPlayer.pause()
-    setIsPlayingState(false)
-
-    await persistPlaybackSession({ force: true, skipQueueSync: true })
+    applyResolvedPlaybackSession(storedSession)
   } catch (error) {
     logError("Failed to restore playback session", error)
+  }
+}
+
+export async function syncPlaybackSessionFromPlayer() {
+  try {
+    const nativeSession = await readNativePlaybackSession()
+    if (!nativeSession) {
+      return false
+    }
+
+    applyResolvedPlaybackSession(nativeSession)
+    return true
+  } catch (error) {
+    logError("Failed to sync playback session from player", error)
+    return false
+  }
+}
+
+export async function ensureNativePlaybackQueue(options?: { autoPlay?: boolean }) {
+  const nativeQueue = await TrackPlayer.getQueue()
+  if (nativeQueue.length > 0) {
+    return true
+  }
+
+  const queue = getQueueState()
+  if (queue.length === 0) {
+    return false
+  }
+
+  const currentTrackId = getCurrentTrackState()?.id ?? queue[0]?.id ?? null
+  const targetIndex = currentTrackId
+    ? queue.findIndex((track) => track.id === currentTrackId)
+    : 0
+  const positionSeconds = Math.max(0, getCurrentTimeState())
+
+  logInfo("Hydrating native playback queue from player store", {
+    queueLength: queue.length,
+    currentTrackId,
+    autoPlay: options?.autoPlay ?? false,
+  })
+
+  beginPlayerQueueReplacement()
+
+  try {
+    await TrackPlayer.reset()
+    await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
+    await TrackPlayer.setRepeatMode(mapRepeatMode(getRepeatModeState()))
+
+    if (targetIndex > 0) {
+      await TrackPlayer.skip(targetIndex)
+    }
+
+    if (positionSeconds > 0) {
+      await TrackPlayer.seekTo(positionSeconds)
+    }
+
+    if (options?.autoPlay) {
+      await TrackPlayer.play()
+      setIsPlayingState(true)
+    }
+
+    return true
+  } finally {
+    endPlayerQueueReplacement()
   }
 }
 
@@ -274,8 +374,8 @@ export async function syncCurrentTrackFromPlayer(): Promise<void> {
       TrackPlayer.getQueue(),
       TrackPlayer.getActiveTrack(),
     ])
-
     const mappedQueue = mapNativeQueueToTracks(nativeQueue)
+
     if (mappedQueue.length > 0) {
       setQueueState(mappedQueue)
       setQueueTrackIdsState(mappedQueue.map((track) => track.id))

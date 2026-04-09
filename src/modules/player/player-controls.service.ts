@@ -1,13 +1,17 @@
+import type { RepeatModeType } from "@/modules/player/player.types"
 import {
   isExtraLoggingEnabled,
   logError,
   logInfo,
   logWarn,
 } from "@/modules/logging/logging.service"
-import { persistPlaybackSession } from "@/modules/player/player-session.service"
-import type { RepeatModeType } from "@/modules/player/player.types"
 import { mapRepeatMode } from "@/modules/player/player-adapter"
 import { setPlaybackProgress } from "@/modules/player/player-runtime-state"
+import {
+  ensureNativePlaybackQueue,
+  persistPlaybackSession,
+  syncCurrentTrackFromPlayer,
+} from "@/modules/player/player-session.service"
 import { State, TrackPlayer } from "@/modules/player/player.utils"
 
 import { playTrack } from "./player.service"
@@ -18,7 +22,6 @@ import {
   setRepeatModeState,
   usePlayerStore,
 } from "./player.store"
-import { syncCurrentTrackFromPlayer } from "./player-session.service"
 
 export async function pauseTrack() {
   try {
@@ -34,6 +37,12 @@ export async function pauseTrack() {
 
 export async function resumeTrack() {
   try {
+    const hasNativeQueue = await ensureNativePlaybackQueue({ autoPlay: false })
+    if (!hasNativeQueue) {
+      logWarn("Skipped resume because no playback queue is available")
+      return
+    }
+
     logInfo("Resuming playback")
     await TrackPlayer.play()
     setIsPlayingState(true)
@@ -64,6 +73,12 @@ export async function togglePlayback() {
 
 export async function playNext() {
   try {
+    const hasNativeQueue = await ensureNativePlaybackQueue()
+    if (!hasNativeQueue) {
+      logWarn("Skipped next track because no playback queue is available")
+      return
+    }
+
     const [activeIndex, nativeQueue] = await Promise.all([
       TrackPlayer.getCurrentTrack(),
       TrackPlayer.getQueue(),
@@ -117,6 +132,12 @@ export async function playNext() {
 
 export async function playPrevious() {
   try {
+    const hasNativeQueue = await ensureNativePlaybackQueue()
+    if (!hasNativeQueue) {
+      logWarn("Skipped previous track because no playback queue is available")
+      return
+    }
+
     logInfo("Playing previous track")
     const position = await TrackPlayer.getPosition()
     if (position > 3) {
@@ -137,6 +158,12 @@ export async function playPrevious() {
 
 export async function seekTo(seconds: number) {
   try {
+    const hasNativeQueue = await ensureNativePlaybackQueue()
+    if (!hasNativeQueue) {
+      logWarn("Skipped seek because no playback queue is available", { seconds })
+      return
+    }
+
     if (isExtraLoggingEnabled()) {
       logInfo("Seeking playback", { seconds })
     }

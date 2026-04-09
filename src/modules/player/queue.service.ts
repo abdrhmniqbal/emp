@@ -1,34 +1,35 @@
-import { TrackPlayer } from "@/modules/player/player.utils"
-
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
+
+import { TrackPlayer } from "@/modules/player/player.utils"
 
 import { mapTrackToTrackPlayerInput } from "./player-adapter"
 import { mapRepeatMode } from "./player-adapter"
+import { setActiveTrack } from "./player-runtime-state"
 import {
+  ensureNativePlaybackQueue,
+  persistPlaybackSession,
+  syncCurrentTrackFromPlayer,
+} from "./player-session.service"
+import {
+  getCurrentTrackState,
   getImmediateQueueTrackIdsState,
   getIsPlayingState,
-  getCurrentTrackState,
   getIsShuffledState,
   getOriginalQueueState,
   getOriginalQueueTrackIdsState,
   getQueueState,
   getQueueTrackIdsState,
   getRepeatModeState,
-  setIsPlayingState,
+  getTracksState,
   setImmediateQueueTrackIdsState,
+  setIsPlayingState,
   setIsShuffledState,
   setOriginalQueueState,
   setOriginalQueueTrackIdsState,
   setQueueState,
   setQueueTrackIdsState,
   type Track,
-  getTracksState,
 } from "./player.store"
-import {
-  persistPlaybackSession,
-  syncCurrentTrackFromPlayer,
-} from "./player-session.service"
-import { setActiveTrack } from "./player-runtime-state"
 
 let queueMutationChain: Promise<void> = Promise.resolve()
 
@@ -267,6 +268,10 @@ export async function addToQueue(track: Track) {
     const snapshot = getQueueModelSnapshot()
     const queueTrackIds = getQueueTrackIdsState()
 
+    if (queueTrackIds.length > 0) {
+      await ensureNativePlaybackQueue()
+    }
+
     if (queueTrackIds.includes(track.id)) {
       logInfo("Skipped addToQueue because track already exists", {
         trackId: track.id,
@@ -312,6 +317,11 @@ export async function queueTrackNext(track: Track) {
     const snapshot = getQueueModelSnapshot()
     const currentTrackId = getCurrentTrackState()?.id ?? null
     const queueTrackIds = getQueueTrackIdsState()
+
+    if (queueTrackIds.length > 0) {
+      await ensureNativePlaybackQueue()
+    }
+
     const immediateQueueTrackIds = [
       ...getImmediateQueueTrackIdsState().filter((trackId) => trackId !== track.id),
       track.id,
@@ -375,6 +385,11 @@ export async function removeFromQueue(trackId: string) {
   await runSerializedQueueMutation(async () => {
     const snapshot = getQueueModelSnapshot()
     const queueTrackIds = getQueueTrackIdsState()
+
+    if (queueTrackIds.length > 0) {
+      await ensureNativePlaybackQueue()
+    }
+
     const currentTrackId = getCurrentTrackState()?.id ?? null
     const wasCurrentTrack = currentTrackId === trackId
     const removedTrackIndex = queueTrackIds.findIndex((id) => id === trackId)
@@ -442,6 +457,10 @@ export async function clearQueue() {
     const snapshot = getQueueModelSnapshot()
     const currentTrack = getCurrentTrackState()
 
+    if (snapshot.queueTrackIds.length > 0) {
+      await ensureNativePlaybackQueue()
+    }
+
     logInfo("Clearing queue", {
       queueLength: snapshot.queueTrackIds.length,
       currentTrackId: currentTrack?.id ?? null,
@@ -476,6 +495,10 @@ export async function moveInQueue(fromIndex: number, toIndex: number) {
   await runSerializedQueueMutation(async () => {
     const snapshot = getQueueModelSnapshot()
     const queueTrackIds = [...getQueueTrackIdsState()]
+
+    if (queueTrackIds.length > 0) {
+      await ensureNativePlaybackQueue()
+    }
 
     if (
       fromIndex < 0 ||
@@ -520,6 +543,11 @@ export async function toggleShuffle() {
   await runSerializedQueueMutation(async () => {
     const snapshot = getQueueModelSnapshot()
     const queueTrackIds = getQueueTrackIdsState()
+
+    if (queueTrackIds.length > 0) {
+      await ensureNativePlaybackQueue()
+    }
+
     const isShuffled = getIsShuffledState()
     const currentTrackId = getCurrentTrackState()?.id ?? null
 

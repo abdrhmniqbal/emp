@@ -73,6 +73,10 @@ export function setCurrentTimeState(value: number) {
   usePlayerStore.setState({ currentTime: value })
 }
 
+export function getCurrentTimeState() {
+  return usePlayerStore.getState().currentTime
+}
+
 export function setDurationState(value: number) {
   if (usePlayerStore.getState().duration === value) {
     return

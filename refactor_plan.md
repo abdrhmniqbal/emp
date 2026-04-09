@@ -98,6 +98,8 @@ Completed notes:
 - Updated player-facing screens and blocks to depend on player selectors rather than store internals.
 - Simplified `QueueView` so it reads queue state through a player hook and no longer needs prop-threaded current-track context.
 - Extracted queue-building logic in `player.service.ts` into a focused helper to keep track-selection orchestration smaller and easier to test.
+- Reworked playback-session restoration so bootstrap hydrates store state without eagerly rebuilding the native queue, and queue/transport commands now lazily rehydrate the native queue only when needed.
+- Added a lightweight playback-session sync on foreground return so long background sessions refresh player state without forcing the old heavy restore path.
 - Preserved playback behavior while keeping the previous shuffle/playback fixes intact.
 
 Planned commit message:

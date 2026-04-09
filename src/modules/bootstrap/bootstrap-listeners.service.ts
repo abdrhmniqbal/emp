@@ -1,8 +1,8 @@
 import * as MediaLibrary from "expo-media-library"
 import {
   AppState,
-  InteractionManager,
   type AppStateStatus,
+  InteractionManager,
 } from "react-native"
 
 import { runAutoScan } from "@/modules/bootstrap/bootstrap.runtime"
@@ -10,6 +10,7 @@ import {
   isExtraLoggingEnabled,
   logInfo,
 } from "@/modules/logging/logging.service"
+import { syncPlaybackSessionFromPlayer } from "@/modules/player/player-session.service"
 
 const FOREGROUND_AUTO_SCAN_DELAY_MS = 1500
 const MEDIA_EVENT_AUTO_SCAN_DELAY_MS = 1500
@@ -33,6 +34,9 @@ export function registerBootstrapListeners() {
   let pendingInteractionHandle: ReturnType<
     typeof InteractionManager.runAfterInteractions
   > | null = null
+  let pendingPlaybackSyncHandle: ReturnType<
+    typeof InteractionManager.runAfterInteractions
+  > | null = null
   let pendingDeferredMediaAutoScan = false
   let pendingDeferredMediaAutoScanBypassThrottle = false
 
@@ -44,6 +48,12 @@ export function registerBootstrapListeners() {
 
     pendingInteractionHandle?.cancel()
     pendingInteractionHandle = null
+  }
+
+  const clearPendingForegroundWork = () => {
+    clearPendingForegroundAutoScan()
+    pendingPlaybackSyncHandle?.cancel()
+    pendingPlaybackSyncHandle = null
   }
 
   const scheduleForegroundAutoScan = (options: {
@@ -74,7 +84,7 @@ export function registerBootstrapListeners() {
       backgroundedAt = Date.now()
       pendingDeferredMediaAutoScan = false
       pendingDeferredMediaAutoScanBypassThrottle = false
-      clearPendingForegroundAutoScan()
+      clearPendingForegroundWork()
     }
 
     const isReturningToForeground =
@@ -98,6 +108,16 @@ export function registerBootstrapListeners() {
       isLongBackgroundSession,
       delayMs,
       hasDeferredMediaAutoScan: pendingDeferredMediaAutoScan,
+    })
+
+    pendingPlaybackSyncHandle?.cancel()
+    pendingPlaybackSyncHandle = InteractionManager.runAfterInteractions(() => {
+      pendingPlaybackSyncHandle = null
+      logInfo("Refreshing playback session after foreground transition", {
+        timeInBackgroundMs,
+        isLongBackgroundSession,
+      })
+      void syncPlaybackSessionFromPlayer()
     })
 
     if (pendingDeferredMediaAutoScan) {
@@ -149,7 +169,7 @@ export function registerBootstrapListeners() {
 
   return () => {
     logInfo("Unregistering bootstrap listeners")
-    clearPendingForegroundAutoScan()
+    clearPendingForegroundWork()
     appStateSubscription.remove()
     mediaLibrarySubscription.remove()
   }
