@@ -1,8 +1,26 @@
-import type { Track } from "@/modules/player/player.types"
-
 import type { SortConfig, SortOrder } from "@/modules/library/library-sort.types"
 
-function compareValues(a: any, b: any, order: SortOrder) {
+import type { Track } from "@/modules/player/player.types"
+
+type ComparableValue = number | string | null | undefined
+
+interface AlbumSortable {
+  artist?: string | null
+  dateAdded?: number | null
+  title?: string | null
+  trackCount?: number | null
+  year?: number | null
+}
+
+interface ArtistSortable {
+  dateAdded?: number | null
+  name?: string | null
+  trackCount?: number | null
+}
+
+type GenericSortable = Record<string, unknown>
+
+function compareValues(a: ComparableValue, b: ComparableValue, order: SortOrder) {
   if (a === b) return 0
   if (a === undefined || a === null) return 1
   if (b === undefined || b === null) return -1
@@ -16,6 +34,45 @@ function compareValues(a: any, b: any, order: SortOrder) {
   if (a < b) return order === "asc" ? -1 : 1
   if (a > b) return order === "asc" ? 1 : -1
   return 0
+}
+
+function getTrackSortValue(track: Track, field: SortConfig["field"]): ComparableValue {
+  switch (field) {
+    case "filename":
+      return track.filename || track.uri.split("/").pop()
+    case "title":
+      return (track.title || track.filename || "").toLowerCase()
+    case "artist":
+      return (track.artist || "Unknown Artist").toLowerCase()
+    case "album":
+      return (track.album || "Unknown Album").toLowerCase()
+    case "year":
+      return track.year
+    case "dateAdded":
+      return track.dateAdded
+    case "playCount":
+      return track.playCount
+    default:
+      return undefined
+  }
+}
+
+function getGenericSortValue(
+  item: GenericSortable,
+  field: SortConfig["field"]
+): ComparableValue {
+  const value = item[field]
+
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    value === null ||
+    value === undefined
+  ) {
+    return value
+  }
+
+  return undefined
 }
 
 export function sortTracks(tracks: Track[], config: SortConfig): Track[] {
@@ -45,22 +102,8 @@ export function sortTracks(tracks: Track[], config: SortConfig): Track[] {
       return compareValues(titleA, titleB, order)
     }
 
-    let aVal: any = a[field as keyof Track]
-    let bVal: any = b[field as keyof Track]
-
-    if (field === "filename") {
-      aVal = a.filename || a.uri.split("/").pop()
-      bVal = b.filename || b.uri.split("/").pop()
-    } else if (field === "title") {
-      aVal = (a.title || a.filename || "").toLowerCase()
-      bVal = (b.title || b.filename || "").toLowerCase()
-    } else if (field === "artist") {
-      aVal = (a.artist || "Unknown Artist").toLowerCase()
-      bVal = (b.artist || "Unknown Artist").toLowerCase()
-    } else if (field === "album") {
-      aVal = (a.album || "Unknown Album").toLowerCase()
-      bVal = (b.album || "Unknown Album").toLowerCase()
-    }
+    const aVal = getTrackSortValue(a, field)
+    const bVal = getTrackSortValue(b, field)
 
     const primaryResult = compareValues(aVal, bVal, order)
     if (field === "playCount" && primaryResult === 0) {
@@ -71,11 +114,28 @@ export function sortTracks(tracks: Track[], config: SortConfig): Track[] {
   })
 }
 
-export function sortAlbums(albums: any[], config: SortConfig): any[] {
+export function sortAlbums<T extends AlbumSortable>(
+  albums: T[],
+  config: SortConfig
+): T[] {
   const { field, order } = config
   return [...albums].sort((a, b) => {
-    const aVal = field in a ? a[field] : undefined
-    const bVal = field in b ? b[field] : undefined
+    const aVal =
+      field === "title" ||
+      field === "artist" ||
+      field === "year" ||
+      field === "dateAdded" ||
+      field === "trackCount"
+        ? a[field]
+        : undefined
+    const bVal =
+      field === "title" ||
+      field === "artist" ||
+      field === "year" ||
+      field === "dateAdded" ||
+      field === "trackCount"
+        ? b[field]
+        : undefined
 
     if (field === "title" || field === "artist") {
       return compareValues(
@@ -89,11 +149,20 @@ export function sortAlbums(albums: any[], config: SortConfig): any[] {
   })
 }
 
-export function sortArtists(artists: any[], config: SortConfig): any[] {
+export function sortArtists<T extends ArtistSortable>(
+  artists: T[],
+  config: SortConfig
+): T[] {
   const { field, order } = config
   return [...artists].sort((a, b) => {
-    const aVal = field in a ? a[field] : undefined
-    const bVal = field in b ? b[field] : undefined
+    const aVal =
+      field === "name" || field === "dateAdded" || field === "trackCount"
+        ? a[field]
+        : undefined
+    const bVal =
+      field === "name" || field === "dateAdded" || field === "trackCount"
+        ? b[field]
+        : undefined
 
     if (field === "name") {
       return compareValues(
@@ -107,10 +176,31 @@ export function sortArtists(artists: any[], config: SortConfig): any[] {
   })
 }
 
-export function sortGeneric(items: any[], config: SortConfig): any[] {
-  return sortAlbums(items, config)
+export function sortGeneric<T extends GenericSortable>(
+  items: T[],
+  config: SortConfig
+): T[] {
+  const { field, order } = config
+
+  return [...items].sort((a, b) => {
+    const aVal = getGenericSortValue(a, field)
+    const bVal = getGenericSortValue(b, field)
+
+    if (typeof aVal === "string" || typeof bVal === "string") {
+      return compareValues(
+        (aVal || "").toString().toLowerCase(),
+        (bVal || "").toString().toLowerCase(),
+        order
+      )
+    }
+
+    return compareValues(aVal, bVal, order)
+  })
 }
 
-export function sortGenres(genres: any[], config: SortConfig): any[] {
+export function sortGenres<T extends ArtistSortable>(
+  genres: T[],
+  config: SortConfig
+): T[] {
   return sortArtists(genres, config)
 }

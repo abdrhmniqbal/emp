@@ -3,15 +3,15 @@ import type {
   NativeSyntheticEvent,
   RefreshControlProps,
 } from "react-native"
-import * as React from "react"
+import type { SortConfig } from "@/modules/library/library-sort.types"
 
+import * as React from "react"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import type { SortConfig } from "@/modules/library/library-sort.types"
 import { sortAlbums } from "@/modules/library/library-sort.utils"
-import { useThemeColors } from "@/modules/ui/theme"
 import { useAlbums } from "@/modules/library/library.queries"
+import { useThemeColors } from "@/modules/ui/theme"
 
 type AlbumOrderByField = Parameters<typeof useAlbums>[0]
 type AlbumOrder = Parameters<typeof useAlbums>[1]
@@ -83,7 +83,7 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
     [albumsData]
   )
   const sortedAlbums = React.useMemo(
-    () => sortAlbums(albums, effectiveSortConfig) as Album[],
+    () => sortAlbums(albums, effectiveSortConfig),
     [albums, effectiveSortConfig]
   )
 

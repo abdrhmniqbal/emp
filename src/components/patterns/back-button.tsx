@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react"
-import { useRouter } from "expo-router"
+import { type Href, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
@@ -9,7 +9,8 @@ interface BackButtonProps {
   onPress?: () => void
   variant?: ComponentProps<typeof Button>["variant"]
   className?: string
-  fallbackHref?: "/"
+  fallbackHref?: Href
+  iconColor?: string
 }
 
 export function BackButton({
@@ -17,6 +18,7 @@ export function BackButton({
   variant = "ghost",
   className,
   fallbackHref = "/",
+  iconColor,
 }: BackButtonProps) {
   const theme = useThemeColors()
   const router = useRouter()
@@ -46,7 +48,7 @@ export function BackButton({
         fill="none"
         width={24}
         height={24}
-        color={theme.foreground}
+        color={iconColor ?? theme.foreground}
       />
     </Button>
   )

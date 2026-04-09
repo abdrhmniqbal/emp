@@ -108,7 +108,7 @@ Planned commit message:
 
 ### Slice 2: Remove Unsafe Typing And Compatibility-Like Paths
 
-Status: `pending`
+Status: `completed`
 
 Scope:
 
@@ -142,6 +142,15 @@ Completion criteria:
 Planned commit message:
 
 - `refactor(types): remove unsafe any usage in shared modules`
+
+Completed notes:
+
+- Replaced implicit `any` contracts in player and playlist adapters with concrete input shapes and explicit normalization for optional native/database fields.
+- Converted library sort helpers to generic typed utilities so album, artist, and playlist consumers no longer rely on `as` casts to recover their concrete result types.
+- Tightened UI-facing prop and event types in `marquee-text`, `lyrics-view`, and `progress-bar`, including stable parsed lyric memoization and safer animated text input props.
+- Typed the track detail cache update path in React Query so favorite toggles no longer depend on untyped cache state.
+- Narrowed the local `jsmediatags` module declaration to realistic tag value shapes instead of an open `any` index signature.
+- Removed the invalid search layout screen declarations and made bootstrap listener registration idempotent while fixing artist-detail back navigation through the shared back button API, preserving the same user-facing routes while eliminating router warnings and duplicated listener setup.
 
 ### Slice 3: List And Screen Rendering Hygiene
 

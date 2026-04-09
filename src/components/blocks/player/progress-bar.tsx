@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useEffect } from "react"
-import { Text, TextInput, View } from "react-native"
+import { Text, TextInput, type TextInputProps, View } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useCastState, useMediaStatus, useRemoteMediaClient, useStreamPosition } from "react-native-google-cast"
 import Animated, {
@@ -16,7 +16,15 @@ import { isCastConnected, seekCastPlayback } from "@/modules/cast/cast.service"
 import { seekTo } from "@/modules/player/player-controls.service"
 import { usePlaybackProgressState } from "@/modules/player/player-selectors"
 
-const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
+type AnimatedTimeInputProps = TextInputProps & { text?: string }
+
+const AnimatedTextInput = Animated.createAnimatedComponent(
+  TextInput
+) as React.ComponentType<
+  AnimatedTimeInputProps & {
+    animatedProps?: Partial<AnimatedTimeInputProps>
+  }
+>
 
 interface ProgressBarProps {
   compact?: boolean
@@ -37,8 +45,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const durationSv = useSharedValue(0)
   const isCasting = isCastConnected(castState, remoteMediaClient)
   const castDuration = Number(mediaStatus?.mediaInfo?.streamDuration ?? 0)
-  const effectiveCurrentTime = isCasting ? castStreamPosition : currentTime
-  const effectiveDuration = isCasting ? castDuration : duration
+  const effectiveCurrentTime = Number(
+    isCasting ? castStreamPosition ?? 0 : currentTime ?? 0
+  )
+  const effectiveDuration = Number(isCasting ? castDuration : duration ?? 0)
 
   useEffect(() => {
     durationSv.value = effectiveDuration
@@ -65,15 +75,17 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`
   }
 
-  const animatedTextProps = useAnimatedProps(() => {
-    const seconds = progress.value * durationSv.value
-    const mins = Math.floor(seconds / 60)
-    const secs = Math.floor(seconds % 60)
-    const text = `${mins}:${secs < 10 ? "0" : ""}${secs}`
-    return {
-      text,
-    } as any
-  })
+  const animatedTextProps = useAnimatedProps<Partial<AnimatedTimeInputProps>>(
+    () => {
+      const seconds = progress.value * durationSv.value
+      const mins = Math.floor(seconds / 60)
+      const secs = Math.floor(seconds % 60)
+      const text = `${mins}:${secs < 10 ? "0" : ""}${secs}`
+      return {
+        text,
+      }
+    }
+  )
 
   const seekGesture = Gesture.Pan()
     .onStart((e) => {

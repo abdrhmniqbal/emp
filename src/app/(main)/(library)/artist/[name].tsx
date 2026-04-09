@@ -21,11 +21,11 @@ import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
-import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
+import { BackButton } from "@/components/patterns/back-button"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
 import { SectionTitle } from "@/components/ui/section-header"
@@ -159,7 +159,16 @@ export default function ArtistDetailsScreen() {
   )
   const popularTracks = sortedArtistTracks.slice(0, 5)
   const sortedAlbums = sortAlbums(
-    albums.map((album) => ({ ...album, id: album.title }) as Album),
+    albums.map((album): Album => ({
+      id: album.title,
+      title: album.title,
+      artist: album.artist || "Unknown Artist",
+      albumArtist: album.albumArtist,
+      image: album.image,
+      trackCount: album.trackCount,
+      year: album.year || 0,
+      dateAdded: 0,
+    })),
     allSortConfigs.ArtistAlbums
   )
   const currentTab =
@@ -204,10 +213,6 @@ export default function ArtistDetailsScreen() {
         <LibrarySkeleton type="artist-detail" />
       </View>
     )
-  }
-
-  function handleBack() {
-    router.back()
   }
 
   function handleSortSelect(field: SortField, order?: "asc" | "desc") {
@@ -321,19 +326,11 @@ export default function ArtistDetailsScreen() {
             headerTintColor: isHeaderSolid ? theme.foreground : "white",
             headerBackVisible: false,
             headerLeft: () => (
-              <Button
-                onPress={handleBack}
-                variant="ghost"
+              <BackButton
                 className={cn("-ml-2", !isHeaderSolid && "bg-overlay/30")}
-                isIconOnly
-              >
-                <LocalArrowLeftIcon
-                  fill="none"
-                  width={24}
-                  height={24}
-                  color={isHeaderSolid ? theme.foreground : "white"}
-                />
-              </Button>
+                fallbackHref="/(main)/(library)"
+                iconColor={isHeaderSolid ? theme.foreground : "white"}
+              />
             ),
             headerRight: () =>
               artistId ? (

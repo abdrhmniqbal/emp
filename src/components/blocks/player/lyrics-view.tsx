@@ -4,7 +4,12 @@ import { useQuery } from "@tanstack/react-query"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 
-import { Text, useWindowDimensions, View } from "react-native"
+import {
+  type LayoutChangeEvent,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native"
 import Animated, {
   FadeIn,
   FadeOut,
@@ -15,7 +20,6 @@ import Animated, {
 } from "react-native-reanimated"
 import LocalMicIcon from "@/components/icons/local/mic"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useThemeColors } from "@/modules/ui/theme"
 import { queryClient } from "@/lib/tanstack-query"
 import {
   hasMeaningfulSyncedLyricsTiming,
@@ -28,6 +32,7 @@ import {
 import { resolveTrackLyricsSource } from "@/modules/lyrics/lyrics-source"
 import { seekTo } from "@/modules/player/player-controls.service"
 import { usePlayerStore } from "@/modules/player/player.store"
+import { useThemeColors } from "@/modules/ui/theme"
 
 type LyricsMode = "static" | "synced" | "ttml"
 
@@ -175,7 +180,7 @@ const TTMLLineRow: React.FC<{
     [line.begin, onSeek]
   )
   const handleLayout = React.useCallback(
-    (event: any) => onLayoutLine(line.id, event.nativeEvent.layout.y),
+    (event: LayoutChangeEvent) => onLayoutLine(line.id, event.nativeEvent.layout.y),
     [line.id, onLayoutLine]
   )
 
@@ -186,9 +191,9 @@ const TTMLLineRow: React.FC<{
       onLayout={handleLayout}
     >
       <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-        {line.words.map((word, wordIndex) => (
+        {line.words.map((word) => (
           <TTMLWordSpan
-            key={`${line.id}-w${wordIndex}`}
+            key={`${line.id}-${word.begin}-${word.end}-${word.text}`}
             text={word.text}
             begin={word.begin}
             end={word.end}
@@ -255,8 +260,14 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     [ttmlLines]
   )
   const hasTTML = ttmlLines.length > 0
-  const lines = hasTTML ? [] : splitLyricsLines(resolvedLyrics)
-  const syncedLines = hasTTML ? [] : parseSyncedLyricsLines(resolvedLyrics)
+  const lines = React.useMemo(
+    () => (hasTTML ? [] : splitLyricsLines(resolvedLyrics)),
+    [hasTTML, resolvedLyrics]
+  )
+  const syncedLines = React.useMemo(
+    () => (hasTTML ? [] : parseSyncedLyricsLines(resolvedLyrics)),
+    [hasTTML, resolvedLyrics]
+  )
   const hasTimedSyncedLyrics = React.useMemo(
     () => hasMeaningfulSyncedLyricsTiming(syncedLines),
     [syncedLines]
@@ -275,7 +286,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       : "static"
 
   const [fontScale, setFontScale] = React.useState<FontScaleLevel>(1)
-  const scrollViewRef = React.useRef<any>(null)
+  const scrollViewRef = React.useRef<React.ElementRef<typeof BottomSheetScrollView> | null>(null)
   const syncedLineOffsetRef = React.useRef<Record<string, number>>({})
   const isUserScrollingRef = React.useRef(false)
   const activeSyncedLineIndexRef = React.useRef(-1)
@@ -517,7 +528,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
         onMomentumScrollBegin={handleUserScrollStart}
         onScrollEndDrag={handleUserScrollEnd}
         onMomentumScrollEnd={handleUserScrollEnd}
-        onLayout={(event: any) => {
+        onLayout={(event: LayoutChangeEvent) => {
           setViewportHeight(event.nativeEvent.layout.height)
         }}
         contentContainerStyle={{

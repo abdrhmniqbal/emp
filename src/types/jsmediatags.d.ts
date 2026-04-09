@@ -5,6 +5,17 @@ declare module "jsmediatags" {
     description?: string
   }
 
+  interface TextFrameData {
+    data: string
+  }
+
+  type TagValue =
+    | string
+    | PictureData
+    | TextFrameData
+    | { text?: string }
+    | undefined
+
   interface TagData {
     title?: string
     artist?: string
@@ -21,7 +32,7 @@ declare module "jsmediatags" {
     TPOS?: { data: string }
     TCOM?: { data: string }
     USLT?: { data: string }
-    [key: string]: any
+    [key: string]: TagValue
   }
 
   interface ReadResult {

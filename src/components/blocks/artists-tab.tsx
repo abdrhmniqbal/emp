@@ -3,16 +3,16 @@ import type {
   NativeSyntheticEvent,
   RefreshControlProps,
 } from "react-native"
-import * as React from "react"
+import type { SortConfig } from "@/modules/library/library-sort.types"
 
+import * as React from "react"
 import { type Artist, ArtistGrid } from "@/components/blocks/artist-grid"
 import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
-import type { SortConfig } from "@/modules/library/library-sort.types"
-import { sortArtists } from "@/modules/library/library-sort.utils"
-import { useThemeColors } from "@/modules/ui/theme"
-import { useArtists } from "@/modules/library/library.queries"
 import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
+import { sortArtists } from "@/modules/library/library-sort.utils"
+import { useArtists } from "@/modules/library/library.queries"
+import { useThemeColors } from "@/modules/ui/theme"
 
 type ArtistOrderByField = Parameters<typeof useArtists>[0]
 type ArtistOrder = Parameters<typeof useArtists>[1]
@@ -83,7 +83,7 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
     [artistsData]
   )
   const sortedArtists = React.useMemo(
-    () => sortArtists(artists, effectiveSortConfig) as Artist[],
+    () => sortArtists(artists, effectiveSortConfig),
     [artists, effectiveSortConfig]
   )
 

@@ -17,6 +17,8 @@ const MEDIA_EVENT_AUTO_SCAN_DELAY_MS = 1500
 const LONG_BACKGROUND_THRESHOLD_MS = 2 * 60 * 1000
 const LONG_BACKGROUND_AUTO_SCAN_DELAY_MS = 12 * 1000
 
+let activeBootstrapListenersCleanup: (() => void) | null = null
+
 export function shouldTriggerAutoScanOnMediaLibraryEvent(
   event: MediaLibrary.MediaLibraryAssetsChangeEvent
 ) {
@@ -27,6 +29,13 @@ export function shouldTriggerAutoScanOnMediaLibraryEvent(
 }
 
 export function registerBootstrapListeners() {
+  if (activeBootstrapListenersCleanup) {
+    if (isExtraLoggingEnabled()) {
+      logInfo("Bootstrap listeners already registered")
+    }
+    return activeBootstrapListenersCleanup
+  }
+
   logInfo("Registering bootstrap listeners")
   let previousState: AppStateStatus = AppState.currentState
   let backgroundedAt: number | null = null
@@ -167,10 +176,19 @@ export function registerBootstrapListeners() {
     })
   })
 
-  return () => {
+  const unregister = () => {
+    if (activeBootstrapListenersCleanup !== unregister) {
+      return
+    }
+
+    activeBootstrapListenersCleanup = null
     logInfo("Unregistering bootstrap listeners")
     clearPendingForegroundWork()
     appStateSubscription.remove()
     mediaLibrarySubscription.remove()
   }
+
+  activeBootstrapListenersCleanup = unregister
+
+  return unregister
 }

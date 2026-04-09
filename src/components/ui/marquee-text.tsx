@@ -1,12 +1,18 @@
 import { Marquee } from "@animatereactnative/marquee"
 import * as React from "react"
 import { useState } from "react"
-import { type LayoutChangeEvent, Text, View } from "react-native"
+import {
+  type LayoutChangeEvent,
+  type StyleProp,
+  Text,
+  type TextStyle,
+  View,
+} from "react-native"
 
 interface MarqueeTextProps {
   text: string
   className?: string
-  style?: any
+  style?: StyleProp<TextStyle>
   speed?: number
   spacing?: number
 }

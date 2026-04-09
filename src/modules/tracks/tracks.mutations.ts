@@ -1,5 +1,6 @@
-import { useMutation } from "@tanstack/react-query"
+import type { getTrackById } from "./tracks.repository"
 
+import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/tanstack-query"
 
 import { trackKeys } from "./tracks.keys"
@@ -7,6 +8,8 @@ import {
   incrementTrackPlayCount,
   setTrackFavoriteStatus,
 } from "./tracks.repository"
+
+type TrackDetail = Awaited<ReturnType<typeof getTrackById>>
 
 export function useToggleFavoriteTrack() {
   return useMutation(
@@ -16,14 +19,18 @@ export function useToggleFavoriteTrack() {
         await queryClient.cancelQueries({
           queryKey: trackKeys.detail(trackId),
         })
-        const previousTrack = queryClient.getQueryData(
+        const previousTrack = queryClient.getQueryData<TrackDetail>(
           trackKeys.detail(trackId)
         )
 
-        queryClient.setQueryData(trackKeys.detail(trackId), (old: any) => ({
-          ...old,
-          isFavorite,
-        }))
+        queryClient.setQueryData<TrackDetail>(trackKeys.detail(trackId), (old) =>
+          old
+            ? {
+                ...old,
+                isFavorite: isFavorite ? 1 : 0,
+              }
+            : old
+        )
 
         return { previousTrack }
       },

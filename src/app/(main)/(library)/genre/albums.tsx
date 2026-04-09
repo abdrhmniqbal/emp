@@ -1,8 +1,12 @@
+import type {
+  AlbumSortField,
+  SortOrder,
+} from "@/modules/library/library-sort.types"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
 import { RefreshControl, Text, View } from "react-native"
-import Animated from "react-native-reanimated"
 
+import Animated from "react-native-reanimated"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
@@ -12,25 +16,21 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
+import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
+import { sortAlbums } from "@/modules/library/library-sort.utils"
+import { logWarn } from "@/modules/logging/logging.service"
+import { useGenreAlbums } from "@/modules/search/search.queries"
+import {
+  mapAlbumsToGridData,
+} from "@/modules/search/search.utils"
+import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { useThemeColors } from "@/modules/ui/theme"
-import {
-  mapAlbumsToGridData,
-} from "@/modules/search/search.utils"
-import { useGenreAlbums } from "@/modules/search/search.queries"
-import { startIndexing } from "@/modules/indexer/indexer.service"
-import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { logWarn } from "@/modules/logging/logging.service"
-import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
-import type {
-  AlbumSortField,
-  SortOrder,
-} from "@/modules/library/library-sort.types"
-import { sortAlbums } from "@/modules/library/library-sort.utils"
 
 function getSafeRouteName(value: string | string[] | undefined) {
   const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
@@ -86,7 +86,7 @@ export default function GenreAlbumsScreen() {
   const { data, isLoading, isFetching, refetch } =
     useGenreAlbums(normalizedGenreName)
   const albumData = mapAlbumsToGridData(data ?? [])
-  const sortedAlbumData = sortAlbums(albumData, sortConfig) as Album[]
+  const sortedAlbumData = sortAlbums(albumData, sortConfig)
 
   async function refresh() {
     await startIndexing(false)

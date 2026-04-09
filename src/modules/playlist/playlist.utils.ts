@@ -27,7 +27,29 @@ export function clampPlaylistDescription(value: string): string {
 }
 
 interface PlaylistTrackRelation {
-  track: any
+  track: PlaylistTrackRecord
+}
+
+interface PlaylistTrackArtist {
+  name?: string | null
+}
+
+interface PlaylistTrackAlbum {
+  title?: string | null
+  artwork?: string | null
+}
+
+interface PlaylistTrackRecord {
+  [key: string]: unknown
+  id: string
+  title: string
+  duration: number
+  uri: string
+  artist?: string | PlaylistTrackArtist | null
+  album?: string | PlaylistTrackAlbum | null
+  artwork?: string | null
+  image?: string | null
+  lyrics?: string | null
 }
 
 interface PlaylistEntity {
@@ -38,24 +60,28 @@ interface PlaylistEntity {
 export function buildPlaylistTracks(playlist?: PlaylistEntity | null): Track[] {
   return (playlist?.tracks || []).map((playlistTrack) => {
     const track = playlistTrack.track
+    const artist =
+      typeof track.artist === "object" && track.artist
+        ? track.artist.name
+        : track.artist
+    const album =
+      typeof track.album === "object" && track.album
+        ? track.album.title
+        : track.album
+    const image =
+      track.image ||
+      track.artwork ||
+      (typeof track.album === "object" && track.album
+        ? track.album.artwork || undefined
+        : undefined)
 
     return {
       ...track,
-      artist:
-        typeof track.artist === "object" && track.artist
-          ? track.artist.name
-          : track.artist,
-      album:
-        typeof track.album === "object" && track.album
-          ? track.album.title
-          : track.album,
-      image:
-        track.image ||
-        track.artwork ||
-        (typeof track.album === "object" && track.album
-          ? track.album.artwork
-          : undefined),
-    } as Track
+      artist: artist ?? undefined,
+      album: album ?? undefined,
+      image,
+      lyrics: typeof track.lyrics === "string" ? track.lyrics : undefined,
+    }
   })
 }
 
