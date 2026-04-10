@@ -14,6 +14,7 @@ import {
   type NativeSyntheticEvent,
   type RefreshControlProps,
   type StyleProp,
+  StyleSheet,
   View,
   type ViewStyle,
 } from "react-native"
@@ -207,6 +208,10 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   const tracks = usePlayerTracks()
   const toggleFavoriteMutation = useToggleFavorite()
   const router = useRouter()
+  const listContentContainerStyle = StyleSheet.flatten([
+    { gap: 8 },
+    contentContainerStyle,
+  ])
 
   const handlePress = useCallback((favorite: FavoriteEntry) => {
     switch (favorite.type) {
@@ -268,7 +273,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         keyExtractor={(item) => item.id}
         getItemType={(item) => item.type}
         scrollEnabled={scrollEnabled}
-        contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
+        contentContainerStyle={listContentContainerStyle}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}

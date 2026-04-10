@@ -1,7 +1,7 @@
 export const LEGEND_LIST_ROW_CONFIG = {
   recycleItems: true,
   initialContainerPoolRatio: 4,
-  estimatedItemSize: 64,
+  estimatedItemSize: 84,
   drawDistance: 200,
 } as const
 

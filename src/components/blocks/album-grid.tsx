@@ -10,6 +10,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
+  StyleSheet,
   View,
   type ViewStyle,
 } from "react-native"
@@ -18,7 +19,9 @@ import {
   LEGEND_LIST_GRID_CONFIG,
   LEGEND_LIST_GRID_HORIZONTAL_CONFIG,
 } from "@/components/blocks/legend-list-config"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   MediaItem as Item,
   MediaItemContent as ItemContent,
@@ -26,11 +29,9 @@ import {
   MediaItemImage as ItemImage,
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
-import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/modules/ui/theme"
 import { mergeText } from "@/utils/merge-text"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 
 export interface Album {
   id: string
@@ -69,6 +70,7 @@ const HORIZONTAL_PADDING = 32
 const ITEM_WIDTH =
   (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
 const HORIZONTAL_ROW_HEIGHT = 208
+const ESTIMATED_ALBUM_ITEM_HEIGHT = ITEM_WIDTH + 52
 
 export const AlbumGrid: React.FC<AlbumGridProps> = ({
   data,
@@ -90,6 +92,10 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
+  const gridContentContainerStyle = StyleSheet.flatten([
+    { paddingBottom: 8 },
+    contentContainerStyle,
+  ])
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
@@ -222,7 +228,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
         numColumns={NUM_COLUMNS}
-        contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
+        contentContainerStyle={gridContentContainerStyle}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}
@@ -232,7 +238,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
         style={{ flex: 1, minHeight: 1 }}
         className={containerClassName}
         {...LEGEND_LIST_GRID_CONFIG}
-        estimatedItemSize={176}
+        estimatedItemSize={ESTIMATED_ALBUM_ITEM_HEIGHT}
       />
     </View>
   )

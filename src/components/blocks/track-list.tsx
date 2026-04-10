@@ -13,6 +13,7 @@ import {
   type NativeSyntheticEvent,
   type RefreshControlProps,
   type StyleProp,
+  StyleSheet,
   View,
   type ViewStyle,
 } from "react-native"
@@ -162,6 +163,11 @@ export const TrackList: React.FC<TrackListProps> = ({
   const listRef = useRef<LegendListRef | null>(null)
   const isCompactNumberedList = hideCover && showNumbers
   const currentTrackId = useCurrentTrackId()
+  const estimatedItemSize = isCompactNumberedList ? 56 : 84
+  const listContentContainerStyle = StyleSheet.flatten([
+    { gap: isCompactNumberedList ? 0 : 8 },
+    contentContainerStyle,
+  ])
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
@@ -241,10 +247,7 @@ export const TrackList: React.FC<TrackListProps> = ({
             message="Tracks you add to your library will appear here."
           />
         }
-        contentContainerStyle={[
-          { gap: isCompactNumberedList ? 0 : 8 },
-          contentContainerStyle,
-        ]}
+        contentContainerStyle={listContentContainerStyle}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}
@@ -252,6 +255,7 @@ export const TrackList: React.FC<TrackListProps> = ({
         scrollEventThrottle={scrollEventThrottle}
         refreshControl={refreshControl || undefined}
         {...LEGEND_LIST_ROW_CONFIG}
+        estimatedItemSize={estimatedItemSize}
       />
       <TrackActionSheet
         track={selectedTrack}

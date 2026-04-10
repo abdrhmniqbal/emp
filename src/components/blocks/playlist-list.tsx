@@ -10,11 +10,13 @@ import {
   type NativeSyntheticEvent,
   type RefreshControlProps,
   type StyleProp,
+  StyleSheet,
   View,
   type ViewStyle,
 } from "react-native"
 
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
@@ -22,6 +24,7 @@ import {
   PlaylistArtwork,
   resolvePlaylistArtworkImages,
 } from "@/components/patterns/playlist-artwork"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   MediaItem as Item,
   MediaItemAction as ItemAction,
@@ -30,9 +33,7 @@ import {
   MediaItemImage as ItemImage,
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
-import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/modules/ui/theme"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 
 export interface Playlist {
   id: string
@@ -75,6 +76,10 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
+  const listContentContainerStyle = StyleSheet.flatten([
+    { gap: 8 },
+    contentContainerStyle,
+  ])
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
@@ -189,7 +194,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         keyExtractor={(item) => item.id}
         getItemType={(item) => item.rowType}
         scrollEnabled={scrollEnabled}
-        contentContainerStyle={[{ gap: 8 }, contentContainerStyle]}
+        contentContainerStyle={listContentContainerStyle}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}

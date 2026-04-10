@@ -14,14 +14,17 @@ import {
   type RefreshControlProps,
   ScrollView,
   type StyleProp,
+  StyleSheet,
   Text,
   View,
   type ViewStyle,
 } from "react-native"
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   MediaItem as Item,
   MediaItemAction as ItemAction,
@@ -30,12 +33,10 @@ import {
   MediaItemImage as ItemImage,
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
-import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/modules/ui/theme"
 import { formatDuration } from "@/utils/format"
 import { mergeText } from "@/utils/merge-text"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
 
@@ -90,6 +91,10 @@ export const FolderList: React.FC<FolderListProps> = ({
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
+  const listContentContainerStyle = StyleSheet.flatten([
+    { gap: 8, paddingBottom: 16 },
+    contentContainerStyle,
+  ])
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
@@ -204,10 +209,7 @@ export const FolderList: React.FC<FolderListProps> = ({
             ? renderFolderItem(item.folder)
             : renderTrackItem(item.track)
         }
-        contentContainerStyle={[
-          { gap: 8, paddingBottom: 16 },
-          contentContainerStyle,
-        ]}
+        contentContainerStyle={listContentContainerStyle}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}

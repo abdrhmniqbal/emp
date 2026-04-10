@@ -11,12 +11,15 @@ import {
   type NativeSyntheticEvent,
   type RefreshControlProps,
   type StyleProp,
+  StyleSheet,
   View,
   type ViewStyle,
 } from "react-native"
 
 import { LEGEND_LIST_GRID_CONFIG } from "@/components/blocks/legend-list-config"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   MediaItem as Item,
   MediaItemContent as ItemContent,
@@ -24,10 +27,8 @@ import {
   MediaItemImage as ItemImage,
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
-import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/modules/ui/theme"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 
 export interface Artist {
   id: string
@@ -56,6 +57,7 @@ const SCREEN_WIDTH = Dimensions.get("window").width
 const HORIZONTAL_PADDING = 32
 const ITEM_WIDTH =
   (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
+const ESTIMATED_ARTIST_ITEM_HEIGHT = ITEM_WIDTH + 48
 
 export const ArtistGrid: React.FC<ArtistGridProps> = ({
   data,
@@ -71,6 +73,10 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
+  const gridContentContainerStyle = StyleSheet.flatten([
+    { paddingBottom: 8 },
+    contentContainerStyle,
+  ])
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
@@ -147,7 +153,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
         keyExtractor={(item) => item.id}
         scrollEnabled={scrollEnabled}
         numColumns={NUM_COLUMNS}
-        contentContainerStyle={[{ paddingBottom: 8 }, contentContainerStyle]}
+        contentContainerStyle={gridContentContainerStyle}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}
@@ -156,7 +162,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
         refreshControl={refreshControl || undefined}
         style={{ flex: 1, minHeight: 1 }}
         {...LEGEND_LIST_GRID_CONFIG}
-        estimatedItemSize={132}
+        estimatedItemSize={ESTIMATED_ARTIST_ITEM_HEIGHT}
       />
     </View>
   )
