@@ -1,6 +1,7 @@
 import type { RepeatModeType, Track } from "@/modules/player/player.types"
 import type { RepeatMode } from "@/modules/player/player.utils"
 import { logError, logInfo } from "@/modules/logging/logging.service"
+import { updateColorsForImage } from "@/modules/player/player-colors.service"
 import {
   loadPlaybackSession,
   savePlaybackSession,
@@ -13,7 +14,7 @@ import {
   mapTrackPlayerTrackToTrack,
   mapTrackToTrackPlayerInput,
 } from "./player-adapter"
-import { setActiveTrack, setPlaybackProgress } from "./player-runtime-state"
+import { setActiveTrack } from "./player-runtime-state"
 import {
   beginPlayerQueueReplacement,
   endPlayerQueueReplacement,
@@ -31,17 +32,15 @@ import {
   getTracksState,
   setImmediateQueueTrackIdsState,
   setIsPlayingState,
-  setIsShuffledState,
-  setOriginalQueueState,
-  setOriginalQueueTrackIdsState,
   setQueueState,
   setQueueTrackIdsState,
-  setRepeatModeState,
+  usePlayerStore,
 } from "./player.store"
 
 const MIN_SESSION_SAVE_INTERVAL_MS = 2000
 const MAX_TRACKMAP_SIZE = 300
 const TRACKMAP_ACTIVE_WINDOW = 120
+const PLAYBACK_POSITION_EPSILON = 0.01
 
 type NativeQueue = Awaited<ReturnType<typeof TrackPlayer.getQueue>>
 
@@ -56,10 +55,52 @@ interface ResolvedPlaybackSession {
   repeatMode: RepeatModeType
 }
 
+interface NativePlaybackStatusSnapshot {
+  currentTrack: Track | null
+  currentTrackId: string | null
+  isPlaying: boolean
+  positionSeconds: number
+  repeatMode: RepeatModeType
+}
+
 let lastPlaybackSessionSavedAt = 0
 
 function dedupeTrackIds(trackIds: string[]) {
   return trackIds.filter((trackId, index) => trackIds.indexOf(trackId) === index)
+}
+
+function areStringArraysEqual(left: string[], right: string[]) {
+  if (left.length !== right.length) {
+    return false
+  }
+
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) {
+      return false
+    }
+  }
+
+  return true
+}
+
+function areTracksPresentationEqual(left: Track | null, right: Track | null) {
+  if (left === right) {
+    return true
+  }
+
+  if (!left || !right) {
+    return left === right
+  }
+
+  return (
+    left.id === right.id &&
+    left.uri === right.uri &&
+    left.duration === right.duration &&
+    left.image === right.image &&
+    left.title === right.title &&
+    left.artist === right.artist &&
+    left.album === right.album
+  )
 }
 
 function mapNativeQueueToTracks(nativeQueue: NativeQueue) {
@@ -125,19 +166,76 @@ function applyResolvedPlaybackSession(session: ResolvedPlaybackSession) {
       : null) ||
     session.queue[0] ||
     null
-
-  setQueueState(session.queue)
-  setQueueTrackIdsState(queueTrackIds)
-  setOriginalQueueState(session.originalQueue)
-  setOriginalQueueTrackIdsState(
+  const nextOriginalQueueTrackIds =
     originalQueueTrackIds.length > 0 ? originalQueueTrackIds : queueTrackIds
+  const nextDuration = currentTrack?.duration || 0
+  const previousState = usePlayerStore.getState()
+  const updates: Partial<ReturnType<typeof usePlayerStore.getState>> = {}
+  const shouldUpdateCurrentTrack = !areTracksPresentationEqual(
+    previousState.currentTrack,
+    currentTrack
   )
-  setImmediateQueueTrackIdsState(session.immediateQueueTrackIds)
-  setIsShuffledState(session.isShuffled)
-  setRepeatModeState(session.repeatMode)
-  setActiveTrack(currentTrack)
-  setPlaybackProgress(session.positionSeconds, currentTrack?.duration || 0)
-  setIsPlayingState(session.isPlaying)
+
+  if (!areStringArraysEqual(previousState.queueTrackIds, queueTrackIds)) {
+    updates.queue = session.queue
+    updates.queueTrackIds = queueTrackIds
+  }
+
+  if (
+    !areStringArraysEqual(
+      previousState.originalQueueTrackIds,
+      nextOriginalQueueTrackIds
+    )
+  ) {
+    updates.originalQueue = session.originalQueue
+    updates.originalQueueTrackIds = nextOriginalQueueTrackIds
+  }
+
+  if (
+    !areStringArraysEqual(
+      previousState.immediateQueueTrackIds,
+      session.immediateQueueTrackIds
+    )
+  ) {
+    updates.immediateQueueTrackIds = session.immediateQueueTrackIds
+  }
+
+  if (previousState.isShuffled !== session.isShuffled) {
+    updates.isShuffled = session.isShuffled
+  }
+
+  if (previousState.repeatMode !== session.repeatMode) {
+    updates.repeatMode = session.repeatMode
+  }
+
+  if (previousState.isPlaying !== session.isPlaying) {
+    updates.isPlaying = session.isPlaying
+  }
+
+  if (
+    Math.abs(previousState.currentTime - session.positionSeconds) >=
+    PLAYBACK_POSITION_EPSILON
+  ) {
+    updates.currentTime = session.positionSeconds
+  }
+
+  if (previousState.duration !== nextDuration) {
+    updates.duration = nextDuration
+  }
+
+  if (shouldUpdateCurrentTrack) {
+    updates.currentTrack = currentTrack
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return
+  }
+
+  usePlayerStore.setState(updates)
+
+  if (shouldUpdateCurrentTrack) {
+    void updateColorsForImage(currentTrack?.image)
+  }
 }
 
 function resolveTracksFromIds(
@@ -178,6 +276,27 @@ async function readNativePlaybackSession(): Promise<ResolvedPlaybackSession | nu
     repeatMode: mapTrackPlayerRepeatMode(repeatMode as RepeatMode),
     isPlaying: playbackState === State.Playing,
     isShuffled: false,
+  }
+}
+
+async function readNativePlaybackStatus(): Promise<NativePlaybackStatusSnapshot | null> {
+  const [activeTrack, positionSeconds, playbackState, repeatMode] =
+    await Promise.all([
+      TrackPlayer.getActiveTrack(),
+      TrackPlayer.getPosition(),
+      TrackPlayer.getState(),
+      TrackPlayer.getRepeatMode(),
+    ])
+
+  return {
+    currentTrack: activeTrack
+      ? mapTrackPlayerTrackToTrack(activeTrack, getTracksState())
+      : null,
+    currentTrackId:
+      activeTrack?.id !== undefined ? String(activeTrack.id) : null,
+    positionSeconds: Math.max(0, positionSeconds),
+    repeatMode: mapTrackPlayerRepeatMode(repeatMode as RepeatMode),
+    isPlaying: playbackState === State.Playing,
   }
 }
 
@@ -278,6 +397,35 @@ export async function persistPlaybackSession(options?: {
 
 export async function restorePlaybackSession(): Promise<void> {
   try {
+    const [nativeStatus, storedSession] = await Promise.all([
+      readNativePlaybackStatus(),
+      readStoredPlaybackSession(),
+    ])
+
+    if (
+      storedSession &&
+      (!nativeStatus?.currentTrackId ||
+        storedSession.queue.some(
+          (track) => track.id === nativeStatus.currentTrackId
+        ))
+    ) {
+      logInfo("Hydrating playback session from saved snapshot", {
+        queueLength: storedSession.queue.length,
+        currentTrackId:
+          nativeStatus?.currentTrackId ?? storedSession.currentTrackId,
+      })
+      applyResolvedPlaybackSession({
+        ...storedSession,
+        currentTrackId:
+          nativeStatus?.currentTrackId ?? storedSession.currentTrackId,
+        isPlaying: nativeStatus?.isPlaying ?? storedSession.isPlaying,
+        positionSeconds:
+          nativeStatus?.positionSeconds ?? storedSession.positionSeconds,
+        repeatMode: nativeStatus?.repeatMode ?? storedSession.repeatMode,
+      })
+      return
+    }
+
     const nativeSession = await readNativePlaybackSession()
     if (nativeSession) {
       logInfo("Restoring playback session from native queue", {
@@ -287,7 +435,6 @@ export async function restorePlaybackSession(): Promise<void> {
       return
     }
 
-    const storedSession = await readStoredPlaybackSession()
     if (!storedSession) {
       logInfo("No playback session snapshot available to restore")
       return
@@ -305,6 +452,17 @@ export async function restorePlaybackSession(): Promise<void> {
 
 export async function syncPlaybackSessionFromPlayer() {
   try {
+    return await syncPlaybackSessionFromPlayerWithStrategy("full")
+  } catch (error) {
+    logError("Failed to sync playback session from player", error)
+    return false
+  }
+}
+
+async function syncPlaybackSessionFromPlayerWithStrategy(
+  strategy: "foreground" | "full"
+) {
+  if (strategy === "full") {
     const nativeSession = await readNativePlaybackSession()
     if (!nativeSession) {
       return false
@@ -312,8 +470,101 @@ export async function syncPlaybackSessionFromPlayer() {
 
     applyResolvedPlaybackSession(nativeSession)
     return true
+  }
+
+  const nativeStatus = await readNativePlaybackStatus()
+  if (!nativeStatus) {
+    return false
+  }
+
+  const previousState = usePlayerStore.getState()
+  const queue = getQueueState()
+  const hasTrackInQueue =
+    !nativeStatus.currentTrackId ||
+    queue.some((track) => track.id === nativeStatus.currentTrackId)
+
+  if (queue.length === 0 || !hasTrackInQueue) {
+    const storedSession = await readStoredPlaybackSession()
+
+    if (
+      storedSession &&
+      (!nativeStatus.currentTrackId ||
+        storedSession.queue.some(
+          (track) => track.id === nativeStatus.currentTrackId
+        ))
+    ) {
+      applyResolvedPlaybackSession({
+        ...storedSession,
+        currentTrackId:
+          nativeStatus.currentTrackId ?? storedSession.currentTrackId,
+        isPlaying: nativeStatus.isPlaying,
+        positionSeconds: nativeStatus.positionSeconds,
+        repeatMode: nativeStatus.repeatMode,
+      })
+      return true
+    }
+
+    const nativeSession = await readNativePlaybackSession()
+    if (!nativeSession) {
+      return false
+    }
+
+    applyResolvedPlaybackSession(nativeSession)
+    return true
+  }
+
+  const resolvedCurrentTrack =
+    (nativeStatus.currentTrackId
+      ? queue.find((track) => track.id === nativeStatus.currentTrackId) ?? null
+      : previousState.currentTrack) || nativeStatus.currentTrack
+  const shouldUpdateCurrentTrack = !areTracksPresentationEqual(
+    previousState.currentTrack,
+    resolvedCurrentTrack
+  )
+  const nextDuration = resolvedCurrentTrack?.duration || 0
+  const updates: Partial<ReturnType<typeof usePlayerStore.getState>> = {}
+
+  if (shouldUpdateCurrentTrack) {
+    updates.currentTrack = resolvedCurrentTrack
+  }
+
+  if (previousState.duration !== nextDuration) {
+    updates.duration = nextDuration
+  }
+
+  if (
+    Math.abs(previousState.currentTime - nativeStatus.positionSeconds) >=
+    PLAYBACK_POSITION_EPSILON
+  ) {
+    updates.currentTime = nativeStatus.positionSeconds
+  }
+
+  if (previousState.repeatMode !== nativeStatus.repeatMode) {
+    updates.repeatMode = nativeStatus.repeatMode
+  }
+
+  if (previousState.isPlaying !== nativeStatus.isPlaying) {
+    updates.isPlaying = nativeStatus.isPlaying
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return true
+  }
+
+  usePlayerStore.setState(updates)
+
+  if (shouldUpdateCurrentTrack) {
+    void updateColorsForImage(resolvedCurrentTrack?.image)
+  }
+
+  return true
+}
+
+export async function syncPlaybackStateAfterForeground() {
+  try {
+    return await syncPlaybackSessionFromPlayerWithStrategy("foreground")
   } catch (error) {
-    logError("Failed to sync playback session from player", error)
+    logError("Failed to sync playback state after foreground", error)
     return false
   }
 }

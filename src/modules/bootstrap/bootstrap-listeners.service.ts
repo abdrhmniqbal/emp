@@ -10,7 +10,7 @@ import {
   isExtraLoggingEnabled,
   logInfo,
 } from "@/modules/logging/logging.service"
-import { syncPlaybackSessionFromPlayer } from "@/modules/player/player-session.service"
+import { syncPlaybackStateAfterForeground } from "@/modules/player/player-session.service"
 
 const FOREGROUND_AUTO_SCAN_DELAY_MS = 1500
 const MEDIA_EVENT_AUTO_SCAN_DELAY_MS = 1500
@@ -126,7 +126,7 @@ export function registerBootstrapListeners() {
         timeInBackgroundMs,
         isLongBackgroundSession,
       })
-      void syncPlaybackSessionFromPlayer()
+      void syncPlaybackStateAfterForeground()
     })
 
     if (pendingDeferredMediaAutoScan) {
