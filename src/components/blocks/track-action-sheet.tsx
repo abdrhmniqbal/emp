@@ -7,10 +7,7 @@ import { useEffect, useState } from "react"
 
 import { Text, View } from "react-native"
 import { DeleteTrackDialog } from "@/components/blocks/delete-track-dialog"
-import {
-  PlaylistPickerSheet,
-  type PlaylistPickerSelection,
-} from "@/components/blocks/playlist-picker-sheet"
+import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
@@ -29,7 +26,7 @@ import {
 } from "@/modules/favorites/favorites.queries"
 import { playTrack } from "@/modules/player/player.service"
 import { addToQueue, queueTrackNext } from "@/modules/player/queue.service"
-import { useSelectTrackPlaylist } from "@/modules/playlist/playlist-track-selection.hook"
+import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
 import {
   formatQualityLabel,
   normalizeCodecLabel,
@@ -65,7 +62,6 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   const { toast } = useToast()
   const theme = useThemeColors()
   const toggleFavoriteMutation = useToggleFavorite()
-  const { isSelecting, selectTrackPlaylist } = useSelectTrackPlaylist()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [favoriteOverrides, setFavoriteOverrides] = useState<
@@ -162,49 +158,14 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     showActionToast(title, description)
   }
 
-  const handleSelectPlaylist = async ({
-    id,
-    name,
-    hasTrack,
-  }: PlaylistPickerSelection) => {
-    if (!track || isSelecting) {
-      return
-    }
-
-    const result = await selectTrackPlaylist({
-      playlistId: id,
-      trackId: track.id,
-      hasTrack,
-    })
-
-    if (result.status === "busy") {
-      return
-    }
-
-    if (result.status === "failed") {
-      showPlaylistToast(
-        hasTrack ? "Failed to remove track" : "Failed to add track"
-      )
-      return
-    }
-
-    setIsPlaylistPickerOpen(false)
-    onClose()
-
-    if (result.status === "already-in-playlist") {
-      showPlaylistToast("Already in playlist", name)
-      return
-    }
-
-    if (result.status === "removed") {
-      showPlaylistToast("Removed from playlist", name)
-      return
-    }
-
-    if (result.status === "added") {
-      showPlaylistToast("Added to playlist", name)
-    }
-  }
+  const { isSelecting, handleSelectPlaylist } = usePlaylistPickerSelection({
+    trackId: track?.id,
+    onSelectionApplied: () => {
+      setIsPlaylistPickerOpen(false)
+      onClose()
+    },
+    showPlaylistToast,
+  })
 
   const handleCreatePlaylist = () => {
     setIsPlaylistPickerOpen(false)

@@ -34,14 +34,9 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { EmptyState } from "@/components/ui/empty-state"
+import type { PlaylistPickerSelection } from "@/modules/playlist/playlist.types"
 import { useThemeColors } from "@/modules/ui/theme"
 import { usePlaylistsForTrack } from "@/modules/playlist/playlist.queries"
-
-export interface PlaylistPickerSelection {
-  id: string
-  name: string
-  hasTrack: boolean
-}
 
 interface PlaylistPickerSheetProps {
   isOpen: boolean
