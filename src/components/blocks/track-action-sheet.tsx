@@ -7,7 +7,10 @@ import { useEffect, useState } from "react"
 
 import { Text, View } from "react-native"
 import { DeleteTrackDialog } from "@/components/blocks/delete-track-dialog"
-import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import {
+  PlaylistPickerSheet,
+  type PlaylistPickerSelection,
+} from "@/components/blocks/playlist-picker-sheet"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
@@ -163,20 +166,16 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     id,
     name,
     hasTrack,
-  }: {
-    id: string
-    name: string
-    hasTrack: boolean
-  }) => {
+  }: PlaylistPickerSelection) => {
     if (!track || isSelecting) {
       return
     }
 
     const result = await selectTrackPlaylist({
-        playlistId: id,
-        trackId: track.id,
-        hasTrack,
-      })
+      playlistId: id,
+      trackId: track.id,
+      hasTrack,
+    })
 
     if (result.status === "busy") {
       return

@@ -14,18 +14,41 @@ import {
   updatePlaylistMetadata,
 } from "./playlist.repository"
 
+type CreatePlaylistVariables = {
+  name: string
+  description?: string
+  trackIds: string[]
+}
+
+type UpdatePlaylistVariables = {
+  id: string
+  name?: string
+  description?: string
+}
+
+type PlaylistTrackVariables = {
+  playlistId: string
+  trackId: string
+}
+
+type ReorderPlaylistTracksVariables = {
+  playlistId: string
+  trackIds: string[]
+}
+
+type AddTrackToPlaylistResult = Awaited<ReturnType<typeof addTrackToPlaylist>>
+type RemoveTrackFromPlaylistResult = Awaited<
+  ReturnType<typeof removeTrackFromPlaylist>
+>
+
 export function useCreatePlaylist() {
-  return useMutation(
+  return useMutation<void, unknown, CreatePlaylistVariables>(
     {
       mutationFn: async ({
         name,
         description,
         trackIds,
-      }: {
-        name: string
-        description?: string
-        trackIds: string[]
-      }) => {
+      }: CreatePlaylistVariables) => {
         logInfo("Creating playlist", {
           name,
           trackCount: trackIds.length,
@@ -51,17 +74,13 @@ export function useCreatePlaylist() {
 }
 
 export function useUpdatePlaylist() {
-  return useMutation(
+  return useMutation<void, unknown, UpdatePlaylistVariables>(
     {
       mutationFn: async ({
         id,
         name,
         description,
-      }: {
-        id: string
-        name?: string
-        description?: string
-      }) => {
+      }: UpdatePlaylistVariables) => {
         logInfo("Updating playlist metadata", {
           playlistId: id,
           hasName: typeof name === "string",
@@ -88,7 +107,7 @@ export function useUpdatePlaylist() {
 }
 
 export function useDeletePlaylist() {
-  return useMutation(
+  return useMutation<void, unknown, string>(
     {
       mutationFn: async (playlistId: string) => {
         logInfo("Deleting playlist", { playlistId })
@@ -114,9 +133,13 @@ export function useDeletePlaylist() {
 }
 
 export function useAddTrackToPlaylist() {
-  return useMutation(
+  return useMutation<
+    AddTrackToPlaylistResult,
+    unknown,
+    PlaylistTrackVariables
+  >(
     {
-      mutationFn: async (variables) => {
+      mutationFn: async (variables: PlaylistTrackVariables) => {
         logInfo("Adding track to playlist", variables)
         return addTrackToPlaylist(variables)
       },
@@ -136,9 +159,13 @@ export function useAddTrackToPlaylist() {
 }
 
 export function useRemoveTrackFromPlaylist() {
-  return useMutation(
+  return useMutation<
+    RemoveTrackFromPlaylistResult,
+    unknown,
+    PlaylistTrackVariables
+  >(
     {
-      mutationFn: async (variables) => {
+      mutationFn: async (variables: PlaylistTrackVariables) => {
         logInfo("Removing track from playlist", variables)
         return removeTrackFromPlaylist(variables)
       },
@@ -158,9 +185,9 @@ export function useRemoveTrackFromPlaylist() {
 }
 
 export function useReorderPlaylistTracks() {
-  return useMutation(
+  return useMutation<void, unknown, ReorderPlaylistTracksVariables>(
     {
-      mutationFn: async (variables) => {
+      mutationFn: async (variables: ReorderPlaylistTracksVariables) => {
         logInfo("Reordering playlist tracks", {
           playlistId: variables.playlistId,
           trackCount: variables.trackIds.length,
