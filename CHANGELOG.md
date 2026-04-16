@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.2.1] - 2026-04-16
+
+### Added
+
+- Shared LegendList behavior hook for unified scroll-reset and list ref wiring across core list/grid blocks.
+- Shared query invalidation helper to standardize multi-key invalidation fan-out.
+
+### Changed
+
+- Extracted playlist form orchestration into a dedicated domain hook and simplified route-level composition.
+- Unified playlist picker selection handling for player and track action sheets through a shared module hook.
+- Consolidated track mapping paths so history and playlist track mapping reuse the shared DB-to-domain transformer.
+- Refactored query invalidation in favorites, history, indexer, playlist, and tracks modules to use one invalidation utility path.
+
+### Fixed
+
+- Removed duplicate navigation/tab bars on search detail screens (album, artist, playlist) by hiding parent search-stack headers for nested detail route groups.
+
 ## [v0.2.0] - 2026-04-09
 
 ### Added
