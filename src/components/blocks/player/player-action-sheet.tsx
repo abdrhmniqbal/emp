@@ -5,10 +5,7 @@ import { useState } from "react"
 
 import { Text } from "react-native"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
-import {
-  useAddTrackToPlaylist,
-  useRemoveTrackFromPlaylist,
-} from "@/modules/playlist/playlist.mutations"
+import { useSelectTrackPlaylist } from "@/modules/playlist/playlist-track-selection.hook"
 
 interface PlayerActionSheetProps {
   visible: boolean
@@ -25,8 +22,7 @@ export function PlayerActionSheet({
 }: PlayerActionSheetProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const addTrackToPlaylistMutation = useAddTrackToPlaylist()
-  const removeTrackFromPlaylistMutation = useRemoveTrackFromPlaylist()
+  const { isSelecting, selectTrackPlaylist } = useSelectTrackPlaylist()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
 
   const showPlaylistToast = (title: string, description?: string) => {
@@ -94,44 +90,41 @@ export function PlayerActionSheet({
     name: string
     hasTrack: boolean
   }) => {
-    if (
-      !track ||
-      addTrackToPlaylistMutation.isPending ||
-      removeTrackFromPlaylistMutation.isPending
-    ) {
+    if (!track || isSelecting) {
       return
     }
 
-    if (hasTrack) {
-      try {
-        await removeTrackFromPlaylistMutation.mutateAsync({
-          playlistId: id,
-          trackId: track.id,
-        })
-        setIsPlaylistPickerOpen(false)
-        showPlaylistToast("Removed from playlist", name)
-      } catch {
-        showPlaylistToast("Failed to remove track")
-      }
-      return
-    }
-
-    try {
-      const result = await addTrackToPlaylistMutation.mutateAsync({
+    const result = await selectTrackPlaylist({
         playlistId: id,
         trackId: track.id,
+        hasTrack,
       })
 
-      setIsPlaylistPickerOpen(false)
+    if (result.status === "busy") {
+      return
+    }
 
-      if (result.skipped) {
+    if (result.status === "failed") {
+      showPlaylistToast(
+        hasTrack ? "Failed to remove track" : "Failed to add track"
+      )
+      return
+    }
+
+    setIsPlaylistPickerOpen(false)
+
+    if (result.status === "already-in-playlist") {
         showPlaylistToast("Already in playlist", name)
         return
-      }
+    }
 
+    if (result.status === "removed") {
+      showPlaylistToast("Removed from playlist", name)
+      return
+    }
+
+    if (result.status === "added") {
       showPlaylistToast("Added to playlist", name)
-    } catch {
-      showPlaylistToast("Failed to add track")
     }
   }
 
@@ -180,10 +173,7 @@ export function PlayerActionSheet({
         isOpen={isPlaylistPickerOpen}
         onOpenChange={setIsPlaylistPickerOpen}
         trackId={track.id}
-        isSelecting={
-          addTrackToPlaylistMutation.isPending ||
-          removeTrackFromPlaylistMutation.isPending
-        }
+        isSelecting={isSelecting}
         onCreatePlaylist={handleCreatePlaylist}
         onSelectPlaylist={(playlist) => {
           void handleSelectPlaylist(playlist)
