@@ -1,10 +1,9 @@
 import {
   LegendList,
-  type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import * as React from "react"
-import { useCallback, useMemo, useRef } from "react"
+import { useCallback, useMemo } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -16,7 +15,7 @@ import {
 } from "react-native"
 
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
+import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
@@ -75,13 +74,11 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
-  const listRef = useRef<LegendListRef | null>(null)
+  const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const listContentContainerStyle = StyleSheet.flatten([
     { gap: 8 },
     contentContainerStyle,
   ])
-
-  useResetScrollOnKey(listRef, resetScrollKey)
 
   const handlePress = useCallback(
     (playlist: Playlist) => {
@@ -187,8 +184,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
     <View style={{ flex: 1 }}>
       <LegendList
         ref={listRef}
-        maintainVisibleContentPosition={false}
-        dataVersion={resetScrollKey}
+        {...listBehaviorProps}
         data={listData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}

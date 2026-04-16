@@ -1,10 +1,8 @@
 import {
   LegendList,
-  type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import * as React from "react"
-import { useRef } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -20,7 +18,7 @@ import {
   LEGEND_LIST_GRID_CONFIG,
   LEGEND_LIST_GRID_HORIZONTAL_CONFIG,
 } from "@/components/blocks/legend-list-config"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
+import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { EmptyState } from "@/components/ui/empty-state"
 import {
@@ -88,7 +86,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   resetScrollKey,
 }) => {
   const theme = useThemeColors()
-  const listRef = useRef<LegendListRef | null>(null)
+  const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const { width: windowWidth } = useWindowDimensions()
   const itemWidth =
     (windowWidth - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
@@ -97,9 +95,6 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
     { paddingBottom: 8 },
     contentContainerStyle,
   ])
-
-  useResetScrollOnKey(listRef, resetScrollKey)
-
   const handlePress = (album: Album) => {
     onAlbumPress?.(album)
   }
@@ -157,8 +152,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
     return (
       <LegendList
         ref={listRef}
-        maintainVisibleContentPosition={false}
-        dataVersion={resetScrollKey}
+        {...listBehaviorProps}
         horizontal
         data={data}
         renderItem={({ item, index }: LegendListRenderItemProps<Album>) => (
@@ -206,8 +200,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
     <View style={{ flex: 1 }}>
       <LegendList
         ref={listRef}
-        maintainVisibleContentPosition={false}
-        dataVersion={resetScrollKey}
+        {...listBehaviorProps}
         data={data}
         renderItem={({ item, index }: LegendListRenderItemProps<Album>) => {
           const column = index % NUM_COLUMNS

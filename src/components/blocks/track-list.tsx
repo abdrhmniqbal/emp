@@ -1,11 +1,10 @@
 import type { Track } from "@/modules/player/player.store"
 import {
   LegendList,
-  type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import * as React from "react"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 
 import {
   type NativeScrollEvent,
@@ -18,7 +17,7 @@ import {
 } from "react-native"
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
 import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
+import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { MemoizedTrackListItem } from "@/components/patterns/track-list-item"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -76,7 +75,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   const theme = useThemeColors()
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const listRef = useRef<LegendListRef | null>(null)
+  const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const isCompactNumberedList = hideCover && showNumbers
   const currentTrackId = useCurrentTrackId()
   const estimatedItemSize = isCompactNumberedList ? 56 : 84
@@ -84,8 +83,6 @@ export const TrackList: React.FC<TrackListProps> = ({
     { gap: isCompactNumberedList ? 0 : 8 },
     contentContainerStyle,
   ])
-
-  useResetScrollOnKey(listRef, resetScrollKey)
 
   const handleTrackPress = useCallback((track: Track) => {
     if (onTrackPress) {
@@ -139,8 +136,7 @@ export const TrackList: React.FC<TrackListProps> = ({
     <View style={{ flex: 1 }}>
       <LegendList
         ref={listRef}
-        maintainVisibleContentPosition={false}
-        dataVersion={resetScrollKey}
+        {...listBehaviorProps}
         data={data}
         renderItem={renderTrackItem}
         keyExtractor={(item) => item.id}

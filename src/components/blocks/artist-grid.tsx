@@ -1,10 +1,8 @@
 import {
   LegendList,
-  type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import * as React from "react"
-import { useRef } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -17,7 +15,7 @@ import {
 } from "react-native"
 
 import { LEGEND_LIST_GRID_CONFIG } from "@/components/blocks/legend-list-config"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
+import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import { EmptyState } from "@/components/ui/empty-state"
 import {
@@ -68,7 +66,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
   refreshControl,
 }) => {
   const theme = useThemeColors()
-  const listRef = useRef<LegendListRef | null>(null)
+  const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const { width: windowWidth } = useWindowDimensions()
   const itemWidth =
     (windowWidth - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
@@ -77,9 +75,6 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
     { paddingBottom: 8 },
     contentContainerStyle,
   ])
-
-  useResetScrollOnKey(listRef, resetScrollKey)
-
   const handlePress = (artist: Artist) => {
     onArtistPress?.(artist)
   }
@@ -108,8 +103,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
     <View style={{ flex: 1 }}>
       <LegendList
         ref={listRef}
-        maintainVisibleContentPosition={false}
-        dataVersion={resetScrollKey}
+        {...listBehaviorProps}
         data={data}
         renderItem={({ item, index }: LegendListRenderItemProps<Artist>) => {
           const column = index % NUM_COLUMNS

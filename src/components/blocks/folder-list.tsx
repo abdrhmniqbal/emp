@@ -1,12 +1,10 @@
 import type { Track } from "@/modules/player/player.store"
 import {
   LegendList,
-  type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import { Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useRef } from "react"
 
 import {
   type NativeScrollEvent,
@@ -20,7 +18,7 @@ import {
   type ViewStyle,
 } from "react-native"
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
-import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
+import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
@@ -90,13 +88,11 @@ export const FolderList: React.FC<FolderListProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
-  const listRef = useRef<LegendListRef | null>(null)
+  const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const listContentContainerStyle = StyleSheet.flatten([
     { gap: 8, paddingBottom: 16 },
     contentContainerStyle,
   ])
-
-  useResetScrollOnKey(listRef, resetScrollKey)
 
   const handlePress = (folder: Folder) => {
     onFolderPress?.(folder)
@@ -199,8 +195,7 @@ export const FolderList: React.FC<FolderListProps> = ({
     <View style={{ flex: 1 }}>
       <LegendList
         ref={listRef}
-        maintainVisibleContentPosition={false}
-        dataVersion={resetScrollKey}
+        {...listBehaviorProps}
         data={listData}
         keyExtractor={(item) => item.id}
         getItemType={(item) => item.type}
