@@ -93,8 +93,8 @@ export async function setupPlayer() {
 
     isPlayerReady = true
     logInfo("Track player setup completed")
-  } catch (error: any) {
-    if (error?.message?.includes("already been initialized")) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes("already been initialized")) {
       isPlayerReady = true
       logInfo("Track player already initialized")
       return

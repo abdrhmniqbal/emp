@@ -2,7 +2,7 @@ import type { AnimatedProgressBarProps } from "./animated-progress-bar.types"
 import { LinearGradient } from "expo-linear-gradient"
 import * as React from "react"
 import { useEffect } from "react"
-import { Dimensions, Text, View } from "react-native"
+import { Text, useWindowDimensions, View } from "react-native"
 
 import Animated, {
   Easing,
@@ -73,14 +73,16 @@ export const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
   const indeterminateValue = useSharedValue(0)
   const pulseValue = useSharedValue(1)
 
-  const screenWidth = Dimensions.get("window").width
+  const { width: screenWidth } = useWindowDimensions()
 
   const containerWidth =
     typeof width === "string"
       ? width.endsWith("%")
         ? screenWidth * (Number.parseFloat(width) / 100)
         : Number.parseFloat(width) || screenWidth
-      : width
+      : typeof width === "number"
+        ? width
+        : screenWidth
 
   useEffect(() => {
     if (!indeterminate) {
