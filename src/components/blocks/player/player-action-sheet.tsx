@@ -4,7 +4,10 @@ import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
 import { useState } from "react"
 
 import { Text } from "react-native"
-import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import {
+  PlaylistPickerSheet,
+  type PlaylistPickerSelection,
+} from "@/components/blocks/playlist-picker-sheet"
 import { useSelectTrackPlaylist } from "@/modules/playlist/playlist-track-selection.hook"
 
 interface PlayerActionSheetProps {
@@ -85,20 +88,16 @@ export function PlayerActionSheet({
     id,
     name,
     hasTrack,
-  }: {
-    id: string
-    name: string
-    hasTrack: boolean
-  }) => {
+  }: PlaylistPickerSelection) => {
     if (!track || isSelecting) {
       return
     }
 
     const result = await selectTrackPlaylist({
-        playlistId: id,
-        trackId: track.id,
-        hasTrack,
-      })
+      playlistId: id,
+      trackId: track.id,
+      hasTrack,
+    })
 
     if (result.status === "busy") {
       return
@@ -114,8 +113,8 @@ export function PlayerActionSheet({
     setIsPlaylistPickerOpen(false)
 
     if (result.status === "already-in-playlist") {
-        showPlaylistToast("Already in playlist", name)
-        return
+      showPlaylistToast("Already in playlist", name)
+      return
     }
 
     if (result.status === "removed") {

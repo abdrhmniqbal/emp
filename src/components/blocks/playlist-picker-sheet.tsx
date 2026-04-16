@@ -37,16 +37,18 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/modules/ui/theme"
 import { usePlaylistsForTrack } from "@/modules/playlist/playlist.queries"
 
+export interface PlaylistPickerSelection {
+  id: string
+  name: string
+  hasTrack: boolean
+}
+
 interface PlaylistPickerSheetProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   trackId?: string | null
   isSelecting?: boolean
-  onSelectPlaylist: (playlist: {
-    id: string
-    name: string
-    hasTrack: boolean
-  }) => void
+  onSelectPlaylist: (playlist: PlaylistPickerSelection) => void
   onCreatePlaylist: () => void
 }
 
