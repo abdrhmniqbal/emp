@@ -5,6 +5,7 @@ import { StackHeaderActions } from "@/components/patterns/stack-header-actions"
 import {
   getDefaultNativeStackOptions,
   getLargeTitleRootScreenOptions,
+  HIDDEN_STACK_SCREEN_OPTIONS,
 } from "@/modules/navigation/stack"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -38,6 +39,9 @@ export default function SearchLayout() {
           ),
         })}
       />
+      <Stack.Screen name="album" options={HIDDEN_STACK_SCREEN_OPTIONS} />
+      <Stack.Screen name="artist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
+      <Stack.Screen name="playlist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
     </Stack>
   )
 }
