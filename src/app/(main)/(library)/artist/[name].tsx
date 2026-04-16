@@ -7,7 +7,14 @@ import { Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useState } from "react"
 
-import { Dimensions, ScrollView, Text, View } from "react-native"
+import {
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native"
 import Animated, {
   Extrapolation,
   interpolate,
@@ -62,8 +69,7 @@ import {
 } from "@/modules/ui/ui.store"
 import { cn } from "@/utils/common"
 
-const SCREEN_WIDTH = Dimensions.get("window").width
-const HEADER_COLLAPSE_THRESHOLD = SCREEN_WIDTH - 120
+const SCROLL_SYNC_DELTA = 12
 
 function setAnimatedValue<T>(target: { value: T }, nextValue: T) {
   target.value = nextValue
@@ -93,8 +99,11 @@ function getSafeRouteName(value: string | string[] | undefined) {
 export default function ArtistDetailsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
+  const { width: screenWidth } = useWindowDimensions()
   const { name } = useLocalSearchParams<{ name: string }>()
   const toggleFavoriteMutation = useToggleFavorite()
+  const headerCollapseThreshold = screenWidth - 120
+  const lastSyncedScrollYRef = React.useRef(0)
 
   const [isHeaderSolid, setIsHeaderSolid] = useState(false)
   const [activeView, setActiveView] = useState<
@@ -182,6 +191,25 @@ export default function ArtistDetailsScreen() {
     withTiming(scrollY.value, { duration: 90 })
   )
 
+  const onScreenScroll = React.useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const y = event.nativeEvent.contentOffset.y
+      setAnimatedValue(scrollY, y)
+
+      const scrollDelta = Math.abs(y - lastSyncedScrollYRef.current)
+      if (scrollDelta >= SCROLL_SYNC_DELTA || y <= 0) {
+        handleScroll(y)
+        lastSyncedScrollYRef.current = y
+      }
+
+      const nextHeaderSolid = y > headerCollapseThreshold
+      setIsHeaderSolid((previous) =>
+        previous === nextHeaderSolid ? previous : nextHeaderSolid
+      )
+    },
+    [headerCollapseThreshold, scrollY]
+  )
+
   const heroArtworkStyle = useAnimatedStyle(() => {
     const y = smoothScrollY.value
     return {
@@ -256,7 +284,7 @@ export default function ArtistDetailsScreen() {
   }
 
   const renderHeroSection = () => (
-    <View style={{ height: SCREEN_WIDTH }} className="relative overflow-hidden">
+    <View style={{ height: screenWidth }} className="relative overflow-hidden">
       <Animated.View
         style={[
           { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
@@ -374,15 +402,7 @@ export default function ArtistDetailsScreen() {
             className="flex-1"
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 200 }}
-            onScroll={(e) => {
-              const y = e.nativeEvent.contentOffset.y
-              setAnimatedValue(scrollY, y)
-              handleScroll(y)
-              const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
-              if (nextHeaderSolid !== isHeaderSolid) {
-                setIsHeaderSolid(nextHeaderSolid)
-              }
-            }}
+            onScroll={onScreenScroll}
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
@@ -448,15 +468,7 @@ export default function ArtistDetailsScreen() {
               paddingBottom: 200,
               paddingHorizontal: 24,
             }}
-            onScroll={(e) => {
-              const y = e.nativeEvent.contentOffset.y
-              setAnimatedValue(scrollY, y)
-              handleScroll(y)
-              const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
-              if (nextHeaderSolid !== isHeaderSolid) {
-                setIsHeaderSolid(nextHeaderSolid)
-              }
-            }}
+            onScroll={onScreenScroll}
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
@@ -505,15 +517,7 @@ export default function ArtistDetailsScreen() {
               paddingBottom: 200,
               paddingHorizontal: 16,
             }}
-            onScroll={(e) => {
-              const y = e.nativeEvent.contentOffset.y
-              setAnimatedValue(scrollY, y)
-              handleScroll(y)
-              const nextHeaderSolid = y > HEADER_COLLAPSE_THRESHOLD
-              if (nextHeaderSolid !== isHeaderSolid) {
-                setIsHeaderSolid(nextHeaderSolid)
-              }
-            }}
+            onScroll={onScreenScroll}
             onScrollBeginDrag={handleScrollStart}
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}

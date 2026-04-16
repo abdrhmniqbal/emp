@@ -6,11 +6,12 @@ import {
 import * as React from "react"
 import { useRef } from "react"
 import {
-  Dimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  type RefreshControlProps,
   type StyleProp,
   StyleSheet,
+  useWindowDimensions,
   View,
   type ViewStyle,
 } from "react-native"
@@ -59,18 +60,14 @@ interface AlbumGridProps {
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  refreshControl?: React.ReactElement | null
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
   resetScrollKey?: string
 }
 
 const GAP = 16
 const NUM_COLUMNS = 2
-const SCREEN_WIDTH = Dimensions.get("window").width
 const HORIZONTAL_PADDING = 32
-const ITEM_WIDTH =
-  (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
 const HORIZONTAL_ROW_HEIGHT = 208
-const ESTIMATED_ALBUM_ITEM_HEIGHT = ITEM_WIDTH + 52
 
 export const AlbumGrid: React.FC<AlbumGridProps> = ({
   data,
@@ -92,6 +89,10 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
+  const { width: windowWidth } = useWindowDimensions()
+  const itemWidth =
+    (windowWidth - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
+  const estimatedAlbumItemHeight = itemWidth + 52
   const gridContentContainerStyle = StyleSheet.flatten([
     { paddingBottom: 8 },
     contentContainerStyle,
@@ -213,7 +214,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
           return (
             <View
               style={{
-                width: ITEM_WIDTH,
+                width: itemWidth,
                 marginRight: column < NUM_COLUMNS - 1 ? GAP : 0,
                 marginBottom: GAP,
               }}
@@ -234,11 +235,11 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
         onScrollEndDrag={onScrollEndDrag}
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={scrollEventThrottle}
-        refreshControl={refreshControl}
+        refreshControl={refreshControl || undefined}
         style={{ flex: 1, minHeight: 1 }}
         className={containerClassName}
         {...LEGEND_LIST_GRID_CONFIG}
-        estimatedItemSize={ESTIMATED_ALBUM_ITEM_HEIGHT}
+        estimatedItemSize={estimatedAlbumItemHeight}
       />
     </View>
   )

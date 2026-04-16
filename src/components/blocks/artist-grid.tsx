@@ -6,12 +6,12 @@ import {
 import * as React from "react"
 import { useRef } from "react"
 import {
-  Dimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type RefreshControlProps,
   type StyleProp,
   StyleSheet,
+  useWindowDimensions,
   View,
   type ViewStyle,
 } from "react-native"
@@ -53,11 +53,7 @@ interface ArtistGridProps {
 
 const GAP = 12
 const NUM_COLUMNS = 3
-const SCREEN_WIDTH = Dimensions.get("window").width
 const HORIZONTAL_PADDING = 32
-const ITEM_WIDTH =
-  (SCREEN_WIDTH - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
-const ESTIMATED_ARTIST_ITEM_HEIGHT = ITEM_WIDTH + 48
 
 export const ArtistGrid: React.FC<ArtistGridProps> = ({
   data,
@@ -73,6 +69,10 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
+  const { width: windowWidth } = useWindowDimensions()
+  const itemWidth =
+    (windowWidth - HORIZONTAL_PADDING - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS
+  const estimatedArtistItemHeight = itemWidth + 48
   const gridContentContainerStyle = StyleSheet.flatten([
     { paddingBottom: 8 },
     contentContainerStyle,
@@ -118,7 +118,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
               key={item.id}
               variant="grid"
               style={{
-                width: ITEM_WIDTH,
+                width: itemWidth,
                 marginRight: column < NUM_COLUMNS - 1 ? GAP : 0,
                 marginBottom: GAP,
               }}
@@ -162,7 +162,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
         refreshControl={refreshControl || undefined}
         style={{ flex: 1, minHeight: 1 }}
         {...LEGEND_LIST_GRID_CONFIG}
-        estimatedItemSize={ESTIMATED_ARTIST_ITEM_HEIGHT}
+        estimatedItemSize={estimatedArtistItemHeight}
       />
     </View>
   )
