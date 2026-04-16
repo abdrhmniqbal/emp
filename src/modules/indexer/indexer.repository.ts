@@ -17,17 +17,17 @@ import {
   GENRE_SHAPES,
   type GenreShape,
 } from "@/modules/genres/genres.constants"
+import { waitForIndexerResume } from "@/modules/indexer/indexer-runtime"
+
+import { logError } from "@/modules/logging/logging.service"
 import {
   ensureFolderFilterConfigLoaded,
   isAssetAllowedByFolderFilters,
 } from "@/modules/settings/folder-filters"
-
 import {
   ensureTrackDurationFilterConfigLoaded,
   isAssetAllowedByTrackDuration,
 } from "@/modules/settings/track-duration-filter"
-import { waitForIndexerResume } from "@/modules/indexer/indexer-runtime"
-import { logError } from "@/modules/logging/logging.service"
 import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.repository"
 import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 
@@ -283,6 +283,60 @@ async function saveIndexerRunSnapshot(
   latestIndexerRunSnapshotCache = snapshot
 }
 
+function parseIndexerRunSnapshot(value: unknown): IndexerRunSnapshot | null {
+  if (!value || typeof value !== "object") {
+    return null
+  }
+
+  const source = value as Record<string, unknown>
+  const numberFields: Array<keyof IndexerRunSnapshot> = [
+    "startedAt",
+    "finishedAt",
+    "durationMs",
+    "discoveredAssets",
+    "scopedAssets",
+    "skippedByUri",
+    "skippedByExtension",
+    "skippedByFolderFilters",
+    "skippedByDurationFilters",
+    "deletedTracks",
+    "changedAssets",
+    "unchangedAssets",
+    "preparedAssets",
+    "committedAssets",
+    "failedAssets",
+  ]
+
+  for (const field of numberFields) {
+    if (typeof source[field] !== "number" || !Number.isFinite(source[field])) {
+      return null
+    }
+  }
+
+  if (typeof source.forceFullScan !== "boolean") {
+    return null
+  }
+
+  return {
+    startedAt: source.startedAt as number,
+    finishedAt: source.finishedAt as number,
+    durationMs: source.durationMs as number,
+    forceFullScan: source.forceFullScan,
+    discoveredAssets: source.discoveredAssets as number,
+    scopedAssets: source.scopedAssets as number,
+    skippedByUri: source.skippedByUri as number,
+    skippedByExtension: source.skippedByExtension as number,
+    skippedByFolderFilters: source.skippedByFolderFilters as number,
+    skippedByDurationFilters: source.skippedByDurationFilters as number,
+    deletedTracks: source.deletedTracks as number,
+    changedAssets: source.changedAssets as number,
+    unchangedAssets: source.unchangedAssets as number,
+    preparedAssets: source.preparedAssets as number,
+    committedAssets: source.committedAssets as number,
+    failedAssets: source.failedAssets as number,
+  }
+}
+
 export async function getLastIndexerRunSnapshot(): Promise<IndexerRunSnapshot | null> {
   if (latestIndexerRunSnapshotCache !== undefined) {
     return latestIndexerRunSnapshotCache
@@ -298,7 +352,12 @@ export async function getLastIndexerRunSnapshot(): Promise<IndexerRunSnapshot | 
   }
 
   try {
-    const parsed = JSON.parse(row.value) as IndexerRunSnapshot
+    const parsed = parseIndexerRunSnapshot(JSON.parse(row.value) as unknown)
+    if (!parsed) {
+      latestIndexerRunSnapshotCache = null
+      return null
+    }
+
     latestIndexerRunSnapshotCache = parsed
     return parsed
   } catch {

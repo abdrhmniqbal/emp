@@ -1,13 +1,13 @@
 import {
-  getDefaultIndexerNotificationsEnabled,
-  getSettingsState,
-  updateSettingsState,
-} from "@/modules/settings/settings.store"
-import {
   createSettingsConfigFile,
   loadSettingsConfig,
   saveSettingsConfig,
 } from "@/modules/settings/settings.repository"
+import {
+  getDefaultIndexerNotificationsEnabled,
+  getSettingsState,
+  updateSettingsState,
+} from "@/modules/settings/settings.store"
 
 interface IndexerNotificationsConfig {
   enabled: boolean
@@ -19,6 +19,15 @@ const INDEXER_NOTIFICATIONS_FILE = createSettingsConfigFile(
 
 let loadPromise: Promise<boolean> | null = null
 let hasLoadedConfig = false
+
+function parseEnabled(value: unknown, fallback: boolean): boolean {
+  if (!value || typeof value !== "object") {
+    return fallback
+  }
+
+  const enabled = (value as Record<string, unknown>).enabled
+  return typeof enabled === "boolean" ? enabled : fallback
+}
 
 export async function ensureIndexerNotificationsConfigLoaded(): Promise<boolean> {
   if (hasLoadedConfig) {
@@ -34,10 +43,7 @@ export async function ensureIndexerNotificationsConfigLoaded(): Promise<boolean>
       INDEXER_NOTIFICATIONS_FILE,
       { enabled: getDefaultIndexerNotificationsEnabled() },
       (parsed) => ({
-        enabled:
-          typeof parsed.enabled === "boolean"
-            ? parsed.enabled
-            : getDefaultIndexerNotificationsEnabled(),
+        enabled: parseEnabled(parsed, getDefaultIndexerNotificationsEnabled()),
       })
     )
 

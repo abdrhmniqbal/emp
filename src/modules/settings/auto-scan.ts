@@ -1,22 +1,27 @@
 import {
-  getDefaultAutoScanEnabled,
-  getSettingsState,
-  updateSettingsState,
-} from "@/modules/settings/settings.store"
-import {
   createSettingsConfigFile,
   loadSettingsConfig,
   saveSettingsConfig,
 } from "@/modules/settings/settings.repository"
-
-interface AutoScanConfig {
-  enabled: boolean
-}
+import {
+  getDefaultAutoScanEnabled,
+  getSettingsState,
+  updateSettingsState,
+} from "@/modules/settings/settings.store"
 
 const AUTO_SCAN_FILE = createSettingsConfigFile("indexer-auto-scan.json")
 
 let loadPromise: Promise<boolean> | null = null
 let hasLoadedConfig = false
+
+function parseEnabled(value: unknown, fallback: boolean): boolean {
+  if (!value || typeof value !== "object") {
+    return fallback
+  }
+
+  const enabled = (value as Record<string, unknown>).enabled
+  return typeof enabled === "boolean" ? enabled : fallback
+}
 
 export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   if (hasLoadedConfig) {
@@ -32,10 +37,7 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
       AUTO_SCAN_FILE,
       { enabled: getDefaultAutoScanEnabled() },
       (parsed) => ({
-        enabled:
-          typeof parsed.enabled === "boolean"
-            ? parsed.enabled
-            : getDefaultAutoScanEnabled(),
+        enabled: parseEnabled(parsed, getDefaultAutoScanEnabled()),
       })
     )
 

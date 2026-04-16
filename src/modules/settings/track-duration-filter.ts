@@ -1,17 +1,17 @@
-import {
-  getDefaultTrackDurationFilterConfig,
-  getSettingsState,
-  updateSettingsState,
-} from "@/modules/settings/settings.store"
+import type {
+  TrackDurationFilterConfig,
+  TrackDurationFilterMode,
+} from "@/modules/settings/settings.types"
 import {
   createSettingsConfigFile,
   loadSettingsConfig,
   saveSettingsConfig,
 } from "@/modules/settings/settings.repository"
-import type {
-  TrackDurationFilterConfig,
-  TrackDurationFilterMode,
-} from "@/modules/settings/settings.types"
+import {
+  getDefaultTrackDurationFilterConfig,
+  getSettingsState,
+  updateSettingsState,
+} from "@/modules/settings/settings.store"
 
 export type { TrackDurationFilterConfig, TrackDurationFilterMode }
 
@@ -30,21 +30,26 @@ function clampCustomSeconds(value: number): number {
   return Math.max(0, Math.min(1200, Math.round(value)))
 }
 
-function sanitizeConfig(
-  config: Partial<TrackDurationFilterConfig>
-): TrackDurationFilterConfig {
+function sanitizeConfig(config: unknown): TrackDurationFilterConfig {
+  const source =
+    config && typeof config === "object"
+      ? (config as Record<string, unknown>)
+      : {}
+
   const mode: TrackDurationFilterMode =
-    config.mode === "min30s" ||
-    config.mode === "min60s" ||
-    config.mode === "min120s" ||
-    config.mode === "custom"
-      ? config.mode
+    source.mode === "min30s" ||
+    source.mode === "min60s" ||
+    source.mode === "min120s" ||
+    source.mode === "custom"
+      ? source.mode
       : "off"
 
   return {
     mode,
     customMinimumSeconds: clampCustomSeconds(
-      config.customMinimumSeconds ??
+      (typeof source.customMinimumSeconds === "number"
+        ? source.customMinimumSeconds
+        : undefined) ??
         getDefaultTrackDurationFilterConfig().customMinimumSeconds
     ),
   }
