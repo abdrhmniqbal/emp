@@ -1,17 +1,18 @@
 import type { QueryClient } from "@tanstack/react-query"
 
+import { invalidateQueryKeys } from "@/lib/query-invalidation"
 import { PLAYLISTS_KEY } from "@/modules/playlist/playlist.keys"
 
 export const FAVORITES_KEY = "favorites"
 
 export async function invalidateFavoriteQueries(queryClient: QueryClient) {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: [FAVORITES_KEY] }),
-    queryClient.invalidateQueries({ queryKey: ["library", "favorites"] }),
-    queryClient.invalidateQueries({ queryKey: ["tracks"] }),
-    queryClient.invalidateQueries({ queryKey: ["library", "tracks"] }),
-    queryClient.invalidateQueries({ queryKey: ["artists"] }),
-    queryClient.invalidateQueries({ queryKey: ["albums"] }),
-    queryClient.invalidateQueries({ queryKey: [PLAYLISTS_KEY] }),
+  await invalidateQueryKeys(queryClient, [
+    [FAVORITES_KEY],
+    ["library", "favorites"],
+    ["tracks"],
+    ["library", "tracks"],
+    ["artists"],
+    ["albums"],
+    [PLAYLISTS_KEY],
   ])
 }

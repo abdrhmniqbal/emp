@@ -1,4 +1,5 @@
 import { queryClient } from "@/lib/tanstack-query"
+import { invalidateQueryKeys } from "@/lib/query-invalidation"
 import { FAVORITES_KEY } from "@/modules/favorites/favorites.keys"
 import { GENRES_KEY } from "@/modules/genres/genres.keys"
 import {
@@ -24,22 +25,22 @@ import { TRACKS_KEY } from "@/modules/tracks/tracks.keys"
 export async function refreshIndexedMediaState() {
   logInfo("Refreshing indexed media state")
   await loadTracks()
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: [TRACKS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: ["library", TRACKS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [ALBUMS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [ARTISTS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [GENRES_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [PLAYLISTS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [FAVORITES_KEY] }),
-    queryClient.invalidateQueries({ queryKey: ["library", FAVORITES_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [SEARCH_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [SEARCH_GENRES_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [GENRE_DETAILS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [GENRE_TOP_TRACKS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [GENRE_ALBUMS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [HISTORY_RECENTLY_PLAYED_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [HISTORY_TOP_TRACKS_KEY] }),
+  await invalidateQueryKeys(queryClient, [
+    [TRACKS_KEY],
+    ["library", TRACKS_KEY],
+    [ALBUMS_KEY],
+    [ARTISTS_KEY],
+    [GENRES_KEY],
+    [PLAYLISTS_KEY],
+    [FAVORITES_KEY],
+    ["library", FAVORITES_KEY],
+    [SEARCH_KEY],
+    [SEARCH_GENRES_KEY],
+    [GENRE_DETAILS_KEY],
+    [GENRE_TOP_TRACKS_KEY],
+    [GENRE_ALBUMS_KEY],
+    [HISTORY_RECENTLY_PLAYED_KEY],
+    [HISTORY_TOP_TRACKS_KEY],
   ])
   logInfo("Indexed media state refreshed")
 }

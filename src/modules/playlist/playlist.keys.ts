@@ -1,5 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query"
 
+import { invalidateQueryKeys } from "@/lib/query-invalidation"
+
 export const PLAYLISTS_KEY = "playlists"
 
 export const playlistKeys = {
@@ -16,25 +18,15 @@ export async function invalidatePlaylistQueries(
     trackId?: string | null
   }
 ) {
-  const invalidations = [
-    queryClient.invalidateQueries({ queryKey: playlistKeys.all }),
-  ]
+  const queryKeys: Array<readonly unknown[]> = [playlistKeys.all]
 
   if (options?.playlistId) {
-    invalidations.push(
-      queryClient.invalidateQueries({
-        queryKey: playlistKeys.detail(options.playlistId),
-      })
-    )
+    queryKeys.push(playlistKeys.detail(options.playlistId))
   }
 
   if (options?.trackId) {
-    invalidations.push(
-      queryClient.invalidateQueries({
-        queryKey: playlistKeys.membership(options.trackId),
-      })
-    )
+    queryKeys.push(playlistKeys.membership(options.trackId))
   }
 
-  await Promise.all(invalidations)
+  await invalidateQueryKeys(queryClient, queryKeys)
 }

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 
+import { invalidateQueryKeys } from "@/lib/query-invalidation"
 import { queryClient } from "@/lib/tanstack-query"
 import { trackKeys } from "@/modules/tracks/tracks.keys"
 
@@ -16,8 +17,8 @@ export function useAddToHistory() {
         await addTrackToHistory(trackId)
         return trackId
       },
-      onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: historyKeys.tracks() })
+      onSuccess: async () => {
+        await invalidateQueryKeys(queryClient, [historyKeys.tracks()])
       },
     },
     queryClient
@@ -34,9 +35,11 @@ export function useIncrementPlayCount() {
         await addToHistory.mutateAsync(trackId)
         return trackId
       },
-      onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: trackKeys.all() })
-        void queryClient.invalidateQueries({ queryKey: historyKeys.tracks() })
+      onSuccess: async () => {
+        await invalidateQueryKeys(queryClient, [
+          trackKeys.all(),
+          historyKeys.tracks(),
+        ])
       },
     },
     queryClient

@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query"
 
+import { invalidateQueryKeys } from "@/lib/query-invalidation"
 import type { Track } from "@/modules/player/player.types"
 import { TRACKS_KEY } from "@/modules/tracks/tracks.keys"
 
@@ -43,10 +44,10 @@ export function optimisticallyUpdateRecentlyPlayedHistory(
 export async function invalidateHistoryAfterPlayback(
   queryClient: QueryClient
 ) {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: [HISTORY_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [HISTORY_RECENTLY_PLAYED_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [HISTORY_TOP_TRACKS_KEY] }),
-    queryClient.invalidateQueries({ queryKey: [TRACKS_KEY] }),
+  await invalidateQueryKeys(queryClient, [
+    [HISTORY_KEY],
+    [HISTORY_RECENTLY_PLAYED_KEY],
+    [HISTORY_TOP_TRACKS_KEY],
+    [TRACKS_KEY],
   ])
 }
