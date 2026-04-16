@@ -1,3 +1,7 @@
+import type {
+  FolderFilterConfig,
+  FolderFilterMode,
+} from "@/modules/settings/settings.types"
 import {
   createSettingsConfigFile,
   loadSettingsConfig,
@@ -8,10 +12,6 @@ import {
   getSettingsState,
   updateSettingsState,
 } from "@/modules/settings/settings.store"
-import type {
-  FolderFilterConfig,
-  FolderFilterMode,
-} from "@/modules/settings/settings.types"
 
 export type { FolderFilterConfig, FolderFilterMode }
 
@@ -113,10 +113,25 @@ export async function ensureFolderFilterConfigLoaded(): Promise<FolderFilterConf
       FOLDER_FILTERS_FILE,
       EMPTY_FILTER_CONFIG,
       (parsed) =>
-        sanitizeConfig({
-          whitelist: parsed.whitelist ?? [],
-          blacklist: parsed.blacklist ?? [],
-        })
+        sanitizeConfig((() => {
+          const source =
+            parsed && typeof parsed === "object"
+              ? (parsed as Record<string, unknown>)
+              : {}
+
+          return {
+            whitelist: Array.isArray(source.whitelist)
+              ? source.whitelist.filter(
+                  (item): item is string => typeof item === "string"
+                )
+              : [],
+            blacklist: Array.isArray(source.blacklist)
+              ? source.blacklist.filter(
+                  (item): item is string => typeof item === "string"
+                )
+              : [],
+          }
+        })())
     )
     updateSettingsState({ folderFilterConfig: next })
     return next

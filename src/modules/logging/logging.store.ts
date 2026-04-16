@@ -1,15 +1,15 @@
-import {
-  getDefaultLoggingConfig,
-  getSettingsState,
-  updateSettingsState,
-  useSettingsStore,
-} from "@/modules/settings/settings.store"
 import type { AppLogLevel, LoggingConfig } from "@/modules/settings/settings.types"
 import {
   createSettingsConfigFile,
   loadSettingsConfig,
   saveSettingsConfig,
 } from "@/modules/settings/settings.repository"
+import {
+  getDefaultLoggingConfig,
+  getSettingsState,
+  updateSettingsState,
+  useSettingsStore,
+} from "@/modules/settings/settings.store"
 
 export type { AppLogLevel, LoggingConfig }
 
@@ -38,10 +38,15 @@ function isValidLogLevel(value: unknown): value is AppLogLevel {
   return value === "minimal" || value === "extra"
 }
 
-function sanitizeConfig(value: Partial<LoggingConfig>): LoggingConfig {
+function sanitizeConfig(value: unknown): LoggingConfig {
+  const source =
+    value && typeof value === "object"
+      ? (value as Record<string, unknown>)
+      : {}
+
   return {
-    level: isValidLogLevel(value.level)
-      ? value.level
+    level: isValidLogLevel(source.level)
+      ? source.level
       : getDefaultLoggingConfig().level,
   }
 }

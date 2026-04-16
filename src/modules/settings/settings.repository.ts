@@ -4,10 +4,18 @@ export function createSettingsConfigFile(fileName: string) {
   return new File(Paths.document, fileName)
 }
 
+function toSettingsInput(value: unknown): unknown {
+  if (!value || typeof value !== "object") {
+    return {}
+  }
+
+  return value
+}
+
 export async function loadSettingsConfig<T>(
   file: File,
   fallback: T,
-  sanitize: (config: Partial<T>) => T
+  sanitize: (config: unknown) => T
 ): Promise<T> {
   try {
     if (!file.exists) {
@@ -15,8 +23,8 @@ export async function loadSettingsConfig<T>(
     }
 
     const raw = await file.text()
-    const parsed = JSON.parse(raw) as Partial<T>
-    return sanitize(parsed)
+    const parsed = JSON.parse(raw) as unknown
+    return sanitize(toSettingsInput(parsed))
   } catch {
     return fallback
   }
