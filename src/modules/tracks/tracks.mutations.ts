@@ -2,7 +2,12 @@ import type { getTrackById } from "./tracks.repository"
 
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/tanstack-query"
+import { SEARCH_KEY } from "@/modules/library/library.keys"
 
+import {
+  deleteTrackFromDevice,
+  type DeleteTrackFromDeviceInput,
+} from "./track-device-deletion.service"
 import { trackKeys } from "./tracks.keys"
 import {
   incrementTrackPlayCount,
@@ -61,6 +66,32 @@ export function useIncrementTrackPlayCount() {
         await queryClient.invalidateQueries({
           queryKey: trackKeys.detail(trackId),
         })
+      },
+    },
+    queryClient
+  )
+}
+
+export function useDeleteTrackFromDevice() {
+  return useMutation(
+    {
+      mutationFn: deleteTrackFromDevice,
+      onSuccess: async (result, variables: DeleteTrackFromDeviceInput) => {
+        if (result.status !== "deleted") {
+          return
+        }
+
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [trackKeys.all()[0]],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: trackKeys.detail(variables.trackId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [SEARCH_KEY],
+          }),
+        ])
       },
     },
     queryClient
