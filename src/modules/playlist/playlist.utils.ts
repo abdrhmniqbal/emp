@@ -1,4 +1,6 @@
 import type { Track } from "@/modules/player/player.types"
+import type { DBTrack } from "@/types/database"
+import { transformDBTrackToTrack } from "@/utils/transformers"
 
 export const MAX_PLAYLIST_NAME_LENGTH = 20
 export const MAX_PLAYLIST_DESCRIPTION_LENGTH = 40
@@ -27,29 +29,7 @@ export function clampPlaylistDescription(value: string): string {
 }
 
 interface PlaylistTrackRelation {
-  track: PlaylistTrackRecord
-}
-
-interface PlaylistTrackArtist {
-  name?: string | null
-}
-
-interface PlaylistTrackAlbum {
-  title?: string | null
-  artwork?: string | null
-}
-
-interface PlaylistTrackRecord {
-  [key: string]: unknown
-  id: string
-  title: string
-  duration: number
-  uri: string
-  artist?: string | PlaylistTrackArtist | null
-  album?: string | PlaylistTrackAlbum | null
-  artwork?: string | null
-  image?: string | null
-  lyrics?: string | null
+  track: DBTrack | null
 }
 
 interface PlaylistEntity {
@@ -58,31 +38,10 @@ interface PlaylistEntity {
 }
 
 export function buildPlaylistTracks(playlist?: PlaylistEntity | null): Track[] {
-  return (playlist?.tracks || []).map((playlistTrack) => {
-    const track = playlistTrack.track
-    const artist =
-      typeof track.artist === "object" && track.artist
-        ? track.artist.name
-        : track.artist
-    const album =
-      typeof track.album === "object" && track.album
-        ? track.album.title
-        : track.album
-    const image =
-      track.image ||
-      track.artwork ||
-      (typeof track.album === "object" && track.album
-        ? track.album.artwork || undefined
-        : undefined)
-
-    return {
-      ...track,
-      artist: artist ?? undefined,
-      album: album ?? undefined,
-      image,
-      lyrics: typeof track.lyrics === "string" ? track.lyrics : undefined,
-    }
-  })
+  return (playlist?.tracks || [])
+    .map((playlistTrack) => playlistTrack.track)
+    .filter((track): track is DBTrack => Boolean(track))
+    .map(transformDBTrackToTrack)
 }
 
 export function buildPlaylistImages(

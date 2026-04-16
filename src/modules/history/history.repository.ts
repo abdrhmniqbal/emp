@@ -4,59 +4,10 @@ import { desc, eq, sql } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import { playHistory, tracks } from "@/db/schema"
+import type { DBTrack } from "@/types/database"
+import { transformDBTrackToTrack } from "@/utils/transformers"
 
 import type { HistoryTopTracksPeriod } from "./history.types"
-
-interface TrackWithRelations {
-  id: string
-  title: string
-  artistId: string | null
-  albumId: string | null
-  duration: number
-  uri: string
-  artwork: string | null
-  playCount: number | null
-  lastPlayedAt: number | null
-  year: number | null
-  isFavorite: number | null
-  trackNumber: number | null
-  discNumber: number | null
-  artist?: {
-    name: string | null
-  } | null
-  album?: {
-    title: string | null
-  } | null
-  genres?:
-    | {
-        genre?: {
-          name: string | null
-        } | null
-      }[]
-    | null
-}
-
-function mapTrackRecord(track: TrackWithRelations): Track {
-  return {
-    id: track.id,
-    title: track.title,
-    artist: track.artist?.name || undefined,
-    artistId: track.artistId || undefined,
-    albumArtist: track.artist?.name || undefined,
-    album: track.album?.title || undefined,
-    albumId: track.albumId || undefined,
-    duration: track.duration,
-    uri: track.uri,
-    image: track.artwork || undefined,
-    playCount: track.playCount || 0,
-    lastPlayedAt: track.lastPlayedAt || undefined,
-    year: track.year || undefined,
-    isFavorite: Boolean(track.isFavorite),
-    trackNumber: track.trackNumber || undefined,
-    discNumber: track.discNumber || undefined,
-    genre: track.genres?.[0]?.genre?.name || undefined,
-  }
-}
 
 export async function getTrackHistory(): Promise<Track[]> {
   try {
@@ -80,7 +31,7 @@ export async function getTrackHistory(): Promise<Track[]> {
 
     return history
       .filter((item) => item.track && !item.track.isDeleted)
-      .map((item) => mapTrackRecord(item.track))
+      .map((item) => transformDBTrackToTrack(item.track as DBTrack))
   } catch {
     return []
   }
@@ -109,7 +60,7 @@ export async function getTopTracksByPeriod(
 
       return topTracks
         .filter((track) => track.playCount && track.playCount > 0)
-        .map(mapTrackRecord)
+        .map((track) => transformDBTrackToTrack(track as DBTrack))
     }
 
     const timeThreshold =
@@ -134,10 +85,7 @@ export async function getTopTracksByPeriod(
       },
     })
 
-    const trackCounts = new Map<
-      string,
-      { track: (typeof history)[number]["track"]; count: number }
-    >()
+    const trackCounts = new Map<string, { track: DBTrack; count: number }>()
 
     for (const entry of history) {
       if (entry.track && !entry.track.isDeleted) {
@@ -153,7 +101,7 @@ export async function getTopTracksByPeriod(
     return Array.from(trackCounts.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, limit)
-      .map((item) => mapTrackRecord(item.track))
+      .map((item) => transformDBTrackToTrack(item.track))
   } catch {
     return []
   }
