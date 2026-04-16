@@ -34,14 +34,18 @@ jobs:
         run: |
           set -euo pipefail
           CURRENT_TAG="${{ inputs.release_tag }}"
+          NOREPLY_EMAIL_PATTERN='^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$'
+          CONVENTIONAL_COMMIT_PATTERN='^(feat|fix|perf)(\([^)]+\))?(!)?:[[:space:]]+(.+)$'
 
           if [[ "${CURRENT_TAG}" == *-* ]]; then
             PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || true)"
             echo "Pre-release detected. Using nearest previous tag: ${PREVIOUS_TAG:-<none>}"
           else
             PREVIOUS_TAG="$(
-              git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname \
-                | awk -v current_tag="${CURRENT_TAG}" '$0 != current_tag { print; exit }'
+              git tag --sort=-version:refname \
+                | awk -v current_tag="${CURRENT_TAG}" '
+                    /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $0 != current_tag { print; exit }
+                  '
             )"
             echo "Stable release detected. Using previous stable tag: ${PREVIOUS_TAG:-<none>}"
           fi
@@ -64,7 +68,7 @@ jobs:
             local commit_author_name="$2"
             local commit_author_email="$3"
 
-            if [[ "${commit_author_email}" =~ ^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$ ]]; then
+            if [[ "${commit_author_email}" =~ ${NOREPLY_EMAIL_PATTERN} ]]; then
               echo "@${BASH_REMATCH[2]}"
               return
             fi
@@ -112,7 +116,7 @@ jobs:
             author_ref="$(resolve_author_ref "${sha}" "${author_name}" "${author_email}")"
 
             clean_subject="${subject}"
-            if [[ "${subject}" =~ ^(feat|fix|perf)(\([^)]+\))?(!)?:[[:space:]]+(.+)$ ]]; then
+            if [[ "${subject}" =~ ${CONVENTIONAL_COMMIT_PATTERN} ]]; then
               commit_type="${BASH_REMATCH[1]}"
               clean_subject="${BASH_REMATCH[4]}"
               clean_subject="$(to_sentence_case "${clean_subject}")"
