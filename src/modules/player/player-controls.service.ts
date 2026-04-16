@@ -97,7 +97,7 @@ export async function playNext() {
       if (getRepeatModeState() === "queue" && nativeQueue.length > 0) {
         logInfo("Wrapping to first track in queue")
         await TrackPlayer.skip(0)
-        await syncCurrentTrackFromPlayer()
+        await syncCurrentTrackFromPlayer({ skipQueueRefresh: true })
         await persistPlaybackSession({ force: true })
         logInfo("Wrapped to first track in queue")
       } else {
@@ -111,7 +111,7 @@ export async function playNext() {
 
     logInfo("Skipping to next track")
     await TrackPlayer.skipToNext()
-    await syncCurrentTrackFromPlayer()
+    await syncCurrentTrackFromPlayer({ skipQueueRefresh: true })
     await persistPlaybackSession({ force: true })
     logInfo("Skipped to next track")
   } catch (error) {
@@ -147,7 +147,7 @@ export async function playPrevious() {
     } else {
       logInfo("Skipping to previous track")
       await TrackPlayer.skipToPrevious()
-      await syncCurrentTrackFromPlayer()
+      await syncCurrentTrackFromPlayer({ skipQueueRefresh: true })
       await persistPlaybackSession({ force: true })
       logInfo("Skipped to previous track")
     }

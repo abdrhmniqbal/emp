@@ -17,6 +17,7 @@ import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
 import { handleTrackActivated } from "./player-activity.service"
 import {
   getCurrentTrackState,
+  getQueueState,
   getRepeatModeState,
   setIsPlayingState,
 } from "./player.store"
@@ -73,7 +74,10 @@ export async function PlaybackService() {
   TrackPlayer.addEventListener(Event.PlaybackTrackChanged, async () => {
     try {
       const previousTrackId = getCurrentTrackState()?.id ?? null
-      await syncCurrentTrackFromPlayer()
+      const hasStoredQueue = getQueueState().length > 0
+      await syncCurrentTrackFromPlayer(
+        hasStoredQueue ? { skipQueueRefresh: true } : undefined
+      )
       const currentTrack = getCurrentTrackState()
       const isTrackRepeat = getRepeatModeState() === "track"
       if (
@@ -84,7 +88,10 @@ export async function PlaybackService() {
       }
 
       await handleTrackActivated(currentTrack)
-      void persistPlaybackSession({ force: true })
+      void persistPlaybackSession({
+        force: true,
+        skipQueueSync: hasStoredQueue,
+      })
     } catch (error) {
       logError("Failed to handle playback track change", error)
     }

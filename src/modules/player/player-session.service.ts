@@ -63,6 +63,10 @@ interface NativePlaybackStatusSnapshot {
   repeatMode: RepeatModeType
 }
 
+interface SyncCurrentTrackOptions {
+  skipQueueRefresh?: boolean
+}
+
 let lastPlaybackSessionSavedAt = 0
 
 function dedupeTrackIds(trackIds: string[]) {
@@ -352,12 +356,13 @@ export async function persistPlaybackSession(options?: {
   }
 
   try {
+    const storeQueueTracks = getQueueState()
     const shouldSyncQueueWithNativePlayer =
       options?.skipQueueSync !== true &&
-      (options?.force === true || getQueueTrackIdsState().length === 0)
+      (getQueueTrackIdsState().length === 0 || storeQueueTracks.length === 0)
     const queueTracks = shouldSyncQueueWithNativePlayer
       ? mapNativeQueueToTracks(await TrackPlayer.getQueue())
-      : getQueueState()
+      : storeQueueTracks
     const queueTrackIds = queueTracks.map((track) => track.id)
     const trackMap = createPersistedTrackMap(queueTracks)
     let currentTrackId = getCurrentTrackState()?.id ?? null
@@ -618,16 +623,20 @@ export async function ensureNativePlaybackQueue(options?: { autoPlay?: boolean }
   }
 }
 
-export async function syncCurrentTrackFromPlayer(): Promise<void> {
+export async function syncCurrentTrackFromPlayer(
+  options?: SyncCurrentTrackOptions
+): Promise<void> {
   try {
-    const [activeIndex, nativeQueue, activeTrack] = await Promise.all([
+    const shouldRefreshQueue = options?.skipQueueRefresh !== true
+    const [activeIndex, activeTrack] = await Promise.all([
       TrackPlayer.getCurrentTrack(),
-      TrackPlayer.getQueue(),
       TrackPlayer.getActiveTrack(),
     ])
-    const mappedQueue = mapNativeQueueToTracks(nativeQueue)
+    const mappedQueue = shouldRefreshQueue
+      ? mapNativeQueueToTracks(await TrackPlayer.getQueue())
+      : getQueueState()
 
-    if (mappedQueue.length > 0) {
+    if (shouldRefreshQueue && mappedQueue.length > 0) {
       setQueueState(mappedQueue)
       setQueueTrackIdsState(mappedQueue.map((track) => track.id))
 
