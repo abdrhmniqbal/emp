@@ -4,11 +4,8 @@ import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
 import { useState } from "react"
 
 import { Text } from "react-native"
-import {
-  PlaylistPickerSheet,
-  type PlaylistPickerSelection,
-} from "@/components/blocks/playlist-picker-sheet"
-import { useSelectTrackPlaylist } from "@/modules/playlist/playlist-track-selection.hook"
+import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
 
 interface PlayerActionSheetProps {
   visible: boolean
@@ -25,7 +22,6 @@ export function PlayerActionSheet({
 }: PlayerActionSheetProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const { isSelecting, selectTrackPlaylist } = useSelectTrackPlaylist()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
 
   const showPlaylistToast = (title: string, description?: string) => {
@@ -84,48 +80,13 @@ export function PlayerActionSheet({
     router.push("/playlist/form")
   }
 
-  const handleSelectPlaylist = async ({
-    id,
-    name,
-    hasTrack,
-  }: PlaylistPickerSelection) => {
-    if (!track || isSelecting) {
-      return
-    }
-
-    const result = await selectTrackPlaylist({
-      playlistId: id,
-      trackId: track.id,
-      hasTrack,
-    })
-
-    if (result.status === "busy") {
-      return
-    }
-
-    if (result.status === "failed") {
-      showPlaylistToast(
-        hasTrack ? "Failed to remove track" : "Failed to add track"
-      )
-      return
-    }
-
-    setIsPlaylistPickerOpen(false)
-
-    if (result.status === "already-in-playlist") {
-      showPlaylistToast("Already in playlist", name)
-      return
-    }
-
-    if (result.status === "removed") {
-      showPlaylistToast("Removed from playlist", name)
-      return
-    }
-
-    if (result.status === "added") {
-      showPlaylistToast("Added to playlist", name)
-    }
-  }
+  const { isSelecting, handleSelectPlaylist } = usePlaylistPickerSelection({
+    trackId: track?.id,
+    onSelectionApplied: () => {
+      setIsPlaylistPickerOpen(false)
+    },
+    showPlaylistToast,
+  })
 
   if (!track) {
     return null
