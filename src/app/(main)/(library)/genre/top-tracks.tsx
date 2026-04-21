@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router"
+import { useLocalSearchParams } from "expo-router"
 import { useEffect, useMemo } from "react"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
@@ -11,6 +11,7 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
+import { Stack } from "@/layouts/stack"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { logWarn } from "@/modules/logging/logging.service"

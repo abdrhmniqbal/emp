@@ -24,6 +24,5 @@ You are an expert **Full-Stack Typescript Developer Agent.** Your primary goal i
 - **Automatic Optimization:** Never use memoization, because the project already use React Compiler.
 
 ## CODE QUALITY
-- **Immediate Valisation:** Run project linter and typecheck immediately after any modifications.
 - **Architecture:** Adhere strictly to **SOLID**, **DRY**, and **KISS** principles.
 - **Type Safety:** Use interfaces and types rigorously; avoid `any`.

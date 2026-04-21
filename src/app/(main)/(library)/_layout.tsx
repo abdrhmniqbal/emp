@@ -1,14 +1,15 @@
-import { Stack, useRouter } from "expo-router"
+import { useRouter } from "expo-router"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
+import { BackButton } from "@/components/patterns/back-button"
 import { StackHeaderActions } from "@/components/patterns/stack-header-actions"
+import { Stack } from "@/layouts/stack"
 import {
   getDefaultNativeStackOptions,
   getDrillDownScreenOptions,
-  HIDDEN_STACK_SCREEN_OPTIONS,
   getLargeTitleRootScreenOptions,
+  HIDDEN_STACK_SCREEN_OPTIONS,
 } from "@/modules/navigation/stack"
-import { BackButton } from "@/components/patterns/back-button"
 import { useThemeColors } from "@/modules/ui/theme"
 
 export default function LibraryLayout() {

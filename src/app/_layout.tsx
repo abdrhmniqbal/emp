@@ -4,7 +4,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native"
 import * as Notifications from "expo-notifications"
-import { Stack, useRouter, useSegments } from "expo-router"
+import { useRouter, useSegments } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
 import { type ReactNode, useCallback, useEffect, useRef } from "react"
@@ -21,6 +21,7 @@ import { useUniwind } from "uniwind"
 import { PlayerSheet } from "@/components/blocks/player/player-sheet"
 import { RootProviders } from "@/components/providers/root-providers"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
+import { Stack } from "@/layouts/stack"
 import {
   handleBootstrapDatabaseError,
   handleBootstrapDatabaseReady,
@@ -172,7 +173,7 @@ export default function Layout() {
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const isMainTabsRoute = segments[0] === "(main)"
   const isFolderFiltersRoute =
-    segments[0] === "settings" && segments[1] === "folder-filters"
+    segments[0] === "settings" && segments.at(1) === "folder-filters"
   const folderFiltersToastOffset = isFolderFiltersRoute
     ? SETTINGS_FOLDER_FILTERS_ACTION_HEIGHT +
       Math.max(insets.bottom, SETTINGS_FOLDER_FILTERS_ACTION_TOP_PADDING)

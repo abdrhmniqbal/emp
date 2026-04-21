@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import * as React from "react"
 import { useMemo, useState } from "react"
@@ -17,6 +17,7 @@ import { BackButton } from "@/components/patterns/back-button"
 import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
+import { Stack } from "@/layouts/stack"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   useIsFavorite,

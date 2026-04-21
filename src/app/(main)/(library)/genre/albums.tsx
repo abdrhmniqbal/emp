@@ -2,7 +2,7 @@ import type {
   AlbumSortField,
   SortOrder,
 } from "@/modules/library/library-sort.types"
-import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
 import { RefreshControl, Text, View } from "react-native"
 
@@ -15,6 +15,7 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
+import { Stack } from "@/layouts/stack"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"

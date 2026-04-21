@@ -1,7 +1,8 @@
-import { Stack, useRouter } from "expo-router"
+import { useRouter } from "expo-router"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { StackHeaderActions } from "@/components/patterns/stack-header-actions"
+import { Stack } from "@/layouts/stack"
 import {
   getDefaultNativeStackOptions,
   getLargeTitleRootScreenOptions,

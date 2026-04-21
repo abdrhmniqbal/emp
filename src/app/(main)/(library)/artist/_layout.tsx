@@ -1,6 +1,5 @@
-import { Stack } from "expo-router"
-
 import { BackButton } from "@/components/patterns/back-button"
+import { Stack } from "@/layouts/stack"
 import {
   getMediaDetailTransitionOptions,
 } from "@/modules/navigation/stack"
