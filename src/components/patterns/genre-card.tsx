@@ -6,6 +6,7 @@ import { cn } from "tailwind-variants"
 
 interface GenreCardProps {
   title: string
+  trackCount: number
   color: string
   pattern: PatternType
   onPress?: () => void
@@ -26,7 +27,20 @@ const GRID_PATTERN_KEYS = [
   "grid-12",
 ]
 
-export function GenreCard({ title, color, pattern, onPress }: GenreCardProps) {
+export function GenreCard({
+  title,
+  trackCount,
+  color,
+  pattern,
+  onPress,
+}: GenreCardProps) {
+  const normalizedTrackCount = Number.isFinite(trackCount)
+    ? Math.max(0, Math.trunc(trackCount))
+    : Math.max(0, Math.trunc(Number(trackCount) || 0))
+  const trackCountLabel = `${normalizedTrackCount} ${
+    normalizedTrackCount === 1 ? "track" : "tracks"
+  }`
+
   return (
     <PressableFeedback
       onPress={onPress}
@@ -34,12 +48,15 @@ export function GenreCard({ title, color, pattern, onPress }: GenreCardProps) {
     >
       <Card
         className={cn(
-          "relative h-24 justify-start overflow-hidden border-none p-4",
+          "relative h-24 justify-between overflow-hidden border-none p-4",
           color
         )}
       >
         <Text className="z-10 text-[17px] leading-tight font-bold text-white">
           {title}
+        </Text>
+        <Text className="z-10 text-xs font-medium text-white/80">
+          {trackCountLabel}
         </Text>
         <View className="absolute inset-0">
           {pattern === "circles" && (

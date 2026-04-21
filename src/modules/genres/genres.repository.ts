@@ -3,7 +3,7 @@ import type { Track } from "@/modules/player/player.types"
 import { asc, desc, eq, sql } from "drizzle-orm"
 
 import { db } from "@/db/client"
-import { genres, tracks } from "@/db/schema"
+import { genres, trackGenres, tracks } from "@/db/schema"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 import { GENRE_COLORS, GENRE_SHAPES } from "./genres.constants"
@@ -17,29 +17,68 @@ function hashString(value: string): number {
   return hash
 }
 
-export async function getAllGenres(): Promise<string[]> {
-  try {
-    const result = await db.query.genres.findMany({
-      orderBy: (genres, { asc }) => [
-        asc(sql`lower(coalesce(${genres.name}, ''))`),
-      ],
-      columns: {
-        name: true,
-      },
-    })
+function getFallbackGenreVisual(name: string): GenreVisual {
+  const hash = hashString(name)
 
-    return result.map((genre) => genre.name)
-  } catch {
-    return []
+  return {
+    name,
+    color: GENRE_COLORS[hash % GENRE_COLORS.length],
+    shape:
+      GENRE_SHAPES[Math.floor(hash / GENRE_COLORS.length) % GENRE_SHAPES.length],
+    trackCount: 0,
   }
 }
 
-export async function getAllGenreVisuals(): Promise<GenreVisual[]> {
+function normalizeGenreName(name: string | null | undefined): string | null {
+  if (typeof name !== "string") {
+    return null
+  }
+
+  const trimmedName = name.trim()
+  return trimmedName.length > 0 ? trimmedName : null
+}
+
+async function listActiveGenreRows() {
+  const rows = await db
+    .select({
+      id: genres.id,
+      name: genres.name,
+      trackCount: sql<number>`count(${trackGenres.trackId})`.as("trackCount"),
+    })
+    .from(genres)
+    .innerJoin(trackGenres, eq(trackGenres.genreId, genres.id))
+    .innerJoin(tracks, eq(trackGenres.trackId, tracks.id))
+    .where(eq(tracks.isDeleted, 0))
+    .groupBy(genres.id, genres.name)
+    .orderBy(sql`lower(coalesce(${genres.name}, ''))`)
+
+  return rows
+    .map((row) => {
+      const name = normalizeGenreName(row.name)
+      if (!name) {
+        return null
+      }
+
+      return {
+        id: row.id,
+        name,
+        trackCount: Math.max(0, Math.trunc(Number(row.trackCount) || 0)),
+      }
+    })
+    .filter(
+      (
+        row
+      ): row is {
+        id: string
+        name: string
+        trackCount: number
+      } => Boolean(row)
+    )
+}
+
+async function listGenreVisualMetadata() {
   try {
-    const result = await db.query.genres.findMany({
-      orderBy: (genres, { asc }) => [
-        asc(sql`lower(coalesce(${genres.name}, ''))`),
-      ],
+    const rows = await db.query.genres.findMany({
       columns: {
         name: true,
         color: true,
@@ -47,26 +86,80 @@ export async function getAllGenreVisuals(): Promise<GenreVisual[]> {
       },
     })
 
-    return result.map((genre) => ({
-      name: genre.name,
-      color: genre.color,
-      shape: genre.shape as GenreVisual["shape"],
-    }))
-  } catch {
-    const names = await getAllGenres()
+    const entries = rows
+      .map((row) => {
+        const name = normalizeGenreName(row.name)
+        if (!name) {
+          return null
+        }
 
-    return names.map((name) => {
-      const hash = hashString(name)
+        return [
+          name,
+          {
+            color: row.color,
+            shape: row.shape as GenreVisual["shape"],
+          },
+        ] as const
+      })
+      .filter(
+        (
+          entry
+        ): entry is readonly [
+          string,
+          { color: string; shape: GenreVisual["shape"] }
+        ] => Boolean(entry)
+      )
+
+    return new Map(entries)
+  } catch {
+    return new Map<string, { color: string; shape: GenreVisual["shape"] }>()
+  }
+}
+
+export async function getAllGenres(): Promise<string[]> {
+  try {
+    const rows = await listActiveGenreRows()
+    return rows.map((genre) => genre.name)
+  } catch {
+    return []
+  }
+}
+
+export async function getAllGenreVisuals(): Promise<GenreVisual[]> {
+  try {
+    const [activeGenres, visualMetadataByName] = await Promise.all([
+      listActiveGenreRows(),
+      listGenreVisualMetadata(),
+    ])
+
+    return activeGenres.map((genre) => {
+      const fallback = getFallbackGenreVisual(genre.name)
+      const visuals = visualMetadataByName.get(genre.name)
 
       return {
-        name,
-        color: GENRE_COLORS[hash % GENRE_COLORS.length],
-        shape:
-          GENRE_SHAPES[
-            Math.floor(hash / GENRE_COLORS.length) % GENRE_SHAPES.length
-          ],
+        name: genre.name,
+        color: visuals?.color || fallback.color,
+        shape: visuals?.shape || fallback.shape,
+        trackCount: genre.trackCount,
       }
     })
+  } catch {
+    try {
+      const rows = await listActiveGenreRows()
+
+      return rows.map((genre) => {
+        const fallback = getFallbackGenreVisual(genre.name)
+
+        return {
+          name: genre.name,
+          color: fallback.color,
+          shape: fallback.shape,
+          trackCount: genre.trackCount,
+        }
+      })
+    } catch {
+      return []
+    }
   }
 }
 

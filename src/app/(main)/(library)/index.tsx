@@ -1,7 +1,7 @@
 import type { Playlist } from "@/components/blocks/playlist-list"
+import type { GenreCategory } from "@/modules/genres/genres.types"
 import type { SortField } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.store"
-import type { Category } from "@/modules/search/search.types"
 import { useRouter } from "expo-router"
 import { Tabs } from "heroui-native"
 
@@ -57,8 +57,8 @@ import {
 } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
-import { useGenres } from "@/modules/search/search.queries"
-import { mapGenresToCategories } from "@/modules/search/search.utils"
+import { useGenres } from "@/modules/genres/genres.queries"
+import { mapGenresToCategories } from "@/modules/genres/genres.utils"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
@@ -175,22 +175,25 @@ export default function LibraryScreen() {
     refetch: refetchGenres,
   } = useGenres()
 
-  const genres = React.useMemo<Category[]>(
+  const genres = React.useMemo<GenreCategory[]>(
     () => mapGenresToCategories(genresData),
     [genresData]
   )
 
-  const sortedGenres = React.useMemo<Category[]>(() => {
+  const sortedGenres = React.useMemo<GenreCategory[]>(() => {
     const order = allSortConfigs.Genres.order
 
     return [...genres].sort((a, b) => {
+      const leftTitle = a.title ?? ""
+      const rightTitle = b.title ?? ""
+
       if (order === "asc") {
-        return a.title.localeCompare(b.title, undefined, {
+        return leftTitle.localeCompare(rightTitle, undefined, {
           sensitivity: "base",
         })
       }
 
-      return b.title.localeCompare(a.title, undefined, {
+      return rightTitle.localeCompare(leftTitle, undefined, {
         sensitivity: "base",
       })
     })
@@ -470,6 +473,7 @@ export default function LibraryScreen() {
                   <GenreCard
                     key={genre.id}
                     title={genre.title}
+                    trackCount={genre.trackCount}
                     color={genre.color}
                     pattern={genre.pattern}
                     onPress={() => openGenre(genre.title)}

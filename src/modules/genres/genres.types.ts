@@ -12,6 +12,7 @@ export interface GenreVisual {
   name: string
   color: string
   shape: GenreShape
+  trackCount: number
 }
 
 export type PatternType = GenreShape
@@ -21,4 +22,5 @@ export interface GenreCategory {
   title: string
   color: string
   pattern: PatternType
+  trackCount: number
 }

@@ -3,13 +3,14 @@ import { useQuery } from "@tanstack/react-query"
 import { queryClient } from "@/lib/tanstack-query"
 
 import { genreKeys } from "./genres.keys"
-import { getGenreById, listGenres } from "./genres.repository"
+import { getAllGenreVisuals, getGenreById } from "./genres.repository"
 
 export function useGenres() {
   return useQuery(
     {
       queryKey: genreKeys.all(),
-      queryFn: listGenres,
+      queryFn: getAllGenreVisuals,
+      placeholderData: (previousData) => previousData,
     },
     queryClient
   )

@@ -6,12 +6,28 @@ import type {
 } from "@/modules/genres/genres.types"
 
 export function mapGenresToCategories(genres: GenreVisual[]): GenreCategory[] {
-  const mapped = genres.map((genre) => ({
-    id: genre.name,
-    title: genre.name,
-    color: genre.color,
-    pattern: genre.shape,
-  }))
+  const mapped = genres
+    .map((genre) => {
+      const title =
+        typeof genre?.name === "string" && genre.name.trim().length > 0
+          ? genre.name.trim()
+          : null
+
+      if (!title) {
+        return null
+      }
+
+      return {
+        id: title,
+        title,
+        color: genre.color,
+        pattern: genre.shape,
+        trackCount: Number.isFinite(genre.trackCount)
+          ? genre.trackCount
+          : Number(genre.trackCount) || 0,
+      }
+    })
+    .filter((genre): genre is GenreCategory => Boolean(genre))
 
   return arrangeForGrid(mapped, 2)
 }
