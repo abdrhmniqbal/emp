@@ -17,7 +17,6 @@ import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
 import { handleTrackActivated } from "./player-activity.service"
 import {
   getCurrentTrackState,
-  getQueueState,
   getRepeatModeState,
   setIsPlayingState,
 } from "./player.store"
@@ -68,16 +67,17 @@ export async function PlaybackService() {
     }
 
     setIsPlayingState(isPlaying)
-    void persistPlaybackSession()
+    void persistPlaybackSession({ cursorOnly: true })
   })
 
-  TrackPlayer.addEventListener(Event.PlaybackTrackChanged, async () => {
+  TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
     try {
       const previousTrackId = getCurrentTrackState()?.id ?? null
-      const hasStoredQueue = getQueueState().length > 0
-      await syncCurrentTrackFromPlayer(
-        hasStoredQueue ? { skipQueueRefresh: true } : undefined
-      )
+      await syncCurrentTrackFromPlayer({
+        skipQueueRefresh: true,
+        activeIndex: event.index ?? null,
+        activeTrack: event.track ?? null,
+      })
       const currentTrack = getCurrentTrackState()
       const isTrackRepeat = getRepeatModeState() === "track"
       if (
@@ -87,10 +87,21 @@ export async function PlaybackService() {
         return
       }
 
-      await handleTrackActivated(currentTrack)
       void persistPlaybackSession({
         force: true,
-        skipQueueSync: hasStoredQueue,
+        cursorOnly: true,
+        consumeImmediateQueue: true,
+        cursor: {
+          currentTrackId: currentTrack.id,
+          activeIndex: event.index ?? null,
+          currentTrack,
+          positionSeconds: 0,
+        },
+      })
+      void handleTrackActivated(currentTrack).catch((error) => {
+        logError("Failed to record track activation", error, {
+          trackId: currentTrack.id,
+        })
       })
     } catch (error) {
       logError("Failed to handle playback track change", error)
@@ -99,6 +110,11 @@ export async function PlaybackService() {
 
   TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (event) => {
     setPlaybackProgress(event.position, event.duration)
-    void persistPlaybackSession()
+    void persistPlaybackSession({
+      cursorOnly: true,
+      cursor: {
+        positionSeconds: event.position,
+      },
+    })
   })
 }

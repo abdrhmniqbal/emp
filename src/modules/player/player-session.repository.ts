@@ -1,20 +1,31 @@
 import type { RepeatModeType, Track } from "./player.types"
 import { File, Paths } from "expo-file-system"
 
-interface PersistedPlaybackSession {
-  queueTrackIds: string[]
-  originalQueueTrackIds: string[]
+export interface PersistedPlaybackQueueSnapshot {
   immediateQueueTrackIds: string[]
+  isShuffled: boolean
+  originalQueueTrackIds: string[]
+  queueTrackIds: string[]
+  savedAt: number
   trackMap: Record<string, Track>
+}
+
+export interface PersistedPlaybackCursorSnapshot {
+  activeIndex: number | null
   currentTrackId: string | null
+  isPlaying: boolean
   positionSeconds: number
   repeatMode: RepeatModeType
-  wasPlaying: boolean
-  isShuffled: boolean
   savedAt: number
 }
 
-const PLAYBACK_SESSION_FILE = new File(Paths.document, "playback-session.json")
+interface LegacyPersistedPlaybackSession
+  extends PersistedPlaybackQueueSnapshot,
+    PersistedPlaybackCursorSnapshot {}
+
+const PLAYBACK_QUEUE_FILE = new File(Paths.document, "playback-queue.json")
+const PLAYBACK_CURSOR_FILE = new File(Paths.document, "playback-cursor.json")
+const LEGACY_PLAYBACK_SESSION_FILE = new File(Paths.document, "playback-session.json")
 
 function asObject(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object") {
@@ -79,7 +90,7 @@ function sanitizeTrack(track: unknown): Track | null {
   }
 }
 
-function sanitizeSession(payload: unknown): PersistedPlaybackSession | null {
+function sanitizeLegacySession(payload: unknown): LegacyPersistedPlaybackSession | null {
   const source = asObject(payload)
   if (!source) {
     return null
@@ -140,22 +151,20 @@ function sanitizeSession(payload: unknown): PersistedPlaybackSession | null {
         .filter((trackId, index, array) => array.indexOf(trackId) === index)
     : []
 
-  const positionSeconds = Number.isFinite(asNumber(source.positionSeconds))
-    ? Math.max(0, asNumber(source.positionSeconds) ?? 0)
-    : 0
-
   const repeatMode: RepeatModeType =
     source.repeatMode === "track" ||
     source.repeatMode === "queue" ||
     source.repeatMode === "off"
       ? (source.repeatMode as RepeatModeType)
       : "off"
-
   const currentTrackIdValue = asString(source.currentTrackId)
   const currentTrackId =
-    typeof currentTrackIdValue === "string" && currentTrackIdValue.length > 0
-      ? (trackMap[currentTrackIdValue] ? currentTrackIdValue : null)
+    currentTrackIdValue && trackMap[currentTrackIdValue]
+      ? currentTrackIdValue
       : null
+  const activeIndexValue = asNumber(source.activeIndex)
+  const fallbackActiveIndex =
+    currentTrackId !== null ? queueTrackIds.indexOf(currentTrackId) : -1
 
   return {
     queueTrackIds,
@@ -163,43 +172,197 @@ function sanitizeSession(payload: unknown): PersistedPlaybackSession | null {
     immediateQueueTrackIds,
     trackMap,
     currentTrackId,
-    positionSeconds,
+    activeIndex:
+      activeIndexValue !== undefined
+        ? Math.max(0, Math.trunc(activeIndexValue))
+        : fallbackActiveIndex >= 0
+          ? fallbackActiveIndex
+          : null,
+    positionSeconds: Math.max(0, asNumber(source.positionSeconds) ?? 0),
     repeatMode,
-    wasPlaying: Boolean(source.wasPlaying),
+    isPlaying: Boolean(source.wasPlaying),
     isShuffled: Boolean(source.isShuffled),
     savedAt: asNumber(source.savedAt) ?? Date.now(),
   }
 }
 
-export async function savePlaybackSession(
-  session: PersistedPlaybackSession
-): Promise<void> {
-  const sanitized = sanitizeSession(session)
-  if (!sanitized) {
-    return
+function sanitizeQueueSnapshot(
+  payload: unknown
+): PersistedPlaybackQueueSnapshot | null {
+  const source = asObject(payload)
+  if (!source) {
+    return null
   }
 
-  if (!PLAYBACK_SESSION_FILE.exists) {
-    PLAYBACK_SESSION_FILE.create({
+  const payloadTrackMap = asObject(source.trackMap) || {}
+  const trackMap: Record<string, Track> = {}
+
+  for (const [trackId, value] of Object.entries(payloadTrackMap)) {
+    const sanitized = sanitizeTrack(value)
+    if (!sanitized) {
+      continue
+    }
+
+    trackMap[sanitized.id] = sanitized
+    if (sanitized.id !== trackId) {
+      trackMap[trackId] = sanitized
+    }
+  }
+
+  const queueTrackIds = Array.isArray(source.queueTrackIds)
+    ? (source.queueTrackIds as unknown[])
+        .filter((trackId): trackId is string => typeof trackId === "string")
+        .filter((trackId) => Boolean(trackMap[trackId]))
+        .filter((trackId, index, array) => array.indexOf(trackId) === index)
+    : []
+
+  const originalQueueTrackIds = Array.isArray(source.originalQueueTrackIds)
+    ? (source.originalQueueTrackIds as unknown[])
+        .filter((trackId): trackId is string => typeof trackId === "string")
+        .filter((trackId) => Boolean(trackMap[trackId]))
+        .filter((trackId, index, array) => array.indexOf(trackId) === index)
+    : [...queueTrackIds]
+
+  const immediateQueueTrackIds = Array.isArray(source.immediateQueueTrackIds)
+    ? (source.immediateQueueTrackIds as unknown[])
+        .filter((trackId): trackId is string => typeof trackId === "string")
+        .filter((trackId) => Boolean(trackMap[trackId]))
+        .filter((trackId, index, array) => array.indexOf(trackId) === index)
+    : []
+
+  return {
+    queueTrackIds,
+    originalQueueTrackIds,
+    immediateQueueTrackIds,
+    trackMap,
+    isShuffled: Boolean(source.isShuffled),
+    savedAt: asNumber(source.savedAt) ?? Date.now(),
+  }
+}
+
+function sanitizeCursorSnapshot(
+  payload: unknown
+): PersistedPlaybackCursorSnapshot | null {
+  const source = asObject(payload)
+  if (!source) {
+    return null
+  }
+
+  const repeatMode: RepeatModeType =
+    source.repeatMode === "track" ||
+    source.repeatMode === "queue" ||
+    source.repeatMode === "off"
+      ? (source.repeatMode as RepeatModeType)
+      : "off"
+  const currentTrackIdValue = asString(source.currentTrackId)
+  const activeIndexValue = asNumber(source.activeIndex)
+
+  return {
+    currentTrackId:
+      currentTrackIdValue && currentTrackIdValue.length > 0
+        ? currentTrackIdValue
+        : null,
+    activeIndex:
+      activeIndexValue !== undefined && Math.trunc(activeIndexValue) >= 0
+        ? Math.trunc(activeIndexValue)
+        : null,
+    positionSeconds: Math.max(0, asNumber(source.positionSeconds) ?? 0),
+    isPlaying: Boolean(source.isPlaying),
+    repeatMode,
+    savedAt: asNumber(source.savedAt) ?? Date.now(),
+  }
+}
+
+function ensureFile(file: File) {
+  if (!file.exists) {
+    file.create({
       intermediates: true,
       overwrite: true,
     })
   }
+}
 
-  PLAYBACK_SESSION_FILE.write(JSON.stringify(sanitized), {
+function readJsonFile(file: File): unknown | null {
+  if (!file.exists) {
+    return null
+  }
+
+  return JSON.parse(file.textSync()) as unknown
+}
+
+export async function savePlaybackQueueSnapshot(
+  snapshot: PersistedPlaybackQueueSnapshot
+): Promise<void> {
+  const sanitized = sanitizeQueueSnapshot(snapshot)
+  if (!sanitized) {
+    return
+  }
+
+  ensureFile(PLAYBACK_QUEUE_FILE)
+  PLAYBACK_QUEUE_FILE.write(JSON.stringify(sanitized), {
     encoding: "utf8",
   })
 }
 
-export async function loadPlaybackSession(): Promise<PersistedPlaybackSession | null> {
+export async function loadPlaybackQueueSnapshot(): Promise<PersistedPlaybackQueueSnapshot | null> {
   try {
-    if (!PLAYBACK_SESSION_FILE.exists) {
+    const queueSnapshot = sanitizeQueueSnapshot(readJsonFile(PLAYBACK_QUEUE_FILE))
+    if (queueSnapshot) {
+      return queueSnapshot
+    }
+
+    const legacy = sanitizeLegacySession(readJsonFile(LEGACY_PLAYBACK_SESSION_FILE))
+    if (!legacy) {
       return null
     }
 
-    const raw = await PLAYBACK_SESSION_FILE.text()
-    const parsed = JSON.parse(raw) as unknown
-    return sanitizeSession(parsed)
+    return {
+      queueTrackIds: legacy.queueTrackIds,
+      originalQueueTrackIds: legacy.originalQueueTrackIds,
+      immediateQueueTrackIds: legacy.immediateQueueTrackIds,
+      trackMap: legacy.trackMap,
+      isShuffled: legacy.isShuffled,
+      savedAt: legacy.savedAt,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function savePlaybackCursorSnapshot(
+  snapshot: PersistedPlaybackCursorSnapshot
+): Promise<void> {
+  const sanitized = sanitizeCursorSnapshot(snapshot)
+  if (!sanitized) {
+    return
+  }
+
+  ensureFile(PLAYBACK_CURSOR_FILE)
+  PLAYBACK_CURSOR_FILE.write(JSON.stringify(sanitized), {
+    encoding: "utf8",
+  })
+}
+
+export async function loadPlaybackCursorSnapshot(): Promise<PersistedPlaybackCursorSnapshot | null> {
+  try {
+    const cursorSnapshot = sanitizeCursorSnapshot(readJsonFile(PLAYBACK_CURSOR_FILE))
+    if (cursorSnapshot) {
+      return cursorSnapshot
+    }
+
+    const legacy = sanitizeLegacySession(readJsonFile(LEGACY_PLAYBACK_SESSION_FILE))
+    if (!legacy) {
+      return null
+    }
+
+    return {
+      currentTrackId: legacy.currentTrackId,
+      activeIndex: legacy.activeIndex,
+      positionSeconds: legacy.positionSeconds,
+      isPlaying: legacy.isPlaying,
+      repeatMode: legacy.repeatMode,
+      savedAt: legacy.savedAt,
+    }
   } catch {
     return null
   }

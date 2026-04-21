@@ -28,7 +28,13 @@ export async function pauseTrack() {
     logInfo("Pausing playback")
     await TrackPlayer.pause()
     setIsPlayingState(false)
-    await persistPlaybackSession({ force: true })
+    await persistPlaybackSession({
+      force: true,
+      cursorOnly: true,
+      cursor: {
+        isPlaying: false,
+      },
+    })
     logInfo("Playback paused")
   } catch (error) {
     logError("Failed to pause playback", error)
@@ -46,7 +52,13 @@ export async function resumeTrack() {
     logInfo("Resuming playback")
     await TrackPlayer.play()
     setIsPlayingState(true)
-    await persistPlaybackSession({ force: true })
+    await persistPlaybackSession({
+      force: true,
+      cursorOnly: true,
+      cursor: {
+        isPlaying: true,
+      },
+    })
     logInfo("Playback resumed")
   } catch (error) {
     logError("Failed to resume playback", error)
@@ -98,7 +110,11 @@ export async function playNext() {
         logInfo("Wrapping to first track in queue")
         await TrackPlayer.skip(0)
         await syncCurrentTrackFromPlayer({ skipQueueRefresh: true })
-        await persistPlaybackSession({ force: true })
+        await persistPlaybackSession({
+          force: true,
+          cursorOnly: true,
+          consumeImmediateQueue: true,
+        })
         logInfo("Wrapped to first track in queue")
       } else {
         logInfo("Ignored next track because queue is already at the end", {
@@ -112,7 +128,11 @@ export async function playNext() {
     logInfo("Skipping to next track")
     await TrackPlayer.skipToNext()
     await syncCurrentTrackFromPlayer({ skipQueueRefresh: true })
-    await persistPlaybackSession({ force: true })
+    await persistPlaybackSession({
+      force: true,
+      cursorOnly: true,
+      consumeImmediateQueue: true,
+    })
     logInfo("Skipped to next track")
   } catch (error) {
     logWarn("Failed to skip to next track, falling back to queue restart", {
@@ -148,7 +168,11 @@ export async function playPrevious() {
       logInfo("Skipping to previous track")
       await TrackPlayer.skipToPrevious()
       await syncCurrentTrackFromPlayer({ skipQueueRefresh: true })
-      await persistPlaybackSession({ force: true })
+      await persistPlaybackSession({
+        force: true,
+        cursorOnly: true,
+        consumeImmediateQueue: true,
+      })
       logInfo("Skipped to previous track")
     }
   } catch (error) {
@@ -169,7 +193,13 @@ export async function seekTo(seconds: number) {
     }
     await TrackPlayer.seekTo(seconds)
     setPlaybackProgress(seconds, usePlayerStore.getState().duration)
-    await persistPlaybackSession({ force: true })
+    await persistPlaybackSession({
+      force: true,
+      cursorOnly: true,
+      cursor: {
+        positionSeconds: seconds,
+      },
+    })
     if (isExtraLoggingEnabled()) {
       logInfo("Playback seek completed", { seconds })
     }
@@ -183,7 +213,13 @@ export async function setRepeatMode(mode: RepeatModeType) {
     logInfo("Updating repeat mode", { mode })
     await TrackPlayer.setRepeatMode(mapRepeatMode(mode))
     setRepeatModeState(mode)
-    await persistPlaybackSession({ force: true })
+    await persistPlaybackSession({
+      force: true,
+      cursorOnly: true,
+      cursor: {
+        repeatMode: mode,
+      },
+    })
     logInfo("Repeat mode updated", { mode })
   } catch (error) {
     logError("Failed to update repeat mode", error, { mode })
