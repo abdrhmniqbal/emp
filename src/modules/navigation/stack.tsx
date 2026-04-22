@@ -45,7 +45,12 @@ function getMaskedSheetTransitionOptions(): NativeStackNavigationOptions {
             width: "100%",
             height: sheetHeight,
             borderRadius: interpolate(progress, [0, 1], [32, 0]),
-            backgroundColor: "white",
+          },
+        },
+        backdrop: {
+          style: {
+            backgroundColor: "transparent",
+            opacity: 0,
           },
         },
       }
@@ -84,7 +89,7 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
   return {
     ...HIDDEN_STACK_SCREEN_OPTIONS,
     enableTransitions: true,
-    navigationMaskEnabled: true,
+    navigationMaskEnabled: false,
     gestureEnabled: true,
     gestureDirection: ["vertical", "horizontal"] as const,
     gestureDrivesProgress: false,
@@ -114,24 +119,10 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
           horizontalDragTranslation: [0.12, 0.32],
           verticalDragTranslation: [0.08, 0.45],
         }),
-        [NAVIGATION_MASK_CONTAINER_STYLE_ID]: {
-          style: {
-            width,
-            height,
-          },
-        },
-        [NAVIGATION_MASK_ELEMENT_STYLE_ID]: {
-          style: {
-            width,
-            height,
-            borderRadius: interpolate(progress, [0, 1], [28, 0]),
-            backgroundColor: "white",
-          },
-        },
         backdrop: {
           style: {
-            backgroundColor: "black",
-            opacity: interpolate(progress, [0, 1], [0, 0.18]),
+            backgroundColor: "transparent",
+            opacity: 0,
           },
         },
       }
@@ -162,7 +153,7 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
   return {
     ...HIDDEN_STACK_SCREEN_OPTIONS,
     enableTransitions: true,
-    navigationMaskEnabled: true,
+    navigationMaskEnabled: false,
     gestureEnabled: true,
     gestureDirection: ["vertical", "horizontal"] as const,
     gestureDrivesProgress: false,
@@ -192,24 +183,10 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
           horizontalDragTranslation: [0.12, 0.34],
           verticalDragTranslation: [0.08, 0.45],
         }),
-        [NAVIGATION_MASK_CONTAINER_STYLE_ID]: {
-          style: {
-            width,
-            height,
-          },
-        },
-        [NAVIGATION_MASK_ELEMENT_STYLE_ID]: {
-          style: {
-            width,
-            height,
-            borderRadius: interpolate(progress, [0, 0.22, 1], [24, 14, 0]),
-            backgroundColor: "white",
-          },
-        },
         backdrop: {
           style: {
-            backgroundColor: "black",
-            opacity: interpolate(progress, [0, 1], [0, 0.26]),
+            backgroundColor: "transparent",
+            opacity: 0,
           },
         },
       }
