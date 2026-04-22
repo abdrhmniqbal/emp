@@ -9,10 +9,12 @@
 import { useRouter } from "expo-router"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
+import { BackButton } from "@/components/patterns/back-button"
 import { StackHeaderActions } from "@/components/patterns/stack-header-actions"
 import { Stack } from "@/layouts/stack"
 import {
   getDefaultNativeStackOptions,
+  getDrillDownScreenOptions,
   getHiddenArtistScreenOptions,
   getHiddenBoundaryScreenOptions,
   getHiddenPlaylistScreenOptions,
@@ -61,6 +63,12 @@ export default function SearchLayout() {
       <Stack.Screen
         name="playlist"
         options={({ route }) => getHiddenPlaylistScreenOptions(route.params)}
+      />
+      <Stack.Screen
+        name="recently-added"
+        options={getDrillDownScreenOptions("Recently Added", () => (
+          <BackButton className="-ml-2" />
+        ))}
       />
     </Stack>
   )
