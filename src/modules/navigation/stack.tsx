@@ -1,3 +1,11 @@
+/**
+ * Purpose: Centralizes navigation stack screen options and shared route transition helpers.
+ * Caller: Expo Router app layouts and nested detail route stacks.
+ * Dependencies: expo-router stack options, react-native-screen-transitions, react-native-reanimated, react-native.
+ * Main Functions: getDefaultNativeStackOptions(), getLargeTitleRootScreenOptions(), getCenteredRootScreenOptions(), getDrillDownScreenOptions(), getMediaDetailTransitionOptions(), getModalTaskTransitionOptions(), getHiddenBoundaryScreenOptions(), getHiddenArtistScreenOptions(), getHiddenPlaylistScreenOptions(), getHiddenPlayerScreenOptions()
+ * Side Effects: None; builds navigation option objects only.
+ */
+
 import type { ReactNode } from "react"
 import { Platform, UIManager } from "react-native"
 import { interpolate } from "react-native-reanimated"
@@ -78,6 +86,16 @@ export const HIDDEN_STACK_SCREEN_OPTIONS = {
   headerShown: false,
 } as const
 
+type TransitionParams = {
+  transitionId?: string
+} | undefined
+
+function getTransitionId(params: TransitionParams) {
+  return typeof params?.transitionId === "string" && params.transitionId.length > 0
+    ? params.transitionId
+    : undefined
+}
+
 export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
   if (!boundaryId || !isNavigationMaskAvailable) {
     return {
@@ -91,17 +109,12 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
     enableTransitions: true,
     navigationMaskEnabled: false,
     gestureEnabled: true,
-    gestureDirection: ["vertical", "horizontal"] as const,
+    gestureDirection: ["vertical", "horizontal"] as NativeStackNavigationOptions["gestureDirection"],
     gestureDrivesProgress: false,
-    screenStyleInterpolator: ({ bounds, progress, current }: ScreenStyleInterpolatorArgs) => {
+    screenStyleInterpolator: ({ bounds, progress }: ScreenStyleInterpolatorArgs) => {
       "worklet"
 
-      const height = current.layouts.screen.height
-      const width = current.layouts.screen.width
-
       const clampedProgress = Math.max(0, Math.min(1, progress))
-      
-      const scaleProgress = interpolate(clampedProgress, [0, 0.5, 1], [0.75, 0.85, 1])
       const translateYProgress = interpolate(clampedProgress, [0, 1], [0.15, 0])
       const borderRadiusProgress = interpolate(clampedProgress, [0, 1], [28, 0])
       const backgroundScaleProgress = interpolate(clampedProgress, [0, 1], [0.94, 1])
@@ -145,8 +158,28 @@ export function getHiddenArtistZoomTransitionOptions(boundaryId?: string) {
   return getHiddenBoundaryZoomTransitionOptions(boundaryId)
 }
 
-export function getHiddenZoomTransitionOptions(boundaryId?: string) {
-  return getHiddenBoundaryZoomTransitionOptions(boundaryId)
+export function getHiddenBoundaryScreenOptions(params: TransitionParams) {
+  return getHiddenBoundaryZoomTransitionOptions(getTransitionId(params))
+}
+
+export function getHiddenArtistScreenOptions(params: TransitionParams) {
+  return getHiddenArtistZoomTransitionOptions(getTransitionId(params))
+}
+
+export function getHiddenPlaylistScreenOptions(params: TransitionParams) {
+  const transitionId = getTransitionId(params)
+
+  return transitionId
+    ? getHiddenBoundaryZoomTransitionOptions(transitionId)
+    : HIDDEN_STACK_SCREEN_OPTIONS
+}
+
+export function getHiddenPlayerScreenOptions(params: TransitionParams) {
+  const transitionId = getTransitionId(params)
+
+  return transitionId
+    ? getHiddenPlayerZoomTransitionOptions(transitionId)
+    : HIDDEN_STACK_SCREEN_OPTIONS
 }
 
 export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
@@ -162,17 +195,12 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
     enableTransitions: true,
     navigationMaskEnabled: false,
     gestureEnabled: true,
-    gestureDirection: ["vertical", "horizontal"] as const,
+    gestureDirection: ["vertical", "horizontal"] as NativeStackNavigationOptions["gestureDirection"],
     gestureDrivesProgress: false,
-    screenStyleInterpolator: ({ bounds, progress, current }: ScreenStyleInterpolatorArgs) => {
+    screenStyleInterpolator: ({ bounds, progress }: ScreenStyleInterpolatorArgs) => {
       "worklet"
 
-      const height = current.layouts.screen.height
-      const width = current.layouts.screen.width
-
       const clampedProgress = Math.max(0, Math.min(1, progress))
-      
-      const scaleProgress = interpolate(clampedProgress, [0, 0.4, 1], [0.72, 0.88, 1])
       const translateYProgress = interpolate(clampedProgress, [0, 1], [0.2, 0])
       const borderRadiusProgress = interpolate(clampedProgress, [0, 1], [24, 0])
       const backgroundScaleProgress = interpolate(clampedProgress, [0, 1], [0.95, 1])
@@ -293,13 +321,6 @@ export function getMediaDetailTransitionOptions(
     ...getBackButtonScreenOptions("", headerLeft),
     ...getHeaderSafeFadeFromBottomOptions(),
   }
-}
-
-export function getZoomMediaDetailTransitionOptions(
-  theme: NavigationThemeColors,
-  headerLeft: () => ReactNode
-) {
-  return getMediaDetailTransitionOptions(theme, headerLeft)
 }
 
 export function getModalTaskTransitionOptions(

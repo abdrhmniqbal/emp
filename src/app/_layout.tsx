@@ -1,3 +1,11 @@
+/**
+ * Purpose: Boots the app shell, sets navigation theme, handles notifications, and defines the root stack.
+ * Caller: Expo Router root entry point.
+ * Dependencies: RootProviders, bootstrap runtime, Expo Notifications, HeroUI Native, Expo Router stack options, player UI state.
+ * Main Functions: Layout()
+ * Side Effects: Registers notification listeners, drives splash-screen visibility, triggers bootstrap lifecycle, routes into player/settings screens.
+ */
+
 import {
   DarkTheme,
   DefaultTheme,
@@ -7,7 +15,7 @@ import * as Notifications from "expo-notifications"
 import { useRouter, useSegments } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
-import { type ReactNode, useCallback, useEffect, useRef } from "react"
+import { type ReactNode, useEffect, useRef } from "react"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import Animated, {
@@ -36,9 +44,8 @@ import {
   resumeIndexing,
 } from "@/modules/indexer/indexer.service"
 import {
-  getHiddenPlayerZoomTransitionOptions,
-  HIDDEN_STACK_SCREEN_OPTIONS,
   ROOT_MODAL_SCREEN_OPTIONS,
+  getHiddenPlayerScreenOptions,
 } from "@/modules/navigation/stack"
 import { useHasCurrentTrack } from "@/modules/player/player-selectors"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -155,7 +162,7 @@ export default function Layout() {
     }
   }, [router])
 
-  const hideSplash = useCallback(() => {
+  const hideSplash = () => {
     if (hasHiddenSplashRef.current) {
       return
     }
@@ -164,15 +171,15 @@ export default function Layout() {
     void SplashScreen.hideAsync().catch(() => {
       // Ignore hide race if splash is already hidden.
     })
-  }, [])
-  const notifyDatabaseReady = useCallback(async () => {
+  }
+  const notifyDatabaseReady = async () => {
     await handleBootstrapDatabaseReady()
     hideSplash()
-  }, [hideSplash])
-  const notifyDatabaseError = useCallback(() => {
+  }
+  const notifyDatabaseError = () => {
     handleBootstrapDatabaseError()
     hideSplash()
-  }, [hideSplash])
+  }
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const isMainTabsRoute = segments[0] === "(main)"
   const isFolderFiltersRoute =
@@ -188,17 +195,6 @@ export default function Layout() {
         TOAST_VISIBLE_BOTTOM_GAP
       : TOAST_HIDDEN_BOTTOM_GAP
     : folderFiltersToastOffset
-
-  const toastContentWrapper = useCallback(
-    (children: ReactNode) => {
-      return (
-        <ToastAnimatedWrapper extraBottom={toastExtraBottomOffset}>
-          {children}
-        </ToastAnimatedWrapper>
-      )
-    },
-    [toastExtraBottomOffset]
-  )
 
   const navigationTheme = {
     ...(currentTheme === "dark" ? DarkTheme : DefaultTheme),
@@ -225,7 +221,11 @@ export default function Layout() {
                 defaultProps: {
                   placement: "bottom",
                 },
-                contentWrapper: toastContentWrapper,
+                contentWrapper: (children: ReactNode) => (
+                  <ToastAnimatedWrapper extraBottom={toastExtraBottomOffset}>
+                    {children}
+                  </ToastAnimatedWrapper>
+                ),
               },
             }}
           >
@@ -244,15 +244,9 @@ export default function Layout() {
                   <Stack.Screen name="settings" options={ROOT_MODAL_SCREEN_OPTIONS} />
                   <Stack.Screen
                     name="player"
-                    options={({ route }) => {
-                      const transitionId = (route.params as
-                        | { transitionId?: string }
-                        | undefined)?.transitionId
-
-                      return typeof transitionId === "string"
-                        ? getHiddenPlayerZoomTransitionOptions(transitionId)
-                        : HIDDEN_STACK_SCREEN_OPTIONS
-                    }}
+                    options={({ route }) =>
+                      getHiddenPlayerScreenOptions(route.params)
+                    }
                   />
                 </Stack>
               </View>

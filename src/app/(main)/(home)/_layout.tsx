@@ -1,3 +1,11 @@
+/**
+ * Purpose: Defines the Home stack and its nested detail routes.
+ * Caller: Expo Router main tab layout.
+ * Dependencies: Stack, route transition helpers, home settings action, theme colors.
+ * Main Functions: HomeLayout()
+ * Side Effects: None beyond rendering navigation state.
+ */
+
 import { useRouter } from "expo-router"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
@@ -7,8 +15,9 @@ import { Stack } from "@/layouts/stack"
 import {
   getDefaultNativeStackOptions,
   getDrillDownScreenOptions,
-  getHiddenBoundaryZoomTransitionOptions,
-  getHiddenArtistZoomTransitionOptions,
+  getHiddenArtistScreenOptions,
+  getHiddenBoundaryScreenOptions,
+  getHiddenPlaylistScreenOptions,
   getLargeTitleRootScreenOptions,
   HIDDEN_STACK_SCREEN_OPTIONS,
 } from "@/modules/navigation/stack"
@@ -58,29 +67,15 @@ export default function HomeLayout() {
       />
       <Stack.Screen
         name="album"
-        options={({ route }) =>
-          getHiddenBoundaryZoomTransitionOptions(
-            typeof route.params?.transitionId === "string"
-              ? route.params.transitionId
-              : undefined
-          )}
+        options={({ route }) => getHiddenBoundaryScreenOptions(route.params)}
       />
       <Stack.Screen
         name="artist"
-        options={({ route }) =>
-          getHiddenArtistZoomTransitionOptions(
-            typeof route.params?.transitionId === "string"
-              ? route.params.transitionId
-              : undefined
-          )}
+        options={({ route }) => getHiddenArtistScreenOptions(route.params)}
       />
       <Stack.Screen
         name="playlist"
-        options={({ route }) =>
-          typeof route.params?.transitionId === "string"
-            ? getHiddenBoundaryZoomTransitionOptions(route.params.transitionId)
-            : HIDDEN_STACK_SCREEN_OPTIONS
-        }
+        options={({ route }) => getHiddenPlaylistScreenOptions(route.params)}
       />
       <Stack.Screen name="search" options={HIDDEN_STACK_SCREEN_OPTIONS} />
     </Stack>

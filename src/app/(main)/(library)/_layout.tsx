@@ -1,3 +1,11 @@
+/**
+ * Purpose: Defines the Library stack and nested navigation for albums, artists, genres, and playlists.
+ * Caller: Expo Router main tab layout.
+ * Dependencies: Stack, route transition helpers, settings header action, theme colors.
+ * Main Functions: LibraryLayout()
+ * Side Effects: None beyond rendering navigation state.
+ */
+
 import { useRouter } from "expo-router"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
@@ -7,10 +15,10 @@ import { Stack } from "@/layouts/stack"
 import {
   getDefaultNativeStackOptions,
   getDrillDownScreenOptions,
-  getHiddenBoundaryZoomTransitionOptions,
-  getHiddenArtistZoomTransitionOptions,
+  getHiddenArtistScreenOptions,
+  getHiddenBoundaryScreenOptions,
+  getHiddenPlaylistScreenOptions,
   getLargeTitleRootScreenOptions,
-  HIDDEN_STACK_SCREEN_OPTIONS,
 } from "@/modules/navigation/stack"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -46,21 +54,11 @@ export default function LibraryLayout() {
       />
       <Stack.Screen
         name="album"
-        options={({ route }) =>
-          getHiddenBoundaryZoomTransitionOptions(
-            typeof route.params?.transitionId === "string"
-              ? route.params.transitionId
-              : undefined
-          )}
+        options={({ route }) => getHiddenBoundaryScreenOptions(route.params)}
       />
       <Stack.Screen
         name="artist"
-        options={({ route }) =>
-          getHiddenArtistZoomTransitionOptions(
-            typeof route.params?.transitionId === "string"
-              ? route.params.transitionId
-              : undefined
-          )}
+        options={({ route }) => getHiddenArtistScreenOptions(route.params)}
       />
       <Stack.Screen
         name="genre/[name]"
@@ -82,11 +80,7 @@ export default function LibraryLayout() {
       />
       <Stack.Screen
         name="playlist"
-        options={({ route }) =>
-          typeof route.params?.transitionId === "string"
-            ? getHiddenBoundaryZoomTransitionOptions(route.params.transitionId)
-            : HIDDEN_STACK_SCREEN_OPTIONS
-        }
+        options={({ route }) => getHiddenPlaylistScreenOptions(route.params)}
       />
     </Stack>
   )

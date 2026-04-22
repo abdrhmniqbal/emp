@@ -3,7 +3,6 @@ import {
   type BottomTabBarProps,
 } from "@react-navigation/bottom-tabs"
 import { Tabs } from "expo-router"
-import { useCallback } from "react"
 import Animated, {
   useDerivedValue,
   useAnimatedStyle,
@@ -52,9 +51,9 @@ export default function MainLayout() {
     }
   })
 
-  const renderTabBar = useCallback(
-    (props: BottomTabBarProps) => {
-      return (
+  return (
+    <Tabs
+      tabBar={(props: BottomTabBarProps) => (
         <Animated.View
           pointerEvents="box-none"
           style={[
@@ -70,14 +69,7 @@ export default function MainLayout() {
           <MiniPlayer bottomOffset={tabBarHeight} />
           <BottomTabBar {...props} />
         </Animated.View>
-      )
-    },
-    [animatedStyle, tabBarHeight]
-  )
-
-  return (
-    <Tabs
-      tabBar={renderTabBar}
+      )}
       detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,

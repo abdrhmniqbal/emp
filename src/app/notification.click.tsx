@@ -1,5 +1,9 @@
-import { Redirect } from "expo-router"
+/**
+ * Purpose: Compatibility route alias for notification deep links.
+ * Caller: Expo Router route matching.
+ * Dependencies: notification/click route implementation.
+ * Main Functions: default re-export only.
+ * Side Effects: None.
+ */
 
-export default function NotificationClickRoute() {
-  return <Redirect href="/player" />
-}
+export { default } from "./notification/click"

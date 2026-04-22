@@ -1,9 +1,17 @@
+/**
+ * Purpose: Renders the search landing screen with quick access to recent additions.
+ * Caller: Expo Router search tab.
+ * Dependencies: Tracks query, player playback helpers, theme colors, scroll state helpers.
+ * Main Functions: SearchScreen()
+ * Side Effects: Updates scroll state and starts playback when a track card is pressed.
+ */
+
 import type { Track } from "@/modules/player/player.store"
 import type { DBTrack } from "@/types/database"
 import { useRouter } from "expo-router"
 
 import { Input, PressableFeedback } from "heroui-native"
-import * as React from "react"
+import { useMemo } from "react"
 import { ScrollView, View } from "react-native"
 import { ContentSection } from "@/components/blocks/content-section"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
@@ -33,30 +41,27 @@ export default function SearchScreen() {
     sortOrder: "desc",
   })
 
-  const recentlyAddedTracks = React.useMemo(() => {
+  const recentlyAddedTracks = useMemo(() => {
     return (dbTracks as DBTrack[])
       .map(transformDBTrackToTrack)
       .slice(0, RECENTLY_ADDED_LIMIT)
   }, [dbTracks])
 
-  const renderRecentlyAddedItem = React.useCallback(
-    (item: Track) => (
-      <TrackRow
-        track={item}
-        variant="grid"
-        onPress={() => playTrack(item, recentlyAddedTracks)}
-        titleClassName={currentTrackId === item.id ? "text-accent" : undefined}
-        imageOverlay={
-          currentTrackId === item.id ? <ScaleLoader size={16} /> : undefined
-        }
-      />
-    ),
-    [currentTrackId, recentlyAddedTracks]
+  const renderRecentlyAddedItem = (item: Track) => (
+    <TrackRow
+      track={item}
+      variant="grid"
+      onPress={() => playTrack(item, recentlyAddedTracks)}
+      titleClassName={currentTrackId === item.id ? "text-accent" : undefined}
+      imageOverlay={
+        currentTrackId === item.id ? <ScaleLoader size={16} /> : undefined
+      }
+    />
   )
 
-  const handleSearchPress = React.useCallback(() => {
+  const handleSearchPress = () => {
     router.push("/search")
-  }, [router])
+  }
 
   return (
     <ScrollView
