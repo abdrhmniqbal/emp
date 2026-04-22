@@ -1,16 +1,25 @@
+/**
+ * Purpose: Renders the Genre Albums detail route.
+ * Caller: Genre detail sub-route in the Library stack.
+ * Dependencies: genre albums query, album grid, themed refresh control, theme colors.
+ * Main Functions: GenreAlbumsScreen()
+ * Side Effects: Starts indexing on refresh and updates local sort state.
+ */
+
 import type {
   AlbumSortField,
   SortOrder,
 } from "@/modules/library/library-sort.types"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
-import { RefreshControl, Text, View } from "react-native"
+import { Text, View } from "react-native"
 
 import Animated from "react-native-reanimated"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -177,10 +186,9 @@ export default function GenreAlbumsScreen() {
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
             refreshControl={
-              <RefreshControl
+              <ThemedRefreshControl
                 refreshing={isIndexing || isLoading || isFetching}
                 onRefresh={refresh}
-                tintColor={theme.accent}
               />
             }
             listHeader={

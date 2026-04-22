@@ -1,13 +1,22 @@
+/**
+ * Purpose: Renders the Top Tracks route with time-range tabs and playback actions.
+ * Caller: Home stack nested route.
+ * Dependencies: top tracks query, track playback service, themed refresh control, theme colors.
+ * Main Functions: TopTracksScreen()
+ * Side Effects: Starts indexing on refresh and updates scroll state.
+ */
+
 import type { HistoryTopTracksPeriod as TopTracksPeriod } from "@/modules/history/history.types"
 import { Tabs } from "heroui-native"
 import { useState } from "react"
-import { RefreshControl, View } from "react-native"
+import { View } from "react-native"
 
 import Animated from "react-native-reanimated"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -128,10 +137,9 @@ export default function TopTracksScreen() {
             onMomentumScrollEnd={handleScrollStop}
             onScrollEndDrag={handleScrollStop}
             refreshControl={
-              <RefreshControl
+              <ThemedRefreshControl
                 refreshing={isIndexing || isLoading || isFetching}
                 onRefresh={refresh}
-                tintColor={theme.accent}
               />
             }
             listHeader={

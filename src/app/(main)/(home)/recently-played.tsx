@@ -1,9 +1,18 @@
-import { RefreshControl, View } from "react-native"
+/**
+ * Purpose: Renders the Recently Played route with playback actions and a full history list.
+ * Caller: Home stack nested route.
+ * Dependencies: history query, track playback service, themed refresh control, theme colors.
+ * Main Functions: RecentlyPlayedScreen()
+ * Side Effects: Starts indexing on refresh and updates scroll state.
+ */
+
+import { View } from "react-native"
 
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import { useRecentlyPlayedTracks } from "@/modules/history/history.queries"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
@@ -72,10 +81,9 @@ export default function RecentlyPlayedScreen() {
           onMomentumScrollEnd={handleScrollStop}
           onScrollEndDrag={handleScrollStop}
           refreshControl={
-            <RefreshControl
+            <ThemedRefreshControl
               refreshing={isIndexing || isLoading || isFetching}
               onRefresh={refresh}
-              tintColor={theme.accent}
             />
           }
           listHeader={

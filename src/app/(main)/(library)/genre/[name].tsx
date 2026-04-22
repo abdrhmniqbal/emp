@@ -1,8 +1,16 @@
+/**
+ * Purpose: Renders the Genre detail route with top tracks and recommended albums.
+ * Caller: Genre detail sub-route in the Library stack.
+ * Dependencies: genre detail query, album transition helper, themed refresh control, theme colors.
+ * Main Functions: GenreDetailsScreen()
+ * Side Effects: Starts indexing on refresh and updates scroll state.
+ */
+
 import type { GenreAlbumInfo } from "@/modules/search/search.types"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo } from "react"
 
-import { RefreshControl, ScrollView, View } from "react-native"
+import { ScrollView, View } from "react-native"
 import Animated from "react-native-reanimated"
 import { ContentSection } from "@/components/blocks/content-section"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
@@ -20,6 +28,7 @@ import { useGenreDetails } from "@/modules/search/search.queries"
 import {
   getPreviewAlbums,
 } from "@/modules/search/search.utils"
+import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
@@ -131,10 +140,9 @@ export default function GenreDetailsScreen() {
         onScrollEndDrag={handleScrollStop}
         scrollEventThrottle={16}
         refreshControl={
-          <RefreshControl
+          <ThemedRefreshControl
             refreshing={isIndexing || isLoading || isFetching}
             onRefresh={refresh}
-            tintColor={theme.accent}
           />
         }
       >

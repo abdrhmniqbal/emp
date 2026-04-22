@@ -1,8 +1,16 @@
+/**
+ * Purpose: Renders the Home landing screen with recently played and top tracks previews.
+ * Caller: Expo Router home tab.
+ * Dependencies: history queries, track playback service, themed refresh control, theme colors.
+ * Main Functions: HomeScreen()
+ * Side Effects: Starts indexing on refresh and updates scroll state.
+ */
+
 import type { Track } from "@/modules/player/player.store"
 import { useRouter } from "expo-router"
 import * as React from "react"
 
-import { RefreshControl, ScrollView, View } from "react-native"
+import { ScrollView, View } from "react-native"
 import { ContentSection } from "@/components/blocks/content-section"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
 import { RankedTrackCarousel } from "@/components/blocks/ranked-track-carousel"
@@ -10,6 +18,7 @@ import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
+import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import {
   useRecentlyPlayedTracks,
   useTopTracksByPeriod,
@@ -88,14 +97,8 @@ export default function HomeScreen() {
       onMomentumScrollEnd={handleScrollStop}
       onScrollEndDrag={handleScrollStop}
       scrollEventThrottle={16}
-        refreshControl={
-          <RefreshControl
-            refreshing={isIndexing || isLoading}
-            onRefresh={refresh}
-            colors={[theme.accent]}
-            tintColor={theme.accent}
-          progressBackgroundColor={theme.default}
-        />
+      refreshControl={
+        <ThemedRefreshControl refreshing={isIndexing || isLoading} onRefresh={refresh} />
       }
     >
       <View className="pt-6">

@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders the Library hub with tabbed views for tracks, albums, artists, genres, playlists, folders, and favorites.
+ * Caller: Library tab route.
+ * Dependencies: library queries and sorts, indexer refresh flow, themed refresh control, theme colors.
+ * Main Functions: LibraryScreen()
+ * Side Effects: Starts indexing on refresh and updates local folder state.
+ */
+
 import type { Playlist } from "@/components/blocks/playlist-list"
 import type { GenreCategory } from "@/modules/genres/genres.types"
 import type { SortField } from "@/modules/library/library-sort.types"
@@ -9,7 +17,6 @@ import * as React from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  RefreshControl,
   ScrollView,
   Text,
   View,
@@ -27,6 +34,7 @@ import { TracksTab } from "@/components/blocks/tracks-tab"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { GenreCard } from "@/components/patterns/genre-card"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
 import {
   resolveAlbumTransitionId,
@@ -430,14 +438,11 @@ export default function LibraryScreen() {
   }
 
   const refreshControl = (
-    <RefreshControl
+    <ThemedRefreshControl
       refreshing={isRefreshing}
       onRefresh={() => {
         void handleRefresh()
       }}
-      colors={[theme.accent]}
-      tintColor={theme.accent}
-      progressBackgroundColor={theme.default}
     />
   )
 
