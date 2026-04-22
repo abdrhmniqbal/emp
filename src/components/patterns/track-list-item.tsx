@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders an individual track row with playback state styling and row actions.
+ * Caller: TrackList virtualized renderer.
+ * Dependencies: track row UI, player current-track selector, action icon components.
+ * Main Functions: MemoizedTrackListItem
+ * Side Effects: Triggers playback and row action callbacks.
+ */
+
 import type { Track } from "@/modules/player/player.store"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -6,12 +14,12 @@ import { useCallback } from "react"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
+import { useCurrentTrackId } from "@/modules/player/player-selectors"
 
 interface TrackListItemProps {
   track: Track
   index: number
   data: Track[]
-  currentTrackId?: string
   mutedColor: string
   showNumbers: boolean
   hideCover: boolean
@@ -30,7 +38,6 @@ function TrackListItem({
   track,
   index,
   data,
-  currentTrackId,
   mutedColor,
   showNumbers,
   hideCover,
@@ -40,6 +47,8 @@ function TrackListItem({
   onTrackLongPress,
   renderItemPrefix,
 }: TrackListItemProps) {
+  const currentTrackId = useCurrentTrackId()
+
   const handleActionPress = useCallback(
     (event: { stopPropagation: () => void }) => {
       event.stopPropagation()

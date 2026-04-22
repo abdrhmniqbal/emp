@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders a virtualized track list with playback-aware row state and actions.
+ * Caller: Home, library, genre, playlist, and search route screens.
+ * Dependencies: LegendList virtualization, player current-track selector, track action sheet.
+ * Main Functions: TrackList()
+ * Side Effects: Opens track action sheet and dispatches playback actions.
+ */
+
 import type { Track } from "@/modules/player/player.store"
 import {
   LegendList,
@@ -21,7 +29,6 @@ import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behav
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { MemoizedTrackListItem } from "@/components/patterns/track-list-item"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useCurrentTrackId } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -77,7 +84,6 @@ export const TrackList: React.FC<TrackListProps> = ({
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const isCompactNumberedList = hideCover && showNumbers
-  const currentTrackId = useCurrentTrackId()
   const estimatedItemSize = isCompactNumberedList ? 56 : 84
   const listContentContainerStyle = StyleSheet.flatten([
     { gap: isCompactNumberedList ? 0 : 8 },
@@ -104,7 +110,6 @@ export const TrackList: React.FC<TrackListProps> = ({
         track={item}
         index={index}
         data={data}
-        currentTrackId={currentTrackId}
         mutedColor={theme.muted}
         showNumbers={showNumbers}
         hideCover={hideCover}
@@ -116,7 +121,6 @@ export const TrackList: React.FC<TrackListProps> = ({
       />
     ),
     [
-      currentTrackId,
       data,
       getNumber,
       handleTrackPress,
