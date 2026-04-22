@@ -1,16 +1,26 @@
+/**
+ * Purpose: Renders interactive search with an always-visible input, recent searches, and result tabs.
+ * Caller: Search tab route.
+ * Dependencies: search queries/mutations, recent-search cache, router navigation, reanimated entry transitions, theme colors.
+ * Main Functions: SearchInteractionScreen()
+ * Side Effects: Updates recent-search storage/cache and navigates to media detail routes.
+ */
+
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import {
   BackHandler,
+  Keyboard,
   Platform,
   ScrollView,
   type TextInput,
   View,
 } from "react-native"
-import type { NativeStackNavigationOptions } from "react-native-screen-transitions/native-stack"
+import Animated, { FadeInUp } from "react-native-reanimated"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import {
   RecentSearches,
@@ -25,6 +35,7 @@ import {
 } from "@/components/blocks/search-results"
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
+import { Stack } from "@/layouts/stack"
 import { queryClient } from "@/lib/tanstack-query"
 import {
   resolveAlbumTransitionId,
@@ -85,19 +96,21 @@ function HeaderSearchInput({
   }
 
   return (
-    <View className="flex-1">
+    <View className="relative">
+      <PressableFeedback
+        onPress={onBack}
+        className="absolute inset-y-0 left-2.5 z-10 justify-center p-1"
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+      >
+        <LocalArrowLeftIcon
+          fill="none"
+          width={24}
+          height={24}
+          color={theme.foreground}
+        />
+      </PressableFeedback>
       <View className="relative">
-        <PressableFeedback
-          onPress={onBack}
-          className="absolute inset-y-0 left-2.5 z-10 justify-center p-1"
-        >
-          <LocalArrowLeftIcon
-            fill="none"
-            width={24}
-            height={24}
-            color={theme.foreground}
-          />
-        </PressableFeedback>
         <Input
           ref={inputRef}
           autoFocus={shouldAutoFocus}
@@ -106,8 +119,7 @@ function HeaderSearchInput({
           value={inputValue}
           onChangeText={handleChangeText}
           onSubmitEditing={onSubmit}
-          variant="secondary"
-          className="pr-9 pl-12"
+          className="pl-12 pr-9"
           selectionColor={theme.accent}
           returnKeyType="search"
         />
@@ -129,12 +141,9 @@ function HeaderSearchInput({
   )
 }
 
-type SearchScreenInterpolatorArgs = Parameters<
-  NonNullable<NativeStackNavigationOptions["screenStyleInterpolator"]>
->[0]
-
 export default function SearchInteractionScreen() {
   const theme = useThemeColors()
+  const insets = useSafeAreaInsets()
   const navigation = useNavigation()
   const router = useRouter()
   const { query: initialQuery } = useLocalSearchParams<{ query?: string }>()
@@ -188,7 +197,12 @@ export default function SearchInteractionScreen() {
     searchQueryRef.current = searchQuery
   }, [searchQuery])
 
+  function dismissKeyboard() {
+    Keyboard.dismiss()
+  }
+
   const handleBackNavigation = React.useCallback(() => {
+    dismissKeyboard()
     if (navigation.canGoBack()) {
       router.back()
       return true
@@ -221,57 +235,6 @@ export default function SearchInteractionScreen() {
     return unsubscribe
   }, [navigation])
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: true,
-      enableTransitions: true,
-      title: "Search",
-      headerTitleAlign: "left",
-      headerTitle: () => (
-        <HeaderSearchInput
-          key={headerInputKey}
-          theme={theme}
-          initialValue={searchQueryRef.current}
-          onChangeText={setSearchQuery}
-          onSubmit={handleSubmitSearch}
-          onBack={handleBackNavigation}
-        />
-      ),
-      headerBackVisible: false,
-      headerLeft: () => null,
-      headerStyle: {
-        backgroundColor: theme.background,
-      },
-      headerShadowVisible: false,
-      screenStyleInterpolator: ({ next, bounds }: SearchScreenInterpolatorArgs) => {
-        "worklet"
-
-        const nextParams = next?.route.params as
-          | { transitionId?: string }
-          | undefined
-        const transitionId = nextParams?.transitionId
-
-        if (typeof transitionId !== "string" || transitionId.length === 0) {
-          return {}
-        }
-
-        return {
-          [transitionId]: bounds({
-            id: transitionId,
-            method: "transform",
-            scaleMode: "uniform",
-          }),
-        }
-      },
-    })
-  }, [
-    navigation,
-    theme,
-    handleBackNavigation,
-    headerInputKey,
-    handleSubmitSearch,
-  ])
-
   function pushRecentSearch(item: {
     query: string
     title?: string
@@ -301,10 +264,12 @@ export default function SearchInteractionScreen() {
   }
 
   function handleClearRecentSearches() {
+    dismissKeyboard()
     void clearRecentSearchesMutation.mutateAsync()
   }
 
   function handleRecentItemPress(item: RecentSearchItem) {
+    dismissKeyboard()
     if (item.type === "artist" && item.query.trim()) {
       pushRecentSearch(item)
       router.push({
@@ -357,10 +322,12 @@ export default function SearchInteractionScreen() {
   }
 
   function handleRemoveRecentItem(id: string) {
+    dismissKeyboard()
     void deleteRecentSearchMutation.mutateAsync(id)
   }
 
   function handleTrackPress(track: Track) {
+    dismissKeyboard()
     const title = track.title || "Unknown Track"
     pushRecentSearch({
       query: title,
@@ -371,6 +338,7 @@ export default function SearchInteractionScreen() {
   }
 
   function handleArtistPress(artist: SearchArtistResult) {
+    dismissKeyboard()
     pushRecentSearch({
       query: artist.name,
       title: artist.name,
@@ -393,6 +361,7 @@ export default function SearchInteractionScreen() {
   }
 
   function handleAlbumPress(album: SearchAlbumResult) {
+    dismissKeyboard()
     pushRecentSearch({
       query: album.title,
       title: album.title,
@@ -415,6 +384,7 @@ export default function SearchInteractionScreen() {
   }
 
   function handlePlaylistPress(playlist: SearchPlaylistResult) {
+    dismissKeyboard()
     pushRecentSearch({
       query: playlist.title,
       title: playlist.title,
@@ -438,6 +408,27 @@ export default function SearchInteractionScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <Stack.Screen
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Animated.View
+        entering={FadeInUp.duration(220)}
+        style={{
+          paddingTop: insets.top + 8,
+          paddingHorizontal: 16,
+        }}
+      >
+        <HeaderSearchInput
+          key={headerInputKey}
+          theme={theme}
+          initialValue={searchQueryRef.current}
+          onChangeText={setSearchQuery}
+          onSubmit={handleSubmitSearch}
+          onBack={handleBackNavigation}
+        />
+      </Animated.View>
       {isSearching ? (
         <SearchResults
           tracks={tracks}
@@ -458,6 +449,8 @@ export default function SearchInteractionScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 160 }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          onScrollBeginDrag={dismissKeyboard}
         >
           <RecentSearches
             searches={recentSearches}

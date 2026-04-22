@@ -1,9 +1,9 @@
 /**
  * Purpose: Renders the search landing screen with quick access to recent additions.
  * Caller: Expo Router search tab.
- * Dependencies: Tracks query, player playback helpers, library navigation, theme colors, scroll state helpers.
+ * Dependencies: Tracks query, player playback helpers, search/library navigation, theme colors, scroll state helpers.
  * Main Functions: SearchScreen()
- * Side Effects: Updates scroll state, starts playback when a track card is pressed, and navigates to the library tab.
+ * Side Effects: Updates scroll state, starts playback when a track card is pressed, and navigates to search/library detail routes.
  */
 
 import type { Track } from "@/modules/player/player.store"
@@ -60,7 +60,7 @@ export default function SearchScreen() {
   )
 
   const handleSearchPress = () => {
-    router.push("/search")
+    router.push("/(main)/(search)/search")
   }
 
   return (

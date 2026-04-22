@@ -9,7 +9,7 @@ import { Chip, PressableFeedback } from "heroui-native"
 import * as React from "react"
 
 import { useCallback, useMemo, useState } from "react"
-import { ScrollView, Text, View } from "react-native"
+import { Keyboard, ScrollView, Text, View } from "react-native"
 import { LEGEND_LIST_SECTION_CONFIG } from "@/components/blocks/legend-list-config"
 import {
   MemoizedSearchResultRow,
@@ -236,6 +236,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
         contentInsetAdjustmentBehavior="never"
         automaticallyAdjustContentInsets={false}
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={() => Keyboard.dismiss()}
         className="pt-3 pb-4"
         style={{ flexGrow: 0 }}
       >
@@ -263,6 +265,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
           paddingBottom: 104,
         }}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={() => Keyboard.dismiss()}
         contentInsetAdjustmentBehavior="never"
         automaticallyAdjustContentInsets={false}
         {...LEGEND_LIST_SECTION_CONFIG}
