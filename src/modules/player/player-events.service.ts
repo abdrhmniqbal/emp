@@ -1,3 +1,11 @@
+/**
+ * Purpose: Registers native TrackPlayer event listeners and synchronizes playback runtime state.
+ * Caller: TrackPlayer background service bootstrap.
+ * Dependencies: TrackPlayer events, player controls/session/runtime modules, playback activity guard service.
+ * Main Functions: PlaybackService()
+ * Side Effects: Updates player store/session state and records qualified play activity.
+ */
+
 import { logError, logWarn } from "@/modules/logging/logging.service"
 import {
   pauseTrack,
@@ -14,7 +22,7 @@ import {
 } from "@/modules/player/player-session.service"
 import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
 
-import { handleTrackActivated } from "./player-activity.service"
+import { handleTrackActivated, handleTrackProgress } from "./player-activity.service"
 import {
   getCurrentTrackState,
   getRepeatModeState,
@@ -98,11 +106,7 @@ export async function PlaybackService() {
           positionSeconds: 0,
         },
       })
-      void handleTrackActivated(currentTrack).catch((error) => {
-        logError("Failed to record track activation", error, {
-          trackId: currentTrack.id,
-        })
-      })
+      handleTrackActivated(currentTrack)
     } catch (error) {
       logError("Failed to handle playback track change", error)
     }
@@ -110,6 +114,7 @@ export async function PlaybackService() {
 
   TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (event) => {
     setPlaybackProgress(event.position, event.duration)
+    handleTrackProgress(event.position, event.duration)
     void persistPlaybackSession({
       cursorOnly: true,
       cursor: {
