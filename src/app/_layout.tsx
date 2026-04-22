@@ -18,7 +18,6 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useUniwind } from "uniwind"
 
-import { PlayerSheet } from "@/components/blocks/player/player-sheet"
 import { RootProviders } from "@/components/providers/root-providers"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
 import { Stack } from "@/layouts/stack"
@@ -36,7 +35,11 @@ import {
   pauseIndexing,
   resumeIndexing,
 } from "@/modules/indexer/indexer.service"
-import { ROOT_MODAL_SCREEN_OPTIONS } from "@/modules/navigation/stack"
+import {
+  getHiddenPlayerZoomTransitionOptions,
+  HIDDEN_STACK_SCREEN_OPTIONS,
+  ROOT_MODAL_SCREEN_OPTIONS,
+} from "@/modules/navigation/stack"
 import { useHasCurrentTrack } from "@/modules/player/player-selectors"
 import { useThemeColors } from "@/modules/ui/theme"
 import { useUIStore } from "@/modules/ui/ui.store"
@@ -239,8 +242,19 @@ export default function Layout() {
                 >
                   <Stack.Screen name="(main)" />
                   <Stack.Screen name="settings" options={ROOT_MODAL_SCREEN_OPTIONS} />
+                  <Stack.Screen
+                    name="player"
+                    options={({ route }) => {
+                      const transitionId = (route.params as
+                        | { transitionId?: string }
+                        | undefined)?.transitionId
+
+                      return typeof transitionId === "string"
+                        ? getHiddenPlayerZoomTransitionOptions(transitionId)
+                        : HIDDEN_STACK_SCREEN_OPTIONS
+                    }}
+                  />
                 </Stack>
-                <PlayerSheet />
               </View>
             </RootProviders>
           </HeroUINativeProvider>

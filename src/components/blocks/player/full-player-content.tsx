@@ -3,6 +3,7 @@ import type { PlayerExpandedView } from "@/modules/ui/ui.store"
 
 import { LinearGradient } from "expo-linear-gradient"
 import { StyleSheet, View } from "react-native"
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated"
 
 import { usePlayerColorsStore } from "@/modules/player/player-colors.store"
 
@@ -36,9 +37,16 @@ export function FullPlayerContent({
 }: FullPlayerContentProps) {
   const colors = usePlayerColorsStore((state) => state.currentColors)
   const isCompactLayout = playerExpandedView !== "artwork"
+  const dragY = useSharedValue(0)
+
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: dragY.value }],
+    }
+  })
 
   return (
-    <View className="relative flex-1">
+    <Animated.View className="relative flex-1" style={containerStyle}>
       <LinearGradient
         colors={[colors.bg, colors.secondary, "#09090B"]}
         locations={[0, 0.6, 1]}
@@ -53,7 +61,7 @@ export function FullPlayerContent({
       />
 
       <View className="flex-1 justify-between px-6 pt-12 pb-8">
-        <PlayerHeader onClose={onClose} onOpenMore={onOpenMore} />
+        <PlayerHeader onClose={onClose} onOpenMore={onOpenMore} dragY={dragY} />
 
         {playerExpandedView === "queue" ? (
           <QueueView />
@@ -75,6 +83,6 @@ export function FullPlayerContent({
 
         <PlayerFooter />
       </View>
-    </View>
+    </Animated.View>
   )
 }
