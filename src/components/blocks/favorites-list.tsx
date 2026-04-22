@@ -37,6 +37,10 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
+import {
+  resolveAlbumTransitionId,
+  resolvePlaylistTransitionId,
+} from "@/modules/artists/artist-transition"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { usePlayerTracks } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
@@ -232,12 +236,27 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
       case "album": {
         router.push({
           pathname: "/album/[name]",
-          params: { name: favorite.name },
+          params: {
+            name: favorite.name,
+            transitionId: resolveAlbumTransitionId({
+              id: favorite.id,
+              title: favorite.name,
+            }),
+          },
         })
         break
       }
       case "playlist": {
-        router.push(`./playlist/${favorite.id}`)
+        router.push({
+          pathname: "/playlist/[id]",
+          params: {
+            id: favorite.id,
+            transitionId: resolvePlaylistTransitionId({
+              id: favorite.id,
+              title: favorite.name,
+            }),
+          },
+        })
         break
       }
     }

@@ -5,6 +5,7 @@ import { useState } from "react"
 
 import { Text } from "react-native"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
 
 interface PlayerActionSheetProps {
@@ -71,7 +72,13 @@ export function PlayerActionSheet({
     onNavigate?.()
     router.push({
       pathname: "/album/[name]",
-      params: { name: albumName },
+      params: {
+        name: albumName,
+        transitionId: resolveAlbumTransitionId({
+          id: track?.albumId,
+          title: albumName,
+        }),
+      },
     })
   }
 

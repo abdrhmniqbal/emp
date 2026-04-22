@@ -16,6 +16,7 @@ import {
   screenExitTransition,
 } from "@/constants/animations"
 import { Stack } from "@/layouts/stack"
+import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
@@ -96,7 +97,13 @@ export default function GenreAlbumsScreen() {
   function handleAlbumPress(album: Album) {
     router.push({
       pathname: "/album/[name]",
-      params: { name: album.title },
+      params: {
+        name: album.title,
+        transitionId: resolveAlbumTransitionId({
+          id: album.id,
+          title: album.title,
+        }),
+      },
     })
   }
 

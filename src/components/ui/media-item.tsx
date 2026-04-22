@@ -4,6 +4,7 @@ import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { createContext, use } from "react"
 import { Text, type TextProps, View, type ViewProps } from "react-native"
+import Transition from "react-native-screen-transitions"
 import { cn, tv, type VariantProps } from "tailwind-variants"
 
 const mediaItemStyles = tv({
@@ -46,16 +47,36 @@ const MediaItemContext = createContext<MediaItemContextValue>({
   variant: "list",
 })
 
+const BoundaryPressableFeedback =
+  Transition.createBoundaryComponent(PressableFeedback)
+
 type MediaItemProps = React.ComponentProps<typeof PressableFeedback> &
-  MediaItemVariant
+  MediaItemVariant & {
+    boundaryId?: string
+  }
 
 function MediaItemRoot({
   className,
   variant = "list",
+  boundaryId,
   children,
   ...props
 }: MediaItemProps) {
   const { base } = mediaItemStyles({ variant })
+
+  if (boundaryId) {
+    return (
+      <MediaItemContext value={{ variant }}>
+        <BoundaryPressableFeedback
+          id={boundaryId}
+          className={cn(base(), className)}
+          {...props}
+        >
+          {children}
+        </BoundaryPressableFeedback>
+      </MediaItemContext>
+    )
+  }
 
   return (
     <MediaItemContext value={{ variant }}>

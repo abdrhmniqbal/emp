@@ -13,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import Transition from "react-native-screen-transitions"
 
 import {
   LEGEND_LIST_GRID_CONFIG,
@@ -29,6 +30,7 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
+import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { useThemeColors } from "@/modules/ui/theme"
 import { mergeText } from "@/utils/merge-text"
 
@@ -107,19 +109,29 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   }
 
   const renderAlbumItem = (item: Album) => (
-    <Item variant="grid" className="w-full" onPress={() => handlePress(item)}>
-      <ItemImage
-        icon={
-          <LocalVynilSolidIcon
-            fill="none"
-            width={ICON_SIZES.largeCardFallback}
-            height={ICON_SIZES.largeCardFallback}
-            color={theme.muted}
-          />
-        }
-        image={item.image}
-        className="aspect-square w-full rounded-md"
-      />
+    <Item
+      variant="grid"
+      className="w-full"
+      boundaryId={resolveAlbumTransitionId({
+        id: item.id,
+        title: item.title,
+      })}
+      onPress={() => handlePress(item)}
+    >
+      <Transition.Boundary.Target>
+        <ItemImage
+          icon={
+            <LocalVynilSolidIcon
+              fill="none"
+              width={ICON_SIZES.largeCardFallback}
+              height={ICON_SIZES.largeCardFallback}
+              color={theme.muted}
+            />
+          }
+          image={item.image}
+          className="aspect-square w-full rounded-md"
+        />
+      </Transition.Boundary.Target>
       <ItemContent className="mt-1">
         <ItemTitle className="text-sm normal-case" numberOfLines={1}>
           {item.title}
@@ -161,19 +173,28 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
             className="w-36"
             style={{ marginRight: index === data.length - 1 ? 0 : 16 }}
           >
-            <Item variant="grid" onPress={() => handlePress(item)}>
-              <ItemImage
-                icon={
-                  <LocalVynilSolidIcon
-                    fill="none"
-                    width={ICON_SIZES.mediumCardFallback}
-                    height={ICON_SIZES.mediumCardFallback}
-                    color={theme.muted}
-                  />
-                }
-                image={item.image}
-                className="aspect-square w-full rounded-md"
-              />
+            <Item
+              variant="grid"
+              boundaryId={resolveAlbumTransitionId({
+                id: item.id,
+                title: item.title,
+              })}
+              onPress={() => handlePress(item)}
+            >
+              <Transition.Boundary.Target>
+                <ItemImage
+                  icon={
+                    <LocalVynilSolidIcon
+                      fill="none"
+                      width={ICON_SIZES.mediumCardFallback}
+                      height={ICON_SIZES.mediumCardFallback}
+                      color={theme.muted}
+                    />
+                  }
+                  image={item.image}
+                  className="aspect-square w-full rounded-md"
+                />
+              </Transition.Boundary.Target>
               <ItemContent className="mt-1">
                 <ItemTitle className="text-sm normal-case" numberOfLines={1}>
                   {item.title}

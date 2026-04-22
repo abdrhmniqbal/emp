@@ -73,6 +73,84 @@ export const HIDDEN_STACK_SCREEN_OPTIONS = {
   headerShown: false,
 } as const
 
+export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
+  if (!boundaryId || !isNavigationMaskAvailable) {
+    return {
+      ...HIDDEN_STACK_SCREEN_OPTIONS,
+      ...Transition.Presets.ZoomIn(),
+    }
+  }
+
+  return {
+    ...HIDDEN_STACK_SCREEN_OPTIONS,
+    enableTransitions: true,
+    navigationMaskEnabled: true,
+    gestureEnabled: true,
+    gestureDirection: ["vertical", "horizontal"] as const,
+    gestureDrivesProgress: false,
+    screenStyleInterpolator: ({ bounds, progress, current }: ScreenStyleInterpolatorArgs) => {
+      "worklet"
+
+      const height = current.layouts.screen.height
+      const width = current.layouts.screen.width
+
+      return {
+        ...bounds({
+          id: boundaryId,
+          scaleMode: "uniform",
+        }).navigation.zoom({
+          borderRadius: 28,
+          backgroundScale: 0.94,
+          focusedElementOpacity: {
+            open: [0, 0.16, 0.92, 1],
+            close: [0.82, 1, 1, 0.9],
+          },
+          unfocusedElementOpacity: {
+            open: [0, 0.14, 1, 0],
+            close: [0.86, 1, 0, 1],
+          },
+          horizontalDragScale: [0.92, 1.02],
+          verticalDragScale: [0.84, 1.02],
+          horizontalDragTranslation: [0.12, 0.32],
+          verticalDragTranslation: [0.08, 0.45],
+        }),
+        [NAVIGATION_MASK_CONTAINER_STYLE_ID]: {
+          style: {
+            width,
+            height,
+          },
+        },
+        [NAVIGATION_MASK_ELEMENT_STYLE_ID]: {
+          style: {
+            width,
+            height,
+            borderRadius: interpolate(progress, [0, 1], [28, 0]),
+            backgroundColor: "white",
+          },
+        },
+        backdrop: {
+          style: {
+            backgroundColor: "black",
+            opacity: interpolate(progress, [0, 1], [0, 0.18]),
+          },
+        },
+      }
+    },
+    transitionSpec: {
+      open: Transition.Specs.DefaultSpec,
+      close: Transition.Specs.DefaultSpec,
+    },
+  }
+}
+
+export function getHiddenArtistZoomTransitionOptions(boundaryId?: string) {
+  return getHiddenBoundaryZoomTransitionOptions(boundaryId)
+}
+
+export function getHiddenZoomTransitionOptions(boundaryId?: string) {
+  return getHiddenBoundaryZoomTransitionOptions(boundaryId)
+}
+
 export const ROOT_MODAL_SCREEN_OPTIONS = {
   headerShown: false,
   ...getMaskedSheetTransitionOptions(),
@@ -154,6 +232,13 @@ export function getMediaDetailTransitionOptions(
     ...getBackButtonScreenOptions("", headerLeft),
     ...getHeaderSafeFadeFromBottomOptions(),
   }
+}
+
+export function getZoomMediaDetailTransitionOptions(
+  theme: NavigationThemeColors,
+  headerLeft: () => ReactNode
+) {
+  return getMediaDetailTransitionOptions(theme, headerLeft)
 }
 
 export function getModalTaskTransitionOptions(

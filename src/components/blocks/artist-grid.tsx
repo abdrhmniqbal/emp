@@ -13,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import Transition from "react-native-screen-transitions"
 
 import { LEGEND_LIST_GRID_CONFIG } from "@/components/blocks/legend-list-config"
 import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
@@ -26,6 +27,7 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
+import { resolveArtistTransitionId } from "@/modules/artists/artist-transition"
 import { useThemeColors } from "@/modules/ui/theme"
 
 export interface Artist {
@@ -111,6 +113,10 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
             <Item
               key={item.id}
               variant="grid"
+              boundaryId={resolveArtistTransitionId({
+                id: item.id,
+                name: item.name,
+              })}
               style={{
                 width: itemWidth,
                 marginRight: column < NUM_COLUMNS - 1 ? GAP : 0,
@@ -118,18 +124,20 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
               }}
               onPress={() => handlePress(item)}
             >
-              <ItemImage
-                icon={
-                  <LocalUserSolidIcon
-                    fill="none"
-                    width={ICON_SIZES.gridFallback}
-                    height={ICON_SIZES.gridFallback}
-                    color={theme.muted}
-                  />
-                }
-                image={item.image}
-                className="aspect-square w-full rounded-full bg-default"
-              />
+              <Transition.Boundary.Target>
+                <ItemImage
+                  icon={
+                    <LocalUserSolidIcon
+                      fill="none"
+                      width={ICON_SIZES.gridFallback}
+                      height={ICON_SIZES.gridFallback}
+                      color={theme.muted}
+                    />
+                  }
+                  image={item.image}
+                  className="aspect-square w-full rounded-full bg-default"
+                />
+              </Transition.Boundary.Target>
               <ItemContent className="mt-1 items-center">
                 <ItemTitle
                   className="text-center text-sm normal-case"

@@ -18,6 +18,7 @@ import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
 import { MarqueeText } from "@/components/ui/marquee-text"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { openDeviceFile } from "@/modules/device/file-viewer"
+import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import {
   useToggleFavorite,
 } from "@/modules/favorites/favorites.mutations"
@@ -195,7 +196,13 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     onClose()
     router.push({
       pathname: "/album/[name]",
-      params: { name: normalizedAlbumName },
+      params: {
+        name: normalizedAlbumName,
+        transitionId: resolveAlbumTransitionId({
+          id: track?.albumId,
+          title: normalizedAlbumName,
+        }),
+      },
     })
   }
 

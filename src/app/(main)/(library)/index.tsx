@@ -28,6 +28,11 @@ import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { GenreCard } from "@/components/patterns/genre-card"
 import { EmptyState } from "@/components/ui/empty-state"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
+import {
+  resolveAlbumTransitionId,
+  resolveArtistTransitionId,
+  resolvePlaylistTransitionId,
+} from "@/modules/artists/artist-transition"
 import { useFavorites } from "@/modules/favorites/favorites.queries"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
@@ -236,22 +241,34 @@ export default function LibraryScreen() {
     setSortModalVisible(false)
   }
 
-  function openArtist(name: string) {
+  function openArtist(artist: { id?: string; name: string }) {
     router.push({
       pathname: "/artist/[name]",
-      params: { name },
+      params: {
+        name: artist.name,
+        transitionId: resolveArtistTransitionId(artist),
+      },
     })
   }
 
-  function openAlbum(title: string) {
+  function openAlbum(album: { id?: string; title: string }) {
     router.push({
       pathname: "/album/[name]",
-      params: { name: title },
+      params: {
+        name: album.title,
+        transitionId: resolveAlbumTransitionId(album),
+      },
     })
   }
 
-  function openPlaylist(id: string) {
-    router.push(`./playlist/${id}`)
+  function openPlaylist(playlist: { id: string; title?: string }) {
+    router.push({
+      pathname: "/playlist/[id]",
+      params: {
+        id: playlist.id,
+        transitionId: resolvePlaylistTransitionId(playlist),
+      },
+    })
   }
 
   function openPlaylistForm() {
@@ -440,7 +457,7 @@ export default function LibraryScreen() {
         return (
           <AlbumsTab
             sortConfig={sortConfig}
-            onAlbumPress={(album) => openAlbum(album.title)}
+            onAlbumPress={openAlbum}
             contentBottomPadding={libraryListBottomPadding}
             refreshControl={refreshControl}
             {...sharedListEvents}
@@ -450,7 +467,7 @@ export default function LibraryScreen() {
         return (
           <ArtistsTab
             sortConfig={sortConfig}
-            onArtistPress={(artist) => openArtist(artist.name)}
+            onArtistPress={openArtist}
             contentBottomPadding={libraryListBottomPadding}
             refreshControl={refreshControl}
             {...sharedListEvents}
@@ -502,7 +519,7 @@ export default function LibraryScreen() {
           <PlaylistList
             data={playlists}
             onCreatePlaylist={openPlaylistForm}
-            onPlaylistPress={(playlist) => openPlaylist(playlist.id)}
+            onPlaylistPress={openPlaylist}
             contentContainerStyle={listContentContainerStyle}
             resetScrollKey={listResetScrollKey}
             refreshControl={refreshControl}

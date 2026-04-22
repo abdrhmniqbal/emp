@@ -5,6 +5,8 @@ import { StackHeaderActions } from "@/components/patterns/stack-header-actions"
 import { Stack } from "@/layouts/stack"
 import {
   getDefaultNativeStackOptions,
+  getHiddenBoundaryZoomTransitionOptions,
+  getHiddenArtistZoomTransitionOptions,
   getLargeTitleRootScreenOptions,
   HIDDEN_STACK_SCREEN_OPTIONS,
 } from "@/modules/navigation/stack"
@@ -40,9 +42,32 @@ export default function SearchLayout() {
           ),
         })}
       />
-      <Stack.Screen name="album" options={HIDDEN_STACK_SCREEN_OPTIONS} />
-      <Stack.Screen name="artist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
-      <Stack.Screen name="playlist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
+      <Stack.Screen
+        name="album"
+        options={({ route }) =>
+          getHiddenBoundaryZoomTransitionOptions(
+            typeof route.params?.transitionId === "string"
+              ? route.params.transitionId
+              : undefined
+          )}
+      />
+      <Stack.Screen
+        name="artist"
+        options={({ route }) =>
+          getHiddenArtistZoomTransitionOptions(
+            typeof route.params?.transitionId === "string"
+              ? route.params.transitionId
+              : undefined
+          )}
+      />
+      <Stack.Screen
+        name="playlist"
+        options={({ route }) =>
+          typeof route.params?.transitionId === "string"
+            ? getHiddenBoundaryZoomTransitionOptions(route.params.transitionId)
+            : HIDDEN_STACK_SCREEN_OPTIONS
+        }
+      />
     </Stack>
   )
 }

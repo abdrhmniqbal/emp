@@ -12,6 +12,7 @@ import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { MusicCard } from "@/components/patterns/music-card"
 import { screenEnterTransition } from "@/constants/animations"
 import { Stack } from "@/layouts/stack"
+import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { logWarn } from "@/modules/logging/logging.service"
@@ -99,7 +100,12 @@ export default function GenreDetailsScreen() {
         onPress={() =>
           router.push({
             pathname: "/album/[name]",
-            params: { name: album.name },
+            params: {
+              name: album.name,
+              transitionId: resolveAlbumTransitionId({
+                title: album.name,
+              }),
+            },
           })
         }
       />

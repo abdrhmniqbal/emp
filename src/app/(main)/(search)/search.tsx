@@ -10,6 +10,7 @@ import {
   type TextInput,
   View,
 } from "react-native"
+import type { NativeStackNavigationOptions } from "react-native-screen-transitions/native-stack"
 
 import {
   RecentSearches,
@@ -25,6 +26,11 @@ import {
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import { queryClient } from "@/lib/tanstack-query"
+import {
+  resolveAlbumTransitionId,
+  resolveArtistTransitionId,
+  resolvePlaylistTransitionId,
+} from "@/modules/artists/artist-transition"
 import { libraryKeys } from "@/modules/library/library.keys"
 import {
   addRecentSearch,
@@ -123,6 +129,10 @@ function HeaderSearchInput({
   )
 }
 
+type SearchScreenInterpolatorArgs = Parameters<
+  NonNullable<NativeStackNavigationOptions["screenStyleInterpolator"]>
+>[0]
+
 export default function SearchInteractionScreen() {
   const theme = useThemeColors()
   const navigation = useNavigation()
@@ -214,6 +224,7 @@ export default function SearchInteractionScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
+      enableTransitions: true,
       title: "Search",
       headerTitleAlign: "left",
       headerTitle: () => (
@@ -232,6 +243,26 @@ export default function SearchInteractionScreen() {
         backgroundColor: theme.background,
       },
       headerShadowVisible: false,
+      screenStyleInterpolator: ({ next, bounds }: SearchScreenInterpolatorArgs) => {
+        "worklet"
+
+        const nextParams = next?.route.params as
+          | { transitionId?: string }
+          | undefined
+        const transitionId = nextParams?.transitionId
+
+        if (typeof transitionId !== "string" || transitionId.length === 0) {
+          return {}
+        }
+
+        return {
+          [transitionId]: bounds({
+            id: transitionId,
+            method: "transform",
+            scaleMode: "uniform",
+          }),
+        }
+      },
     })
   }, [
     navigation,
@@ -287,7 +318,13 @@ export default function SearchInteractionScreen() {
       pushRecentSearch(item)
       router.push({
         pathname: "album/[name]",
-        params: { name: item.query },
+        params: {
+          name: item.query,
+          transitionId: resolveAlbumTransitionId({
+            id: item.targetId,
+            title: item.title || item.query,
+          }),
+        },
       })
       return
     }
@@ -296,7 +333,13 @@ export default function SearchInteractionScreen() {
       pushRecentSearch(item)
       router.push({
         pathname: "playlist/[id]",
-        params: { id: item.targetId },
+        params: {
+          id: item.targetId,
+          transitionId: resolvePlaylistTransitionId({
+            id: item.targetId,
+            title: item.title,
+          }),
+        },
       })
       return
     }
@@ -339,7 +382,13 @@ export default function SearchInteractionScreen() {
 
     router.push({
       pathname: "artist/[name]",
-      params: { name: artist.name },
+      params: {
+        name: artist.name,
+        transitionId: resolveArtistTransitionId({
+          id: artist.id,
+          name: artist.name,
+        }),
+      },
     })
   }
 
@@ -355,7 +404,13 @@ export default function SearchInteractionScreen() {
 
     router.push({
       pathname: "album/[name]",
-      params: { name: album.title },
+      params: {
+        name: album.title,
+        transitionId: resolveAlbumTransitionId({
+          id: album.id,
+          title: album.title,
+        }),
+      },
     })
   }
 
@@ -371,7 +426,13 @@ export default function SearchInteractionScreen() {
 
     router.push({
       pathname: "playlist/[id]",
-      params: { id: playlist.id },
+      params: {
+        id: playlist.id,
+        transitionId: resolvePlaylistTransitionId({
+          id: playlist.id,
+          title: playlist.title,
+        }),
+      },
     })
   }
 
