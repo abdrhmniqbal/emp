@@ -14,7 +14,7 @@ import { useCallback } from "react"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
-import { useCurrentTrackId } from "@/modules/player/player-selectors"
+import { usePlayerStore } from "@/modules/player/player.store"
 
 interface TrackListItemProps {
   track: Track
@@ -47,7 +47,9 @@ function TrackListItem({
   onTrackLongPress,
   renderItemPrefix,
 }: TrackListItemProps) {
-  const currentTrackId = useCurrentTrackId()
+  const isCurrentTrack = usePlayerStore(
+    (state) => state.currentTrack?.id === track.id
+  )
 
   const handleActionPress = useCallback(
     (event: { stopPropagation: () => void }) => {
@@ -78,8 +80,8 @@ function TrackListItem({
         rank={rank}
         showCover={!hideCover}
         showArtist={!hideArtist}
-        titleClassName={currentTrackId === track.id ? "text-accent" : undefined}
-        imageOverlay={currentTrackId === track.id ? <ScaleLoader size={16} /> : undefined}
+        titleClassName={isCurrentTrack ? "text-accent" : undefined}
+        imageOverlay={isCurrentTrack ? <ScaleLoader size={16} /> : undefined}
         rightAction={
           <PressableFeedback onPress={handleActionPress} className="p-2">
             <LocalMoreHorizontalCircleSolidIcon

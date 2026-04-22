@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders the player queue with drag-reorder controls and active-track highlighting.
+ * Caller: full-player-content queue panel.
+ * Dependencies: player selectors/store, queue service mutations, reorderable list UI.
+ * Main Functions: QueueView(), MemoizedQueueItem
+ * Side Effects: Reorders/removes queue entries and can trigger playback of selected queue item.
+ */
+
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useCallback, useEffect, useRef } from "react"
@@ -20,12 +28,12 @@ import { playTrack } from "@/modules/player/player.service"
 import {
   getQueueState,
   type Track,
+  usePlayerStore,
 } from "@/modules/player/player.store"
 import { moveInQueue, removeFromQueue } from "@/modules/player/queue.service"
 
 interface QueueItemProps {
   track: Track
-  isCurrentTrack: boolean
   isPlayedTrack: boolean
   onPress: () => void
   onRemove: () => void
@@ -33,11 +41,13 @@ interface QueueItemProps {
 
 export const QueueItem: React.FC<QueueItemProps> = ({
   track,
-  isCurrentTrack,
   isPlayedTrack,
   onPress,
   onRemove,
 }) => {
+  const isCurrentTrack = usePlayerStore(
+    (state) => state.currentTrack?.id === track.id
+  )
   const drag = useReorderableDrag()
   const handleDragPress = useCallback(
     (event: { stopPropagation: () => void }) => {
@@ -108,7 +118,7 @@ const ITEM_GAP = 6
 
 export const QueueView: React.FC = () => {
   const currentTrack = useCurrentTrack()
-  const { queue, upNext, currentIndex, currentTrackId } = usePlayerQueueInfo()
+  const { queue, upNext, currentIndex } = usePlayerQueueInfo()
   const listRef = useRef<FlatList>(null)
   const handleRemove = useCallback(async (trackId: string) => {
     await removeFromQueue(trackId)
@@ -126,13 +136,12 @@ export const QueueView: React.FC = () => {
     ({ item, index }: { item: Track; index: number }) => (
       <MemoizedQueueItem
         track={item}
-        isCurrentTrack={item.id === currentTrackId}
         isPlayedTrack={currentIndex >= 0 && index < currentIndex}
         onPress={() => handlePlayFromQueue(item)}
         onRemove={() => handleRemove(item.id)}
       />
     ),
-    [currentIndex, currentTrackId, handlePlayFromQueue, handleRemove]
+    [currentIndex, handlePlayFromQueue, handleRemove]
   )
   const scrollToCurrentTrack = useCallback(() => {
     if (currentIndex < 0) {
