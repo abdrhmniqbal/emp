@@ -99,13 +99,20 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
       const height = current.layouts.screen.height
       const width = current.layouts.screen.width
 
+      const clampedProgress = Math.max(0, Math.min(1, progress))
+      
+      const scaleProgress = interpolate(clampedProgress, [0, 0.5, 1], [0.75, 0.85, 1])
+      const translateYProgress = interpolate(clampedProgress, [0, 1], [0.15, 0])
+      const borderRadiusProgress = interpolate(clampedProgress, [0, 1], [28, 0])
+      const backgroundScaleProgress = interpolate(clampedProgress, [0, 1], [0.94, 1])
+
       return {
         ...bounds({
           id: boundaryId,
           scaleMode: "uniform",
         }).navigation.zoom({
-          borderRadius: 28,
-          backgroundScale: 0.94,
+          borderRadius: Math.max(0, borderRadiusProgress),
+          backgroundScale: backgroundScaleProgress,
           focusedElementOpacity: {
             open: [0, 0.16, 0.92, 1],
             close: [0.82, 1, 1, 0.9],
@@ -114,15 +121,15 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
             open: [0, 0.14, 1, 0],
             close: [0.86, 1, 0, 1],
           },
-          horizontalDragScale: [0.92, 1.02],
-          verticalDragScale: [0.84, 1.02],
-          horizontalDragTranslation: [0.12, 0.32],
-          verticalDragTranslation: [0.08, 0.45],
+          horizontalDragScale: [interpolate(clampedProgress, [0, 1], [0.92, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
+          verticalDragScale: [interpolate(clampedProgress, [0, 1], [0.84, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
+          horizontalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.12, 0]), interpolate(clampedProgress, [0, 1], [0.32, 0])],
+          verticalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.08 + translateYProgress, 0]), interpolate(clampedProgress, [0, 1], [0.45, 0])],
         }),
         backdrop: {
           style: {
             backgroundColor: "transparent",
-            opacity: 0,
+            opacity: interpolate(clampedProgress, [0, 1], [0, 0]),
           },
         },
       }
@@ -163,13 +170,20 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
       const height = current.layouts.screen.height
       const width = current.layouts.screen.width
 
+      const clampedProgress = Math.max(0, Math.min(1, progress))
+      
+      const scaleProgress = interpolate(clampedProgress, [0, 0.4, 1], [0.72, 0.88, 1])
+      const translateYProgress = interpolate(clampedProgress, [0, 1], [0.2, 0])
+      const borderRadiusProgress = interpolate(clampedProgress, [0, 1], [24, 0])
+      const backgroundScaleProgress = interpolate(clampedProgress, [0, 1], [0.95, 1])
+
       return {
         ...bounds({
           id: boundaryId,
           scaleMode: "uniform",
         }).navigation.zoom({
-          borderRadius: 24,
-          backgroundScale: 0.95,
+          borderRadius: Math.max(0, borderRadiusProgress),
+          backgroundScale: backgroundScaleProgress,
           focusedElementOpacity: {
             open: [0, 0.2, 0.92, 1],
             close: [0.85, 1, 1, 0.9],
@@ -178,15 +192,15 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
             open: [0, 0.16, 1, 0],
             close: [0.88, 1, 0, 1],
           },
-          horizontalDragScale: [0.94, 1.02],
-          verticalDragScale: [0.84, 1.02],
-          horizontalDragTranslation: [0.12, 0.34],
-          verticalDragTranslation: [0.08, 0.45],
+          horizontalDragScale: [interpolate(clampedProgress, [0, 1], [0.94, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
+          verticalDragScale: [interpolate(clampedProgress, [0, 1], [0.84, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
+          horizontalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.12, 0]), interpolate(clampedProgress, [0, 1], [0.34, 0])],
+          verticalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.08 + translateYProgress, 0]), interpolate(clampedProgress, [0, 1], [0.45, 0])],
         }),
         backdrop: {
           style: {
             backgroundColor: "transparent",
-            opacity: 0,
+            opacity: interpolate(clampedProgress, [0, 1], [0, 0]),
           },
         },
       }
