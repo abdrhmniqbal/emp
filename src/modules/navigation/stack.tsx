@@ -111,41 +111,13 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
     gestureEnabled: true,
     gestureDirection: ["vertical", "horizontal"] as NativeStackNavigationOptions["gestureDirection"],
     gestureDrivesProgress: false,
-    screenStyleInterpolator: ({ bounds, progress }: ScreenStyleInterpolatorArgs) => {
+    screenStyleInterpolator: ({ bounds }: ScreenStyleInterpolatorArgs) => {
       "worklet"
 
-      const clampedProgress = Math.max(0, Math.min(1, progress))
-      const translateYProgress = interpolate(clampedProgress, [0, 1], [0.15, 0])
-      const borderRadiusProgress = interpolate(clampedProgress, [0, 1], [28, 0])
-      const backgroundScaleProgress = interpolate(clampedProgress, [0, 1], [0.94, 1])
-
-      return {
-        ...bounds({
-          id: boundaryId,
-          scaleMode: "uniform",
-        }).navigation.zoom({
-          borderRadius: Math.max(0, borderRadiusProgress),
-          backgroundScale: backgroundScaleProgress,
-          focusedElementOpacity: {
-            open: [0, 0.16, 0.92, 1],
-            close: [0.82, 1, 1, 0.9],
-          },
-          unfocusedElementOpacity: {
-            open: [0, 0.14, 1, 0],
-            close: [0.86, 1, 0, 1],
-          },
-          horizontalDragScale: [interpolate(clampedProgress, [0, 1], [0.92, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
-          verticalDragScale: [interpolate(clampedProgress, [0, 1], [0.84, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
-          horizontalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.12, 0]), interpolate(clampedProgress, [0, 1], [0.32, 0])],
-          verticalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.08 + translateYProgress, 0]), interpolate(clampedProgress, [0, 1], [0.45, 0])],
-        }),
-        backdrop: {
-          style: {
-            backgroundColor: "transparent",
-            opacity: interpolate(clampedProgress, [0, 1], [0, 0]),
-          },
-        },
-      }
+      return bounds({
+        id: boundaryId,
+        scaleMode: "uniform",
+      }).navigation.zoom()
     },
     transitionSpec: {
       open: Transition.Specs.DefaultSpec,
@@ -197,41 +169,13 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
     gestureEnabled: true,
     gestureDirection: ["vertical", "horizontal"] as NativeStackNavigationOptions["gestureDirection"],
     gestureDrivesProgress: false,
-    screenStyleInterpolator: ({ bounds, progress }: ScreenStyleInterpolatorArgs) => {
+    screenStyleInterpolator: ({ bounds }: ScreenStyleInterpolatorArgs) => {
       "worklet"
 
-      const clampedProgress = Math.max(0, Math.min(1, progress))
-      const translateYProgress = interpolate(clampedProgress, [0, 1], [0.2, 0])
-      const borderRadiusProgress = interpolate(clampedProgress, [0, 1], [24, 0])
-      const backgroundScaleProgress = interpolate(clampedProgress, [0, 1], [0.95, 1])
-
-      return {
-        ...bounds({
-          id: boundaryId,
-          scaleMode: "uniform",
-        }).navigation.zoom({
-          borderRadius: Math.max(0, borderRadiusProgress),
-          backgroundScale: backgroundScaleProgress,
-          focusedElementOpacity: {
-            open: [0, 0.2, 0.92, 1],
-            close: [0.85, 1, 1, 0.9],
-          },
-          unfocusedElementOpacity: {
-            open: [0, 0.16, 1, 0],
-            close: [0.88, 1, 0, 1],
-          },
-          horizontalDragScale: [interpolate(clampedProgress, [0, 1], [0.94, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
-          verticalDragScale: [interpolate(clampedProgress, [0, 1], [0.84, 1]), interpolate(clampedProgress, [0, 1], [1.02, 1])],
-          horizontalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.12, 0]), interpolate(clampedProgress, [0, 1], [0.34, 0])],
-          verticalDragTranslation: [interpolate(clampedProgress, [0, 1], [0.08 + translateYProgress, 0]), interpolate(clampedProgress, [0, 1], [0.45, 0])],
-        }),
-        backdrop: {
-          style: {
-            backgroundColor: "transparent",
-            opacity: interpolate(clampedProgress, [0, 1], [0, 0]),
-          },
-        },
-      }
+      return bounds({
+        id: boundaryId,
+        scaleMode: "uniform",
+      }).navigation.zoom()
     },
     transitionSpec: {
       open: Transition.Specs.DefaultSpec,
