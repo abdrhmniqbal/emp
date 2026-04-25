@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders album details, album actions, and the album track list.
+ * Caller: Album detail route in the library, search, and genre flows.
+ * Dependencies: album queries, favorites mutations, player service, sorting state, theme colors.
+ * Main Functions: AlbumDetailsScreen()
+ * Side Effects: Updates favorites, starts playback, and updates shared scroll state.
+ */
+
 import type { AlbumTrackSortField } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
@@ -7,7 +15,6 @@ import * as React from "react"
 import { useState } from "react"
 
 import { Text, View } from "react-native"
-import Transition from "react-native-screen-transitions"
 import Animated from "react-native-reanimated"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { SortSheet } from "@/components/blocks/sort-sheet"
@@ -20,7 +27,6 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
 import { Stack } from "@/layouts/stack"
 import { formatAlbumDuration } from "@/modules/albums/albums.utils"
-import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import {
@@ -69,10 +75,7 @@ function getSafeRouteName(value: string | string[] | undefined) {
 export default function AlbumDetailsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
-  const { name, transitionId } = useLocalSearchParams<{
-    name: string
-    transitionId?: string
-  }>()
+  const { name } = useLocalSearchParams<{ name: string }>()
   const toggleFavoriteMutation = useToggleFavorite()
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
@@ -132,11 +135,6 @@ export default function AlbumDetailsScreen() {
   }
   const sortedTracks = sortTracks(albumTracks, sortConfig)
   const albumId = albumTracks[0]?.albumId
-  const albumTransitionId = resolveAlbumTransitionId({
-    transitionId,
-    id: albumId,
-    title: albumInfo?.title || albumName,
-  })
   const { data: isAlbumFavorite = false } = useIsFavorite(
     "album",
     albumId || ""
@@ -306,26 +304,24 @@ export default function AlbumDetailsScreen() {
             <>
               <View className="pb-6">
                 <View className="flex-row gap-4 pt-6">
-                  <Transition.Boundary.View id={albumTransitionId}>
-                    <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
-                      {albumInfo.image ? (
-                        <Image
-                          source={{ uri: albumInfo.image }}
-                          style={{ width: "100%", height: "100%" }}
-                          contentFit="cover"
+                  <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
+                    {albumInfo.image ? (
+                      <Image
+                        source={{ uri: albumInfo.image }}
+                        style={{ width: "100%", height: "100%" }}
+                        contentFit="cover"
+                      />
+                    ) : (
+                      <View className="h-full w-full items-center justify-center">
+                        <LocalVynilSolidIcon
+                          fill="none"
+                          width={48}
+                          height={48}
+                          color={theme.muted}
                         />
-                      ) : (
-                        <View className="h-full w-full items-center justify-center">
-                          <LocalVynilSolidIcon
-                            fill="none"
-                            width={48}
-                            height={48}
-                            color={theme.muted}
-                          />
-                        </View>
-                      )}
-                    </View>
-                  </Transition.Boundary.View>
+                      </View>
+                    )}
+                  </View>
 
                   <View className="flex-1 justify-center">
                     <Text

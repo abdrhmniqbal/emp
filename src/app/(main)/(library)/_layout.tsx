@@ -1,7 +1,7 @@
 /**
  * Purpose: Defines the Library stack and nested navigation for albums, artists, genres, and playlists.
  * Caller: Expo Router main tab layout.
- * Dependencies: Stack, route transition helpers, settings header action, theme colors.
+ * Dependencies: Stack, native stack option helpers, settings header action, theme colors.
  * Main Functions: LibraryLayout()
  * Side Effects: None beyond rendering navigation state.
  */
@@ -52,14 +52,8 @@ export default function LibraryLayout() {
           ),
         })}
       />
-      <Stack.Screen
-        name="album"
-        options={({ route }) => getHiddenBoundaryScreenOptions(route.params)}
-      />
-      <Stack.Screen
-        name="artist"
-        options={({ route }) => getHiddenArtistScreenOptions(route.params)}
-      />
+      <Stack.Screen name="album" options={getHiddenBoundaryScreenOptions()} />
+      <Stack.Screen name="artist" options={getHiddenArtistScreenOptions()} />
       <Stack.Screen
         name="genre/[name]"
         options={getDrillDownScreenOptions("Genre", () => (
@@ -78,10 +72,7 @@ export default function LibraryLayout() {
           <BackButton className="-ml-2" />
         ))}
       />
-      <Stack.Screen
-        name="playlist"
-        options={({ route }) => getHiddenPlaylistScreenOptions(route.params)}
-      />
+      <Stack.Screen name="playlist" options={getHiddenPlaylistScreenOptions()} />
     </Stack>
   )
 }

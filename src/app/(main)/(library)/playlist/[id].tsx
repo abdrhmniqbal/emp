@@ -1,9 +1,16 @@
+/**
+ * Purpose: Renders playlist details, playlist actions, and the playlist track list.
+ * Caller: Playlist detail route in library, search, and favorites flows.
+ * Dependencies: playlist queries and mutations, favorites mutations, player service, theme colors.
+ * Main Functions: PlaylistDetailsScreen()
+ * Side Effects: Updates favorites, deletes playlists, starts playback, and updates shared scroll state.
+ */
+
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import * as React from "react"
 import { useMemo, useState } from "react"
 import { Text, View } from "react-native"
-import Transition from "react-native-screen-transitions"
 import Animated from "react-native-reanimated"
 
 import { DeletePlaylistDialog } from "@/components/blocks/delete-playlist-dialog"
@@ -19,7 +26,6 @@ import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
 import { Stack } from "@/layouts/stack"
-import { resolvePlaylistTransitionId } from "@/modules/artists/artist-transition"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   useIsFavorite,
@@ -47,10 +53,7 @@ const HEADER_COLLAPSE_THRESHOLD = 120
 export default function PlaylistDetailsScreen() {
   const router = useRouter()
   const theme = useThemeColors()
-  const { id, transitionId } = useLocalSearchParams<{
-    id: string
-    transitionId?: string
-  }>()
+  const { id } = useLocalSearchParams<{ id: string }>()
   const playlistId = useMemo(
     () => (Array.isArray(id) ? (id[0] ?? "") : (id ?? "")),
     [id]
@@ -73,11 +76,6 @@ export default function PlaylistDetailsScreen() {
   const isFavorite = Boolean(isFavoriteData)
   const tracks = buildPlaylistTracks(playlist)
   const playlistImages = buildPlaylistImages(playlist, tracks)
-  const playlistTransitionId = resolvePlaylistTransitionId({
-    transitionId,
-    id: playlist?.id || playlistId,
-    title: playlist?.name,
-  })
   const totalDuration = getPlaylistDuration(tracks)
   const playlistMetaText = mergeText([
     `${tracks.length} ${tracks.length === 1 ? "track" : "tracks"}`,
@@ -242,22 +240,20 @@ export default function PlaylistDetailsScreen() {
           <>
             <View className="pb-6">
               <View className="flex-row gap-4 pt-6">
-                <Transition.Boundary.View id={playlistTransitionId}>
-                  <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
-                    <PlaylistArtwork
-                      images={playlistImages}
-                      fallback={
-                        <LocalPlaylistSolidIcon
-                          fill="none"
-                          width={48}
-                          height={48}
-                          color={theme.muted}
-                        />
-                      }
-                      className="bg-surface-secondary"
-                    />
-                  </View>
-                </Transition.Boundary.View>
+                <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
+                  <PlaylistArtwork
+                    images={playlistImages}
+                    fallback={
+                      <LocalPlaylistSolidIcon
+                        fill="none"
+                        width={48}
+                        height={48}
+                        color={theme.muted}
+                      />
+                    }
+                    className="bg-surface-secondary"
+                  />
+                </View>
 
                 <View className="flex-1 justify-center">
                   <Text

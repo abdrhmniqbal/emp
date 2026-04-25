@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders interactive search with an always-visible input, recent searches, and result tabs.
  * Caller: Search tab route.
- * Dependencies: search queries/mutations, recent-search cache, router navigation, reanimated entry transitions, theme colors.
+ * Dependencies: search queries and mutations, recent-search cache, router navigation, reanimated entry transitions, theme colors.
  * Main Functions: SearchInteractionScreen()
  * Side Effects: Updates recent-search storage/cache and navigates to media detail routes.
  */
@@ -37,11 +37,6 @@ import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import { Stack } from "@/layouts/stack"
 import { queryClient } from "@/lib/tanstack-query"
-import {
-  resolveAlbumTransitionId,
-  resolveArtistTransitionId,
-  resolvePlaylistTransitionId,
-} from "@/modules/artists/artist-transition"
 import { libraryKeys } from "@/modules/library/library.keys"
 import {
   addRecentSearch,
@@ -283,13 +278,7 @@ export default function SearchInteractionScreen() {
       pushRecentSearch(item)
       router.push({
         pathname: "album/[name]",
-        params: {
-          name: item.query,
-          transitionId: resolveAlbumTransitionId({
-            id: item.targetId,
-            title: item.title || item.query,
-          }),
-        },
+        params: { name: item.query },
       })
       return
     }
@@ -298,13 +287,7 @@ export default function SearchInteractionScreen() {
       pushRecentSearch(item)
       router.push({
         pathname: "playlist/[id]",
-        params: {
-          id: item.targetId,
-          transitionId: resolvePlaylistTransitionId({
-            id: item.targetId,
-            title: item.title,
-          }),
-        },
+        params: { id: item.targetId },
       })
       return
     }
@@ -350,13 +333,7 @@ export default function SearchInteractionScreen() {
 
     router.push({
       pathname: "artist/[name]",
-      params: {
-        name: artist.name,
-        transitionId: resolveArtistTransitionId({
-          id: artist.id,
-          name: artist.name,
-        }),
-      },
+      params: { name: artist.name },
     })
   }
 
@@ -373,13 +350,7 @@ export default function SearchInteractionScreen() {
 
     router.push({
       pathname: "album/[name]",
-      params: {
-        name: album.title,
-        transitionId: resolveAlbumTransitionId({
-          id: album.id,
-          title: album.title,
-        }),
-      },
+      params: { name: album.title },
     })
   }
 
@@ -396,13 +367,7 @@ export default function SearchInteractionScreen() {
 
     router.push({
       pathname: "playlist/[id]",
-      params: {
-        id: playlist.id,
-        transitionId: resolvePlaylistTransitionId({
-          id: playlist.id,
-          title: playlist.title,
-        }),
-      },
+      params: { id: playlist.id },
     })
   }
 

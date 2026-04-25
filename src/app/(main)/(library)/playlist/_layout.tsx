@@ -1,3 +1,11 @@
+/**
+ * Purpose: Configures the playlist detail stack and playlist form modal with native transitions.
+ * Caller: Library playlist route group.
+ * Dependencies: Stack, navigation stack helpers, theme colors.
+ * Main Functions: PlaylistLayout()
+ * Side Effects: None.
+ */
+
 import { BackButton } from "@/components/patterns/back-button"
 import { Stack } from "@/layouts/stack"
 import {

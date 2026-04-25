@@ -1,3 +1,11 @@
+/**
+ * Purpose: Configures the album detail stack with native push transitions.
+ * Caller: Library album route group.
+ * Dependencies: Stack, navigation stack helpers, theme colors.
+ * Main Functions: AlbumLayout()
+ * Side Effects: None.
+ */
+
 import { BackButton } from "@/components/patterns/back-button"
 import { Stack } from "@/layouts/stack"
 import {

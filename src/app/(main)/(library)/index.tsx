@@ -36,11 +36,6 @@ import { GenreCard } from "@/components/patterns/genre-card"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
-import {
-  resolveAlbumTransitionId,
-  resolveArtistTransitionId,
-  resolvePlaylistTransitionId,
-} from "@/modules/artists/artist-transition"
 import { useFavorites } from "@/modules/favorites/favorites.queries"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
@@ -252,30 +247,21 @@ export default function LibraryScreen() {
   function openArtist(artist: { id?: string; name: string }) {
     router.push({
       pathname: "/artist/[name]",
-      params: {
-        name: artist.name,
-        transitionId: resolveArtistTransitionId(artist),
-      },
+      params: { name: artist.name },
     })
   }
 
   function openAlbum(album: { id?: string; title: string }) {
     router.push({
       pathname: "/album/[name]",
-      params: {
-        name: album.title,
-        transitionId: resolveAlbumTransitionId(album),
-      },
+      params: { name: album.title },
     })
   }
 
   function openPlaylist(playlist: { id: string; title?: string }) {
     router.push({
       pathname: "/playlist/[id]",
-      params: {
-        id: playlist.id,
-        transitionId: resolvePlaylistTransitionId(playlist),
-      },
+      params: { id: playlist.id },
     })
   }
 

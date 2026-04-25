@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders track actions such as playback, favorites, playlist management, and navigation to related media.
+ * Caller: Track lists, player surfaces, and track detail interactions.
+ * Dependencies: HeroUI Native sheets and toasts, track queries, player services, playlist selection, theme colors.
+ * Main Functions: TrackActionSheet()
+ * Side Effects: Starts playback, updates favorites, navigates to related routes, opens files, and deletes tracks.
+ */
+
 import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
@@ -18,7 +26,6 @@ import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
 import { MarqueeText } from "@/components/ui/marquee-text"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { openDeviceFile } from "@/modules/device/file-viewer"
-import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import {
   useToggleFavorite,
 } from "@/modules/favorites/favorites.mutations"
@@ -196,13 +203,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     onClose()
     router.push({
       pathname: "/album/[name]",
-      params: {
-        name: normalizedAlbumName,
-        transitionId: resolveAlbumTransitionId({
-          id: track?.albumId,
-          title: normalizedAlbumName,
-        }),
-      },
+      params: { name: normalizedAlbumName },
     })
   }
 

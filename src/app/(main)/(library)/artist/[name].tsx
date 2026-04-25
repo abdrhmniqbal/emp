@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders artist details, hero artwork, popular tracks, and related albums.
+ * Caller: Artist detail route in library, search, favorites, and player flows.
+ * Dependencies: artist queries, favorites mutations, player service, sorting state, theme colors.
+ * Main Functions: ArtistDetailsScreen()
+ * Side Effects: Updates favorites, starts playback, routes to albums, and updates shared scroll state.
+ */
+
 import type { SortField } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
@@ -15,7 +23,6 @@ import {
   useWindowDimensions,
   View,
 } from "react-native"
-import Transition from "react-native-screen-transitions"
 import Animated, {
   Extrapolation,
   interpolate,
@@ -41,10 +48,6 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
-import {
-  resolveAlbumTransitionId,
-  resolveArtistTransitionId,
-} from "@/modules/artists/artist-transition"
 import { buildArtistAlbums } from "@/modules/artists/artists.utils"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
@@ -106,10 +109,7 @@ export default function ArtistDetailsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
   const { width: screenWidth } = useWindowDimensions()
-  const { name, transitionId } = useLocalSearchParams<{
-    name: string
-    transitionId?: string
-  }>()
+  const { name } = useLocalSearchParams<{ name: string }>()
   const toggleFavoriteMutation = useToggleFavorite()
   const headerCollapseThreshold = screenWidth - 120
   const lastSyncedScrollYRef = React.useRef(0)
@@ -162,11 +162,6 @@ export default function ArtistDetailsScreen() {
         )
   const artistId = artistTracks[0]?.artistId
   const artistImage = artistTracks.find((track) => track.image)?.image
-  const artistTransitionId = resolveArtistTransitionId({
-    transitionId,
-    id: artistId,
-    name: artistName,
-  })
   const { data: isArtistFavorite = false } = useIsFavorite(
     "artist",
     artistId || ""
@@ -284,13 +279,7 @@ export default function ArtistDetailsScreen() {
   function openAlbum(album: Album) {
     router.push({
       pathname: "/album/[name]",
-      params: {
-        name: album.title,
-        transitionId: resolveAlbumTransitionId({
-          id: album.id,
-          title: album.title,
-        }),
-      },
+      params: { name: album.title },
     })
   }
 
@@ -305,34 +294,29 @@ export default function ArtistDetailsScreen() {
 
   const renderHeroSection = () => (
     <View style={{ height: screenWidth }} className="relative overflow-hidden">
-      <Transition.Boundary.View
-        id={artistTransitionId}
-        style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
+      <Animated.View
+        style={[
+          { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+          heroArtworkStyle,
+        ]}
       >
-        <Animated.View
-          style={[
-            { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-            heroArtworkStyle,
-          ]}
-        >
-          {artistImage ? (
-            <Image
-              source={{ uri: artistImage }}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
+        {artistImage ? (
+          <Image
+            source={{ uri: artistImage }}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+          />
+        ) : (
+          <View className="h-full w-full items-center justify-center bg-surface-secondary">
+            <LocalUserSolidIcon
+              fill="none"
+              width={120}
+              height={120}
+              color={theme.muted}
             />
-          ) : (
-            <View className="h-full w-full items-center justify-center bg-surface-secondary">
-              <LocalUserSolidIcon
-                fill="none"
-                width={120}
-                height={120}
-                color={theme.muted}
-              />
-            </View>
-          )}
-        </Animated.View>
-      </Transition.Boundary.View>
+          </View>
+        )}
+      </Animated.View>
 
       <LinearGradient
         colors={["transparent", "rgba(0,0,0,0.7)", theme.background]}

@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders search result rows for artists, albums, playlists, and tracks.
+ * Caller: Search results lists.
+ * Dependencies: media item primitives, playlist artwork, player service, theme colors.
+ * Main Functions: MemoizedSearchResultRow
+ * Side Effects: Starts playback for track results and triggers route handlers passed from parents.
+ */
+
 import type {
   SearchAlbumResult,
   SearchArtistResult,
@@ -6,7 +14,6 @@ import type {
 import type { Track } from "@/modules/player/player.store"
 import * as React from "react"
 import { Text } from "react-native"
-import Transition from "react-native-screen-transitions"
 
 import LocalCheckmarkCircleSolidIcon from "@/components/icons/local/checkmark-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
@@ -25,11 +32,6 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import {
-  resolveAlbumTransitionId,
-  resolveArtistTransitionId,
-  resolvePlaylistTransitionId,
-} from "@/modules/artists/artist-transition"
 import { playTrack } from "@/modules/player/player.service"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -61,26 +63,20 @@ function SearchResultRow({
       <Item
         variant="list"
         className="py-1"
-        boundaryId={resolveArtistTransitionId({
-          id: item.artist.id,
-          name: item.artist.name,
-        })}
         onPress={() => onArtistPress?.(item.artist)}
       >
-        <Transition.Boundary.Target>
-          <ItemImage
-            icon={
-              <LocalUserSolidIcon
-                fill="none"
-                width={ICON_SIZES.listFallback}
-                height={ICON_SIZES.listFallback}
-                color={theme.muted}
-              />
-            }
-            image={item.artist.image}
-            className="h-14 w-14 rounded-full bg-default"
-          />
-        </Transition.Boundary.Target>
+        <ItemImage
+          icon={
+            <LocalUserSolidIcon
+              fill="none"
+              width={ICON_SIZES.listFallback}
+              height={ICON_SIZES.listFallback}
+              color={theme.muted}
+            />
+          }
+          image={item.artist.image}
+          className="h-14 w-14 rounded-full bg-default"
+        />
         <ItemContent>
           <ItemTitle className="text-lg">{item.artist.name}</ItemTitle>
           <Text className="text-xs text-muted">{item.artist.type}</Text>
@@ -91,27 +87,19 @@ function SearchResultRow({
 
   if (item.type === "album") {
     return (
-      <Item
-        boundaryId={resolveAlbumTransitionId({
-          id: item.album.id,
-          title: item.album.title,
-        })}
-        onPress={() => onAlbumPress?.(item.album)}
-      >
-        <Transition.Boundary.Target>
-          <ItemImage
-            icon={
-              <LocalVynilSolidIcon
-                fill="none"
-                width={ICON_SIZES.listFallback}
-                height={ICON_SIZES.listFallback}
-                color={theme.muted}
-              />
-            }
-            image={item.album.image}
-            className="rounded-md"
-          />
-        </Transition.Boundary.Target>
+      <Item onPress={() => onAlbumPress?.(item.album)}>
+        <ItemImage
+          icon={
+            <LocalVynilSolidIcon
+              fill="none"
+              width={ICON_SIZES.listFallback}
+              height={ICON_SIZES.listFallback}
+              color={theme.muted}
+            />
+          }
+          image={item.album.image}
+          className="rounded-md"
+        />
         <ItemContent>
           <ItemTitle>{item.album.title || "Unknown Album"}</ItemTitle>
           <ItemDescription>
@@ -134,23 +122,15 @@ function SearchResultRow({
 
   if (item.type === "playlist") {
     return (
-      <Item
-        boundaryId={resolvePlaylistTransitionId({
-          id: item.playlist.id,
-          title: item.playlist.title,
-        })}
-        onPress={() => onPlaylistPress?.(item.playlist)}
-      >
-        <Transition.Boundary.Target>
-          <ItemImage className="items-center justify-center overflow-hidden bg-default">
-            <PlaylistArtwork
-              images={resolvePlaylistArtworkImages(
-                item.playlist.images,
-                item.playlist.image
-              )}
-            />
-          </ItemImage>
-        </Transition.Boundary.Target>
+      <Item onPress={() => onPlaylistPress?.(item.playlist)}>
+        <ItemImage className="items-center justify-center overflow-hidden bg-default">
+          <PlaylistArtwork
+            images={resolvePlaylistArtworkImages(
+              item.playlist.images,
+              item.playlist.image
+            )}
+          />
+        </ItemImage>
         <ItemContent>
           <ItemTitle>{item.playlist.title}</ItemTitle>
           <ItemDescription>

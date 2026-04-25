@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders the favorites list for tracks, artists, albums, and playlists.
+ * Caller: Library favorites tab.
+ * Dependencies: LegendList, media item primitives, favorites mutations, player service, theme colors.
+ * Main Functions: FavoritesList()
+ * Side Effects: Starts playback, navigates to favorite routes, and removes favorites.
+ */
+
 import type {
   FavoriteEntry,
   FavoriteType,
@@ -37,10 +45,6 @@ import {
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
-import {
-  resolveAlbumTransitionId,
-  resolvePlaylistTransitionId,
-} from "@/modules/artists/artist-transition"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { usePlayerTracks } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
@@ -236,26 +240,14 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
       case "album": {
         router.push({
           pathname: "/album/[name]",
-          params: {
-            name: favorite.name,
-            transitionId: resolveAlbumTransitionId({
-              id: favorite.id,
-              title: favorite.name,
-            }),
-          },
+          params: { name: favorite.name },
         })
         break
       }
       case "playlist": {
         router.push({
           pathname: "/playlist/[id]",
-          params: {
-            id: favorite.id,
-            transitionId: resolvePlaylistTransitionId({
-              id: favorite.id,
-              title: favorite.name,
-            }),
-          },
+          params: { id: favorite.id },
         })
         break
       }
