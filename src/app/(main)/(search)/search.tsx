@@ -100,7 +100,7 @@ function HeaderSearchInput({
       <View className="relative">
         <PressableFeedback
           onPress={onBack}
-          className="absolute inset-y-0 left-2.5 z-10 justify-center p-1"
+          className="absolute inset-y-0 left-1 z-20 w-10 items-center justify-center"
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
@@ -111,6 +111,7 @@ function HeaderSearchInput({
             color={theme.foreground}
           />
         </PressableFeedback>
+
         <Input
           ref={inputRef}
           autoFocus={shouldAutoFocus}
@@ -119,7 +120,7 @@ function HeaderSearchInput({
           value={inputValue}
           onChangeText={handleChangeText}
           onSubmitEditing={onSubmit}
-          className="pl-12 pr-9"
+          className="pl-12 pr-10"
           selectionColor={theme.accent}
           returnKeyType="search"
         />
