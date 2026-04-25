@@ -2,6 +2,33 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.2.2] - 2026-04-25
+
+### Added
+
+- Dedicated full player route with zoom-style presentation and updated player header behavior.
+- Recently Added search destination for browsing newly indexed tracks from the Search area.
+- Playback session snapshots with queue cursor persistence to restore listening state more accurately after app restarts.
+- Track counts on genre cards for quicker library scanning.
+- Shared themed refresh control adopted across major screens for more consistent pull-to-refresh behavior.
+
+### Changed
+
+- Refined album, artist, playlist, and player transitions with shared zoom presentation, cleaner stack presets, and follow-up visual polish.
+- Reworked search screen composition, keyboard handling, and embedded back-button behavior to better support focused queries and detail navigation.
+- Refreshed home, library, settings, and shared UI surfaces as part of the broader visual redesign pass.
+- Improved track list and queue item state handling to keep selection, identity, and playback state updates more predictable.
+- Enhanced playback activity tracking so play counts and listening history are recorded more reliably.
+- Upgraded `heroui-native` and aligned transition-related dependencies with the new navigation setup.
+
+### Fixed
+
+- Fixed detail-screen back navigation requiring two taps in some transition flows.
+- Fixed intermittent overlap between the search back button and typed query text during focus and transition timing.
+- Fixed recent-search playlist artwork rendering so playlist entries use the expected multi-image collage.
+- Fixed zoom-transition backgrounds not rendering correctly during transparent presentation flows.
+- Removed extraneous screen declarations from the Home route layout to eliminate Expo Router "Too many screens defined" warnings.
+
 ## [v0.2.1] - 2026-04-16
 
 ### Added
@@ -119,4 +146,3 @@ All notable changes to this project are documented in this file.
 - Initial project setup and basic UI scaffolding.
 - Local library indexing and playback foundations.
 - Early iterations of queueing, sorting, favorites, genre pages, and app-wide redesign work.
-
