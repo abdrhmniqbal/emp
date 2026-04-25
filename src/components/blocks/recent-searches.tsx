@@ -9,6 +9,10 @@ import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
 import LocalUserIcon from "@/components/icons/local/user"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import {
+  PlaylistArtwork,
+  resolvePlaylistArtworkImages,
+} from "@/components/patterns/playlist-artwork"
+import {
   MediaItem as Item,
   MediaItemAction as ItemAction,
   MediaItemContent as ItemContent,
@@ -54,7 +58,13 @@ function RecentSearchRow({
 
   return (
     <Item onPress={() => onPress(item)}>
-      <ItemImage icon={icon} image={item.image} className={imageClassName} />
+      {item.type === "playlist" ? (
+        <ItemImage className="items-center justify-center overflow-hidden rounded-md bg-default">
+          <PlaylistArtwork images={resolvePlaylistArtworkImages(undefined, item.image)} />
+        </ItemImage>
+      ) : (
+        <ItemImage icon={icon} image={item.image} className={imageClassName} />
+      )}
       <ItemContent>
         <ItemTitle>{item.title}</ItemTitle>
         <ItemDescription>{item.subtitle}</ItemDescription>
