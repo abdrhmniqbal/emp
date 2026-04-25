@@ -106,12 +106,18 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
   if (!boundaryId || !isNavigationMaskAvailable) {
     return {
       ...HIDDEN_STACK_SCREEN_OPTIONS,
+      contentStyle: {
+        backgroundColor: "transparent",
+      },
       ...Transition.Presets.ZoomIn(),
     }
   }
 
   return {
     ...HIDDEN_STACK_SCREEN_OPTIONS,
+    contentStyle: {
+      backgroundColor: "transparent",
+    },
     enableTransitions: true,
     navigationMaskEnabled: false,
     gestureEnabled: true,
@@ -153,38 +159,49 @@ export function getHiddenPlaylistScreenOptions(params: TransitionParams) {
 }
 
 export function getHiddenPlayerScreenOptions(params: TransitionParams) {
-  const transitionId = getTransitionId(params)
-
-  return transitionId
-    ? getHiddenPlayerZoomTransitionOptions(transitionId)
-    : HIDDEN_STACK_SCREEN_OPTIONS
+  return getHiddenPlayerZoomTransitionOptions(getTransitionId(params))
 }
 
 export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
   if (!boundaryId || !isNavigationMaskAvailable) {
     return {
       ...HIDDEN_STACK_SCREEN_OPTIONS,
-      presentation: "transparentModal" as const,
       contentStyle: {
         backgroundColor: "transparent",
       },
-      ...getHeaderSafeSlideFromBottomOptions(),
+      ...Transition.Presets.ZoomIn(),
     }
   }
 
   return {
     ...HIDDEN_STACK_SCREEN_OPTIONS,
-    presentation: "transparentModal" as const,
     contentStyle: {
       backgroundColor: "transparent",
     },
-    ...getHeaderSafeSlideFromBottomOptions(),
+    enableTransitions: true,
+    navigationMaskEnabled: false,
+    gestureEnabled: true,
+    gestureDirection: ["vertical", "horizontal"] as NativeStackNavigationOptions["gestureDirection"],
+    gestureDrivesProgress: false,
+    screenStyleInterpolator: ({ bounds }: ScreenStyleInterpolatorArgs) => {
+      "worklet"
+
+      return bounds({
+        id: boundaryId,
+        scaleMode: "uniform",
+      }).navigation.zoom()
+    },
+    transitionSpec: {
+      open: Transition.Specs.DefaultSpec,
+      close: Transition.Specs.DefaultSpec,
+    },
   }
 }
 
 export const ROOT_MODAL_SCREEN_OPTIONS = {
   headerShown: false,
-  ...getMaskedSheetTransitionOptions(),
+  presentation: "modal" as const,
+  ...getHeaderSafeSlideFromBottomOptions(),
 }
 
 export function getDefaultNativeStackOptions(theme: NavigationThemeColors) {
