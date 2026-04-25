@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders minimum track-duration filtering controls for library indexing.
+ * Caller: Settings track-duration-filter route.
+ * Dependencies: HeroUI Native slider and press feedback, settings store, indexer service, theme colors.
+ * Main Functions: TrackDurationFilterScreen()
+ * Side Effects: Persists duration filter settings and triggers reindexing when values change.
+ */
+
 import { PressableFeedback, Slider } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
@@ -87,40 +95,44 @@ export default function TrackDurationFilterScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-background">
-      <View className="py-2">
-        {DURATION_OPTIONS.map((option) => (
-          <PressableFeedback
-            key={option.value}
-            onPress={() => {
-              void handleModeSelect(option.value)
-            }}
-            className="flex-row items-center bg-background px-6 py-4 active:opacity-70"
-            isDisabled={isIndexing}
-          >
-            <View className="flex-1 gap-0.5 pr-2">
-              <Text className="text-[17px] font-normal text-foreground">
-                {option.label}
-              </Text>
-              {option.description ? (
-                <Text className="text-[13px] leading-5 text-muted">
-                  {option.description}
+    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
+      <View className="gap-5 px-4 py-4">
+        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
+          {DURATION_OPTIONS.map((option, index) => (
+            <PressableFeedback
+              key={option.value}
+              onPress={() => {
+                void handleModeSelect(option.value)
+              }}
+              className={`flex-row items-center px-5 py-4 active:opacity-70 ${
+                index > 0 ? "border-t border-border/60" : ""
+              }`}
+              isDisabled={isIndexing}
+            >
+              <View className="flex-1 gap-0.5 pr-2">
+                <Text className="text-[16px] font-medium text-foreground">
+                  {option.label}
                 </Text>
-              ) : null}
-            </View>
-            {config.mode === option.value && (
-              <LocalTickIcon
-                fill="none"
-                width={24}
-                height={24}
-                color={theme.accent}
-              />
-            )}
-          </PressableFeedback>
-        ))}
+                {option.description ? (
+                  <Text className="text-[13px] leading-5 text-muted">
+                    {option.description}
+                  </Text>
+                ) : null}
+              </View>
+              {config.mode === option.value && (
+                <LocalTickIcon
+                  fill="none"
+                  width={24}
+                  height={24}
+                  color={theme.accent}
+                />
+              )}
+            </PressableFeedback>
+          ))}
+        </View>
 
         {config.mode === "custom" ? (
-          <View className="px-6 pt-4 pb-2">
+          <View className="rounded-[28px] border border-border/60 bg-default/25 px-5 pt-4 pb-4">
             <View className="mb-3 flex-row items-center justify-between">
               <Text className="text-sm text-muted">Minimum duration</Text>
               <Text className="text-sm font-medium text-foreground">

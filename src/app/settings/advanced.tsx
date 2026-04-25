@@ -1,8 +1,16 @@
+/**
+ * Purpose: Renders advanced maintenance and device-behavior settings for logs and background activity.
+ * Caller: Settings advanced route.
+ * Dependencies: Expo application metadata, HeroUI Native toast, battery optimization helpers, logging service, settings row pattern.
+ * Main Functions: AdvancedSettingsScreen()
+ * Side Effects: Opens system settings, shares logs, and launches external background-activity guidance.
+ */
+
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { useRouter } from "expo-router"
 import { Toast, useToast } from "heroui-native"
-import { Linking, Platform, ScrollView, Text, View } from "react-native"
+import { Linking, Platform, ScrollView, View } from "react-native"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
 import {
@@ -114,49 +122,50 @@ export default function AdvancedSettingsScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-background">
-      <View className="py-2">
-        <SettingsRow
-          onPress={() => router.push("/settings/log-level")}
-          title="Log Level"
-          description={
-            logLevelLabel === "Extra"
-              ? "Extra: capture debug, info, warnings, and errors."
-              : "Minimal: capture critical and error logs only."
-          }
-        />
+    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
+      <View className="gap-5 px-4 py-4">
+        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
+          <SettingsRow
+            onPress={() => router.push("/settings/log-level")}
+            title="Log Level"
+            description={
+              logLevelLabel === "Extra"
+                ? "Extra: capture debug, info, warnings, and errors."
+                : "Minimal: capture critical and error logs only."
+            }
+          />
 
-        <SettingsRow
-          onPress={() => {
-            void handleShareCrashLogs()
-          }}
-          title="Share crash logs"
-          description="Saves error logs to a local file and opens a share sheet."
-        />
+          <SettingsRow
+            onPress={() => {
+              void handleShareCrashLogs()
+            }}
+            title="Share crash logs"
+            description="Saves error logs to a local file and opens a share sheet."
+            className="border-t border-border/60"
+          />
+        </View>
+        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
+          <SettingsRow
+            onPress={() => {
+              void openBatteryOptimizationSettings()
+            }}
+            title="Disable Battery Optimization"
+            description={
+              Platform.OS === "android"
+                ? "Prevent background restrictions so indexing and playback stay reliable."
+                : "Open system settings."
+            }
+          />
 
-        <Text className="px-6 pt-4 pb-2 text-xs font-medium tracking-wide text-accent uppercase">
-          Background Activity
-        </Text>
-
-        <SettingsRow
-          onPress={() => {
-            void openBatteryOptimizationSettings()
-          }}
-          title="Disable Battery Optimization"
-          description={
-            Platform.OS === "android"
-              ? "Prevent background restrictions so indexing and playback stay reliable."
-              : "Open system settings."
-          }
-        />
-
-        <SettingsRow
-          onPress={() => {
-            void openDontKillMyApp()
-          }}
-          title="Don't Kill My App!"
-          description="Open device-specific battery and background process guidance."
-        />
+          <SettingsRow
+            onPress={() => {
+              void openDontKillMyApp()
+            }}
+            title="Don't Kill My App!"
+            description="Open device-specific battery and background process guidance."
+            className="border-t border-border/60"
+          />
+        </View>
       </View>
     </ScrollView>
   )

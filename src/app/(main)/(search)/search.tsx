@@ -92,20 +92,20 @@ function HeaderSearchInput({
 
   return (
     <View className="relative">
-      <PressableFeedback
-        onPress={onBack}
-        className="absolute inset-y-0 left-2.5 z-10 justify-center p-1"
-        accessibilityRole="button"
-        accessibilityLabel="Go back"
-      >
-        <LocalArrowLeftIcon
-          fill="none"
-          width={24}
-          height={24}
-          color={theme.foreground}
-        />
-      </PressableFeedback>
       <View className="relative">
+        <PressableFeedback
+          onPress={onBack}
+          className="absolute inset-y-0 left-2.5 z-10 justify-center p-1"
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <LocalArrowLeftIcon
+            fill="none"
+            width={24}
+            height={24}
+            color={theme.foreground}
+          />
+        </PressableFeedback>
         <Input
           ref={inputRef}
           autoFocus={shouldAutoFocus}

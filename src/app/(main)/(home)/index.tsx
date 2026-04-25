@@ -16,6 +16,7 @@ import { MediaCarousel } from "@/components/blocks/media-carousel"
 import { RankedTrackCarousel } from "@/components/blocks/ranked-track-carousel"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
+import { SCREEN_SECTION_TOP_SPACING } from "@/constants/layout"
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
 import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
@@ -90,7 +91,7 @@ export default function HomeScreen() {
   return (
     <ScrollView
       className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 200 }}
+      contentContainerStyle={{ paddingBottom: 220 }}
       contentInsetAdjustmentBehavior="automatic"
       onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
       onScrollBeginDrag={handleScrollStart}
@@ -101,7 +102,7 @@ export default function HomeScreen() {
         <ThemedRefreshControl refreshing={isIndexing || isLoading} onRefresh={refresh} />
       }
     >
-      <View className="pt-6">
+      <View style={{ paddingTop: SCREEN_SECTION_TOP_SPACING }}>
         <ContentSection
           title="Recently Played"
           data={recentlyPlayedTracks}

@@ -25,6 +25,11 @@ import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import { BackButton } from "@/components/patterns/back-button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
+import {
+  DETAIL_HEADER_BOTTOM_SPACING,
+  SCREEN_SECTION_HEADING_GAP,
+  SCREEN_SECTION_TOP_SPACING,
+} from "@/constants/layout"
 import { Stack } from "@/layouts/stack"
 import { formatAlbumDuration } from "@/modules/albums/albums.utils"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
@@ -302,8 +307,13 @@ export default function AlbumDetailsScreen() {
           onScrollEndDrag={handleScrollStop}
           listHeader={
             <>
-              <View className="pb-6">
-                <View className="flex-row gap-4 pt-6">
+              <View
+                style={{
+                  paddingTop: SCREEN_SECTION_TOP_SPACING,
+                  paddingBottom: DETAIL_HEADER_BOTTOM_SPACING,
+                }}
+              >
+                <View className="flex-row gap-4">
                   <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
                     {albumInfo.image ? (
                       <Image
@@ -347,7 +357,10 @@ export default function AlbumDetailsScreen() {
                 />
               </Animated.View>
 
-              <View className="mb-4 flex-row items-center justify-between">
+              <View
+                className="flex-row items-center justify-between"
+                style={{ marginBottom: SCREEN_SECTION_HEADING_GAP }}
+              >
                 <Text className="text-lg font-bold text-foreground">
                   {sortedTracks.length} Tracks
                 </Text>

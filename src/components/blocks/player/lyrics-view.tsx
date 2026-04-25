@@ -1,11 +1,11 @@
 import type { Track } from "@/modules/player/player.types"
-import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { useQuery } from "@tanstack/react-query"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 
 import {
   type LayoutChangeEvent,
+  ScrollView,
   Text,
   useWindowDimensions,
   View,
@@ -286,7 +286,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       : "static"
 
   const [fontScale, setFontScale] = React.useState<FontScaleLevel>(1)
-  const scrollViewRef = React.useRef<React.ElementRef<typeof BottomSheetScrollView> | null>(null)
+  const scrollViewRef = React.useRef<ScrollView | null>(null)
   const syncedLineOffsetRef = React.useRef<Record<string, number>>({})
   const isUserScrollingRef = React.useRef(false)
   const activeSyncedLineIndexRef = React.useRef(-1)
@@ -519,7 +519,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       layout={Layout.duration(300)}
       className="-mx-2 my-3 flex-1 overflow-hidden"
     >
-      <BottomSheetScrollView
+      <ScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -615,7 +615,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
                   </PressableFeedback>
                 )
               })}
-      </BottomSheetScrollView>
+      </ScrollView>
 
       {hasSyncedLyrics ? (
         <PressableFeedback

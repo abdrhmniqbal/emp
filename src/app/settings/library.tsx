@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders library settings for scanning behavior, folder filters, duration filters, and reindexing.
+ * Caller: Settings library route.
+ * Dependencies: Expo Router, settings store, indexer services, settings row pattern, HeroUI Native dialog and switch.
+ * Main Functions: LibrarySettingsScreen()
+ * Side Effects: Persists library settings and can trigger a full library reindex.
+ */
+
 import { useRouter } from "expo-router"
 import { Button, Dialog } from "heroui-native"
 import * as React from "react"
@@ -35,46 +43,51 @@ export default function LibrarySettingsScreen() {
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        <View className="py-2">
-          <SettingsRow
-            title="Folder Filters"
-            description="Whitelist or blacklist specific folders."
-            onPress={() => router.push("/settings/folder-filters")}
-          />
-          <SettingsRow
-            title="Track Duration Filter"
-            description={getTrackDurationFilterLabel(trackDurationFilterConfig)}
-            onPress={() => router.push("/settings/track-duration-filter")}
-          />
-          <SettingsRow
-            title="Auto Scan"
-            description={
-              autoScanEnabled
-                ? "Re-scan on app launch and when files change."
-                : "Scan manually when needed."
-            }
-            onPress={undefined}
-            showChevron={false}
-            rightContent={
-              <Switch
-                isSelected={autoScanEnabled}
-                onSelectedChange={(isSelected) => {
-                  void setAutoScanEnabled(isSelected)
-                }}
-              />
-            }
-          />
-          <SettingsRow
-            title="Reindex Library"
-            description={
-              isIndexing
-                ? "Indexing in progress..."
-                : "Re-scan all tracks, including unchanged files."
-            }
-            onPress={() => setShowReindexDialog(true)}
-            showChevron={false}
-            isDisabled={isIndexing}
-          />
+        <View className="gap-5 px-4 py-4">
+          <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
+            <SettingsRow
+              title="Folder Filters"
+              description="Whitelist or blacklist specific folders."
+              onPress={() => router.push("/settings/folder-filters")}
+            />
+            <SettingsRow
+              title="Track Duration Filter"
+              description={getTrackDurationFilterLabel(trackDurationFilterConfig)}
+              onPress={() => router.push("/settings/track-duration-filter")}
+              className="border-t border-border/60"
+            />
+            <SettingsRow
+              title="Auto Scan"
+              description={
+                autoScanEnabled
+                  ? "Re-scan on app launch and when files change."
+                  : "Scan manually when needed."
+              }
+              onPress={undefined}
+              showChevron={false}
+              rightContent={
+                <Switch
+                  isSelected={autoScanEnabled}
+                  onSelectedChange={(isSelected) => {
+                    void setAutoScanEnabled(isSelected)
+                  }}
+                />
+              }
+              className="border-t border-border/60"
+            />
+            <SettingsRow
+              title="Reindex Library"
+              description={
+                isIndexing
+                  ? "Indexing in progress..."
+                  : "Re-scan all tracks, including unchanged files."
+              }
+              onPress={() => setShowReindexDialog(true)}
+              showChevron={false}
+              isDisabled={isIndexing}
+              className="border-t border-border/60"
+            />
+          </View>
         </View>
       </ScrollView>
 

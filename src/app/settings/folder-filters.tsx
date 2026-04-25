@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders folder whitelist and blacklist controls for shaping indexed library content.
+ * Caller: Settings folder-filters route.
+ * Dependencies: Expo directory picker, HeroUI Native buttons and bottom sheet, settings store, indexer service, theme colors.
+ * Main Functions: FolderFiltersScreen()
+ * Side Effects: Persists folder filter configuration and can trigger library reindexing.
+ */
+
 import { Directory } from "expo-file-system"
 import { BottomSheet, Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -244,15 +252,20 @@ export default function FolderFiltersScreen() {
         className="flex-1"
         contentContainerStyle={{
           paddingBottom: 112 + insets.bottom,
-          paddingHorizontal: 24,
+          paddingHorizontal: 16,
           paddingTop: 16,
         }}
       >
-        <View className="mb-6">
-          <View className="flex-row items-center justify-between py-3">
-            <Text className="text-[17px] font-normal text-foreground">
-              Filter Mode
-            </Text>
+        <View className="mb-6 rounded-[28px] border border-border/60 bg-background px-5 py-4">
+          <View className="flex-row items-center justify-between py-1">
+            <View className="flex-1 pr-4">
+              <Text className="text-[16px] font-medium text-foreground">
+                Filter Mode
+              </Text>
+              <Text className="mt-1 text-[13px] leading-5 text-muted">
+                Choose whether selected folders should be allowed or hidden.
+              </Text>
+            </View>
             <Button
               variant="secondary"
               onPress={() => setIsModeSheetOpen(true)}
@@ -268,7 +281,7 @@ export default function FolderFiltersScreen() {
             }}
             variant="secondary"
             isDisabled={isIndexing}
-            className="my-3"
+            className="mt-4"
           >
             <LocalAddIcon
               fill="none"
@@ -280,8 +293,10 @@ export default function FolderFiltersScreen() {
           </Button>
         </View>
 
-        <View className="mb-2 flex-row items-center justify-between">
-          <Text className="text-lg font-bold text-foreground">Folders</Text>
+        <View className="mb-3 flex-row items-center justify-between px-1">
+          <Text className="text-[22px] font-semibold tracking-[-0.5px] text-foreground">
+            Folders
+          </Text>
           <Button
             variant="ghost"
             onPress={clearAllFolders}
@@ -298,7 +313,7 @@ export default function FolderFiltersScreen() {
                 fill="none"
                 width={40}
                 height={40}
-                color="#94a3b8"
+                color={theme.muted}
               />
             }
             title="No folders added"
@@ -306,7 +321,7 @@ export default function FolderFiltersScreen() {
             className="mt-4"
           />
         ) : (
-          <View>
+          <View className="rounded-[28px] border border-border/60 bg-background px-5 py-2">
             {folderPaths.map((path, index) => (
               <FolderRow
                 key={path}
@@ -331,6 +346,7 @@ export default function FolderFiltersScreen() {
             void applyFilter()
           }}
           isDisabled={!hasPendingChanges || isIndexing}
+          className="rounded-[22px]"
         >
           {isIndexing ? "Indexing..." : "Apply Filter"}
         </Button>

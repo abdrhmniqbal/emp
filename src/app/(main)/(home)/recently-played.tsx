@@ -90,7 +90,7 @@ export default function RecentlyPlayedScreen() {
             <PlaybackActionsRow
               onPlay={playFirst}
               onShuffle={shuffle}
-              className="px-0 py-4"
+              className="px-0 py-0"
             />
           }
         />

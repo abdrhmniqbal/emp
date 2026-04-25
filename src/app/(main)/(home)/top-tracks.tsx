@@ -85,13 +85,19 @@ export default function TopTracksScreen() {
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as TopTracksTab)}
-        className="gap-1.5 px-4 py-4"
+        className="gap-3 px-4 pt-4 pb-3"
       >
-        <Tabs.List className="w-full flex-row px-1">
-          <Tabs.Indicator className="bg-surface text-surface-foreground" />
+        <Tabs.List className="w-full flex-row rounded-[26px] border border-border/60 bg-default/35 px-1 py-1">
+          <Tabs.Indicator className="rounded-full bg-background text-surface-foreground" />
           {TOP_TRACKS_TABS.map((tab) => (
-            <Tabs.Trigger key={tab} value={tab} className="flex-1 py-2">
-              <Tabs.Label className="text-lg">{tab}</Tabs.Label>
+            <Tabs.Trigger
+              key={tab}
+              value={tab}
+              className="flex-1 rounded-full py-2.5"
+            >
+              <Tabs.Label className="text-[15px] font-semibold">
+                {tab}
+              </Tabs.Label>
             </Tabs.Trigger>
           ))}
         </Tabs.List>
@@ -150,7 +156,7 @@ export default function TopTracksScreen() {
                 <PlaybackActionsRow
                   onPlay={playAll}
                   onShuffle={shuffle}
-                  className="px-0 py-4"
+                  className="px-0 py-0"
                 />
               </Animated.View>
             }

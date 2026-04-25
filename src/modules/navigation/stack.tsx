@@ -47,7 +47,10 @@ export function getHiddenPlaylistScreenOptions() {
 export function getHiddenPlayerScreenOptions() {
   return {
     ...HIDDEN_STACK_SCREEN_OPTIONS,
-    presentation: "modal" as const,
+    presentation: "transparentModal" as const,
+    contentStyle: {
+      backgroundColor: "transparent",
+    },
     ...getHeaderSafeSlideFromBottomOptions(),
   }
 }

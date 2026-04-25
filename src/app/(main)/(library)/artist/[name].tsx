@@ -48,6 +48,10 @@ import {
   screenEnterTransition,
   screenExitTransition,
 } from "@/constants/animations"
+import {
+  SCREEN_SECTION_HEADING_GAP,
+  SCREEN_SECTION_TOP_SPACING,
+} from "@/constants/layout"
 import { buildArtistAlbums } from "@/modules/artists/artists.utils"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { useIsFavorite } from "@/modules/favorites/favorites.queries"
@@ -423,7 +427,7 @@ export default function ArtistDetailsScreen() {
               key={activeView}
               entering={screenEnterTransition()}
               exiting={screenExitTransition()}
-              className="pt-4"
+              style={{ paddingTop: SCREEN_SECTION_TOP_SPACING }}
             >
               <View className="px-6">
                 <SectionTitle
@@ -488,9 +492,12 @@ export default function ArtistDetailsScreen() {
                 </View>
                 <Animated.View
                   entering={screenEnterTransition()}
-                  className="pt-4"
+                  style={{ paddingTop: SCREEN_SECTION_TOP_SPACING }}
                 >
-                  <View className="mb-6 flex-row items-center justify-between">
+                  <View
+                    className="flex-row items-center justify-between"
+                    style={{ marginBottom: SCREEN_SECTION_HEADING_GAP }}
+                  >
                     <View className="flex-row items-center gap-3">
                       <PressableFeedback
                         onPress={() => navigateTo("overview")}
@@ -537,9 +544,13 @@ export default function ArtistDetailsScreen() {
                 </View>
                 <Animated.View
                   entering={screenEnterTransition()}
-                  className="px-2 pt-4"
+                  className="px-2"
+                  style={{ paddingTop: SCREEN_SECTION_TOP_SPACING }}
                 >
-                  <View className="mb-6 flex-row items-center justify-between">
+                  <View
+                    className="flex-row items-center justify-between"
+                    style={{ marginBottom: SCREEN_SECTION_HEADING_GAP }}
+                  >
                     <View className="flex-row items-center gap-3">
                       <PressableFeedback
                         onPress={() => navigateTo("overview")}

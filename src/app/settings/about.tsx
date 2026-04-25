@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders app metadata and links to the project repository.
+ * Caller: Settings about route.
+ * Dependencies: Expo application metadata, Expo image, React Native linking, settings row pattern.
+ * Main Functions: AboutSettingsScreen()
+ * Side Effects: Opens the external project repository in the browser.
+ */
+
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { Image } from "expo-image"
@@ -15,31 +23,34 @@ export default function AboutSettingsScreen() {
   const repositoryUrl = "https://github.com/abdrhmniqbal/startune-music"
 
   return (
-    <ScrollView className="flex-1 bg-background">
-      <View className="flex-row items-center gap-6 bg-background px-6 py-4">
-        <Image
-          source={appIcon}
-          style={{ width: 64, height: 64 }}
-          contentFit="contain"
-        />
-        <View className="flex-1">
-          <Text className="text-[17px] font-normal text-foreground">
-            {appName}
-          </Text>
-          <Text className="mt-1 text-[13px] leading-5 text-muted">
-            v{version || "Unknown"}
-          </Text>
+    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
+      <View className="gap-5 px-4 py-4">
+        <View className="flex-row items-center gap-6 bg-background px-2 py-1">
+          <Image
+            source={appIcon}
+            style={{ width: 64, height: 64 }}
+            contentFit="contain"
+          />
+          <View className="flex-1">
+            <Text className="text-[17px] font-normal text-foreground">
+              {appName}
+            </Text>
+            <Text className="mt-1 text-[13px] leading-5 text-muted">
+              v{version || "Unknown"}
+            </Text>
+          </View>
+        </View>
+
+        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
+          <SettingsRow
+            onPress={() => {
+              void Linking.openURL(repositoryUrl)
+            }}
+            title="GitHub"
+            description="Project source code."
+          />
         </View>
       </View>
-
-      <SettingsRow
-        onPress={() => {
-          void Linking.openURL(repositoryUrl)
-        }}
-        title="GitHub"
-        description="Project source code."
-        className="py-6"
-      />
     </ScrollView>
   )
 }

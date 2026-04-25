@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders section headings with optional supporting copy and a compact trailing action.
+ * Caller: Content sections across Home, Search, Library, and detail routes.
+ * Dependencies: HeroUI Native button, local chevron icon, theme colors.
+ * Main Functions: SectionHeader()
+ * Side Effects: Triggers route navigation or inline actions through the optional view-more control.
+ */
+
 import { Button } from "heroui-native"
 import { Text, View } from "react-native"
 import { cn } from "tailwind-variants"
@@ -8,29 +16,29 @@ import LocalChevronRightIcon from "../icons/local/chevron-right"
 
 interface SectionHeaderProps {
   title: string
-  subtitle?: string
   className?: string
   onViewMore?: () => void
 }
 
 export function SectionHeader({
   title,
-  subtitle,
   className,
   onViewMore,
 }: SectionHeaderProps) {
   const theme = useThemeColors()
 
   return (
-    <View className={cn("mb-4", className)}>
-      <View className="flex-row items-center justify-between">
-        <Text className="text-lg font-bold text-foreground">{title}</Text>
+    <View className={cn("mb-5", className)}>
+      <View className="flex-row items-center justify-between gap-3">
+        <Text className="flex-1 text-[22px] font-semibold tracking-[-0.6px] text-foreground">
+          {title}
+        </Text>
         {onViewMore ? (
           <Button
             onPress={onViewMore}
             hitSlop={20}
             variant="ghost"
-            className="-mr-3"
+            className="h-9 w-9 rounded-full border border-border/70 bg-default/55"
             isIconOnly
           >
             <LocalChevronRightIcon
@@ -42,9 +50,6 @@ export function SectionHeader({
           </Button>
         ) : null}
       </View>
-      {subtitle ? (
-        <Text className="mt-0.5 text-xs text-muted">{subtitle}</Text>
-      ) : null}
     </View>
   )
 }

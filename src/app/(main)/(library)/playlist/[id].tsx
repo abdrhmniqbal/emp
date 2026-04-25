@@ -25,6 +25,10 @@ import { BackButton } from "@/components/patterns/back-button"
 import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
+import {
+  DETAIL_HEADER_BOTTOM_SPACING,
+  SCREEN_SECTION_TOP_SPACING,
+} from "@/constants/layout"
 import { Stack } from "@/layouts/stack"
 import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
@@ -238,8 +242,13 @@ export default function PlaylistDetailsScreen() {
         onScrollEndDrag={handleScrollStop}
         listHeader={
           <>
-            <View className="pb-6">
-              <View className="flex-row gap-4 pt-6">
+            <View
+              style={{
+                paddingTop: SCREEN_SECTION_TOP_SPACING,
+                paddingBottom: DETAIL_HEADER_BOTTOM_SPACING,
+              }}
+            >
+              <View className="flex-row gap-4">
                 <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
                   <PlaylistArtwork
                     images={playlistImages}

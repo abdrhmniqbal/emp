@@ -1,6 +1,16 @@
+/**
+ * Purpose: Composes reusable content sections with a heading, optional empty state, and custom body renderer.
+ * Caller: Home, Search, and genre route screens.
+ * Dependencies: SectionHeader, EmptyState, tailwind-variants class merging.
+ * Main Functions: ContentSection()
+ * Side Effects: None.
+ */
+
 import type { ReactNode } from "react"
+import { View } from "react-native"
 import { cn } from "tailwind-variants"
 
+import { SCREEN_SECTION_GAP } from "@/constants/layout"
 import { EmptyState } from "@/components/ui/empty-state"
 import { SectionHeader } from "@/components/ui/section-header"
 
@@ -30,7 +40,7 @@ export function ContentSection<T>({
   titleClassName,
 }: ContentSectionProps<T>) {
   return (
-    <>
+    <View className={className} style={{ marginBottom: SCREEN_SECTION_GAP }}>
       <SectionHeader
         title={title}
         onViewMore={data.length > 0 ? onViewMore : undefined}
@@ -43,9 +53,9 @@ export function ContentSection<T>({
           icon={emptyState.icon}
           title={emptyState.title}
           message={emptyState.message}
-          className={cn("mb-8 py-8", className)}
+          className="px-4 py-8"
         />
       )}
-    </>
+    </View>
   )
 }

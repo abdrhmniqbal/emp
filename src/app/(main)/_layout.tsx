@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders the main tab shell, anchored tab bar, and mini player for the core app routes.
+ * Caller: Expo Router root stack.
+ * Dependencies: Expo Router tabs, React Navigation tab bar, mini player, UI store, layout constants, theme colors.
+ * Main Functions: MainLayout()
+ * Side Effects: Animates tab visibility based on shared UI chrome state.
+ */
+
 import {
   BottomTabBar,
   type BottomTabBarProps,
