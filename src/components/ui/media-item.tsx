@@ -1,17 +1,10 @@
-/**
- * Purpose: Provides shared list and grid media item primitives for albums, artists, playlists, and tracks.
- * Caller: Album, artist, playlist, favorites, and search list components.
- * Dependencies: expo-image, HeroUI Native, tailwind-variants.
- * Main Functions: MediaItem, MediaItemRoot, MediaItemImage, MediaItemContent, MediaItemTitle, MediaItemDescription, MediaItemRank, MediaItemAction
- * Side Effects: None.
- */
-
 import type { ReactNode } from "react"
 import { Image } from "expo-image"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { createContext, use } from "react"
 import { Text, type TextProps, View, type ViewProps } from "react-native"
+import Transition from "react-native-screen-transitions"
 import { cn, tv, type VariantProps } from "tailwind-variants"
 
 const mediaItemStyles = tv({
@@ -54,15 +47,36 @@ const MediaItemContext = createContext<MediaItemContextValue>({
   variant: "list",
 })
 
-type MediaItemProps = React.ComponentProps<typeof PressableFeedback> & MediaItemVariant
+const BoundaryPressableFeedback =
+  Transition.createBoundaryComponent(PressableFeedback)
+
+type MediaItemProps = React.ComponentProps<typeof PressableFeedback> &
+  MediaItemVariant & {
+    boundaryId?: string
+  }
 
 function MediaItemRoot({
   className,
   variant = "list",
+  boundaryId,
   children,
   ...props
 }: MediaItemProps) {
   const { base } = mediaItemStyles({ variant })
+
+  if (boundaryId) {
+    return (
+      <MediaItemContext value={{ variant }}>
+        <BoundaryPressableFeedback
+          id={boundaryId}
+          className={cn(base(), className)}
+          {...props}
+        >
+          {children}
+        </BoundaryPressableFeedback>
+      </MediaItemContext>
+    )
+  }
 
   return (
     <MediaItemContext value={{ variant }}>

@@ -1,11 +1,3 @@
-/**
- * Purpose: Configures the artist detail stack with native push transitions.
- * Caller: Library artist route group.
- * Dependencies: Stack, navigation stack helpers, theme colors.
- * Main Functions: ArtistLayout()
- * Side Effects: None.
- */
-
 import { BackButton } from "@/components/patterns/back-button"
 import { Stack } from "@/layouts/stack"
 import {

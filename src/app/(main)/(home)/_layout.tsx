@@ -1,7 +1,7 @@
 /**
  * Purpose: Defines the Home stack and its nested detail routes.
  * Caller: Expo Router main tab layout.
- * Dependencies: Stack, native stack option helpers, home settings action, theme colors.
+ * Dependencies: Stack, route transition helpers, home settings action, theme colors.
  * Main Functions: HomeLayout()
  * Side Effects: None beyond rendering navigation state.
  */
@@ -65,9 +65,18 @@ export default function HomeLayout() {
           <BackButton className="-ml-2" />
         ))}
       />
-      <Stack.Screen name="album" options={getHiddenBoundaryScreenOptions()} />
-      <Stack.Screen name="artist" options={getHiddenArtistScreenOptions()} />
-      <Stack.Screen name="playlist" options={getHiddenPlaylistScreenOptions()} />
+      <Stack.Screen
+        name="album"
+        options={({ route }) => getHiddenBoundaryScreenOptions(route.params)}
+      />
+      <Stack.Screen
+        name="artist"
+        options={({ route }) => getHiddenArtistScreenOptions(route.params)}
+      />
+      <Stack.Screen
+        name="playlist"
+        options={({ route }) => getHiddenPlaylistScreenOptions(route.params)}
+      />
       <Stack.Screen name="search" options={HIDDEN_STACK_SCREEN_OPTIONS} />
     </Stack>
   )

@@ -1,7 +1,7 @@
 /**
  * Purpose: Boots the app shell, sets navigation theme, handles notifications, and defines the root stack.
  * Caller: Expo Router root entry point.
- * Dependencies: RootProviders, bootstrap runtime, Expo Notifications, HeroUI Native, Expo Router native stack options, player UI state.
+ * Dependencies: RootProviders, bootstrap runtime, Expo Notifications, HeroUI Native, Expo Router stack options, player UI state.
  * Main Functions: Layout()
  * Side Effects: Registers notification listeners, drives splash-screen visibility, triggers bootstrap lifecycle, routes into player/settings screens.
  */
@@ -242,7 +242,12 @@ export default function Layout() {
                 >
                   <Stack.Screen name="(main)" />
                   <Stack.Screen name="settings" options={ROOT_MODAL_SCREEN_OPTIONS} />
-                  <Stack.Screen name="player" options={getHiddenPlayerScreenOptions()} />
+                  <Stack.Screen
+                    name="player"
+                    options={({ route }) =>
+                      getHiddenPlayerScreenOptions(route.params)
+                    }
+                  />
                 </Stack>
               </View>
             </RootProviders>

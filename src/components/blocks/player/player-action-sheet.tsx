@@ -1,11 +1,3 @@
-/**
- * Purpose: Renders player-specific quick actions for the current track.
- * Caller: Full player route.
- * Dependencies: expo-router, HeroUI Native bottom sheet, playlist picker selection.
- * Main Functions: PlayerActionSheet()
- * Side Effects: Navigates to artist and album routes and opens playlist selection.
- */
-
 import type { Track } from "@/modules/player/player.types"
 import { useRouter } from "expo-router"
 import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
@@ -13,6 +5,7 @@ import { useState } from "react"
 
 import { Text } from "react-native"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
 
 interface PlayerActionSheetProps {
@@ -79,7 +72,13 @@ export function PlayerActionSheet({
     onNavigate?.()
     router.push({
       pathname: "/album/[name]",
-      params: { name: albumName },
+      params: {
+        name: albumName,
+        transitionId: resolveAlbumTransitionId({
+          id: track?.albumId,
+          title: albumName,
+        }),
+      },
     })
   }
 

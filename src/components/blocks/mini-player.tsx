@@ -1,17 +1,10 @@
-/**
- * Purpose: Renders the persistent mini player and opens the full player modal.
- * Caller: Main app shell.
- * Dependencies: expo-router, HeroUI Native, player selectors, player controls, theme colors.
- * Main Functions: MiniPlayer()
- * Side Effects: Navigates to the player route and updates expanded player view state.
- */
-
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
 import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated"
+import Transition from "react-native-screen-transitions"
 
 import LocalNextSolidIcon from "@/components/icons/local/next-solid"
 import LocalPauseSolidIcon from "@/components/icons/local/pause-solid"
@@ -23,6 +16,7 @@ import {
   useIsPlaying,
   usePlaybackProgressState,
 } from "@/modules/player/player-selectors"
+import { resolvePlayerTransitionId } from "@/modules/player/player-transition"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
   setPlayerExpandedView,
@@ -30,6 +24,8 @@ import {
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
 import LocalQueueIcon from "../icons/local/queue"
+
+const BoundaryPressableFeedback = Transition.createBoundaryComponent(PressableFeedback)
 
 interface MiniPlayerProps {
   bottomOffset?: number
@@ -147,11 +143,19 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 
   if (!currentTrack) return null
 
+  const transitionId = resolvePlayerTransitionId({
+    trackId: currentTrack.id,
+    title: currentTrack.title,
+  })
+
   const openFullPlayer = (initialView: "artwork" | "queue") => {
     setPlayerExpandedView(initialView)
     router.push({
       pathname: "/player",
-      params: { initialView },
+      params: {
+        initialView,
+        transitionId,
+      },
     })
   }
 
@@ -172,7 +176,8 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
       <MiniPlayerProgress themeAccent={theme.accent} />
 
       <View className="flex-1 flex-row items-center gap-3 px-4">
-        <PressableFeedback
+        <BoundaryPressableFeedback
+          id={transitionId}
           onPress={() => {
             openFullPlayer("artwork")
           }}
@@ -180,7 +185,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
         >
           <MiniPlayerArtwork image={currentTrack.image} mutedColor={theme.muted} />
           <MiniPlayerMeta title={currentTrack.title} artist={currentTrack.artist} />
-        </PressableFeedback>
+        </BoundaryPressableFeedback>
 
         <MiniPlayerControls
           isPlaying={isPlaying}

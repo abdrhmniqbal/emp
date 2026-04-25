@@ -1,11 +1,3 @@
-/**
- * Purpose: Renders playlists with an inline create action at the top of the list.
- * Caller: Library and playlist picker surfaces.
- * Dependencies: LegendList, media item primitives, playlist artwork, theme colors.
- * Main Functions: PlaylistList()
- * Side Effects: None.
- */
-
 import {
   LegendList,
   type LegendListRenderItemProps,
@@ -21,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import Transition from "react-native-screen-transitions"
 
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
 import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
@@ -40,6 +33,7 @@ import {
   MediaItemImage as ItemImage,
   MediaItemTitle as ItemTitle,
 } from "@/components/ui/media-item"
+import { resolvePlaylistTransitionId } from "@/modules/artists/artist-transition"
 import { useThemeColors } from "@/modules/ui/theme"
 
 export interface Playlist {
@@ -127,13 +121,19 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
     (item: Playlist) => (
       <Item
         key={item.id}
+        boundaryId={resolvePlaylistTransitionId({
+          id: item.id,
+          title: item.title,
+        })}
         onPress={() => handlePress(item)}
       >
-        <ItemImage className="items-center justify-center overflow-hidden bg-default">
-          <PlaylistArtwork
-            images={resolvePlaylistArtworkImages(item.images, item.image)}
-          />
-        </ItemImage>
+        <Transition.Boundary.Target>
+          <ItemImage className="items-center justify-center overflow-hidden bg-default">
+            <PlaylistArtwork
+              images={resolvePlaylistArtworkImages(item.images, item.image)}
+            />
+          </ItemImage>
+        </Transition.Boundary.Target>
         <ItemContent>
           <ItemTitle>{item.title}</ItemTitle>
           <ItemDescription>{formatTrackCount(item.trackCount)}</ItemDescription>

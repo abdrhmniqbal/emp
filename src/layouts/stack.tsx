@@ -1,9 +1,35 @@
-/**
- * Purpose: Re-exports Expo Router's native stack for shared route layouts.
- * Caller: App root layout and nested route group layouts.
- * Dependencies: expo-router.
- * Main Functions: Stack
- * Side Effects: None.
- */
+import type { ParamListBase, StackNavigationState } from "@react-navigation/native"
+import "react-native-reanimated"
+import { withLayoutContext } from "expo-router"
+import type { ComponentProps } from "react"
+import {
+  createNativeStackNavigator,
+  type NativeStackNavigationEventMap,
+  type NativeStackNavigationOptions,
+} from "react-native-screen-transitions/native-stack"
 
-export { Stack } from "expo-router"
+const { Navigator } = createNativeStackNavigator()
+
+function TransitionStackNavigator(props: ComponentProps<typeof Navigator>) {
+  const { screenOptions, ...rest } = props
+
+  const mergedScreenOptions =
+    typeof screenOptions === "function"
+      ? (options: Parameters<NonNullable<typeof screenOptions>>[0]) => ({
+          headerShown: true,
+          ...screenOptions(options),
+        })
+      : {
+          headerShown: true,
+          ...screenOptions,
+        }
+
+  return <Navigator {...rest} screenOptions={mergedScreenOptions} />
+}
+
+export const Stack = withLayoutContext<
+  NativeStackNavigationOptions,
+  typeof TransitionStackNavigator,
+  StackNavigationState<ParamListBase>,
+  NativeStackNavigationEventMap
+>(TransitionStackNavigator)
