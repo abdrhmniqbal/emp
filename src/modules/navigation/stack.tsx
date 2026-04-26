@@ -1,5 +1,5 @@
 /**
- * Purpose: Centralizes navigation stack screen options and shared route transition helpers.
+ * Purpose: Centralizes navigation stack screen options and shared route transition helpers, including player modal gesture boundaries.
  * Caller: Expo Router app layouts and nested detail route stacks.
  * Dependencies: expo-router stack options, react-native-screen-transitions, react-native-reanimated, react-native.
  * Main Functions: getDefaultNativeStackOptions(), getLargeTitleRootScreenOptions(), getCenteredRootScreenOptions(), getDrillDownScreenOptions(), getMediaDetailTransitionOptions(), getModalTaskTransitionOptions(), getHiddenBoundaryScreenOptions(), getHiddenArtistScreenOptions(), getHiddenPlaylistScreenOptions(), getHiddenPlayerScreenOptions()
@@ -8,11 +8,7 @@
 
 import type { ReactNode } from "react"
 import { Platform, UIManager } from "react-native"
-import { interpolate } from "react-native-reanimated"
-import Transition, {
-  NAVIGATION_MASK_CONTAINER_STYLE_ID,
-  NAVIGATION_MASK_ELEMENT_STYLE_ID,
-} from "react-native-screen-transitions"
+import Transition from "react-native-screen-transitions"
 import type { NativeStackNavigationOptions } from "react-native-screen-transitions/native-stack"
 
 interface NavigationThemeColors {
@@ -27,48 +23,6 @@ type ScreenStyleInterpolatorArgs = Parameters<
 const isNavigationMaskAvailable =
   Platform.OS === "web" ||
   Boolean(UIManager.getViewManagerConfig?.("RNCMaskedView"))
-
-function getMaskedSheetTransitionOptions(): NativeStackNavigationOptions {
-  if (!isNavigationMaskAvailable) {
-    return Transition.Presets.SlideFromBottom()
-  }
-
-  return {
-    enableTransitions: true,
-    navigationMaskEnabled: true,
-    screenStyleInterpolator: ({ current, progress }: ScreenStyleInterpolatorArgs) => {
-      "worklet"
-
-      const height = current.layouts.screen.height
-      const sheetHeight = interpolate(progress, [0, 1], [height * 0.6, height])
-
-      return {
-        [NAVIGATION_MASK_CONTAINER_STYLE_ID]: {
-          style: {
-            transform: [{ translateY: height - sheetHeight }],
-          },
-        },
-        [NAVIGATION_MASK_ELEMENT_STYLE_ID]: {
-          style: {
-            width: "100%",
-            height: sheetHeight,
-            borderRadius: interpolate(progress, [0, 1], [32, 0]),
-          },
-        },
-        backdrop: {
-          style: {
-            backgroundColor: "transparent",
-            opacity: 0,
-          },
-        },
-      }
-    },
-    transitionSpec: {
-      open: Transition.Specs.DefaultSpec,
-      close: Transition.Specs.DefaultSpec,
-    },
-  }
-}
 
 function getHeaderSafeSlideRightOptions(): NativeStackNavigationOptions {
   return {
@@ -110,6 +64,7 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
         backgroundColor: "transparent",
       },
       ...Transition.Presets.ZoomIn(),
+      gestureEnabled: false,
     }
   }
 
@@ -120,8 +75,7 @@ export function getHiddenBoundaryZoomTransitionOptions(boundaryId?: string) {
     },
     enableTransitions: true,
     navigationMaskEnabled: false,
-    gestureEnabled: true,
-    gestureDirection: ["vertical", "horizontal"] as NativeStackNavigationOptions["gestureDirection"],
+    gestureEnabled: false,
     gestureDrivesProgress: false,
     screenStyleInterpolator: ({ bounds }: ScreenStyleInterpolatorArgs) => {
       "worklet"
@@ -170,6 +124,7 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
         backgroundColor: "transparent",
       },
       ...Transition.Presets.ZoomIn(),
+      gestureEnabled: false,
     }
   }
 
@@ -180,8 +135,7 @@ export function getHiddenPlayerZoomTransitionOptions(boundaryId?: string) {
     },
     enableTransitions: true,
     navigationMaskEnabled: false,
-    gestureEnabled: true,
-    gestureDirection: ["vertical", "horizontal"] as NativeStackNavigationOptions["gestureDirection"],
+    gestureEnabled: false,
     gestureDrivesProgress: false,
     screenStyleInterpolator: ({ bounds }: ScreenStyleInterpolatorArgs) => {
       "worklet"
