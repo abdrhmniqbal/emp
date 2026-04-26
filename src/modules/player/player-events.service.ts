@@ -1,9 +1,9 @@
 /**
- * Purpose: Registers native TrackPlayer event listeners and synchronizes playback runtime state.
+ * Purpose: Registers native TrackPlayer event listeners, synchronizes playback runtime state, and applies playback transitions.
  * Caller: TrackPlayer background service bootstrap.
- * Dependencies: TrackPlayer events, player controls/session/runtime modules, playback activity guard service.
+ * Dependencies: TrackPlayer events, player controls/session/runtime modules, crossfade transition service, playback activity guard service.
  * Main Functions: PlaybackService()
- * Side Effects: Updates player store/session state and records qualified play activity.
+ * Side Effects: Updates player store/session state, updates native player volume, and records qualified play activity.
  */
 
 import { logError, logWarn } from "@/modules/logging/logging.service"
@@ -14,6 +14,13 @@ import {
   resumeTrack,
   seekTo,
 } from "@/modules/player/player-controls.service"
+import {
+  handleCrossfadePlaybackState,
+  handleCrossfadePlaybackStopped,
+  handleCrossfadeProgress,
+  handleCrossfadeTrackActivated,
+  resetCrossfadeVolume,
+} from "@/modules/player/player-crossfade.service"
 import { setPlaybackProgress } from "@/modules/player/player-runtime-state"
 import { isPlayerQueueReplacementInFlight } from "@/modules/player/player-runtime.service"
 import {
@@ -64,6 +71,7 @@ export async function PlaybackService() {
   })
 
   TrackPlayer.addEventListener(Event.PlaybackError, (event) => {
+    void resetCrossfadeVolume()
     logError("TrackPlayer playback error", event)
   })
 
@@ -75,7 +83,12 @@ export async function PlaybackService() {
     }
 
     setIsPlayingState(isPlaying)
+    void handleCrossfadePlaybackState(event.state)
     void persistPlaybackSession({ cursorOnly: true })
+  })
+
+  TrackPlayer.addEventListener(Event.PlaybackQueueEnded, () => {
+    void handleCrossfadePlaybackStopped()
   })
 
   TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
@@ -95,6 +108,7 @@ export async function PlaybackService() {
         return
       }
 
+      void handleCrossfadeTrackActivated()
       void persistPlaybackSession({
         force: true,
         cursorOnly: true,
@@ -114,6 +128,7 @@ export async function PlaybackService() {
 
   TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (event) => {
     setPlaybackProgress(event.position, event.duration)
+    void handleCrossfadeProgress(event.position, event.duration)
     handleTrackProgress(event.position, event.duration)
     void persistPlaybackSession({
       cursorOnly: true,

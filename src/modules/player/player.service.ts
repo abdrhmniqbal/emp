@@ -1,9 +1,9 @@
 /**
  * Purpose: Sets up native audio playback and replaces the active TrackPlayer queue when playback starts.
  * Caller: track rows, player controls, queue recovery flows, bootstrap playback setup.
- * Dependencies: TrackPlayer native module, player store, playback session service, player activity service, logging service.
+ * Dependencies: TrackPlayer native module, player store, playback session service, player activity service, crossfade transition service, logging service.
  * Main Functions: setupPlayer(), playTrack()
- * Side Effects: Initializes native playback, updates notification options, resets native queue, starts playback, persists session state.
+ * Side Effects: Initializes native playback, updates notification options, resets native queue and volume transitions, starts playback, persists session state.
  */
 
 import type { Track } from "@/modules/player/player.types"
@@ -15,6 +15,7 @@ import {
   mapRepeatMode,
   mapTrackToTrackPlayerInput,
 } from "@/modules/player/player-adapter"
+import { resetCrossfadeVolume } from "@/modules/player/player-crossfade.service"
 import { setActiveTrack, setPlaybackProgress } from "@/modules/player/player-runtime-state"
 import {
   beginPlayerQueueReplacement,
@@ -142,6 +143,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     setPlaybackProgress(0, track.duration || 0)
 
     await TrackPlayer.reset()
+    await resetCrossfadeVolume()
 
     await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
     await TrackPlayer.setRepeatMode(mapRepeatMode(getRepeatModeState()))
