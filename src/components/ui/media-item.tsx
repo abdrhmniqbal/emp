@@ -1,3 +1,11 @@
+/**
+ * Purpose: Provides shared media row primitives for list and grid item layouts.
+ * Caller: Library lists, search results, favorites, recent searches, playlists, and folder rows.
+ * Dependencies: HeroUI Native press feedback, Expo Image, screen transition boundaries, Tailwind variants.
+ * Main Functions: MediaItem, MediaItemRoot, MediaItemImage, MediaItemContent, MediaItemAction.
+ * Side Effects: Handles user press interactions and transition boundary registration.
+ */
+
 import type { ReactNode } from "react"
 import { Image } from "expo-image"
 import { PressableFeedback } from "heroui-native"
@@ -166,14 +174,47 @@ function MediaItemRank({ className, children, ...props }: TextProps) {
 }
 
 function MediaItemAction({
+  accessibilityHint,
+  accessibilityLabel,
+  accessibilityRole,
+  children,
   className,
+  onPress,
+  onLongPress,
+  onPressIn,
+  onPressOut,
+  style,
+  testID,
   ...props
 }: React.ComponentProps<typeof PressableFeedback>) {
+  const isInteractive = Boolean(onPress || onLongPress || onPressIn || onPressOut)
+
+  if (!isInteractive) {
+    return (
+      <View
+        accessibilityHint={accessibilityHint}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityRole={accessibilityRole}
+        className={className}
+        style={style}
+        testID={testID}
+      >
+        {children}
+      </View>
+    )
+  }
+
   return (
     <PressableFeedback
       className={cn("active:opacity-50", className)}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       {...props}
-    />
+    >
+      {children}
+    </PressableFeedback>
   )
 }
 
