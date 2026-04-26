@@ -8,7 +8,7 @@
 
 import * as Application from "expo-application"
 import Constants from "expo-constants"
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button, Dialog, Toast, useToast } from "heroui-native"
 import { useState } from "react"
 import { Linking, Platform, ScrollView, View } from "react-native"

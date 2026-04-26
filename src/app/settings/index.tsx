@@ -6,7 +6,7 @@
  * Side Effects: Navigates to settings detail routes.
  */
 
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { ScrollView, View } from "react-native"
 
 import { SettingsRow } from "@/components/patterns/settings-row"

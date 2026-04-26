@@ -4,7 +4,7 @@ import type {
 } from "@/modules/favorites/favorites.types"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { Image } from "expo-image"
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Chip, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useCallback } from "react"

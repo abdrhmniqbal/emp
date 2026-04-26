@@ -1,4 +1,5 @@
-import { useLocalSearchParams, useRouter } from "expo-router"
+import { useLocalSearchParams } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button } from "heroui-native"
 import * as React from "react"
 import { useMemo, useState } from "react"

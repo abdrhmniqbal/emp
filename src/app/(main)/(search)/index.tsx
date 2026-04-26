@@ -8,7 +8,7 @@
 
 import type { Track } from "@/modules/player/player.store"
 import type { DBTrack } from "@/types/database"
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 
 import { Input, PressableFeedback } from "heroui-native"
 import { useMemo } from "react"

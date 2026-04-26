@@ -1,6 +1,6 @@
 import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { BottomSheet, Button, Card, Chip, Toast, useToast } from "heroui-native"
 import * as React from "react"
 import { useEffect, useState } from "react"

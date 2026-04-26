@@ -6,7 +6,7 @@
  * Side Effects: None beyond rendering navigation state.
  */
 
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { BackButton } from "@/components/patterns/back-button"

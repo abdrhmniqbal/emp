@@ -1,5 +1,5 @@
 import type { Track } from "@/modules/player/player.types"
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
 import { useState } from "react"
 

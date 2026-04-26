@@ -7,7 +7,7 @@
  */
 
 import type { Track } from "@/modules/player/player.store"
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import * as React from "react"
 
 import { ScrollView, View } from "react-native"

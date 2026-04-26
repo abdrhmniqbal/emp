@@ -1,4 +1,5 @@
-import { Redirect, useLocalSearchParams, useRouter } from "expo-router"
+import { Redirect, useLocalSearchParams } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { useEffect, useState } from "react"
 
 import { FullPlayerContent } from "@/components/blocks/player/full-player-content"

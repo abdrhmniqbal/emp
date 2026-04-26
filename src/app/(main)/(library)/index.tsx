@@ -10,7 +10,7 @@ import type { Playlist } from "@/components/blocks/playlist-list"
 import type { GenreCategory } from "@/modules/genres/genres.types"
 import type { SortField } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.store"
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Tabs } from "heroui-native"
 
 import * as React from "react"

@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react"
-import { type Href, useRouter } from "expo-router"
+import { type Href } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button } from "heroui-native"
 
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"

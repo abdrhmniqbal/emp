@@ -6,7 +6,7 @@
  * Side Effects: Persists library settings and can trigger a full library reindex.
  */
 
-import { useRouter } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button, Dialog } from "heroui-native"
 import * as React from "react"
 import { ScrollView, View } from "react-native"

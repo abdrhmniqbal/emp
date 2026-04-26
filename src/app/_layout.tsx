@@ -12,7 +12,8 @@ import {
   ThemeProvider,
 } from "@react-navigation/native"
 import * as Notifications from "expo-notifications"
-import { useRouter, useSegments } from "expo-router"
+import { useSegments } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
 import { type ReactNode, useEffect, useRef } from "react"

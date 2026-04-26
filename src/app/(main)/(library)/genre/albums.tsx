@@ -10,7 +10,8 @@ import type {
   AlbumSortField,
   SortOrder,
 } from "@/modules/library/library-sort.types"
-import { useLocalSearchParams, useRouter } from "expo-router"
+import { useLocalSearchParams } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { useEffect, useMemo, useState } from "react"
 import { Text, View } from "react-native"
 

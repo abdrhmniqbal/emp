@@ -6,7 +6,8 @@
  * Side Effects: Updates recent-search storage/cache and navigates to media detail routes.
  */
 
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
+import { useLocalSearchParams, useNavigation } from "expo-router"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useEffect, useRef, useState } from "react"
