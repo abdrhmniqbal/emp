@@ -1,3 +1,11 @@
+/**
+ * Purpose: Provides track read/write access for library lists, detail views, favorites, and playback history.
+ * Caller: tracks queries, tracks mutations, player activity services, library screens.
+ * Dependencies: Drizzle database client, tracks table, play_history table.
+ * Main Functions: listTracks(), getTrackById(), setTrackFavoriteStatus(), incrementTrackPlayCount()
+ * Side Effects: Reads tracks from DB; writes favorite status, play counts, and play history records.
+ */
+
 import { and, asc, desc, eq, like, sql } from "drizzle-orm"
 
 import { db } from "@/db/client"
@@ -96,8 +104,8 @@ export async function listTracks(filters?: TrackFilter) {
 }
 
 export async function getTrackById(id: string) {
-  return db.query.tracks.findFirst({
-    where: eq(tracks.id, id),
+  const track = await db.query.tracks.findFirst({
+    where: and(eq(tracks.id, id), eq(tracks.isDeleted, 0)),
     with: {
       artist: true,
       album: {
@@ -117,6 +125,8 @@ export async function getTrackById(id: string) {
       },
     },
   })
+
+  return track ?? null
 }
 
 export async function setTrackFavoriteStatus({
