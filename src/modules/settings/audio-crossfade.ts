@@ -1,0 +1,103 @@
+/**
+ * Purpose: Loads, sanitizes, and persists audio crossfade settings.
+ * Caller: Audio settings screen and bootstrap settings preload.
+ * Dependencies: Settings repository and settings store.
+ * Main Functions: ensureCrossfadeConfigLoaded(), setCrossfadeConfig(), getCrossfadeDurationLabel().
+ * Side Effects: Reads and writes `audio-crossfade.json` in Expo document storage and mutates settings state.
+ */
+
+import type { CrossfadeConfig } from "@/modules/settings/settings.types"
+import {
+  createSettingsConfigFile,
+  loadSettingsConfig,
+  saveSettingsConfig,
+} from "@/modules/settings/settings.repository"
+import {
+  getDefaultCrossfadeConfig,
+  getSettingsState,
+  updateSettingsState,
+} from "@/modules/settings/settings.store"
+
+export type { CrossfadeConfig }
+
+const CROSSFADE_FILE = createSettingsConfigFile("audio-crossfade.json")
+const MIN_CROSSFADE_SECONDS = 1
+const MAX_CROSSFADE_SECONDS = 12
+
+let loadPromise: Promise<CrossfadeConfig> | null = null
+let hasLoadedConfig = false
+
+function clampDurationSeconds(value: number): number {
+  if (!Number.isFinite(value)) {
+    return getDefaultCrossfadeConfig().durationSeconds
+  }
+
+  return Math.max(
+    MIN_CROSSFADE_SECONDS,
+    Math.min(MAX_CROSSFADE_SECONDS, Math.round(value))
+  )
+}
+
+function sanitizeConfig(config: unknown): CrossfadeConfig {
+  const source =
+    config && typeof config === "object"
+      ? (config as Record<string, unknown>)
+      : {}
+
+  return {
+    isEnabled:
+      typeof source.isEnabled === "boolean"
+        ? source.isEnabled
+        : getDefaultCrossfadeConfig().isEnabled,
+    durationSeconds: clampDurationSeconds(
+      (typeof source.durationSeconds === "number"
+        ? source.durationSeconds
+        : undefined) ?? getDefaultCrossfadeConfig().durationSeconds
+    ),
+  }
+}
+
+async function persistConfig(config: CrossfadeConfig): Promise<void> {
+  await saveSettingsConfig(CROSSFADE_FILE, config)
+}
+
+export async function ensureCrossfadeConfigLoaded(): Promise<CrossfadeConfig> {
+  if (hasLoadedConfig) {
+    return getSettingsState().crossfadeConfig
+  }
+
+  if (loadPromise) {
+    return loadPromise
+  }
+
+  loadPromise = (async () => {
+    const next = await loadSettingsConfig(
+      CROSSFADE_FILE,
+      getDefaultCrossfadeConfig(),
+      sanitizeConfig
+    )
+    updateSettingsState({ crossfadeConfig: next })
+    hasLoadedConfig = true
+    return next
+  })()
+
+  const result = await loadPromise
+  loadPromise = null
+  return result
+}
+
+export async function setCrossfadeConfig(
+  updates: Partial<CrossfadeConfig>
+): Promise<CrossfadeConfig> {
+  await ensureCrossfadeConfigLoaded()
+  const current = getSettingsState().crossfadeConfig
+  const next = sanitizeConfig({ ...current, ...updates })
+  updateSettingsState({ crossfadeConfig: next })
+  hasLoadedConfig = true
+  await persistConfig(next)
+  return next
+}
+
+export function getCrossfadeDurationLabel(config: CrossfadeConfig): string {
+  return config.isEnabled ? `${config.durationSeconds}s` : "Off"
+}
