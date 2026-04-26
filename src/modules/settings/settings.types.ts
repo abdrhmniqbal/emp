@@ -1,6 +1,15 @@
+/**
+ * Purpose: Defines settings route names and local settings configuration shapes.
+ * Caller: Settings routes, settings screens, settings store, and settings persistence modules.
+ * Dependencies: None.
+ * Main Functions: SettingsRouteName, SettingsRouteDefinition, CrossfadeConfig.
+ * Side Effects: None.
+ */
+
 export type SettingsRouteName =
   | "index"
   | "appearance"
+  | "audio"
   | "notifications"
   | "library"
   | "advanced"
@@ -38,4 +47,9 @@ export type TrackDurationFilterMode =
 export interface TrackDurationFilterConfig {
   mode: TrackDurationFilterMode
   customMinimumSeconds: number
+}
+
+export interface CrossfadeConfig {
+  isEnabled: boolean
+  durationSeconds: number
 }

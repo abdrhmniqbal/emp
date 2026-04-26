@@ -1,3 +1,11 @@
+/**
+ * Purpose: Defines settings category links and native stack titles for settings screens.
+ * Caller: Settings index route and settings stack layout.
+ * Dependencies: Settings route type definitions.
+ * Main Functions: SETTINGS_CATEGORY_ROUTES, SETTINGS_SCREEN_TITLES.
+ * Side Effects: None.
+ */
+
 import type { SettingsRouteDefinition } from "./settings.types"
 
 export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
@@ -5,6 +13,11 @@ export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
     name: "appearance",
     title: "Appearance",
     description: "Theme and visual preferences.",
+  },
+  {
+    name: "audio",
+    title: "Audio",
+    description: "Playback transitions and audio behavior.",
   },
   {
     name: "notifications",
@@ -31,6 +44,7 @@ export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
 export const SETTINGS_SCREEN_TITLES: Record<string, string> = {
   index: "Settings",
   appearance: "Appearance",
+  audio: "Audio",
   notifications: "Notifications",
   library: "Library",
   advanced: "Advanced",

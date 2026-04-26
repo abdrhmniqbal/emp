@@ -1,3 +1,11 @@
+/**
+ * Purpose: Bootstraps playback, settings, media permissions, and startup indexing.
+ * Caller: App root providers during launch.
+ * Dependencies: Track player service, media library service, Drizzle database, settings preloaders, indexer service, logging, playback session service.
+ * Main Functions: bootstrapApp()
+ * Side Effects: Initializes native playback, reads local settings, requests media permissions, queries track count, and may start indexing.
+ */
+
 import { count } from "drizzle-orm"
 
 import {
@@ -10,6 +18,7 @@ import {
 } from "@/core/storage/media-library.service"
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
+import { ensureCrossfadeConfigLoaded } from "@/modules/settings/audio-crossfade"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { ensureFolderFilterConfigLoaded } from "@/modules/settings/folder-filters"
 import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/indexer-notifications"
@@ -23,6 +32,7 @@ async function preloadLocalSettings() {
   logInfo("Preloading local settings")
   await Promise.all([
     ensureAutoScanConfigLoaded(),
+    ensureCrossfadeConfigLoaded(),
     ensureFolderFilterConfigLoaded(),
     ensureIndexerNotificationsConfigLoaded(),
     ensureTrackDurationFilterConfigLoaded(),
