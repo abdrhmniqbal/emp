@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.2.3-rc.1] - 2026-04-26
+
+### Added
+
+- Advanced setting to reset listening history with confirmation before clearing history and play counts.
+- Session-only player lyric preferences for karaoke mode and lyric zoom level.
+
+### Changed
+
+- Improved indexer throughput by reducing repeated database relation lookups and genre visual scans during batch processing.
+- Logging verbosity now respects minimal and extra settings more consistently across runtime flows.
+- Player and app notification icons now use visible white notification assets.
+
+### Fixed
+
+- Missing track detail queries now return `null` instead of undefined so React Query remains stable after local file deletion.
+- Search focus and input transition timing now runs in sequence to avoid intermittent input overlap with the back button.
+- Player drag-to-close now only responds from the drag handle instead of the whole interface.
+- Duplicate rapid taps to the same navigation target are ignored during route transitions.
+- Decorative playlist and folder row chevrons no longer block row navigation taps.
+
 ## [v0.2.2] - 2026-04-25
 
 ### Added
