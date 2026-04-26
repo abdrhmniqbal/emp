@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders static, synced, and TTML lyrics with session-only karaoke and zoom controls.
+ * Caller: FullPlayerContent when the player expanded view is lyrics.
+ * Dependencies: lyrics parsers/source resolver, player controls/store, UI store, theme colors, React Query.
+ * Main Functions: LyricsView()
+ * Side Effects: Reads lyrics metadata/DB fallback, seeks playback, updates session-only lyrics preferences.
+ */
+
 import type { Track } from "@/modules/player/player.types"
 import { useQuery } from "@tanstack/react-query"
 import { PressableFeedback } from "heroui-native"
@@ -33,6 +41,11 @@ import { resolveTrackLyricsSource } from "@/modules/lyrics/lyrics-source"
 import { seekTo } from "@/modules/player/player-controls.service"
 import { usePlayerStore } from "@/modules/player/player.store"
 import { useThemeColors } from "@/modules/ui/theme"
+import {
+  setPlayerLyricsFontScale,
+  setPlayerLyricsKaraokeEnabled,
+  useUIStore,
+} from "@/modules/ui/ui.store"
 
 type LyricsMode = "static" | "synced" | "ttml"
 
@@ -42,7 +55,6 @@ interface LyricsViewProps {
 
 const AUTO_SCROLL_RESUME_DELAY_MS = 100
 const FONT_SCALE_VALUES = [1, 1.2, 1.4] as const
-type FontScaleLevel = (typeof FONT_SCALE_VALUES)[number]
 
 function findTTMLLineIndex(lines: TTMLLine[], time: number) {
   return lines.findIndex((line, index) => {
@@ -211,6 +223,10 @@ const TTMLLineRow: React.FC<{
 export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   const theme = useThemeColors()
   const { height } = useWindowDimensions()
+  const karaokeEnabled = useUIStore(
+    (state) => state.playerLyricsKaraokeEnabled
+  )
+  const fontScale = useUIStore((state) => state.playerLyricsFontScale)
   const { data: resolvedLyrics = null } = useQuery(
     {
       queryKey: [
@@ -276,16 +292,14 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   const hasStaticLyrics = lines.length > 0 || hasTTML
   const hasSyncedLyrics = hasTimedSyncedLyrics || hasTimedTTML
 
-  const [mode, setMode] = React.useState<LyricsMode>("static")
   const effectiveMode: LyricsMode = hasTimedTTML
-    ? mode === "static"
-      ? "static"
-      : "ttml"
-    : mode === "synced" && hasTimedSyncedLyrics
+    ? karaokeEnabled
+      ? "ttml"
+      : "static"
+    : karaokeEnabled && hasTimedSyncedLyrics
       ? "synced"
       : "static"
 
-  const [fontScale, setFontScale] = React.useState<FontScaleLevel>(1)
   const scrollViewRef = React.useRef<ScrollView | null>(null)
   const syncedLineOffsetRef = React.useRef<Record<string, number>>({})
   const isUserScrollingRef = React.useRef(false)
@@ -300,16 +314,14 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     if (!hasSyncedLyrics) {
       return
     }
-    setMode((previousMode) =>
-      previousMode === "static" ? (hasTimedTTML ? "ttml" : "synced") : "static"
-    )
-  }, [hasSyncedLyrics, hasTimedTTML])
+    setPlayerLyricsKaraokeEnabled(!karaokeEnabled)
+  }, [hasSyncedLyrics, karaokeEnabled])
 
   const handleToggleFontScale = React.useCallback(() => {
     const currentIndex = FONT_SCALE_VALUES.indexOf(fontScale)
     const nextIndex = (currentIndex + 1) % FONT_SCALE_VALUES.length
     const nextScale = FONT_SCALE_VALUES[nextIndex] ?? 1
-    setFontScale(nextScale)
+    setPlayerLyricsFontScale(nextScale)
   }, [fontScale])
 
   const fontScaleLabel = React.useMemo(() => {
@@ -466,12 +478,6 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     viewportHeight,
     fontScale,
   ])
-
-  React.useEffect(() => {
-    if (hasTimedTTML) {
-      setMode("ttml")
-    }
-  }, [hasTimedTTML])
 
   if (!track) {
     return null
