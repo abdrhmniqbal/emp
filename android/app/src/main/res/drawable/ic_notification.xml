@@ -1,3 +1,10 @@
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:gravity="center"
-    android:src="@mipmap/ic_launcher_monochrome" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,2C11.448,2 11,2.448 11,3V13.075C10.2,12.493 9.215,12.15 8.151,12.15C5.472,12.15 3.301,14.321 3.301,17C3.301,19.679 5.472,21.85 8.151,21.85C10.829,21.85 13.001,19.679 13.001,17C13.001,16.971 13,16.941 13,16.912V10.436C14.151,9.453 15.43,9.294 16.586,9.486C17.896,9.705 18.952,10.366 19.293,10.707C19.597,11.012 20.062,11.087 20.447,10.894C20.832,10.702 21.051,10.285 20.99,9.859C20.546,6.752 18.952,4.758 17.122,3.563C15.327,2.391 13.33,2 12,2Z" />
+</vector>

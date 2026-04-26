@@ -36,7 +36,13 @@
     "plugins": [
       "expo-router",
       "expo-media-library",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/notification-icon.png",
+          "color": "#FFFFFF"
+        }
+      ],
       "@zoontek/react-native-navigation-bar",
       [
         "expo-splash-screen",
