@@ -1,3 +1,11 @@
+/**
+ * Purpose: Scans the device media library, extracts audio metadata/artwork, and commits indexed tracks into SQLite.
+ * Caller: indexer.service startIndexing(), bootstrap auto-scan, manual library refresh actions.
+ * Dependencies: Expo MediaLibrary/FileSystem, Drizzle DB schema, metadata repository, folder/duration filters, indexer runtime.
+ * Main Functions: scanMediaLibrary(), getLastIndexerRunSnapshot()
+ * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_genres/indexer_state, marks missing tracks deleted.
+ */
+
 import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
 import { and, eq, inArray, sql } from "drizzle-orm"
 
@@ -31,9 +39,9 @@ import {
 import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.repository"
 import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 
-const BATCH_SIZE = 10
+const BATCH_SIZE = 24
 const BATCH_CONCURRENCY = 4
-const COMMIT_SCOPE_SIZE = 5
+const COMMIT_SCOPE_SIZE = 24
 const DELETE_SCOPE_SIZE = 300
 const COMMIT_SCOPE_MAX_ATTEMPTS = 3
 const COMMIT_SCOPE_RETRY_DELAY_MS = 160
@@ -67,6 +75,14 @@ interface IndexingLookupCache {
   artistIdsByName: Map<string, string>
   albumIdsByArtistAndTitle: Map<string, string>
   genreIdsByName: Map<string, string>
+  genreVisuals: GenreVisualLookup
+}
+
+interface GenreVisualLookup {
+  supportsVisualColumns: boolean
+  usedCombinations: Set<string>
+  colorUsage: Map<string, number>
+  shapeUsage: Map<GenreShape, number>
 }
 
 interface BatchProcessingResult {
@@ -187,6 +203,112 @@ function normalizeMetadata(
     composer: normalizeText(metadata.composer),
     comment: normalizeText(metadata.comment),
     lyrics: normalizeText(metadata.lyrics),
+  }
+}
+
+function createEmptyGenreVisualLookup(): GenreVisualLookup {
+  const colorUsage = new Map<string, number>()
+  const shapeUsage = new Map<GenreShape, number>()
+
+  for (const color of GENRE_COLORS) {
+    colorUsage.set(color, 0)
+  }
+
+  for (const shape of GENRE_SHAPES) {
+    shapeUsage.set(shape, 0)
+  }
+
+  return {
+    supportsVisualColumns: true,
+    usedCombinations: new Set(),
+    colorUsage,
+    shapeUsage,
+  }
+}
+
+function registerGenreVisual(
+  visualLookup: GenreVisualLookup,
+  color: string,
+  shape: GenreShape
+) {
+  visualLookup.usedCombinations.add(`${color}::${shape}`)
+  visualLookup.colorUsage.set(
+    color,
+    (visualLookup.colorUsage.get(color) ?? 0) + 1
+  )
+  visualLookup.shapeUsage.set(
+    shape,
+    (visualLookup.shapeUsage.get(shape) ?? 0) + 1
+  )
+}
+
+function getAlbumLookupKey(artistId: string, title: string) {
+  return `${artistId}::${title}`
+}
+
+async function preloadIndexingLookupCache(): Promise<IndexingLookupCache> {
+  const [artistRows, albumRows] = await Promise.all([
+    db.query.artists.findMany({
+      columns: {
+        id: true,
+        name: true,
+      },
+    }),
+    db.query.albums.findMany({
+      columns: {
+        id: true,
+        title: true,
+        artistId: true,
+      },
+    }),
+  ])
+
+  const genreVisuals = createEmptyGenreVisualLookup()
+  const genreIdsByName = new Map<string, string>()
+
+  try {
+    const genreRows = await db.query.genres.findMany({
+      columns: {
+        id: true,
+        name: true,
+        color: true,
+        shape: true,
+      },
+    })
+
+    for (const genre of genreRows) {
+      genreIdsByName.set(genre.name, genre.id)
+      registerGenreVisual(genreVisuals, genre.color, genre.shape as GenreShape)
+    }
+  } catch {
+    genreVisuals.supportsVisualColumns = false
+
+    const genreRows = await db.query.genres.findMany({
+      columns: {
+        id: true,
+        name: true,
+      },
+    })
+
+    for (const genre of genreRows) {
+      genreIdsByName.set(genre.name, genre.id)
+    }
+  }
+
+  return {
+    artistIdsByName: new Map(
+      artistRows.map((artist) => [artist.name, artist.id])
+    ),
+    albumIdsByArtistAndTitle: new Map(
+      albumRows
+        .filter((album) => album.artistId)
+        .map((album) => [
+          getAlbumLookupKey(album.artistId as string, album.title),
+          album.id,
+        ])
+    ),
+    genreIdsByName,
+    genreVisuals,
   }
 }
 
@@ -510,11 +632,8 @@ export async function scanMediaLibrary(
     existingTracks.map((t) => [t.id, t.fileHash])
   )
   const currentAssetIds = new Set(scopedAssets.map((a) => a.id))
-  const lookupCache: IndexingLookupCache = {
-    artistIdsByName: new Map(),
-    albumIdsByArtistAndTitle: new Map(),
-    genreIdsByName: new Map(),
-  }
+  const lookupCache = await preloadIndexingLookupCache()
+  if (signal?.aborted) return
 
   // Find deleted tracks
   const deletedTrackIds = existingTracks
@@ -966,7 +1085,7 @@ async function getOrCreateAlbum(
   year?: number,
   lookupCache?: IndexingLookupCache
 ): Promise<string> {
-  const cacheKey = `${artistId}::${title}`
+  const cacheKey = getAlbumLookupKey(artistId, title)
   const cachedAlbumId = lookupCache?.albumIdsByArtistAndTitle.get(cacheKey)
   if (cachedAlbumId) {
     return cachedAlbumId
@@ -1016,7 +1135,7 @@ async function getOrCreateGenre(
   }
 
   const id = generateId()
-  const { color, shape } = await selectGenreVisuals(name)
+  const { color, shape } = selectGenreVisuals(name, lookupCache)
   try {
     await db.insert(genres).values({
       id,
@@ -1035,27 +1154,18 @@ async function getOrCreateGenre(
   }
 
   lookupCache?.genreIdsByName.set(name, id)
+  if (lookupCache?.genreVisuals.supportsVisualColumns) {
+    registerGenreVisual(lookupCache.genreVisuals, color, shape)
+  }
 
   return id
 }
 
-async function selectGenreVisuals(
-  name: string
-): Promise<{ color: string; shape: GenreShape }> {
-  let existingVisuals: Array<{ color: string; shape: GenreShape }> = []
-  try {
-    const rows = await db.query.genres.findMany({
-      columns: {
-        color: true,
-        shape: true,
-      },
-    })
-    existingVisuals = rows.map((row) => ({
-      color: row.color,
-      shape: row.shape as GenreShape,
-    }))
-  } catch {
-    // If columns are missing before migration, return deterministic defaults.
+function selectGenreVisuals(
+  name: string,
+  lookupCache?: IndexingLookupCache
+): { color: string; shape: GenreShape } {
+  if (!lookupCache?.genreVisuals.supportsVisualColumns) {
     const hash = hashString(name)
     return {
       color: GENRE_COLORS[hash % GENRE_COLORS.length],
@@ -1066,25 +1176,8 @@ async function selectGenreVisuals(
     }
   }
 
-  const usedCombinations = new Set(
-    existingVisuals.map((visual) => `${visual.color}::${visual.shape}`)
-  )
+  const { colorUsage, shapeUsage, usedCombinations } = lookupCache.genreVisuals
 
-  const colorUsage = new Map<string, number>()
-  const shapeUsage = new Map<GenreShape, number>()
-  for (const color of GENRE_COLORS) {
-    colorUsage.set(color, 0)
-  }
-  for (const shape of GENRE_SHAPES) {
-    shapeUsage.set(shape, 0)
-  }
-  for (const visual of existingVisuals) {
-    colorUsage.set(visual.color, (colorUsage.get(visual.color) ?? 0) + 1)
-    shapeUsage.set(visual.shape, (shapeUsage.get(visual.shape) ?? 0) + 1)
-  }
-
-  // Prioritize unique colors first, then prefer least-used shapes
-  // so both color and shape distribution stay balanced.
   const colorsByUsage = [...GENRE_COLORS].sort(
     (a, b) => (colorUsage.get(a) ?? 0) - (colorUsage.get(b) ?? 0)
   )
