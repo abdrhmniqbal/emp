@@ -1,3 +1,11 @@
+/**
+ * Purpose: Reads and mutates listening history, top-track metrics, and playback activity counters.
+ * Caller: history queries, history mutations, player activity service, advanced settings maintenance actions.
+ * Dependencies: Drizzle database client, play_history table, tracks table, track transformers.
+ * Main Functions: getTrackHistory(), getTopTracksByPeriod(), addTrackToHistory(), incrementTrackPlayCount(), resetListeningHistory()
+ * Side Effects: Reads play history; writes play_history rows; updates track play counts and last-played timestamps.
+ */
+
 import type { Track } from "@/modules/player/player.types"
 
 import { desc, eq, sql } from "drizzle-orm"
@@ -143,4 +151,19 @@ export async function incrementTrackPlayCount(trackId: string): Promise<void> {
   } catch {
     // no-op
   }
+}
+
+export async function resetListeningHistory(): Promise<void> {
+  const now = Date.now()
+
+  await db.transaction(async (tx) => {
+    await tx.delete(playHistory)
+    await tx
+      .update(tracks)
+      .set({
+        playCount: 0,
+        lastPlayedAt: null,
+        updatedAt: now,
+      })
+  })
 }
