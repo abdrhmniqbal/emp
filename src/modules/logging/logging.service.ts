@@ -1,3 +1,11 @@
+/**
+ * Purpose: Centralizes runtime logging, crash-log persistence, console bridging, and crash-log sharing.
+ * Caller: bootstrap runtime, app services, repositories, device/player/indexer modules, advanced settings.
+ * Dependencies: Expo FileSystem File/Paths, React Native Share API, logging settings store.
+ * Main Functions: initializeLogging(), logInfo(), logWarn(), logError(), logCritical(), shareCrashLogs(), isExtraLoggingEnabled()
+ * Side Effects: Overrides console methods, installs the global JS error handler, writes crash logs, opens the native share sheet.
+ */
+
 /* eslint-disable no-console */
 import { File, Paths } from "expo-file-system"
 import { Share } from "react-native"
@@ -35,12 +43,63 @@ interface ErrorUtilsLike {
 }
 
 function shouldPersistLog(severity: LogSeverity): boolean {
-  const config = getLoggingConfigState()
-  if (config.level === "extra") {
+  return shouldEmitLog(severity)
+}
+
+function shouldEmitLog(severity: LogSeverity): boolean {
+  if (isExtraLoggingEnabled()) {
     return true
   }
 
   return severity === "error" || severity === "critical"
+}
+
+function writeConsoleLog(
+  severity: LogSeverity,
+  message: string,
+  context?: unknown
+): void {
+  if (!shouldEmitLog(severity)) {
+    return
+  }
+
+  const consoleMethod =
+    severity === "debug"
+      ? originalConsole.debug
+      : severity === "info"
+        ? originalConsole.info
+        : severity === "warn"
+          ? originalConsole.warn
+          : originalConsole.error
+
+  if (context === undefined) {
+    consoleMethod(message)
+    return
+  }
+
+  consoleMethod(message, context)
+}
+
+function writeConsoleArgs(severity: LogSeverity, args: unknown[]): void {
+  if (!shouldEmitLog(severity)) {
+    return
+  }
+
+  switch (severity) {
+    case "debug":
+      originalConsole.debug(...args)
+      return
+    case "info":
+      originalConsole.info(...args)
+      return
+    case "warn":
+      originalConsole.warn(...args)
+      return
+    case "error":
+    case "critical":
+      originalConsole.error(...args)
+      return
+  }
 }
 
 export function isExtraLoggingEnabled(): boolean {
@@ -143,23 +202,25 @@ function installConsoleBridge() {
   isConsoleBridgeInstalled = true
 
   console.log = (...args: unknown[]) => {
-    originalConsole.log(...args)
+    if (shouldEmitLog("info")) {
+      originalConsole.log(...args)
+    }
     enqueueFileLog("info", args.map(stringifyLogPayload).join(" "))
   }
   console.info = (...args: unknown[]) => {
-    originalConsole.info(...args)
+    writeConsoleArgs("info", args)
     enqueueFileLog("info", args.map(stringifyLogPayload).join(" "))
   }
   console.debug = (...args: unknown[]) => {
-    originalConsole.debug(...args)
+    writeConsoleArgs("debug", args)
     enqueueFileLog("debug", args.map(stringifyLogPayload).join(" "))
   }
   console.warn = (...args: unknown[]) => {
-    originalConsole.warn(...args)
+    writeConsoleArgs("warn", args)
     enqueueFileLog("warn", args.map(stringifyLogPayload).join(" "))
   }
   console.error = (...args: unknown[]) => {
-    originalConsole.error(...args)
+    writeConsoleArgs("error", args)
     enqueueFileLog("error", args.map(stringifyLogPayload).join(" "))
   }
 }
@@ -197,20 +258,12 @@ export async function initializeLogging(): Promise<void> {
 }
 
 export function logInfo(message: string, context?: unknown): void {
-  if (context === undefined) {
-    originalConsole.info(message)
-  } else {
-    originalConsole.info(message, context)
-  }
+  writeConsoleLog("info", message, context)
   enqueueFileLog("info", message, context)
 }
 
 export function logWarn(message: string, context?: unknown): void {
-  if (context === undefined) {
-    originalConsole.warn(message)
-  } else {
-    originalConsole.warn(message, context)
-  }
+  writeConsoleLog("warn", message, context)
   enqueueFileLog("warn", message, context)
 }
 
@@ -219,12 +272,14 @@ export function logError(
   error?: unknown,
   context?: unknown
 ): void {
-  if (error === undefined && context === undefined) {
-    originalConsole.error(message)
-  } else if (context === undefined) {
-    originalConsole.error(message, error)
-  } else {
-    originalConsole.error(message, error, context)
+  if (shouldEmitLog("error")) {
+    if (error === undefined && context === undefined) {
+      originalConsole.error(message)
+    } else if (context === undefined) {
+      originalConsole.error(message, error)
+    } else {
+      originalConsole.error(message, error, context)
+    }
   }
   const fullMessage = normalizeErrorMessage(message, error)
   const mergedContext =
@@ -239,12 +294,14 @@ export function logCritical(
   error?: unknown,
   context?: unknown
 ): void {
-  if (error === undefined && context === undefined) {
-    originalConsole.error(message)
-  } else if (context === undefined) {
-    originalConsole.error(message, error)
-  } else {
-    originalConsole.error(message, error, context)
+  if (shouldEmitLog("critical")) {
+    if (error === undefined && context === undefined) {
+      originalConsole.error(message)
+    } else if (context === undefined) {
+      originalConsole.error(message, error)
+    } else {
+      originalConsole.error(message, error, context)
+    }
   }
   const fullMessage = normalizeErrorMessage(message, error)
   const mergedContext =

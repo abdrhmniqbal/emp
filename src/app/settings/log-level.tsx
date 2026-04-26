@@ -1,5 +1,5 @@
 /**
- * Purpose: Renders logging verbosity preferences for debugging and diagnostics.
+ * Purpose: Renders logging verbosity preferences for error-only or full diagnostic logging.
  * Caller: Settings log-level route.
  * Dependencies: HeroUI Native press feedback, logging store, settings store, theme colors.
  * Main Functions: LogLevelSettingsScreen()
@@ -27,12 +27,12 @@ const LOG_LEVEL_OPTIONS: LogLevelOption[] = [
   {
     label: "Minimal",
     value: "minimal",
-    description: "Critical errors only.",
+    description: "Errors and crashes only.",
   },
   {
     label: "Extra",
     value: "extra",
-    description: "Log everything.",
+    description: "Everything, including diagnostics and recoverable warnings.",
   },
 ]
 
@@ -45,7 +45,10 @@ export default function LogLevelSettingsScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ paddingBottom: 40 }}
+    >
       <View className="gap-5 px-4 py-4">
         <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
           {LOG_LEVEL_OPTIONS.map((option, index) => (
