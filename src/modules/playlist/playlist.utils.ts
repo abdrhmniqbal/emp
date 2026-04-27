@@ -1,3 +1,11 @@
+/**
+ * Purpose: Provides playlist form limits and helpers for selection, artwork, duration, and track mapping.
+ * Caller: Playlist routes, playlist form hooks, playlist detail screen, playlist picker flows.
+ * Dependencies: player track types, database track types, database-to-player transformers.
+ * Main Functions: toggleTrackSelection(), clampPlaylistName(), clampPlaylistDescription(), buildPlaylistTracks(), buildPlaylistImages(), getPlaylistDuration(), formatDuration()
+ * Side Effects: None.
+ */
+
 import type { Track } from "@/modules/player/player.types"
 import type { DBTrack } from "@/types/database"
 import { transformDBTrackToTrack } from "@/utils/transformers"
@@ -30,6 +38,8 @@ export function clampPlaylistDescription(value: string): string {
 
 interface PlaylistTrackRelation {
   track: DBTrack | null
+  addedAt?: number | null
+  position?: number | null
 }
 
 interface PlaylistEntity {
@@ -37,11 +47,26 @@ interface PlaylistEntity {
   tracks?: PlaylistTrackRelation[]
 }
 
-export function buildPlaylistTracks(playlist?: PlaylistEntity | null): Track[] {
+export interface PlaylistDetailTrack extends Track {
+  playlistAddedAt: number
+  playlistPosition: number
+}
+
+export function buildPlaylistTracks(
+  playlist?: PlaylistEntity | null
+): PlaylistDetailTrack[] {
   return (playlist?.tracks || [])
-    .map((playlistTrack) => playlistTrack.track)
-    .filter((track): track is DBTrack => Boolean(track))
-    .map(transformDBTrackToTrack)
+    .filter(
+      (
+        playlistTrack
+      ): playlistTrack is PlaylistTrackRelation & { track: DBTrack } =>
+        Boolean(playlistTrack.track)
+    )
+    .map((playlistTrack) => ({
+      ...transformDBTrackToTrack(playlistTrack.track),
+      playlistAddedAt: playlistTrack.addedAt ?? 0,
+      playlistPosition: playlistTrack.position ?? 0,
+    }))
 }
 
 export function buildPlaylistImages(

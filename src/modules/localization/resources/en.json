@@ -106,6 +106,7 @@
       "year": "Year",
       "playCount": "Play Count",
       "dateAdded": "Date Added",
+      "addedToPlaylist": "Added to Playlist",
       "filename": "Filename",
       "name": "Name",
       "numberOfTracks": "Number of Tracks",

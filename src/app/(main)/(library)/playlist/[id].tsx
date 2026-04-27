@@ -1,8 +1,18 @@
+/**
+ * Purpose: Renders playlist details with artwork, playback actions, sorted track list, and playlist management actions.
+ * Caller: Expo Router playlist detail route.
+ * Dependencies: playlist queries and mutations, favorites mutations, playback service, sort sheet, track list, theme and navigation stores.
+ * Main Functions: PlaylistDetailsScreen()
+ * Side Effects: Plays tracks, toggles favorites, deletes playlists, opens action sheets, updates scroll UI state.
+ */
+
+import type { TrackSortField } from "@/modules/library/library-sort.types"
+import type { PlaylistDetailTrack } from "@/modules/playlist/playlist.utils"
 import { useLocalSearchParams } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button } from "heroui-native"
 import * as React from "react"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
@@ -11,6 +21,7 @@ import Animated from "react-native-reanimated"
 import { DeletePlaylistDialog } from "@/components/blocks/delete-playlist-dialog"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { PlaylistActionsSheet } from "@/components/blocks/playlist-actions-sheet"
+import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
@@ -30,6 +41,8 @@ import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   useIsFavorite,
 } from "@/modules/favorites/favorites.queries"
+import { TRACK_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
+import { sortTracks } from "@/modules/library/library-sort.utils"
 import { logWarn } from "@/modules/logging/logging.service"
 import { playTrack } from "@/modules/player/player.service"
 import { useDeletePlaylist } from "@/modules/playlist/playlist.mutations"
@@ -46,9 +59,49 @@ import {
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { mergeText } from "@/utils/merge-text"
 
 const HEADER_COLLAPSE_THRESHOLD = 120
+type PlaylistTrackSortField = TrackSortField | "playlistAddedAt"
+type PlaylistTrackSortOrder = "asc" | "desc"
+
+const PLAYLIST_TRACK_SORT_OPTIONS: {
+  label: string
+  field: PlaylistTrackSortField
+}[] = [
+  { label: "library.sortOption.addedToPlaylist", field: "playlistAddedAt" },
+  ...TRACK_SORT_OPTIONS,
+]
+
+function comparePlaylistAddedAt(
+  left: PlaylistDetailTrack,
+  right: PlaylistDetailTrack,
+  order: PlaylistTrackSortOrder
+) {
+  const leftValue = left.playlistAddedAt || 0
+  const rightValue = right.playlistAddedAt || 0
+
+  if (leftValue === rightValue) {
+    return order === "asc"
+      ? left.playlistPosition - right.playlistPosition
+      : right.playlistPosition - left.playlistPosition
+  }
+
+  return order === "asc" ? leftValue - rightValue : rightValue - leftValue
+}
+
+function sortPlaylistTracks(
+  tracks: PlaylistDetailTrack[],
+  field: PlaylistTrackSortField,
+  order: PlaylistTrackSortOrder
+) {
+  if (field === "playlistAddedAt") {
+    return [...tracks].sort((left, right) =>
+      comparePlaylistAddedAt(left, right, order)
+    )
+  }
+
+  return sortTracks(tracks, { field, order }) as PlaylistDetailTrack[]
+}
 
 export default function PlaylistDetailsScreen() {
   const { t } = useTranslation()
@@ -58,10 +111,7 @@ export default function PlaylistDetailsScreen() {
     id: string
     transitionId?: string
   }>()
-  const playlistId = useMemo(
-    () => (Array.isArray(id) ? (id[0] ?? "") : (id ?? "")),
-    [id]
-  )
+  const playlistId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "")
 
   React.useEffect(() => {
     if (!playlistId.trim()) {
@@ -73,6 +123,10 @@ export default function PlaylistDetailsScreen() {
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
   const [showActionSheet, setShowActionSheet] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showSortSheet, setShowSortSheet] = useState(false)
+  const [sortField, setSortField] =
+    useState<PlaylistTrackSortField>("playlistAddedAt")
+  const [sortOrder, setSortOrder] = useState<PlaylistTrackSortOrder>("desc")
   const { data: playlist, isLoading } = usePlaylist(playlistId)
   const { data: isFavoriteData = false } = useIsFavorite("playlist", playlistId)
   const toggleFavoriteMutation = useToggleFavorite()
@@ -86,10 +140,14 @@ export default function PlaylistDetailsScreen() {
     title: playlist?.name,
   })
   const totalDuration = getPlaylistDuration(tracks)
-  const playlistMetaText = mergeText([
-    t("library.count.track", { count: tracks.length }),
-    formatDuration(totalDuration),
-  ])
+  const playlistMetaText = formatDuration(totalDuration)
+  const sortedTracks = sortPlaylistTracks(tracks, sortField, sortOrder)
+  const selectedSortOption = PLAYLIST_TRACK_SORT_OPTIONS.find(
+    (option) => option.field === sortField
+  )
+  const sortLabel = selectedSortOption
+    ? t(selectedSortOption.label)
+    : t("library.sort")
 
   function handleBack() {
     router.back()
@@ -104,9 +162,9 @@ export default function PlaylistDetailsScreen() {
   }
 
   function playFromPlaylist(trackId: string) {
-    const selectedTrack = tracks.find((track) => track.id === trackId)
+    const selectedTrack = sortedTracks.find((track) => track.id === trackId)
     if (selectedTrack) {
-      playTrack(selectedTrack, tracks)
+      playTrack(selectedTrack, sortedTracks)
     }
   }
 
@@ -115,7 +173,7 @@ export default function PlaylistDetailsScreen() {
       return
     }
 
-    playTrack(tracks[0], tracks)
+    playTrack(sortedTracks[0], sortedTracks)
   }
 
   function shuffle() {
@@ -123,8 +181,21 @@ export default function PlaylistDetailsScreen() {
       return
     }
 
-    const randomIndex = Math.floor(Math.random() * tracks.length)
-    playTrack(tracks[randomIndex], tracks)
+    const randomIndex = Math.floor(Math.random() * sortedTracks.length)
+    playTrack(sortedTracks[randomIndex], sortedTracks)
+  }
+
+  function handleSortSelect(
+    field: PlaylistTrackSortField,
+    order?: PlaylistTrackSortOrder
+  ) {
+    const nextOrder =
+      field === "playlistAddedAt" && field !== sortField
+        ? "desc"
+        : (order ?? sortOrder)
+
+    setSortField(field)
+    setSortOrder(nextOrder)
   }
 
   async function toggleFavorite() {
@@ -180,145 +251,163 @@ export default function PlaylistDetailsScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background">
-      <Stack.Screen
-        options={{
-          title: showHeaderTitle ? playlist.name : "",
-          headerBackVisible: false,
-          headerLeft: () => (
-            <BackButton className="-ml-2" onPress={handleBack} />
-          ),
-          headerRight: () => (
-            <View className="-mr-2 flex-row gap-4">
-              <Button
-                onPress={toggleFavorite}
-                variant="ghost"
-                className="-mr-2"
-                isIconOnly
-              >
-                {isFavorite ? (
-                  <LocalFavouriteSolidIcon
-                    fill="none"
-                    width={24}
-                    height={24}
-                    color="#ef4444"
-                  />
-                ) : (
-                  <LocalFavouriteIcon
+    <SortSheet
+      visible={showSortSheet}
+      onOpenChange={setShowSortSheet}
+      currentField={sortField}
+      currentOrder={sortOrder}
+      onSelect={handleSortSelect}
+    >
+      <View className="flex-1 bg-background">
+        <Stack.Screen
+          options={{
+            title: showHeaderTitle ? playlist.name : "",
+            headerBackVisible: false,
+            headerLeft: () => (
+              <BackButton className="-ml-2" onPress={handleBack} />
+            ),
+            headerRight: () => (
+              <View className="-mr-2 flex-row gap-4">
+                <Button
+                  onPress={toggleFavorite}
+                  variant="ghost"
+                  className="-mr-2"
+                  isIconOnly
+                >
+                  {isFavorite ? (
+                    <LocalFavouriteSolidIcon
+                      fill="none"
+                      width={24}
+                      height={24}
+                      color="#ef4444"
+                    />
+                  ) : (
+                    <LocalFavouriteIcon
+                      fill="none"
+                      width={24}
+                      height={24}
+                      color={theme.foreground}
+                    />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  isIconOnly
+                  onPress={() => setShowActionSheet(true)}
+                >
+                  <LocalMoreHorizontalCircleSolidIcon
                     fill="none"
                     width={24}
                     height={24}
                     color={theme.foreground}
                   />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                isIconOnly
-                onPress={() => setShowActionSheet(true)}
+                </Button>
+              </View>
+            ),
+          }}
+        />
+
+        <TrackList
+          data={sortedTracks}
+          showNumbers={false}
+          hideCover={false}
+          hideArtist={false}
+          onTrackPress={(track) => playFromPlaylist(track.id)}
+          resetScrollKey={`${sortField}-${sortOrder}`}
+          contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
+          onScroll={(e) => {
+            const y = e.nativeEvent.contentOffset.y
+            handleScroll(y)
+            const nextShowHeaderTitle = y > HEADER_COLLAPSE_THRESHOLD
+            if (nextShowHeaderTitle !== showHeaderTitle) {
+              setShowHeaderTitle(nextShowHeaderTitle)
+            }
+          }}
+          onScrollBeginDrag={handleScrollStart}
+          onMomentumScrollEnd={handleScrollStop}
+          onScrollEndDrag={handleScrollStop}
+          listHeader={
+            <>
+              <View
+                style={{
+                  paddingTop: SCREEN_SECTION_TOP_SPACING,
+                  paddingBottom: DETAIL_HEADER_BOTTOM_SPACING,
+                }}
               >
-                <LocalMoreHorizontalCircleSolidIcon
-                  fill="none"
-                  width={24}
-                  height={24}
-                  color={theme.foreground}
-                />
-              </Button>
-            </View>
-          ),
-        }}
-      />
+                <View className="flex-row gap-4">
+                  <Transition.Boundary.View id={playlistTransitionId}>
+                    <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
+                      <PlaylistArtwork
+                        images={playlistImages}
+                        fallback={
+                          <LocalPlaylistSolidIcon
+                            fill="none"
+                            width={48}
+                            height={48}
+                            color={theme.muted}
+                          />
+                        }
+                        className="bg-surface-secondary"
+                      />
+                    </View>
+                  </Transition.Boundary.View>
 
-      <TrackList
-        data={tracks}
-        showNumbers={false}
-        hideCover={false}
-        hideArtist={false}
-        onTrackPress={(track) => playFromPlaylist(track.id)}
-        contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
-        onScroll={(e) => {
-          const y = e.nativeEvent.contentOffset.y
-          handleScroll(y)
-          const nextShowHeaderTitle = y > HEADER_COLLAPSE_THRESHOLD
-          if (nextShowHeaderTitle !== showHeaderTitle) {
-            setShowHeaderTitle(nextShowHeaderTitle)
-          }
-        }}
-        onScrollBeginDrag={handleScrollStart}
-        onMomentumScrollEnd={handleScrollStop}
-        onScrollEndDrag={handleScrollStop}
-        listHeader={
-          <>
-            <View
-              style={{
-                paddingTop: SCREEN_SECTION_TOP_SPACING,
-                paddingBottom: DETAIL_HEADER_BOTTOM_SPACING,
-              }}
-            >
-              <View className="flex-row gap-4">
-                <Transition.Boundary.View id={playlistTransitionId}>
-                  <View className="h-36 w-36 overflow-hidden rounded-lg bg-surface-secondary">
-                    <PlaylistArtwork
-                      images={playlistImages}
-                      fallback={
-                        <LocalPlaylistSolidIcon
-                          fill="none"
-                          width={48}
-                          height={48}
-                          color={theme.muted}
-                        />
-                      }
-                      className="bg-surface-secondary"
-                    />
-                  </View>
-                </Transition.Boundary.View>
-
-                <View className="flex-1 justify-center">
-                  <Text
-                    className="text-xl font-bold text-foreground"
-                    numberOfLines={2}
-                  >
-                    {playlist.name}
-                  </Text>
-                  {playlist.description ? (
+                  <View className="flex-1 justify-center">
                     <Text
-                      className="mt-1 text-base text-muted"
+                      className="text-xl font-bold text-foreground"
                       numberOfLines={2}
                     >
-                      {playlist.description}
+                      {playlist.name}
                     </Text>
-                  ) : null}
-                  <Text className="mt-2 text-sm text-muted">
-                    {playlistMetaText}
-                  </Text>
+                    {playlist.description ? (
+                      <Text
+                        className="mt-1 text-base text-muted"
+                        numberOfLines={2}
+                      >
+                        {playlist.description}
+                      </Text>
+                    ) : null}
+                    <Text className="mt-2 text-sm text-muted">
+                      {playlistMetaText}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
 
-            <Animated.View entering={screenEnterTransition()}>
-              <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
-            </Animated.View>
-          </>
-        }
-      />
+              <Animated.View entering={screenEnterTransition()}>
+                <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
+              </Animated.View>
 
-      <PlaylistActionsSheet
-        visible={showActionSheet}
-        onOpenChange={setShowActionSheet}
-        onEdit={() =>
-          router.push({
-            pathname: "/playlist/form",
-            params: { id: playlist.id },
-          })
-        }
-        onDelete={() => setShowDeleteDialog(true)}
-      />
-      <DeletePlaylistDialog
-        isOpen={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-        onConfirm={handleDeleteConfirm}
-        isDeleting={deletePlaylistMutation.isPending}
-      />
-    </View>
+              <View className="mt-5 flex-row items-center justify-between">
+                <Text className="text-lg font-bold text-foreground">
+                  {t("library.count.track", { count: tracks.length })}
+                </Text>
+                <SortSheet.Trigger label={sortLabel} iconSize={16} />
+              </View>
+            </>
+          }
+        />
+
+        <PlaylistActionsSheet
+          visible={showActionSheet}
+          onOpenChange={setShowActionSheet}
+          onEdit={() =>
+            router.push({
+              pathname: "/playlist/form",
+              params: { id: playlist.id },
+            })
+          }
+          onDelete={() => setShowDeleteDialog(true)}
+        />
+        <DeletePlaylistDialog
+          isOpen={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          onConfirm={handleDeleteConfirm}
+          isDeleting={deletePlaylistMutation.isPending}
+        />
+      </View>
+
+      <SortSheet.Content options={PLAYLIST_TRACK_SORT_OPTIONS} />
+    </SortSheet>
   )
 }
