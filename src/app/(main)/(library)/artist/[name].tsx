@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders artist detail overview, artist tracks, artist albums, and artist header actions.
+ * Caller: Expo Router artist detail route.
+ * Dependencies: artist track queries, playback service, favorites mutations, sort store, media transition helpers, theme and UI scroll stores.
+ * Main Functions: ArtistDetailsScreen()
+ * Side Effects: Plays tracks, toggles artist favorites, navigates to album routes, updates scroll UI state.
+ */
+
 import type { SortField } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
@@ -16,6 +24,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
 import Animated, {
@@ -112,6 +121,7 @@ export default function ArtistDetailsScreen() {
   const { t } = useTranslation()
   const theme = useThemeColors()
   const router = useRouter()
+  const insets = useSafeAreaInsets()
   const { width: screenWidth } = useWindowDimensions()
   const { name, transitionId } = useLocalSearchParams<{
     name: string
@@ -268,6 +278,27 @@ export default function ArtistDetailsScreen() {
     setActiveView(view)
   }
 
+  function handleBack() {
+    router.back()
+  }
+
+  function toggleArtistFavorite() {
+    if (!artistId) {
+      return
+    }
+
+    void toggleFavoriteMutation.mutateAsync({
+      type: "artist",
+      itemId: artistId,
+      isCurrentlyFavorite: isArtistFavorite,
+      name: artistName,
+      subtitle: t("library.count.track", {
+        count: artistTracks.length,
+      }),
+      image: artistImage,
+    })
+  }
+
   function playArtistTrack(track: Track) {
     playTrack(track, sortedArtistTracks)
   }
@@ -374,63 +405,66 @@ export default function ArtistDetailsScreen() {
       <View className="flex-1 bg-background">
         <Stack.Screen
           options={{
-            headerTransparent: true,
-            headerStyle: {
-              backgroundColor: isHeaderSolid ? theme.background : "transparent",
-            },
-            title: isHeaderSolid ? artistName : "",
-            headerTintColor: isHeaderSolid ? theme.foreground : "white",
-            headerBackVisible: false,
-            headerLeft: () => (
-              <BackButton
-                className={cn("-ml-2", !isHeaderSolid && "bg-overlay/30")}
-                fallbackHref="/(main)/(library)"
-                iconColor={isHeaderSolid ? theme.foreground : "white"}
-              />
-            ),
-            headerRight: () =>
-              artistId ? (
-                <Button
-                  onPress={() => {
-                    if (!artistId) {
-                      return
-                    }
-
-                    void toggleFavoriteMutation.mutateAsync({
-                      type: "artist",
-                      itemId: artistId,
-                      isCurrentlyFavorite: isArtistFavorite,
-                      name: artistName,
-                      subtitle: t("library.count.track", {
-                        count: artistTracks.length,
-                      }),
-                      image: artistImage,
-                    })
-                  }}
-                  isDisabled={toggleFavoriteMutation.isPending}
-                  variant="ghost"
-                  className={cn("-ml-2", !isHeaderSolid && "bg-overlay/30")}
-                  isIconOnly
-                >
-                  {isArtistFavorite ? (
-                    <LocalFavouriteSolidIcon
-                      fill="none"
-                      width={24}
-                      height={24}
-                      color="#ef4444"
-                    />
-                  ) : (
-                    <LocalFavouriteIcon
-                      fill="none"
-                      width={24}
-                      height={24}
-                      color={isHeaderSolid ? theme.foreground : "white"}
-                    />
-                  )}
-                </Button>
-              ) : undefined,
+            headerShown: false,
           }}
         />
+        <View
+          className="absolute right-0 left-0 flex-row items-end justify-between px-4 pb-2"
+          style={{
+            top: 0,
+            height: insets.top + 52,
+            zIndex: 100,
+            elevation: 100,
+            backgroundColor: isHeaderSolid ? theme.background : "transparent",
+          }}
+        >
+          <BackButton
+            className={cn("-ml-2", !isHeaderSolid && "bg-overlay/30")}
+            fallbackHref="/(main)/(library)"
+            iconColor={isHeaderSolid ? theme.foreground : "white"}
+            onPress={handleBack}
+          />
+          {isHeaderSolid ? (
+            <View
+              pointerEvents="none"
+              className="absolute right-16 bottom-4 left-16 items-center"
+            >
+              <Text
+                className="text-base font-semibold text-foreground"
+                numberOfLines={1}
+              >
+                {artistName}
+              </Text>
+            </View>
+          ) : null}
+          {artistId ? (
+            <Button
+              onPress={toggleArtistFavorite}
+              isDisabled={toggleFavoriteMutation.isPending}
+              variant="ghost"
+              className={cn("-mr-2", !isHeaderSolid && "bg-overlay/30")}
+              isIconOnly
+            >
+              {isArtistFavorite ? (
+                <LocalFavouriteSolidIcon
+                  fill="none"
+                  width={24}
+                  height={24}
+                  color="#ef4444"
+                />
+              ) : (
+                <LocalFavouriteIcon
+                  fill="none"
+                  width={24}
+                  height={24}
+                  color={isHeaderSolid ? theme.foreground : "white"}
+                />
+              )}
+            </Button>
+          ) : (
+            <View className="h-10 w-10" />
+          )}
+        </View>
 
         {activeView === "overview" ? (
           <ScrollView
