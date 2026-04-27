@@ -1,6 +1,17 @@
+/**
+ * Purpose: Resolves lyrics from nearby sidecar files or embedded track metadata with in-memory caching.
+ * Caller: Player lyrics view.
+ * Dependencies: expo-file-system File API and TextDecoder.
+ * Main Functions: resolveTrackLyricsSource()
+ * Side Effects: Reads sidecar lyric files from device storage.
+ */
+
 import { File } from "expo-file-system"
 
 interface TrackLyricsSourceInput {
+  fileHash?: string
+  id?: string
+  scanTime?: number
   uri?: string
   lyrics?: string
 }
@@ -11,6 +22,7 @@ interface SidecarCacheEntry {
 }
 
 const sidecarLyricsCache = new Map<string, SidecarCacheEntry>()
+const resolvedLyricsSourceCache = new Map<string, string | undefined>()
 
 function getSidecarCandidates(uri: string): string[] {
   const sanitizedUri = uri.split("#")[0]?.split("?")[0] || uri
@@ -79,6 +91,24 @@ function normalizeLyricsText(raw: string | undefined): string | undefined {
   return normalized.length > 0 ? normalized : undefined
 }
 
+function getLyricsTextSignature(value: string | undefined) {
+  if (!value) {
+    return "none"
+  }
+
+  return `${value.length}:${value.slice(0, 32)}:${value.slice(-32)}`
+}
+
+function getResolvedLyricsCacheKey(track: TrackLyricsSourceInput) {
+  return [
+    track.id ?? "",
+    track.uri?.trim() ?? "",
+    track.fileHash ?? "",
+    track.scanTime ?? 0,
+    getLyricsTextSignature(track.lyrics),
+  ].join("|")
+}
+
 async function readSidecarLyrics(
   candidateUri: string
 ): Promise<string | undefined> {
@@ -119,16 +149,24 @@ export async function resolveTrackLyricsSource(
     return undefined
   }
 
+  const cacheKey = getResolvedLyricsCacheKey(track)
+  if (resolvedLyricsSourceCache.has(cacheKey)) {
+    return resolvedLyricsSourceCache.get(cacheKey)
+  }
+
   const uri = track.uri?.trim()
   if (uri) {
     const sidecarCandidates = getSidecarCandidates(uri)
     for (const candidate of sidecarCandidates) {
       const lyricsFromFile = await readSidecarLyrics(candidate)
       if (lyricsFromFile) {
+        resolvedLyricsSourceCache.set(cacheKey, lyricsFromFile)
         return lyricsFromFile
       }
     }
   }
 
-  return normalizeLyricsText(track.lyrics)
+  const embeddedLyrics = normalizeLyricsText(track.lyrics)
+  resolvedLyricsSourceCache.set(cacheKey, embeddedLyrics)
+  return embeddedLyrics
 }

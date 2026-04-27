@@ -239,7 +239,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
         track?.scanTime ?? 0,
       ],
       enabled: Boolean(track?.id),
-      staleTime: 0,
+      staleTime: Infinity,
       queryFn: async () => {
         let sourceTrack = track
         if (sourceTrack?.id && !sourceTrack.lyrics) {
