@@ -260,7 +260,6 @@ async function replaceIndexerNotification(
       content: {
         title,
         body,
-        color: "#FFFFFF",
         sound: false,
         sticky,
         autoDismiss,
