@@ -13,6 +13,7 @@ import type {
   FolderFilterConfig,
   LanguageCode,
   LoggingConfig,
+  SplitMultipleValueConfig,
   TrackDurationFilterConfig,
 } from "./settings.types"
 
@@ -35,6 +36,13 @@ const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
   customMinimumSeconds: 180,
 }
 
+const DEFAULT_SPLIT_MULTIPLE_VALUE_CONFIG: SplitMultipleValueConfig = {
+  artistSplitSymbols: [";", "/", "&", ",", "ft.", "feat."],
+  unsplitArtists: [],
+  artistSplitMode: "split",
+  genreSplitSymbols: [";", "/", "&", ","],
+}
+
 interface SettingsState {
   languageCode: LanguageCode
   autoScanEnabled: boolean
@@ -43,6 +51,7 @@ interface SettingsState {
   folderFilterConfig: FolderFilterConfig
   loggingConfig: LoggingConfig
   trackDurationFilterConfig: TrackDurationFilterConfig
+  splitMultipleValueConfig: SplitMultipleValueConfig
 }
 
 export const useSettingsStore = create<SettingsState>(() => ({
@@ -53,6 +62,7 @@ export const useSettingsStore = create<SettingsState>(() => ({
   folderFilterConfig: DEFAULT_FOLDER_FILTER_CONFIG,
   loggingConfig: DEFAULT_LOGGING_CONFIG,
   trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
+  splitMultipleValueConfig: DEFAULT_SPLIT_MULTIPLE_VALUE_CONFIG,
 }))
 
 export function getDefaultLanguageCode() {
@@ -89,4 +99,8 @@ export function getSettingsState() {
 
 export function updateSettingsState(updates: Partial<SettingsState>) {
   useSettingsStore.setState(updates)
+}
+
+export function getDefaultSplitMultipleValueConfig() {
+  return DEFAULT_SPLIT_MULTIPLE_VALUE_CONFIG
 }

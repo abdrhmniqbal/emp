@@ -1,3 +1,11 @@
+/**
+ * Purpose: Displays track actions and metadata, including multi-value artist and genre navigation.
+ * Caller: Track list and playlist screens opening track context actions.
+ * Dependencies: HeroUI Native sheets, track queries, playlist/favorites services, split settings state, and router navigation.
+ * Main Functions: TrackActionSheet()
+ * Side Effects: Opens dialogs/sheets, queues playback actions, and navigates to artist/album/genre routes.
+ */
+
 import type { Track } from "@/modules/player/player.store"
 import { Image } from "expo-image"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
@@ -9,6 +17,7 @@ import { Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import { DeleteTrackDialog } from "@/components/blocks/delete-track-dialog"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import { ValueNavigationSheet } from "@/components/blocks/value-navigation-sheet"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
@@ -20,12 +29,8 @@ import { MarqueeText } from "@/components/ui/marquee-text"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { openDeviceFile } from "@/modules/device/file-viewer"
 import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
-import {
-  useToggleFavorite,
-} from "@/modules/favorites/favorites.mutations"
-import {
-  useIsFavorite,
-} from "@/modules/favorites/favorites.queries"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
+import { useIsFavorite } from "@/modules/favorites/favorites.queries"
 import { playTrack } from "@/modules/player/player.service"
 import { addToQueue, queueTrackNext } from "@/modules/player/queue.service"
 import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
@@ -36,6 +41,11 @@ import {
 } from "@/modules/tracks/track-metadata.utils"
 import { useTrack } from "@/modules/tracks/tracks.queries"
 import { useThemeColors } from "@/modules/ui/theme"
+import { useSettingsStore } from "@/modules/settings/settings.store"
+import {
+  splitArtistsValue,
+  splitGenresValue,
+} from "@/modules/settings/split-multiple-values"
 import { resolvePlayableFileUri } from "@/utils/file-path"
 import { formatDuration } from "@/utils/format"
 import LocalDeleteSolidIcon from "../icons/local/delete-solid"
@@ -80,6 +90,15 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     : false
   const [resolvedFileUri, setResolvedFileUri] = useState<string | null>(null)
   const { data: fullTrackData } = useTrack(track?.id ?? "")
+  const splitMultipleValueConfig = useSettingsStore(
+    (state) => state.splitMultipleValueConfig
+  )
+  const [artistSelectionValues, setArtistSelectionValues] = useState<string[]>(
+    []
+  )
+  const [genreSelectionValues, setGenreSelectionValues] = useState<string[]>([])
+  const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
+  const [isGenreSelectionOpen, setIsGenreSelectionOpen] = useState(false)
 
   const handlePlay = async () => {
     if (track) {
@@ -208,6 +227,43 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     })
   }
 
+  const handleOpenArtistSelection = (values: string[]) => {
+    const normalized = dedupeValues(
+      values.map((value) => value.trim()).filter((value) => value.length > 0)
+    )
+    if (normalized.length === 0) {
+      return
+    }
+
+    if (normalized.length === 1) {
+      handleOpenArtist(normalized[0] || "")
+      return
+    }
+
+    setArtistSelectionValues(normalized)
+    setIsArtistSelectionOpen(true)
+  }
+
+  const handleOpenGenreSelection = (values: string[]) => {
+    const normalized = dedupeValues(
+      values.map((value) => value.trim()).filter((value) => value.length > 0)
+    )
+    if (normalized.length === 0) {
+      return
+    }
+
+    if (normalized.length === 1) {
+      onClose()
+      router.push({
+        pathname: "/(main)/(search)/genre/[name]",
+        params: { name: normalized[0] || "" },
+      })
+      return
+    }
+
+    setGenreSelectionValues(normalized)
+    setIsGenreSelectionOpen(true)
+  }
   const handleOpenFile = async () => {
     if (!track?.uri) {
       return
@@ -320,7 +376,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       .split(",")
       .map((item) => item.trim())
       .filter((item) => item.length > 0)
-  const dedupeValues = (values: string[]) => {
+  function dedupeValues(values: string[]) {
     const seen = new Set<string>()
     return values.filter((value) => {
       const key = value.toLowerCase()
@@ -344,7 +400,10 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       return dedupeValues(relationNames)
     }
 
-    const fallbackNames = splitCommaValues(track.artist)
+    const fallbackNames = splitArtistsValue(
+      track.artist,
+      splitMultipleValueConfig
+    )
     return fallbackNames.length > 0 ? dedupeValues(fallbackNames) : []
   })()
   const albumNames = (() => {
@@ -367,7 +426,10 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       return names.slice(0, 2)
     }
 
-    const fallbackGenreNames = splitCommaValues(track.genre)
+    const fallbackGenreNames = splitGenresValue(
+      track.genre,
+      splitMultipleValueConfig
+    )
     if (fallbackGenreNames.length > 0) {
       return dedupeValues(fallbackGenreNames).slice(0, 2)
     }
@@ -389,16 +451,23 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       label: t("track.metadata.artist"),
       segments:
         artistNames.length > 0
-          ? artistNames.map((name) => ({
-              value: name,
-              onPress: () => handleOpenArtist(name),
-            }))
+          ? splitMultipleValueConfig.artistSplitMode === "original" &&
+            track.artist?.trim()
+            ? [
+                {
+                  value: track.artist.trim(),
+                  onPress: () => handleOpenArtistSelection(artistNames),
+                },
+              ]
+            : artistNames.map((name) => ({
+                value: name,
+                onPress: () => handleOpenArtistSelection(artistNames),
+              }))
           : [{ value: t("library.unknownArtist") }],
       fullWidth:
-        (
-          artistNames.length > 0
-            ? artistNames.join(", ")
-            : t("library.unknownArtist")
+        (artistNames.length > 0
+          ? artistNames.join(", ")
+          : t("library.unknownArtist")
         ).length > 24,
     },
     {
@@ -411,10 +480,9 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
             }))
           : [{ value: t("library.unknownAlbum") }],
       fullWidth:
-        (
-          albumNames.length > 0
-            ? albumNames.join(", ")
-            : t("library.unknownAlbum")
+        (albumNames.length > 0
+          ? albumNames.join(", ")
+          : t("library.unknownAlbum")
         ).length > 24,
     },
     {
@@ -423,13 +491,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         genreNames.length > 0
           ? genreNames.map((genreName) => ({
               value: genreName,
-              onPress: () => {
-                onClose()
-                router.push({
-                  pathname: "/(main)/(search)/genre/[name]",
-                  params: { name: genreName },
-                })
-              },
+              onPress: () => handleOpenGenreSelection(genreNames),
             }))
           : [{ value: unknownValue }],
       fullWidth:
@@ -451,7 +513,10 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         },
       ],
     },
-    { label: t("track.metadata.duration"), segments: [{ value: durationLabel }] },
+    {
+      label: t("track.metadata.duration"),
+      segments: [{ value: durationLabel }],
+    },
     {
       label: t("track.metadata.playCount"),
       segments: [{ value: String(track.playCount || 0) }],

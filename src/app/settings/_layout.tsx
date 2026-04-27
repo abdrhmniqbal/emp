@@ -30,6 +30,7 @@ const DETAIL_SETTINGS_SCREENS = [
   "advanced",
   "about",
   "folder-filters",
+  "split-multiple-values",
   "track-duration-filter",
   "log-level",
 ] as const

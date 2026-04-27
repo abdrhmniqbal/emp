@@ -18,6 +18,7 @@ export type SettingsRouteName =
   | "advanced"
   | "about"
   | "folder-filters"
+  | "split-multiple-values"
   | "track-duration-filter"
   | "log-level"
 
@@ -57,4 +58,13 @@ export interface TrackDurationFilterConfig {
 export interface CrossfadeConfig {
   isEnabled: boolean
   durationSeconds: number
+}
+
+export type ArtistSplitMode = "original" | "split"
+
+export interface SplitMultipleValueConfig {
+  artistSplitSymbols: string[]
+  unsplitArtists: string[]
+  artistSplitMode: ArtistSplitMode
+  genreSplitSymbols: string[]
 }

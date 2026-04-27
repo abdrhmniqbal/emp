@@ -1,3 +1,11 @@
+/**
+ * Purpose: Extracts audio metadata/artwork/lyrics and normalizes split multi-value fields for indexing.
+ * Caller: Indexer repository batch preparation.
+ * Dependencies: Native metadata retriever, Expo file APIs, Drizzle artwork cache, and split settings parser.
+ * Main Functions: extractMetadata(), saveArtworkToCache().
+ * Side Effects: Reads audio files/artwork and writes artwork cache entries.
+ */
+
 import {
   getArtwork,
   getMetadata,
@@ -7,6 +15,11 @@ import { Directory, File, Paths } from "expo-file-system"
 
 import { db } from "@/db/client"
 import { artworkCache } from "@/db/schema"
+import type { SplitMultipleValueConfig } from "@/modules/settings/split-multiple-values"
+import {
+  splitArtistsValue,
+  splitGenresValue,
+} from "@/modules/settings/split-multiple-values"
 
 export interface ExtractedMetadata {
   title: string
@@ -376,7 +389,8 @@ async function extractEmbeddedLyrics(uri: string) {
 export async function extractMetadata(
   uri: string,
   filename: string,
-  duration: number
+  duration: number,
+  splitConfig: SplitMultipleValueConfig
 ): Promise<ExtractedMetadata> {
   try {
     // Get metadata from the file
@@ -407,11 +421,25 @@ export async function extractMetadata(
 
     return {
       title: metadata.title || cleanFilename(filename),
-      artist: metadata.artist || undefined,
-      artists: metadata.artist ? parseMultiValue(metadata.artist) : [],
+      artist:
+        splitConfig.artistSplitMode === "original"
+          ? metadata.artist || undefined
+          : splitArtistsValue(metadata.artist, splitConfig)[0] ||
+            metadata.artist ||
+            undefined,
+      artists: splitArtistsValue(metadata.artist, splitConfig),
       album: metadata.albumTitle || undefined,
-      albumArtist: metadata.albumArtist || metadata.artist || undefined,
-      genres: metadata.genre ? parseMultiValue(metadata.genre) : [],
+      albumArtist:
+        splitConfig.artistSplitMode === "original"
+          ? metadata.albumArtist || metadata.artist || undefined
+          : splitArtistsValue(
+              metadata.albumArtist || metadata.artist,
+              splitConfig
+            )[0] ||
+            metadata.albumArtist ||
+            metadata.artist ||
+            undefined,
+      genres: splitGenresValue(metadata.genre, splitConfig),
       year: metadata.year || undefined,
       trackNumber: metadata.trackNumber || undefined,
       discNumber: metadata.discNumber || undefined,
@@ -497,15 +525,6 @@ export async function saveArtworkToCache(
   } catch {
     return undefined
   }
-}
-
-// Parse multi-value fields (semicolon or slash delimited)
-function parseMultiValue(value: string | null): string[] {
-  if (!value) return []
-  return value
-    .split(/[;/]/)
-    .map((v) => v.trim())
-    .filter((v) => v.length > 0)
 }
 
 function cleanFilename(filename: string): string {

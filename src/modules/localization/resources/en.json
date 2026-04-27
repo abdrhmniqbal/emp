@@ -222,7 +222,9 @@
       "goToAlbum": "Go to Album"
     },
     "karaokeOn": "Karaoke On",
-    "karaokeOff": "Karaoke Off"
+    "karaokeOff": "Karaoke Off",
+    "selectArtistTitle": "Choose artist",
+    "selectGenreTitle": "Choose genre"
   },
   "settings": {
     "routes": {
@@ -265,6 +267,9 @@
       },
       "logLevel": {
         "title": "Log Level"
+      },
+      "splitMultipleValues": {
+        "title": "Split Multiple Values"
       }
     },
     "appearance": {
@@ -303,7 +308,23 @@
       "reindexDescription": "Re-scan all tracks, including unchanged files.",
       "reindexDialogTitle": "Force reindex library?",
       "reindexDialogDescription": "This will re-scan all music files, including already indexed and unchanged files. It may take longer than normal indexing.",
-      "reindexAction": "Reindex"
+      "reindexAction": "Reindex",
+      "splitMultipleValues": "Split Multiple Values",
+      "splitMultipleValuesSummary": "Mode: {{mode}} · Artist: {{artistSymbols}} · Genre: {{genreSymbols}}",
+      "artistSplitSymbols": "Artist Split Symbols",
+      "artistSplitSymbolsDescription": "Symbols used to split artists and album artists metadata. Values are trimmed automatically.",
+      "unsplitArtists": "Unsplit Artists",
+      "unsplitArtistsDescription": "Artists in this list stay intact even when they contain split symbols.",
+      "unsplitArtistsPlaceholder": "AC/DC, Earth, Wind & Fire",
+      "artistSplitMode": "Artist Split Mode",
+      "artistSplitModeSplit": "Split values",
+      "artistSplitModeSplitDescription": "Show transformed artists like GIRIBOY, Heize.",
+      "artistSplitModeOriginal": "Original strings",
+      "artistSplitModeOriginalDescription": "Show original metadata strings like GIRIBOY ft. Heize.",
+      "genreSplitSymbols": "Genre Split Symbols",
+      "genreSplitSymbolsDescription": "Symbols used to split multiple genres metadata.",
+      "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "reindexLaterAction": "No, later"
     },
     "audio": {
       "crossfade": "Crossfade",

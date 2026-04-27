@@ -222,7 +222,9 @@
       "goToAlbum": "Buka Album"
     },
     "karaokeOn": "Karaoke Aktif",
-    "karaokeOff": "Karaoke Nonaktif"
+    "karaokeOff": "Karaoke Nonaktif",
+    "selectArtistTitle": "Pilih artis",
+    "selectGenreTitle": "Pilih genre"
   },
   "settings": {
     "routes": {
@@ -265,6 +267,9 @@
       },
       "logLevel": {
         "title": "Level Log"
+      },
+      "splitMultipleValues": {
+        "title": "Pisah Nilai Ganda"
       }
     },
     "appearance": {
@@ -303,7 +308,23 @@
       "reindexDescription": "Pindai ulang semua lagu, termasuk file yang tidak berubah.",
       "reindexDialogTitle": "Paksa indeks ulang pustaka?",
       "reindexDialogDescription": "Ini akan memindai ulang semua file musik, termasuk yang sudah diindeks dan tidak berubah. Proses ini mungkin lebih lama dari pengindeksan biasa.",
-      "reindexAction": "Indeks Ulang"
+      "reindexAction": "Indeks Ulang",
+      "splitMultipleValues": "Pisah Nilai Ganda",
+      "splitMultipleValuesSummary": "Mode: {{mode}} · Artis: {{artistSymbols}} · Genre: {{genreSymbols}}",
+      "artistSplitSymbols": "Simbol Pemisah Artis",
+      "artistSplitSymbolsDescription": "Simbol untuk memisah metadata artis dan artis album. Spasi otomatis dipangkas.",
+      "unsplitArtists": "Artis Tidak Dipisah",
+      "unsplitArtistsDescription": "Artis di daftar ini tetap utuh meski mengandung simbol pemisah.",
+      "unsplitArtistsPlaceholder": "AC/DC, Earth, Wind & Fire",
+      "artistSplitMode": "Mode Pemisahan Artis",
+      "artistSplitModeSplit": "Pisahkan nilai",
+      "artistSplitModeSplitDescription": "Tampilkan artis terpisah seperti GIRIBOY, Heize.",
+      "artistSplitModeOriginal": "Teks asli",
+      "artistSplitModeOriginalDescription": "Tampilkan string metadata asli seperti GIRIBOY ft. Heize.",
+      "genreSplitSymbols": "Simbol Pemisah Genre",
+      "genreSplitSymbolsDescription": "Simbol untuk memisah metadata multi-genre.",
+      "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "reindexLaterAction": "Tidak, nanti"
     },
     "audio": {
       "crossfade": "Crossfade",

@@ -56,6 +56,7 @@ export const SETTINGS_SCREEN_TITLE_KEYS: Record<string, string> = {
   advanced: "settings.routes.advanced.title",
   about: "settings.routes.about.title",
   "folder-filters": "settings.routes.folderFilters.title",
+  "split-multiple-values": "settings.routes.splitMultipleValues.title",
   "track-duration-filter": "settings.routes.trackDurationFilter.title",
   "log-level": "settings.routes.logLevel.title",
 }
