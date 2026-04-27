@@ -37,6 +37,10 @@ import {
   isAssetAllowedByTrackDuration,
 } from "@/modules/settings/track-duration-filter"
 import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.repository"
+import {
+  ensureSplitMultipleValueConfigLoaded,
+  type SplitMultipleValueConfig,
+} from "@/modules/settings/split-multiple-values"
 import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 
 const BATCH_SIZE = 24
@@ -56,11 +60,7 @@ const SUPPORTED_EXTENSIONS = new Set([
   "opus",
   "wav",
 ])
-const EXCLUDED_URI_SEGMENTS = [
-  "/android/",
-  "/android/data/",
-  "/android/obb/",
-]
+const EXCLUDED_URI_SEGMENTS = ["/android/", "/android/data/", "/android/obb/"]
 
 type ExtractedMetadata = Awaited<ReturnType<typeof extractMetadata>>
 
@@ -326,7 +326,9 @@ function isSupportedAssetByExtension(asset: MediaLibrary.Asset): boolean {
 function isAllowedAssetUri(uri: string): boolean {
   const normalizedUri = uri.toLowerCase()
 
-  if (EXCLUDED_URI_SEGMENTS.some((segment) => normalizedUri.includes(segment))) {
+  if (
+    EXCLUDED_URI_SEGMENTS.some((segment) => normalizedUri.includes(segment))
+  ) {
     return false
   }
 
@@ -357,7 +359,10 @@ async function runWithScopeCommit(work: () => Promise<void>): Promise<void> {
     } catch (error) {
       lastError = error
 
-      if (!isTransientCommitError(error) || attempt >= COMMIT_SCOPE_MAX_ATTEMPTS) {
+      if (
+        !isTransientCommitError(error) ||
+        attempt >= COMMIT_SCOPE_MAX_ATTEMPTS
+      ) {
         break
       }
 
@@ -372,7 +377,9 @@ async function runWithScopeCommit(work: () => Promise<void>): Promise<void> {
 
 function isTransientCommitError(error: unknown): boolean {
   const message =
-    error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase()
+    error instanceof Error
+      ? error.message.toLowerCase()
+      : String(error).toLowerCase()
 
   return (
     message.includes("database is locked") ||
@@ -588,6 +595,7 @@ export async function scanMediaLibrary(
 
   const folderFilterConfig = await ensureFolderFilterConfigLoaded()
   const durationFilterConfig = await ensureTrackDurationFilterConfigLoaded()
+  const splitConfig = await ensureSplitMultipleValueConfigLoaded()
   discoveredAssets = assets.length
   const scopedAssets: MediaLibrary.Asset[] = []
 
@@ -679,7 +687,8 @@ export async function scanMediaLibrary(
       },
       signal,
       currentAssetHashMap,
-      lookupCache
+      lookupCache,
+      splitConfig
     )
 
     preparedAssetsCount += batchResult.preparedCount
@@ -733,19 +742,25 @@ async function processBatch(
   onFileStart?: (asset: MediaLibrary.Asset) => void,
   signal?: AbortSignal,
   precomputedHashMap?: Map<string, string>,
-  lookupCache?: IndexingLookupCache
+  lookupCache?: IndexingLookupCache,
+  splitConfig?: SplitMultipleValueConfig
 ): Promise<BatchProcessingResult> {
   const preparedBatchResult = await prepareBatchAssets(
     assets,
     onFileStart,
     signal,
-    precomputedHashMap
+    precomputedHashMap,
+    splitConfig
   )
   const preparedAssets = preparedBatchResult.preparedAssets
   let committedCount = 0
   let failedCount = preparedBatchResult.failedCount
 
-  for (let index = 0; index < preparedAssets.length; index += COMMIT_SCOPE_SIZE) {
+  for (
+    let index = 0;
+    index < preparedAssets.length;
+    index += COMMIT_SCOPE_SIZE
+  ) {
     if (signal?.aborted) {
       return {
         preparedCount: preparedAssets.length,
@@ -777,9 +792,13 @@ async function processBatch(
       })
       committedCount += scope.length
     } catch (error) {
-      logError("Failed to commit indexing scope; retrying asset-by-asset", error, {
-        scopeSize: scope.length,
-      })
+      logError(
+        "Failed to commit indexing scope; retrying asset-by-asset",
+        error,
+        {
+          scopeSize: scope.length,
+        }
+      )
 
       for (const prepared of scope) {
         if (signal?.aborted) {
@@ -817,7 +836,8 @@ async function prepareBatchAssets(
   assets: MediaLibrary.Asset[],
   onFileStart?: (asset: MediaLibrary.Asset) => void,
   signal?: AbortSignal,
-  precomputedHashMap?: Map<string, string>
+  precomputedHashMap?: Map<string, string>,
+  splitConfig?: SplitMultipleValueConfig
 ): Promise<PreparedBatchResult> {
   const preparedAssets: PreparedAssetForIndex[] = []
   let failedCount = 0
@@ -845,7 +865,8 @@ async function prepareBatchAssets(
           const prepared = await prepareAssetForIndexing(
             asset,
             signal,
-            precomputedHashMap
+            precomputedHashMap,
+            splitConfig
           )
           if (prepared) {
             preparedAssets.push(prepared)
@@ -870,7 +891,8 @@ async function prepareBatchAssets(
 async function prepareAssetForIndexing(
   asset: MediaLibrary.Asset,
   signal?: AbortSignal,
-  precomputedHashMap?: Map<string, string>
+  precomputedHashMap?: Map<string, string>,
+  splitConfig?: SplitMultipleValueConfig
 ): Promise<PreparedAssetForIndex | null> {
   if (signal?.aborted) {
     return null
@@ -893,7 +915,8 @@ async function prepareAssetForIndexing(
       metadata = await extractMetadata(
         asset.uri,
         asset.filename || "",
-        asset.duration
+        asset.duration,
+        splitConfig || (await ensureSplitMultipleValueConfigLoaded())
       )
       break
     } catch (error) {
@@ -959,7 +982,8 @@ async function upsertPreparedAsset(
         )
       : null
 
-  const genresToProcess = metadata.genres.length > 0 ? metadata.genres : ["Unknown"]
+  const genresToProcess =
+    metadata.genres.length > 0 ? metadata.genres : ["Unknown"]
   const genreIds = await Promise.all(
     genresToProcess.map((genre) => getOrCreateGenre(genre, lookupCache))
   )

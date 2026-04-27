@@ -23,6 +23,7 @@ import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { ensureFolderFilterConfigLoaded } from "@/modules/settings/folder-filters"
 import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/indexer-notifications"
 import { ensureTrackDurationFilterConfigLoaded } from "@/modules/settings/track-duration-filter"
+import { ensureSplitMultipleValueConfigLoaded } from "@/modules/settings/split-multiple-values"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { ensureLoggingConfigLoaded } from "@/modules/logging/logging.store"
 import { logError, logInfo } from "@/modules/logging/logging.service"
@@ -36,6 +37,7 @@ async function preloadLocalSettings() {
     ensureFolderFilterConfigLoaded(),
     ensureIndexerNotificationsConfigLoaded(),
     ensureTrackDurationFilterConfigLoaded(),
+    ensureSplitMultipleValueConfigLoaded(),
     ensureLoggingConfigLoaded(),
   ])
 }
