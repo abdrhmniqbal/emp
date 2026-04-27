@@ -1,8 +1,21 @@
+/**
+ * Purpose: Configures the Android application build, React Native bundling, release signing, ABI APK splits, and packaging.
+ * Caller: Gradle release/debug tasks and GitHub release workflows.
+ * Dependencies: Android Gradle Plugin, React Native Gradle Plugin, Expo CLI, Kotlin Android plugin, release signing properties.
+ * Main Functions: android application config, React Native bundle config, release APK split generation.
+ * Side Effects: Produces signed Android APK artifacts and applies release version/signing settings.
+ */
+
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
+def releaseArchitectures = ((findProperty('reactNativeArchitectures') ?: 'armeabi-v7a,arm64-v8a,x86,x86_64') as String)
+    .split(',')
+    .collect { it.trim() }
+    .findAll { it }
+def enableAbiSplits = (findProperty('android.enableAbiSplits') ?: 'false').toBoolean()
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -98,6 +111,14 @@ android {
         resConfigs "en"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
+    }
+    splits {
+        abi {
+            reset()
+            enable enableAbiSplits
+            universalApk enableAbiSplits
+            include(*releaseArchitectures)
+        }
     }
     signingConfigs {
         debug {

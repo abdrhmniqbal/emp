@@ -1,3 +1,9 @@
+# Purpose: Builds signed Android release APKs, creates a draft GitHub Release, and delegates release note attachment.
+# Caller: GitHub tag pushes and manual workflow_dispatch runs.
+# Dependencies: actions/checkout, setup-node, setup-bun, actions/cache, setup-java, Gradle cache, Android Gradle project, release signing secrets.
+# Main Functions: Resolve release tag, derive app version, build universal and ABI APKs, upload artifacts, create draft release.
+# Side Effects: Generates signed APK files, uploads workflow artifacts, creates or updates a draft GitHub Release.
+
 name: Android APK Release
 
 on:
@@ -23,7 +29,6 @@ jobs:
     env:
       RELEASE_CRED: ${{ secrets.RELEASE_CRED }}
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-      TARGET_ARCHS: "armeabi-v7a arm64-v8a x86 x86_64"
 
     steps:
       - name: Checkout
@@ -40,6 +45,14 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.2.21
+
+      - name: Setup Bun cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -149,10 +162,7 @@ jobs:
           fileDir: android/app
           encodedString: ${{ env.KEYSTORE_BASE64 }}
 
-      - name: Clean generated builds
-        run: rm -rf android/app/build/generated/
-
-      - name: Build release APKs (universal + per ABI)
+      - name: Build release APKs
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -162,32 +172,24 @@ jobs:
           DIST_DIR="app/build/outputs/apk/dist"
           RELEASE_DIR="app/build/outputs/apk/release"
           APK_PREFIX="startune-music-${RELEASE_TAG}"
-          ./gradlew clean
           mkdir -p "${DIST_DIR}"
           rm -f "${DIST_DIR}"/*.apk
+          ./gradlew clean :app:assembleRelease --build-cache -Pandroid.enableAbiSplits=true
 
-          build_and_copy() {
+          copy_generated_apk() {
             local label="$1"
-            shift
-            rm -f "${RELEASE_DIR}"/*.apk
-            ./gradlew :app:assembleRelease "$@"
-            local built_apks=(${RELEASE_DIR}/*.apk)
-            if [ "${#built_apks[@]}" -eq 0 ]; then
-              echo "No APK found for ${label} build"
+            local matches=("${RELEASE_DIR}"/app-"${label}"-release*.apk)
+
+            if [ "${#matches[@]}" -eq 0 ]; then
+              echo "No APK found for ${label}"
               exit 1
             fi
-            local latest_apk
-            latest_apk="$(ls -t ${RELEASE_DIR}/*.apk | head -n1)"
-            mkdir -p "${DIST_DIR}"
-            cp "${latest_apk}" "${DIST_DIR}/${APK_PREFIX}-${label}.apk"
+
+            cp "${matches[0]}" "${DIST_DIR}/${APK_PREFIX}-${label}.apk"
           }
 
-          # Universal APK (all configured architectures)
-          build_and_copy "universal"
-
-          # ABI-specific APKs
-          for abi in ${TARGET_ARCHS}; do
-            build_and_copy "${abi}" "-PreactNativeArchitectures=${abi}"
+          for apk_label in universal armeabi-v7a arm64-v8a x86 x86_64; do
+            copy_generated_apk "${apk_label}"
           done
 
           echo "Generated APKs:"
