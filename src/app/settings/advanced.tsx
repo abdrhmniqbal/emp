@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders advanced maintenance and device-behavior settings for logs, listening history, and background activity.
  * Caller: Settings advanced route.
- * Dependencies: Expo application metadata, HeroUI Native dialog/toast, battery optimization helpers, logging service, history mutations, settings row pattern.
+ * Dependencies: Expo application metadata, HeroUI Native dialog/toast, react-i18next, battery optimization helpers, logging service, history mutations, settings row pattern.
  * Main Functions: AdvancedSettingsScreen()
  * Side Effects: Opens system settings, shares logs, clears listening history, and launches external background-activity guidance.
  */
@@ -12,6 +12,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import { Button, Dialog, Toast, useToast } from "heroui-native"
 import { useState } from "react"
 import { Linking, Platform, ScrollView, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
 import {
@@ -26,12 +27,12 @@ import { useSettingsStore } from "@/modules/settings/settings.store"
 export default function AdvancedSettingsScreen() {
   const router = useRouter()
   const { toast } = useToast()
+  const { t } = useTranslation()
   const loggingLevel = useSettingsStore((state) => state.loggingConfig.level)
   const resetListeningHistoryMutation = useResetListeningHistory()
   const [isResetHistoryDialogOpen, setIsResetHistoryDialogOpen] =
     useState(false)
 
-  const logLevelLabel = loggingLevel === "extra" ? "Extra" : "Minimal"
   const isResettingHistory = resetListeningHistoryMutation.isPending
 
   function showToast(title: string, description: string) {
@@ -51,10 +52,12 @@ export default function AdvancedSettingsScreen() {
   async function handleShareCrashLogs() {
     const result = await shareCrashLogs()
     showToast(
-      result.shared ? "Logs ready to share" : "Unable to share logs",
       result.shared
-        ? "Share sheet opened with the latest captured logs."
-        : result.reason || "Try again in a moment."
+        ? t("settings.advanced.logsReadyTitle")
+        : t("settings.advanced.logsUnableTitle"),
+      result.shared
+        ? t("settings.advanced.logsReadyDescription")
+        : result.reason || t("settings.advanced.tryAgainDescription")
     )
   }
 
@@ -67,11 +70,14 @@ export default function AdvancedSettingsScreen() {
       await resetListeningHistoryMutation.mutateAsync()
       setIsResetHistoryDialogOpen(false)
       showToast(
-        "Listening history reset",
-        "Recently played and top-track stats have been cleared."
+        t("settings.advanced.historyResetTitle"),
+        t("settings.advanced.historyResetDescription")
       )
     } catch {
-      showToast("Unable to reset history", "Please try again in a moment.")
+      showToast(
+        t("settings.advanced.historyResetUnableTitle"),
+        t("settings.advanced.tryAgainDescription")
+      )
     }
   }
 
@@ -89,8 +95,8 @@ export default function AdvancedSettingsScreen() {
 
       if (await isIgnoringBatteryOptimizations(appPackage)) {
         showToast(
-          "Battery optimization already disabled",
-          "No additional action is needed."
+          t("settings.advanced.batteryAlreadyDisabledTitle"),
+          t("settings.advanced.batteryAlreadyDisabledDescription")
         )
         return
       }
@@ -124,7 +130,10 @@ export default function AdvancedSettingsScreen() {
     try {
       await Linking.openURL("https://dontkillmyapp.com")
     } catch {
-      showToast("Unable to open link", "Please try again in a moment.")
+      showToast(
+        t("settings.advanced.unableToOpenLinkTitle"),
+        t("settings.advanced.tryAgainDescription")
+      )
     }
   }
 
@@ -138,11 +147,11 @@ export default function AdvancedSettingsScreen() {
           <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
             <SettingsRow
               onPress={() => router.push("/settings/log-level")}
-              title="Log Level"
+              title={t("settings.routes.logLevel.title")}
               description={
-                logLevelLabel === "Extra"
-                  ? "Extra: capture debug, info, warnings, and errors."
-                  : "Minimal: capture critical and error logs only."
+                loggingLevel === "extra"
+                  ? t("settings.advanced.logExtraDescription")
+                  : t("settings.advanced.logMinimalDescription")
               }
             />
 
@@ -150,16 +159,18 @@ export default function AdvancedSettingsScreen() {
               onPress={() => {
                 void handleShareCrashLogs()
               }}
-              title="Share crash logs"
-              description="Saves error logs to a local file and opens a share sheet."
+              title={t("settings.advanced.shareCrashLogs")}
+              description={t("settings.advanced.shareCrashLogsDescription")}
               className="border-t border-border/60"
             />
           </View>
           <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
             <SettingsRow
               onPress={() => setIsResetHistoryDialogOpen(true)}
-              title="Reset listening history"
-              description="Clear recently played and top-track stats."
+              title={t("settings.advanced.resetListeningHistory")}
+              description={t(
+                "settings.advanced.resetListeningHistoryDescription"
+              )}
               isDisabled={isResettingHistory}
               showChevron={false}
             />
@@ -169,11 +180,11 @@ export default function AdvancedSettingsScreen() {
               onPress={() => {
                 void openBatteryOptimizationSettings()
               }}
-              title="Disable Battery Optimization"
+              title={t("settings.advanced.disableBatteryOptimization")}
               description={
                 Platform.OS === "android"
-                  ? "Prevent background restrictions so indexing and playback stay reliable."
-                  : "Open system settings."
+                  ? t("settings.advanced.disableBatteryOptimizationAndroid")
+                  : t("settings.advanced.openSystemSettings")
               }
             />
 
@@ -181,8 +192,8 @@ export default function AdvancedSettingsScreen() {
               onPress={() => {
                 void openDontKillMyApp()
               }}
-              title="Don't Kill My App!"
-              description="Open device-specific battery and background process guidance."
+              title={t("settings.advanced.dontKillMyApp")}
+              description={t("settings.advanced.dontKillMyAppDescription")}
               className="border-t border-border/60"
             />
           </View>
@@ -197,10 +208,9 @@ export default function AdvancedSettingsScreen() {
           <Dialog.Overlay />
           <Dialog.Content className="gap-4">
             <View className="gap-1.5">
-              <Dialog.Title>Reset listening history?</Dialog.Title>
+              <Dialog.Title>{t("settings.advanced.resetDialogTitle")}</Dialog.Title>
               <Dialog.Description>
-                This will clear recently played and reset top-track stats. Your
-                music files, playlists, and favorites will stay unchanged.
+                {t("settings.advanced.resetDialogDescription")}
               </Dialog.Description>
             </View>
             <View className="flex-row justify-end gap-3">
@@ -209,7 +219,7 @@ export default function AdvancedSettingsScreen() {
                 onPress={() => setIsResetHistoryDialogOpen(false)}
                 isDisabled={isResettingHistory}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -218,7 +228,7 @@ export default function AdvancedSettingsScreen() {
                 }}
                 isDisabled={isResettingHistory}
               >
-                Reset
+                {t("common.reset")}
               </Button>
             </View>
           </Dialog.Content>

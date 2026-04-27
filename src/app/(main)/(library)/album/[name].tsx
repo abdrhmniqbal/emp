@@ -8,6 +8,7 @@ import * as React from "react"
 import { useState } from "react"
 
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
 import Animated from "react-native-reanimated"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
@@ -73,6 +74,7 @@ function getSafeRouteName(value: string | string[] | undefined) {
 }
 
 export default function AlbumDetailsScreen() {
+  const { t } = useTranslation()
   const theme = useThemeColors()
   const router = useRouter()
   const { name, transitionId } = useLocalSearchParams<{
@@ -119,11 +121,11 @@ export default function AlbumDetailsScreen() {
   const albumInfo =
     albumTracks.length > 0
       ? {
-          title: albumTracks[0].album || "Unknown Album",
+          title: albumTracks[0].album || t("library.unknownAlbum"),
           artist:
             albumTracks[0].albumArtist ||
             albumTracks[0].artist ||
-            "Unknown Artist",
+            t("library.unknownArtist"),
           image: albumTracks[0].albumArtwork || albumTracks[0].image,
           year: albumTracks[0].year,
         }
@@ -179,8 +181,8 @@ export default function AlbumDetailsScreen() {
             color={theme.muted}
           />
         }
-        title="No albums found"
-        message="No albums found"
+        title={t("library.empty.albumsFoundTitle")}
+        message={t("library.empty.albumsFoundTitle")}
         className="mt-12"
       />
     )
@@ -206,7 +208,7 @@ export default function AlbumDetailsScreen() {
     const option = ALBUM_TRACK_SORT_OPTIONS.find(
       (item) => item.field === sortConfig.field
     )
-    return option?.label || "Sort"
+    return option ? t(option.label) : t("library.sort")
   }
 
   return (
@@ -367,7 +369,7 @@ export default function AlbumDetailsScreen() {
                 style={{ marginBottom: SCREEN_SECTION_HEADING_GAP }}
               >
                 <Text className="text-lg font-bold text-foreground">
-                  {sortedTracks.length} Tracks
+                  {t("library.count.track", { count: sortedTracks.length })}
                 </Text>
                 <SortSheet.Trigger label={getSortLabel()} iconSize={16} />
               </View>

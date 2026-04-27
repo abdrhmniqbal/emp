@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders the Top Tracks route with time-range tabs and playback actions.
  * Caller: Home stack nested route.
- * Dependencies: top tracks query, track playback service, themed refresh control, theme colors.
+ * Dependencies: top tracks query, react-i18next, track playback service, themed refresh control, theme colors.
  * Main Functions: TopTracksScreen()
  * Side Effects: Starts indexing on refresh and updates scroll state.
  */
@@ -10,6 +10,7 @@ import type { HistoryTopTracksPeriod as TopTracksPeriod } from "@/modules/histor
 import { Tabs } from "heroui-native"
 import { useState } from "react"
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import Animated from "react-native-reanimated"
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
@@ -51,12 +52,24 @@ function tabToPeriod(tab: TopTracksTab): TopTracksPeriod {
 export default function TopTracksScreen() {
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TopTracksTab>("Realtime")
   const period = tabToPeriod(activeTab)
   const { data: currentTracksData, isLoading, isFetching, refetch } =
     useTopTracksByPeriod(period, TOP_TRACKS_LIMIT)
 
   const currentTracks = currentTracksData ?? []
+
+  function getTopTracksTabLabel(tab: TopTracksTab) {
+    switch (tab) {
+      case "Daily":
+        return t("home.tabs.daily")
+      case "Weekly":
+        return t("home.tabs.weekly")
+      case "Realtime":
+        return t("home.tabs.realtime")
+    }
+  }
 
   async function refresh() {
     await startIndexing(false)
@@ -96,7 +109,7 @@ export default function TopTracksScreen() {
               className="flex-1 rounded-full py-2.5"
             >
               <Tabs.Label className="text-[15px] font-semibold">
-                {tab}
+                {getTopTracksTabLabel(tab)}
               </Tabs.Label>
             </Tabs.Trigger>
           ))}
@@ -119,8 +132,8 @@ export default function TopTracksScreen() {
                 color={theme.muted}
               />
             }
-            title="No top tracks yet"
-            message="Play some music to see your most played tracks here!"
+            title={t("home.empty.topTracksYetTitle")}
+            message={t("home.empty.topTracksYetMessage")}
             className="mt-12"
           />
         </Animated.View>

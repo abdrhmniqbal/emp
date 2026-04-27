@@ -17,6 +17,7 @@ import {
   TextInput,
   View,
 } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { LEGEND_LIST_PICKER_CONFIG } from "@/components/blocks/legend-list-config"
 import LocalAddIcon from "@/components/icons/local/add"
@@ -59,6 +60,7 @@ function PlaylistPickerSearchInput({
   setSearchQuery: (value: string) => void
 }) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { animatedKeyboardState, textInputNodesRef } = useBottomSheetInternal()
   const inputRef = useRef<TextInput>(null)
 
@@ -101,7 +103,7 @@ function PlaylistPickerSearchInput({
           key={inputKey}
           ref={inputRef}
           variant="secondary"
-          placeholder="Search playlists..."
+          placeholder={t("playlist.searchPlaceholder")}
           onChangeText={setSearchQuery}
           className="flex-1 pr-10 pl-10"
           autoCapitalize="none"
@@ -148,6 +150,7 @@ export function PlaylistPickerSheet({
   onCreatePlaylist,
 }: PlaylistPickerSheetProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const [searchInputKey, setSearchInputKey] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -233,7 +236,9 @@ export function PlaylistPickerSheet({
                       isSelected={hasTrack}
                       isDisabled={isSelecting}
                       onSelectedChange={handleSelect}
-                      accessibilityLabel={`Select playlist ${item.name}`}
+                      accessibilityLabel={t("playlist.selectPlaylist", {
+                        name: item.name,
+                      })}
                     />
                   </View>
 
@@ -249,8 +254,9 @@ export function PlaylistPickerSheet({
                   <ItemContent>
                     <ItemTitle>{item.name}</ItemTitle>
                     <ItemDescription>
-                      {item.trackCount}{" "}
-                      {item.trackCount === 1 ? "track" : "tracks"}
+                      {t("library.count.track", {
+                        count: item.trackCount,
+                      })}
                     </ItemDescription>
                   </ItemContent>
                 </Item>
@@ -267,11 +273,11 @@ export function PlaylistPickerSheet({
                       color={theme.muted}
                     />
                   }
-                  title="No playlists found"
+                  title={t("library.empty.playlistsFoundTitle")}
                   message={
                     normalizedQuery.length > 0
-                      ? "Try a different keyword."
-                      : "Create your first playlist to organize tracks."
+                      ? t("search.tryDifferentKeyword")
+                      : t("library.empty.playlistsFoundMessage")
                   }
                   className="py-6"
                 />
@@ -293,7 +299,7 @@ export function PlaylistPickerSheet({
                   color={theme.foreground}
                 />
                 <Text className="font-semibold text-foreground">
-                  Create New Playlist
+                  {t("playlist.createNewPlaylist")}
                 </Text>
               </View>
             </Button>

@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders the main tab shell, anchored tab bar, and mini player for the core app routes.
  * Caller: Expo Router root stack.
- * Dependencies: Expo Router tabs, React Navigation tab bar, mini player, UI store, layout constants, theme colors.
+ * Dependencies: Expo Router tabs, React Navigation tab bar, react-i18next, mini player, UI store, layout constants, theme colors.
  * Main Functions: MainLayout()
  * Side Effects: Animates tab visibility based on shared UI chrome state.
  */
@@ -11,6 +11,7 @@ import {
   type BottomTabBarProps,
 } from "@react-navigation/bottom-tabs"
 import { Tabs } from "expo-router"
+import { useTranslation } from "react-i18next"
 import Animated, {
   useDerivedValue,
   useAnimatedStyle,
@@ -38,6 +39,7 @@ const TAB_HIDE_EXTRA_OFFSET = 16
 
 export default function MainLayout() {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const insets = useSafeAreaInsets()
   const barsVisible = useUIStore((state) => state.barsVisible)
   const tabBarBottomPadding = getTabBarBottomPadding(insets.bottom)
@@ -106,7 +108,7 @@ export default function MainLayout() {
       <Tabs.Screen
         name="(home)"
         options={{
-          title: "Home",
+          title: t("navigation.tabs.home"),
           tabBarIcon: ({ color, size, focused }) =>
             focused ? (
               <LocalHomeSolidIcon
@@ -128,7 +130,7 @@ export default function MainLayout() {
       <Tabs.Screen
         name="(search)"
         options={{
-          title: "Search",
+          title: t("navigation.tabs.search"),
           tabBarIcon: ({ color, size, focused }) =>
             focused ? (
               <LocalSearchSolidIcon
@@ -150,7 +152,7 @@ export default function MainLayout() {
       <Tabs.Screen
         name="(library)"
         options={{
-          title: "Library",
+          title: t("navigation.tabs.library"),
           popToTopOnBlur: true,
           tabBarIcon: ({ color, size, focused }) =>
             focused ? (

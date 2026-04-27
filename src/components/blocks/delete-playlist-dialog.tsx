@@ -1,5 +1,6 @@
 import { Button, Dialog } from "heroui-native"
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 interface DeletePlaylistDialogProps {
   isOpen: boolean
@@ -14,16 +15,17 @@ export function DeletePlaylistDialog({
   onConfirm,
   isDeleting = false,
 }: DeletePlaylistDialogProps) {
+  const { t } = useTranslation()
+
   return (
     <Dialog isOpen={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay />
         <Dialog.Content className="gap-4">
           <View className="gap-1.5">
-            <Dialog.Title>Delete playlist?</Dialog.Title>
+            <Dialog.Title>{t("playlist.deleteTitle")}</Dialog.Title>
             <Dialog.Description>
-              This action cannot be undone. Your playlist and its track order
-              will be removed.
+              {t("playlist.deleteDescription")}
             </Dialog.Description>
           </View>
           <View className="flex-row justify-end gap-3">
@@ -32,14 +34,14 @@ export function DeletePlaylistDialog({
               onPress={() => onOpenChange(false)}
               isDisabled={isDeleting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="danger"
               onPress={onConfirm}
               isDisabled={isDeleting}
             >
-              Delete
+              {t("track.deleteAction")}
             </Button>
           </View>
         </Dialog.Content>

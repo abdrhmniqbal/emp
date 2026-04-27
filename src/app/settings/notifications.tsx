@@ -1,13 +1,14 @@
 /**
  * Purpose: Renders notification preferences for indexing progress visibility.
  * Caller: Settings notifications route.
- * Dependencies: HeroUI Native switch, settings store, indexer notification service, settings row pattern.
+ * Dependencies: HeroUI Native switch, react-i18next, settings store, indexer notification service, settings row pattern.
  * Main Functions: NotificationSettingsScreen()
  * Side Effects: Persists notification preferences and may dismiss active indexing notifications.
  */
 
 import { Switch } from "heroui-native"
 import { ScrollView, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
 import { dismissIndexerProgressNotification } from "@/modules/indexer/indexer-notification.service"
@@ -15,6 +16,7 @@ import { setIndexerNotificationsEnabled } from "@/modules/settings/indexer-notif
 import { useSettingsStore } from "@/modules/settings/settings.store"
 
 export default function NotificationSettingsScreen() {
+  const { t } = useTranslation()
   const indexerNotificationsEnabled = useSettingsStore(
     (state) => state.indexerNotificationsEnabled
   )
@@ -24,11 +26,11 @@ export default function NotificationSettingsScreen() {
       <View className="gap-5 px-4 py-4">
         <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
           <SettingsRow
-            title="Indexer Notifications"
+            title={t("settings.notifications.indexerNotifications")}
             description={
               indexerNotificationsEnabled
-                ? "Show system notifications while indexing."
-                : "Hide indexing notifications from your system tray."
+                ? t("settings.notifications.indexerNotificationsEnabled")
+                : t("settings.notifications.indexerNotificationsDisabled")
             }
             onPress={undefined}
             showChevron={false}

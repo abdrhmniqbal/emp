@@ -3,6 +3,7 @@ import { and, desc, eq, gt } from "drizzle-orm"
 import { db } from "@/db/client"
 import { albums, artists, playlists, tracks } from "@/db/schema"
 import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
+import { i18n } from "@/modules/localization/i18n"
 
 import type { FavoriteEntry, FavoriteType } from "./favorites.types"
 
@@ -64,7 +65,6 @@ export async function isFavorite(
 ): Promise<boolean> {
   try {
     let result: unknown = null
-
     switch (type) {
       case "track":
         result = await db.query.tracks.findFirst({
@@ -113,7 +113,6 @@ export async function getFavorites(
         ...favoriteTracks.map((track) => ({
           id: track.id,
           type: "track" as const,
-          name: track.title,
           subtitle: undefined,
           image: track.artwork || undefined,
           dateAdded: track.favoritedAt || Date.now(),
@@ -139,7 +138,7 @@ export async function getFavorites(
           id: artist.id,
           type: "artist" as const,
           name: artist.name,
-          subtitle: `${artist.trackCount} tracks`,
+          subtitle: i18n.t("library.count.track", { count: artist.trackCount }),
           image: resolveArtistArtwork(
             artist.tracks[0]?.artwork,
             artist.artwork,
@@ -205,7 +204,9 @@ export async function getFavorites(
             id: playlist.id,
             type: "playlist" as const,
             name: playlist.name,
-            subtitle: `${playlist.trackCount} tracks`,
+            subtitle: i18n.t("library.count.track", {
+              count: playlist.trackCount,
+            }),
             image: playlist.artwork || undefined,
             images,
             dateAdded: playlist.favoritedAt || Date.now(),

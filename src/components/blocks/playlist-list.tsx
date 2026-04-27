@@ -13,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
 
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
@@ -76,6 +77,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const listContentContainerStyle = StyleSheet.flatten([
     { gap: 8 },
@@ -94,8 +96,8 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
   }, [onCreatePlaylist])
 
   const formatTrackCount = useCallback(
-    (count: number) => `${count} ${count === 1 ? "track" : "tracks"}`,
-    []
+    (count: number) => t("library.count.track", { count }),
+    [t]
   )
 
   const renderCreateButton = useCallback(
@@ -110,11 +112,11 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
           />
         </ItemImage>
         <ItemContent>
-          <ItemTitle>New Playlist</ItemTitle>
+          <ItemTitle>{t("playlist.newPlaylist")}</ItemTitle>
         </ItemContent>
       </Item>
     ),
-    [handleCreate, theme.foreground]
+    [handleCreate, t, theme.foreground]
   )
 
   const renderPlaylistItem = useCallback(
@@ -184,11 +186,11 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
               color={theme.muted}
             />
           }
-          title="No Playlists"
-          message="Create your first playlist to organize your music."
+          title={t("library.empty.playlistsTitle")}
+          message={t("library.empty.playlistsMessage")}
         />
       ) : null,
-    [data.length, theme.muted]
+    [data.length, t, theme.muted]
   )
 
   return (

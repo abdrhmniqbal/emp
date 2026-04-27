@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders minimum track-duration filtering controls for library indexing.
  * Caller: Settings track-duration-filter route.
- * Dependencies: HeroUI Native slider and press feedback, settings store, indexer service, theme colors.
+ * Dependencies: HeroUI Native slider and press feedback, react-i18next, settings store, indexer service, theme colors.
  * Main Functions: TrackDurationFilterScreen()
  * Side Effects: Persists duration filter settings and triggers reindexing when values change.
  */
@@ -9,6 +9,7 @@
 import { PressableFeedback, Slider } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -21,32 +22,36 @@ import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 
 interface DurationOption {
-  label: string
+  labelKey: string
   value: TrackDurationFilterMode
-  description?: string
+  descriptionKey?: string
 }
 
 const DURATION_OPTIONS: DurationOption[] = [
-  { label: "No Filter", value: "off", description: "Include all tracks." },
   {
-    label: "At Least 30 Seconds",
+    labelKey: "settings.trackDuration.noFilter",
+    value: "off",
+    descriptionKey: "settings.trackDuration.noFilterDescription",
+  },
+  {
+    labelKey: "settings.trackDuration.min30",
     value: "min30s",
-    description: "Exclude very short clips.",
+    descriptionKey: "settings.trackDuration.min30Description",
   },
   {
-    label: "At Least 1 Minute",
+    labelKey: "settings.trackDuration.min60",
     value: "min60s",
-    description: "Keep normal music lengths.",
+    descriptionKey: "settings.trackDuration.min60Description",
   },
   {
-    label: "At Least 2 Minutes",
+    labelKey: "settings.trackDuration.min120",
     value: "min120s",
-    description: "Focus on full-length tracks.",
+    descriptionKey: "settings.trackDuration.min120Description",
   },
   {
-    label: "Custom",
+    labelKey: "settings.trackDuration.custom",
     value: "custom",
-    description: "Set your own minimum duration.",
+    descriptionKey: "settings.trackDuration.customDescription",
   },
 ]
 
@@ -67,6 +72,7 @@ function getSliderNumericValue(value: number | number[]): number {
 
 export default function TrackDurationFilterScreen() {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const config = useSettingsStore(
     (state) => state.trackDurationFilterConfig
@@ -111,11 +117,11 @@ export default function TrackDurationFilterScreen() {
             >
               <View className="flex-1 gap-0.5 pr-2">
                 <Text className="text-[16px] font-medium text-foreground">
-                  {option.label}
+                  {t(option.labelKey)}
                 </Text>
-                {option.description ? (
+                {option.descriptionKey ? (
                   <Text className="text-[13px] leading-5 text-muted">
-                    {option.description}
+                    {t(option.descriptionKey)}
                   </Text>
                 ) : null}
               </View>
@@ -134,7 +140,9 @@ export default function TrackDurationFilterScreen() {
         {config.mode === "custom" ? (
           <View className="rounded-[28px] border border-border/60 bg-default/25 px-5 pt-4 pb-4">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-sm text-muted">Minimum duration</Text>
+              <Text className="text-sm text-muted">
+                {t("settings.trackDuration.minimumDuration")}
+              </Text>
               <Text className="text-sm font-medium text-foreground">
                 {formatDuration(resolvedCustomSliderValue)}
               </Text>
@@ -158,8 +166,7 @@ export default function TrackDurationFilterScreen() {
               </Slider.Track>
             </Slider>
             <Text className="mt-2 text-xs text-muted">
-              Changes apply to indexing and remove tracks below this duration on
-              next scan.
+              {t("settings.trackDuration.changesHint")}
             </Text>
           </View>
         ) : null}

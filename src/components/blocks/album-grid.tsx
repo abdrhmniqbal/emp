@@ -13,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
 
 import {
@@ -88,6 +89,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   resetScrollKey,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const { width: windowWidth } = useWindowDimensions()
   const itemWidth =
@@ -104,7 +106,9 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   function getAlbumMetaText(item: Album) {
     return mergeText([
       item.albumArtist || item.artist,
-      item.trackCount > 0 ? `${item.trackCount} tracks` : null,
+      item.trackCount > 0
+        ? t("library.count.track", { count: item.trackCount })
+        : null,
     ])
   }
 
@@ -154,8 +158,8 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
             color={theme.muted}
           />
         }
-        title="No Albums"
-        message="Albums you add to your library will appear here."
+        title={t("library.empty.albumsTitle")}
+        message={t("library.empty.albumsMessage")}
       />
     )
   }

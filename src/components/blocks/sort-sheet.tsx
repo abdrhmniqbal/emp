@@ -2,6 +2,7 @@ import { BottomSheet, Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { createContext, use } from "react"
 import { Text } from "react-native"
+import { useTranslation } from "react-i18next"
 import { cn } from "tailwind-variants"
 
 import LocalArrowDownIcon from "@/components/icons/local/arrow-down"
@@ -137,10 +138,11 @@ function SortSheetTrigger({
 
 function SortSheetContent<T extends string>({
   options,
-  title = "Sort By",
+  title,
   className,
 }: SortSheetContentProps<T>) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { visible, onOpenChange, currentField, currentOrder, onSelect } =
     useSortSheetContext<T>()
 
@@ -163,7 +165,7 @@ function SortSheetContent<T extends string>({
           className={cn("gap-1", className)}
         >
           <BottomSheet.Title className="mb-2 text-xl">
-            {title}
+            {title ?? t("library.sortBy")}
           </BottomSheet.Title>
           {options.map((option) => (
             <PressableFeedback
@@ -179,7 +181,7 @@ function SortSheetContent<T extends string>({
                     : "font-medium text-foreground"
                 )}
               >
-                {option.label}
+                {t(option.label)}
               </Text>
 
               {currentField === option.field && (

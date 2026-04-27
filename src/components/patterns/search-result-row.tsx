@@ -5,6 +5,7 @@ import type {
 } from "@/modules/library/library.types"
 import type { Track } from "@/modules/player/player.store"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { Text } from "react-native"
 import Transition from "react-native-screen-transitions"
 
@@ -55,6 +56,7 @@ function SearchResultRow({
   onTrackPress,
 }: SearchResultRowProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
 
   if (item.type === "artist") {
     return (
@@ -113,9 +115,11 @@ function SearchResultRow({
           />
         </Transition.Boundary.Target>
         <ItemContent>
-          <ItemTitle>{item.album.title || "Unknown Album"}</ItemTitle>
+          <ItemTitle>
+            {item.album.title || t("library.unknownAlbum")}
+          </ItemTitle>
           <ItemDescription>
-            {item.album.artist || "Unknown Artist"}
+            {item.album.artist || t("library.unknownArtist")}
           </ItemDescription>
         </ItemContent>
         {item.album.isVerified && (
@@ -154,7 +158,9 @@ function SearchResultRow({
         <ItemContent>
           <ItemTitle>{item.playlist.title}</ItemTitle>
           <ItemDescription>
-            {item.playlist.trackCount} {item.playlist.trackCount === 1 ? "track" : "tracks"}
+            {t("library.count.track", {
+              count: item.playlist.trackCount,
+            })}
           </ItemDescription>
         </ItemContent>
       </Item>
@@ -182,7 +188,9 @@ function SearchResultRow({
       />
       <ItemContent>
         <ItemTitle>{item.track.title}</ItemTitle>
-        <ItemDescription>{item.track.artist || "Unknown Artist"}</ItemDescription>
+        <ItemDescription>
+          {item.track.artist || t("library.unknownArtist")}
+        </ItemDescription>
       </ItemContent>
     </Item>
   )

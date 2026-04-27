@@ -1,14 +1,17 @@
 /**
  * Purpose: Defines settings route names and local settings configuration shapes.
- * Caller: Settings routes, settings screens, settings store, and settings persistence modules.
- * Dependencies: None.
+ * Caller: Settings routes, settings screens, settings store, localization, and settings persistence modules.
+ * Dependencies: Localization language types.
  * Main Functions: SettingsRouteName, SettingsRouteDefinition, CrossfadeConfig.
  * Side Effects: None.
  */
 
+import type { LanguageCode } from "@/modules/localization/localization.types"
+
 export type SettingsRouteName =
   | "index"
   | "appearance"
+  | "language"
   | "audio"
   | "notifications"
   | "library"
@@ -20,9 +23,11 @@ export type SettingsRouteName =
 
 export interface SettingsRouteDefinition {
   name: SettingsRouteName
-  title: string
-  description?: string
+  titleKey: string
+  descriptionKey?: string
 }
+
+export type { LanguageCode }
 
 export type AppLogLevel = "minimal" | "extra"
 

@@ -13,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
 
 import { LEGEND_LIST_GRID_CONFIG } from "@/components/blocks/legend-list-config"
@@ -68,6 +69,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
   refreshControl,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const { width: windowWidth } = useWindowDimensions()
   const itemWidth =
@@ -82,7 +84,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
   }
 
   const formatTrackCount = (count: number) =>
-    `${count} ${count === 1 ? "track" : "tracks"}`
+    t("library.count.track", { count })
 
   if (data.length === 0) {
     return (
@@ -95,8 +97,8 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
             color={theme.muted}
           />
         }
-        title="No Artists"
-        message="Artists from your music library will appear here."
+        title={t("library.empty.artistsTitle")}
+        message={t("library.empty.artistsMessage")}
       />
     )
   }

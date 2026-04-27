@@ -8,6 +8,7 @@ import type { SortConfig } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.store"
 import type { DBTrack } from "@/types/database"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
@@ -38,6 +39,7 @@ export const TracksTab: React.FC<TracksTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
 
   const { data: dbTracks = [] } = useTracks()
 
@@ -76,8 +78,8 @@ export const TracksTab: React.FC<TracksTabProps> = ({
           color={theme.muted}
         />
       }
-      emptyTitle="No Tracks"
-      emptyMessage="Tracks you add to your library will appear here."
+      emptyTitle={t("library.empty.tracksTitle")}
+      emptyMessage={t("library.empty.tracksMessage")}
     >
       <TrackList
         data={sortedTracks}

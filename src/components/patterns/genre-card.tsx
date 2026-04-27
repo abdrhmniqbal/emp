@@ -1,6 +1,7 @@
 import type { PatternType } from "@/modules/genres/genres.types"
 import { Card, PressableFeedback } from "heroui-native"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "tailwind-variants"
 
@@ -34,12 +35,13 @@ export function GenreCard({
   pattern,
   onPress,
 }: GenreCardProps) {
+  const { t } = useTranslation()
   const normalizedTrackCount = Number.isFinite(trackCount)
     ? Math.max(0, Math.trunc(trackCount))
     : Math.max(0, Math.trunc(Number(trackCount) || 0))
-  const trackCountLabel = `${normalizedTrackCount} ${
-    normalizedTrackCount === 1 ? "track" : "tracks"
-  }`
+  const trackCountLabel = t("library.count.track", {
+    count: normalizedTrackCount,
+  })
 
   return (
     <PressableFeedback

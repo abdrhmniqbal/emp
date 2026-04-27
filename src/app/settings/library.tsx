@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders library settings for scanning behavior, folder filters, duration filters, and reindexing.
  * Caller: Settings library route.
- * Dependencies: Expo Router, settings store, indexer services, settings row pattern, HeroUI Native dialog and switch.
+ * Dependencies: Expo Router, react-i18next, settings store, indexer services, settings row pattern, HeroUI Native dialog and switch.
  * Main Functions: LibrarySettingsScreen()
  * Side Effects: Persists library settings and can trigger a full library reindex.
  */
@@ -10,6 +10,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import { Button, Dialog } from "heroui-native"
 import * as React from "react"
 import { ScrollView, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
 import {
@@ -25,6 +26,7 @@ import { Switch } from "heroui-native"
 
 export default function LibrarySettingsScreen() {
   const router = useRouter()
+  const { t } = useTranslation()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const autoScanEnabled = useSettingsStore((state) => state.autoScanEnabled)
   const trackDurationFilterConfig = useSettingsStore(
@@ -46,22 +48,22 @@ export default function LibrarySettingsScreen() {
         <View className="gap-5 px-4 py-4">
           <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
             <SettingsRow
-              title="Folder Filters"
-              description="Whitelist or blacklist specific folders."
+              title={t("settings.routes.folderFilters.title")}
+              description={t("settings.library.folderFiltersDescription")}
               onPress={() => router.push("/settings/folder-filters")}
             />
             <SettingsRow
-              title="Track Duration Filter"
+              title={t("settings.library.trackDurationFilter")}
               description={getTrackDurationFilterLabel(trackDurationFilterConfig)}
               onPress={() => router.push("/settings/track-duration-filter")}
               className="border-t border-border/60"
             />
             <SettingsRow
-              title="Auto Scan"
+              title={t("settings.library.autoScan")}
               description={
                 autoScanEnabled
-                  ? "Re-scan on app launch and when files change."
-                  : "Scan manually when needed."
+                  ? t("settings.library.autoScanEnabled")
+                  : t("settings.library.autoScanDisabled")
               }
               onPress={undefined}
               showChevron={false}
@@ -76,11 +78,11 @@ export default function LibrarySettingsScreen() {
               className="border-t border-border/60"
             />
             <SettingsRow
-              title="Reindex Library"
+              title={t("settings.library.reindexLibrary")}
               description={
                 isIndexing
-                  ? "Indexing in progress..."
-                  : "Re-scan all tracks, including unchanged files."
+                  ? t("settings.library.reindexInProgress")
+                  : t("settings.library.reindexDescription")
               }
               onPress={() => setShowReindexDialog(true)}
               showChevron={false}
@@ -96,10 +98,9 @@ export default function LibrarySettingsScreen() {
           <Dialog.Overlay />
           <Dialog.Content className="gap-4">
             <View className="gap-1.5">
-              <Dialog.Title>Force reindex library?</Dialog.Title>
+              <Dialog.Title>{t("settings.library.reindexDialogTitle")}</Dialog.Title>
               <Dialog.Description>
-                This will re-scan all music files, including already indexed and
-                unchanged files. It may take longer than normal indexing.
+                {t("settings.library.reindexDialogDescription")}
               </Dialog.Description>
             </View>
             <View className="flex-row justify-end gap-3">
@@ -107,9 +108,11 @@ export default function LibrarySettingsScreen() {
                 variant="ghost"
                 onPress={() => setShowReindexDialog(false)}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
-              <Button onPress={handleConfirmForceReindex}>Reindex</Button>
+              <Button onPress={handleConfirmForceReindex}>
+                {t("settings.library.reindexAction")}
+              </Button>
             </View>
           </Dialog.Content>
         </Dialog.Portal>

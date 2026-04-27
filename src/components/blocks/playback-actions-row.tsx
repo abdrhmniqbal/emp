@@ -8,6 +8,7 @@
 
 import { Button } from "heroui-native"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { cn } from "tailwind-variants"
 
 import { useThemeColors } from "@/modules/ui/theme"
@@ -26,6 +27,7 @@ export function PlaybackActionsRow({
   onShuffle,
   className,
 }: PlaybackActionsRowProps) {
+  const { t } = useTranslation()
   const theme = useThemeColors()
 
   return (
@@ -43,7 +45,7 @@ export function PlaybackActionsRow({
           color={theme.foreground}
         />
         <Text className="text-base font-semibold tracking-[0.1px] text-foreground">
-          Play all
+          {t("common.playAll")}
         </Text>
       </Button>
       <Button
@@ -58,8 +60,11 @@ export function PlaybackActionsRow({
           height={24}
           color={theme.foreground}
         />
-        <Text className="text-base font-semibold tracking-[0.1px] text-foreground">
-          Shuffle
+        <Text
+          numberOfLines={1}
+          className="text-base font-semibold text-foreground"
+        >
+          {t("common.shuffle")}
         </Text>
       </Button>
     </View>

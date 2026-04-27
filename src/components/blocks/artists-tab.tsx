@@ -6,6 +6,7 @@ import type {
 import type { SortConfig } from "@/modules/library/library-sort.types"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { type Artist, ArtistGrid } from "@/components/blocks/artist-grid"
 import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
@@ -50,6 +51,7 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const effectiveSortConfig = React.useMemo<SortConfig>(
     () =>
       sortConfig ?? {
@@ -101,8 +103,8 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
           color={theme.muted}
         />
       }
-      emptyTitle="No Artists"
-      emptyMessage="Artists from your music library will appear here."
+      emptyTitle={t("library.empty.artistsTitle")}
+      emptyMessage={t("library.empty.artistsMessage")}
     >
       <ArtistGrid
         data={sortedArtists}

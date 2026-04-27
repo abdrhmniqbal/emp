@@ -6,6 +6,7 @@ import {
 } from "heroui-native"
 import { useEffect, useRef } from "react"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -20,18 +21,18 @@ import { useIndexerStore } from "@/modules/indexer/indexer.store"
 const TOAST_ID = "indexing-progress-toast"
 const COMPLETE_HIDE_DELAY_MS = 1500
 
-const PHASE_LABELS: Record<string, string> = {
-  idle: "",
-  scanning: "Scanning files...",
-  processing: "Processing tracks...",
-  cleanup: "Cleaning up...",
-  complete: "Library Updated",
-  paused: "Paused",
-}
-
 function IndexingProgressToast(props: ToastComponentProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const state = useIndexerStore((store) => store.indexerState)
+  const phaseLabels: Record<string, string> = {
+    idle: "",
+    scanning: t("indexing.scanning"),
+    processing: t("indexing.processing"),
+    cleanup: t("indexing.cleanup"),
+    complete: t("indexing.complete"),
+    paused: t("indexing.paused"),
+  }
 
   const normalizedProgress = Math.min(Math.max(state.progress / 100, 0), 1)
   const animatedProgress = useSharedValue(normalizedProgress)
@@ -52,10 +53,12 @@ function IndexingProgressToast(props: ToastComponentProps) {
         <View className="flex-row items-center gap-3 px-4 py-3">
           <View className="flex-1">
             <Toast.Title className="text-sm font-semibold">
-              {PHASE_LABELS.complete}
+              {phaseLabels.complete}
             </Toast.Title>
             <Toast.Description className="text-xs text-muted">
-              {state.totalFiles} tracks indexed
+              {t("indexing.tracksIndexed", {
+                count: state.totalFiles,
+              })}
             </Toast.Description>
           </View>
         </View>
@@ -69,7 +72,7 @@ function IndexingProgressToast(props: ToastComponentProps) {
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
             <Toast.Title className="text-sm font-semibold">
-              {PHASE_LABELS[state.phase]}
+              {phaseLabels[state.phase]}
             </Toast.Title>
           </View>
 
@@ -100,7 +103,7 @@ function IndexingProgressToast(props: ToastComponentProps) {
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {state.currentFile || "Preparing..."}
+            {state.currentFile || t("indexing.preparing")}
           </Text>
           <Text className="ml-2 text-xs text-muted">
             {state.processedFiles}/{state.totalFiles}

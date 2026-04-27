@@ -1,0 +1,378 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "clear": "Clear",
+    "clearAll": "Clear All",
+    "goBack": "Go back",
+    "play": "Play",
+    "playAll": "Play all",
+    "shuffle": "Shuffle",
+    "reset": "Reset",
+    "seeMore": "See more",
+    "unknown": "Unknown"
+  },
+  "navigation": {
+    "tabs": {
+      "home": "Home",
+      "search": "Search",
+      "library": "Library"
+    }
+  },
+  "database": {
+    "errorTitle": "Database Error",
+    "schemaConflict": "Schema conflict detected. Clear app data or reinstall once to re-baseline migrations."
+  },
+  "indexing": {
+    "scanning": "Scanning files...",
+    "preparing": "Preparing...",
+    "processing": "Processing tracks...",
+    "cleanup": "Cleaning up...",
+    "complete": "Library Updated",
+    "paused": "Paused",
+    "tracksIndexed": "{{count}} tracks indexed",
+    "notification": {
+      "channelName": "Library Indexing",
+      "channelDescription": "Shows music library indexing progress",
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel",
+      "indexingLibrary": "Indexing music library",
+      "preparingScan": "Preparing your library scan...",
+      "scanningFiles": "Scanning music files",
+      "processingMetadata": "Processing music metadata",
+      "complete": "Library indexing complete",
+      "tracksUpdated": "{{count}} tracks updated",
+      "failed": "Library indexing failed",
+      "tapToReopen": "Tap to reopen the app and try again",
+      "paused": "Library indexing paused"
+    }
+  },
+  "home": {
+    "recentlyPlayed": "Recently Played",
+    "topTracks": "Top Tracks",
+    "tabs": {
+      "realtime": "Realtime",
+      "daily": "Daily",
+      "weekly": "Weekly"
+    },
+    "empty": {
+      "recentlyPlayedTitle": "No recently played",
+      "recentlyPlayedMessage": "Start playing music!",
+      "recentlyPlayedLongMessage": "Your listening history will appear here once you start playing music.",
+      "topTracksTitle": "No top tracks",
+      "topTracksYetTitle": "No top tracks yet",
+      "topTracksMessage": "Play more music together!",
+      "topTracksYetMessage": "Play some music to see your most played tracks here!"
+    }
+  },
+  "search": {
+    "tabs": {
+      "all": "All",
+      "track": "Track",
+      "album": "Album",
+      "artist": "Artist",
+      "playlist": "Playlist"
+    },
+    "openSearch": "Open search",
+    "landingPlaceholder": "Search for tracks, artists, albums...",
+    "searchPlaceholder": "Tracks, artists, albums...",
+    "recentSearches": "Recent Searches",
+    "recentlyAdded": "Recently Added",
+    "tryDifferentKeyword": "Try a different keyword.",
+    "empty": {
+      "recentlyAddedTitle": "No recently added",
+      "recentlyAddedMessage": "New tracks added to your library will appear here."
+    }
+  },
+  "library": {
+    "tracks": "Tracks",
+    "albums": "Albums",
+    "artists": "Artists",
+    "genres": "Genres",
+    "genre": "Genre",
+    "playlists": "Playlists",
+    "folders": "Folders",
+    "favorites": "Favorites",
+    "items": "{{count}} Items",
+    "sort": "Sort",
+    "sortBy": "Sort By",
+    "allTracks": "All Tracks",
+    "name": "Name",
+    "sortOption": {
+      "trackNumber": "Track Number",
+      "title": "Title",
+      "artist": "Artist",
+      "album": "Album",
+      "year": "Year",
+      "playCount": "Play Count",
+      "dateAdded": "Date Added",
+      "filename": "Filename",
+      "name": "Name",
+      "numberOfTracks": "Number of Tracks",
+      "numberOfFiles": "Number of Files"
+    },
+    "recommendedAlbums": "Recommended Albums",
+    "playlistNotFound": "Playlist not found",
+    "playlistRemovedMessage": "This playlist may have been removed.",
+    "genreAlbumsTitle": "{{genre}} Albums",
+    "genreAlbumsUnavailable": "No albums available in {{genre}}",
+    "genreTopTracksMessage": "Play some {{genre}} music to see top tracks!",
+    "genreTopTracksLongMessage": "Play some {{genre}} music to see your most played tracks here!",
+    "unknownArtist": "Unknown Artist",
+    "unknownAlbum": "Unknown Album",
+    "unknownFile": "Unknown file",
+    "unknownTrack": "Unknown Track",
+    "count": {
+      "track": "{{count}} track",
+      "track_one": "{{count}} track",
+      "track_other": "{{count}} tracks",
+      "track_plural": "{{count}} tracks",
+      "item": "{{count}} item",
+      "item_one": "{{count}} item",
+      "item_other": "{{count}} items",
+      "item_plural": "{{count}} items"
+    },
+    "favoriteType": {
+      "track": "Track",
+      "artist": "Artist",
+      "album": "Album",
+      "playlist": "Playlist"
+    },
+    "empty": {
+      "albumsTitle": "No Albums",
+      "albumsFoundTitle": "No albums found",
+      "albumsMessage": "Albums you add to your library will appear here.",
+      "artistsTitle": "No Artists",
+      "artistsMessage": "Artists from your music library will appear here.",
+      "favoritesTitle": "No Favorites",
+      "favoritesMessage": "Your favorite tracks, artists, and albums will appear here.",
+      "foldersTitle": "No Folders",
+      "foldersMessage": "Music folders you add will appear here.",
+      "genresFoundTitle": "No genres found",
+      "tracksTitle": "No Tracks",
+      "tracksFoundTitle": "No tracks found",
+      "tracksSelectedTitle": "No tracks selected",
+      "tracksMessage": "Tracks you add to your library will appear here.",
+      "lyricsTitle": "No Lyrics",
+      "lyricsMessage": "This track does not have embedded lyrics yet.",
+      "playlistsTitle": "No Playlists",
+      "playlistsFoundTitle": "No playlists found",
+      "playlistsMessage": "Create your first playlist to organize your music.",
+      "playlistsFoundMessage": "Create your first playlist to organize tracks.",
+      "selectedTracksMessage": "Tap Add Tracks to start building this playlist."
+    }
+  },
+  "playlist": {
+    "newPlaylist": "New Playlist",
+    "playlist": "Playlist",
+    "createPlaylist": "Create Playlist",
+    "editPlaylist": "Edit Playlist",
+    "createNewPlaylist": "Create New Playlist",
+    "name": "Playlist Name",
+    "namePlaceholder": "Playlist name",
+    "description": "Description",
+    "descriptionPlaceholder": "Add a description",
+    "addTracks": "Add Tracks",
+    "searchPlaceholder": "Search playlists...",
+    "searchTracksPlaceholder": "Search tracks...",
+    "selected": "{{count}} selected",
+    "apply": "Apply",
+    "applyWithCount": "Apply ({{count}})",
+    "clearSelection": "Clear selection",
+    "selectPlaylist": "Select playlist {{name}}",
+    "selectTrack": "Select {{title}}",
+    "deleteTitle": "Delete playlist?",
+    "deleteDescription": "This action cannot be undone. Your playlist and its track order will be removed."
+  },
+  "track": {
+    "never": "Never",
+    "addToQueue": "Add to Queue",
+    "playNext": "Play Next",
+    "addToPlaylist": "Add to Playlist",
+    "metadata": {
+      "quality": "Quality",
+      "codec": "Codec",
+      "format": "Format",
+      "artist": "Artist",
+      "album": "Album",
+      "genre": "Genre",
+      "year": "Year",
+      "trackDisc": "Track / Disc",
+      "duration": "Duration",
+      "playCount": "Play Count",
+      "lastPlayed": "Last Played",
+      "file": "File"
+    },
+    "deleteTitle": "Delete track from device?",
+    "deleteDescription": "\"{{title}}\" will be permanently deleted from your device storage.",
+    "deleteFromDevice": "Delete from Device",
+    "deleteFallbackTitle": "This track",
+    "deleteAction": "Delete",
+    "permissionRequiredTitle": "Media permission required",
+    "permissionRequiredDescription": "Allow media access to delete tracks from your device.",
+    "deleteFailedTitle": "Failed to delete track",
+    "deletedTitle": "Deleted from device"
+  },
+  "player": {
+    "castFeatures": "Cast features",
+    "upNext": "Up Next",
+    "menu": {
+      "goToArtist": "Go to Artist",
+      "goToAlbum": "Go to Album"
+    },
+    "karaokeOn": "Karaoke On",
+    "karaokeOff": "Karaoke Off"
+  },
+  "settings": {
+    "routes": {
+      "index": {
+        "title": "Settings"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Theme, language, and visual preferences."
+      },
+      "audio": {
+        "title": "Audio",
+        "description": "Playback transitions and audio behavior."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Notification behavior and alerts."
+      },
+      "library": {
+        "title": "Library",
+        "description": "Scanning, filters, and indexing behavior."
+      },
+      "advanced": {
+        "title": "Advanced",
+        "description": "System-level and troubleshooting settings."
+      },
+      "about": {
+        "title": "About",
+        "description": "App information and build details."
+      },
+      "language": {
+        "title": "Language",
+        "description": "Choose the app display language."
+      },
+      "folderFilters": {
+        "title": "Folder Filters"
+      },
+      "trackDurationFilter": {
+        "title": "Track Duration Filter"
+      },
+      "logLevel": {
+        "title": "Log Level"
+      }
+    },
+    "appearance": {
+      "languageDescription": "Current language: {{language}}.",
+      "options": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      }
+    },
+    "language": {
+      "english": "English",
+      "englishNative": "English",
+      "indonesian": "Indonesian",
+      "indonesianNative": "Bahasa Indonesia"
+    },
+    "library": {
+      "filterMode": "Filter Mode",
+      "filterModeDescription": "Choose whether selected folders should be allowed or hidden.",
+      "addNewFolder": "Add New Folder",
+      "folders": "Folders",
+      "noFoldersAdded": "No folders added",
+      "noFoldersAddedMessage": "Add one or more folders, then apply filter.",
+      "applyFilter": "Apply Filter",
+      "indexing": "Indexing...",
+      "selectFilterMode": "Select Filter Mode",
+      "whitelist": "Whitelist",
+      "blacklist": "Blacklist",
+      "folderFiltersDescription": "Whitelist or blacklist specific folders.",
+      "trackDurationFilter": "Track Duration Filter",
+      "autoScan": "Auto Scan",
+      "autoScanEnabled": "Re-scan on app launch and when files change.",
+      "autoScanDisabled": "Scan manually when needed.",
+      "reindexLibrary": "Reindex Library",
+      "reindexInProgress": "Indexing in progress...",
+      "reindexDescription": "Re-scan all tracks, including unchanged files.",
+      "reindexDialogTitle": "Force reindex library?",
+      "reindexDialogDescription": "This will re-scan all music files, including already indexed and unchanged files. It may take longer than normal indexing.",
+      "reindexAction": "Reindex"
+    },
+    "audio": {
+      "crossfade": "Crossfade",
+      "crossfadeEnabled": "Blend between songs during playback.",
+      "crossfadeDisabled": "Play each song with a clean transition.",
+      "duration": "Duration",
+      "durationHint": "Choose how long the next track overlaps with the current one."
+    },
+    "notifications": {
+      "indexerNotifications": "Indexer Notifications",
+      "indexerNotificationsEnabled": "Show system notifications while indexing.",
+      "indexerNotificationsDisabled": "Hide indexing notifications from your system tray."
+    },
+    "trackDuration": {
+      "noFilter": "No Filter",
+      "noFilterDescription": "Include all tracks.",
+      "min30": "At Least 30 Seconds",
+      "min30Description": "Exclude very short clips.",
+      "min60": "At Least 1 Minute",
+      "min60Description": "Keep normal music lengths.",
+      "min120": "At Least 2 Minutes",
+      "min120Description": "Focus on full-length tracks.",
+      "custom": "Custom",
+      "customDescription": "Set your own minimum duration.",
+      "minimumDuration": "Minimum duration",
+      "changesHint": "Changes apply to indexing and remove tracks below this duration on next scan.",
+      "label": {
+        "min30": "At least 30s",
+        "min60": "At least 1m",
+        "min120": "At least 2m",
+        "customSeconds": "Custom {{seconds}}s",
+        "customMinutesSeconds": "Custom {{minutes}}m {{seconds}}s",
+        "customMinutes": "Custom {{minutes}}m",
+        "off": "No filter"
+      }
+    },
+    "logLevel": {
+      "minimal": "Minimal",
+      "minimalDescription": "Errors and crashes only.",
+      "extra": "Extra",
+      "extraDescription": "Everything, including diagnostics and recoverable warnings."
+    },
+    "advanced": {
+      "logExtraDescription": "Extra: capture debug, info, warnings, and errors.",
+      "logMinimalDescription": "Minimal: capture critical and error logs only.",
+      "shareCrashLogs": "Share crash logs",
+      "shareCrashLogsDescription": "Saves error logs to a local file and opens a share sheet.",
+      "resetListeningHistory": "Reset listening history",
+      "resetListeningHistoryDescription": "Clear recently played and top-track stats.",
+      "disableBatteryOptimization": "Disable Battery Optimization",
+      "disableBatteryOptimizationAndroid": "Prevent background restrictions so indexing and playback stay reliable.",
+      "openSystemSettings": "Open system settings.",
+      "dontKillMyApp": "Don't Kill My App!",
+      "dontKillMyAppDescription": "Open device-specific battery and background process guidance.",
+      "resetDialogTitle": "Reset listening history?",
+      "resetDialogDescription": "This will clear recently played and reset top-track stats. Your music files, playlists, and favorites will stay unchanged.",
+      "logsReadyTitle": "Logs ready to share",
+      "logsUnableTitle": "Unable to share logs",
+      "logsReadyDescription": "Share sheet opened with the latest captured logs.",
+      "tryAgainDescription": "Try again in a moment.",
+      "historyResetTitle": "Listening history reset",
+      "historyResetDescription": "Recently played and top-track stats have been cleared.",
+      "historyResetUnableTitle": "Unable to reset history",
+      "batteryAlreadyDisabledTitle": "Battery optimization already disabled",
+      "batteryAlreadyDisabledDescription": "No additional action is needed.",
+      "unableToOpenLinkTitle": "Unable to open link"
+    },
+    "about": {
+      "github": "GitHub",
+      "repositoryDescription": "Project source code."
+    }
+  }
+}

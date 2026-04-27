@@ -3,6 +3,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated"
 import Transition from "react-native-screen-transitions"
 
@@ -63,6 +64,8 @@ interface MiniPlayerMetaProps {
 }
 
 function MiniPlayerMeta({ title, artist }: MiniPlayerMetaProps) {
+  const { t } = useTranslation()
+
   return (
     <View className="flex-1 overflow-hidden">
       <MarqueeText
@@ -71,7 +74,7 @@ function MiniPlayerMeta({ title, artist }: MiniPlayerMetaProps) {
         speed={0.6}
       />
       <MarqueeText
-        text={artist || "Unknown Artist"}
+        text={artist || t("library.unknownArtist")}
         className="text-[13px] text-muted"
         speed={0.5}
       />

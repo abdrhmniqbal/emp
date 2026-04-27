@@ -1,13 +1,14 @@
 /**
  * Purpose: Renders the full Recently Added route from the Search tab.
  * Caller: Search screen's View More action.
- * Dependencies: track query sorted by dateAdded, DB-to-playback track transform, playback actions, themed refresh control, theme colors.
+ * Dependencies: track query sorted by dateAdded, react-i18next, DB-to-playback track transform, playback actions, themed refresh control, theme colors.
  * Main Functions: RecentlyAddedScreen()
  * Side Effects: Starts indexing on refresh and updates scroll state.
  */
 
 import { useMemo } from "react"
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { TrackList } from "@/components/blocks/track-list"
@@ -31,6 +32,7 @@ const RECENTLY_ADDED_SCREEN_LIMIT = 50
 
 export default function RecentlyAddedScreen() {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const { data: tracksData = [], isLoading, isFetching, refetch } = useTracks({
     sortBy: "dateAdded",
@@ -79,8 +81,8 @@ export default function RecentlyAddedScreen() {
               color={theme.muted}
             />
           }
-          title="No recently added"
-          message="New tracks added to your library will appear here."
+          title={t("search.empty.recentlyAddedTitle")}
+          message={t("search.empty.recentlyAddedMessage")}
           className="mt-12 px-4"
         />
       ) : (

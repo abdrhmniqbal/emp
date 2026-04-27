@@ -7,6 +7,7 @@
  */
 
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
+import { useTranslation } from "react-i18next"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { BackButton } from "@/components/patterns/back-button"
@@ -25,13 +26,14 @@ import { useThemeColors } from "@/modules/ui/theme"
 export default function LibraryLayout() {
   const theme = useThemeColors()
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
       <Stack.Screen
         name="index"
         options={getLargeTitleRootScreenOptions({
-          title: "Library",
+          title: t("navigation.tabs.library"),
           headerRight: () => (
             <StackHeaderActions
               actions={[
@@ -62,19 +64,19 @@ export default function LibraryLayout() {
       />
       <Stack.Screen
         name="genre/[name]"
-        options={getDrillDownScreenOptions("Genre", () => (
+        options={getDrillDownScreenOptions(t("library.genre"), () => (
           <BackButton className="-ml-2" />
         ))}
       />
       <Stack.Screen
         name="genre/albums"
-        options={getDrillDownScreenOptions("Recommended Albums", () => (
+        options={getDrillDownScreenOptions(t("library.recommendedAlbums"), () => (
           <BackButton className="-ml-2" />
         ))}
       />
       <Stack.Screen
         name="genre/top-tracks"
-        options={getDrillDownScreenOptions("Top Tracks", () => (
+        options={getDrillDownScreenOptions(t("home.topTracks"), () => (
           <BackButton className="-ml-2" />
         ))}
       />

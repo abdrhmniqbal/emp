@@ -3,6 +3,7 @@ import { useBottomSheetInternal } from "@gorhom/bottom-sheet"
 import { Input, PressableFeedback, TextField } from "heroui-native"
 import * as React from "react"
 import { useCallback, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   type BlurEvent,
@@ -22,6 +23,7 @@ export function SheetSearchInput({
   setSearchQuery,
 }: SheetSearchInputProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { animatedKeyboardState, textInputNodesRef } = useBottomSheetInternal()
   const inputRef = useRef<TextInput>(null)
 
@@ -64,7 +66,7 @@ export function SheetSearchInput({
           key={inputKey}
           ref={inputRef}
           variant="secondary"
-          placeholder="Search tracks..."
+          placeholder={t("playlist.searchTracksPlaceholder")}
           onChangeText={setSearchQuery}
           className="flex-1 pr-10 pl-10"
           autoCapitalize="none"

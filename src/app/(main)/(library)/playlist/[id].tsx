@@ -4,6 +4,7 @@ import { Button } from "heroui-native"
 import * as React from "react"
 import { useMemo, useState } from "react"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
 import Animated from "react-native-reanimated"
 
@@ -50,6 +51,7 @@ import { mergeText } from "@/utils/merge-text"
 const HEADER_COLLAPSE_THRESHOLD = 120
 
 export default function PlaylistDetailsScreen() {
+  const { t } = useTranslation()
   const router = useRouter()
   const theme = useThemeColors()
   const { id, transitionId } = useLocalSearchParams<{
@@ -85,7 +87,7 @@ export default function PlaylistDetailsScreen() {
   })
   const totalDuration = getPlaylistDuration(tracks)
   const playlistMetaText = mergeText([
-    `${tracks.length} ${tracks.length === 1 ? "track" : "tracks"}`,
+    t("library.count.track", { count: tracks.length }),
     formatDuration(totalDuration),
   ])
 
@@ -135,7 +137,9 @@ export default function PlaylistDetailsScreen() {
       itemId: playlist.id,
       isCurrentlyFavorite: isFavorite,
       name: playlist.name,
-      subtitle: `${playlist.trackCount || 0} tracks`,
+      subtitle: t("library.count.track", {
+        count: playlist.trackCount || 0,
+      }),
       image: playlist.artwork || undefined,
     })
   }
@@ -168,8 +172,8 @@ export default function PlaylistDetailsScreen() {
             color={theme.muted}
           />
         }
-        title="Playlist not found"
-        message="This playlist may have been removed."
+        title={t("library.playlistNotFound")}
+        message={t("library.playlistRemovedMessage")}
         className="mt-12"
       />
     )

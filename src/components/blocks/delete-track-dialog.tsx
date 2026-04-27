@@ -2,6 +2,7 @@ import type { Track } from "@/modules/player/player.store"
 import { Button, Dialog, Toast, useToast } from "heroui-native"
 
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { useDeleteTrackFromDevice } from "@/modules/tracks/tracks.mutations"
 
 interface DeleteTrackDialogProps {
@@ -18,6 +19,7 @@ export function DeleteTrackDialog({
   onDeleted,
 }: DeleteTrackDialogProps) {
   const { toast } = useToast()
+  const { t } = useTranslation()
   const deleteTrackFromDeviceMutation = useDeleteTrackFromDevice()
   const isDeleting = deleteTrackFromDeviceMutation.isPending
 
@@ -50,22 +52,22 @@ export function DeleteTrackDialog({
 
       if (result.status === "permission-denied") {
         showToast(
-          "Media permission required",
-          "Allow media access to delete tracks from your device."
+          t("track.permissionRequiredTitle"),
+          t("track.permissionRequiredDescription")
         )
         return
       }
 
       if (result.status !== "deleted") {
-        showToast("Failed to delete track")
+        showToast(t("track.deleteFailedTitle"))
         return
       }
 
       onOpenChange(false)
       onDeleted?.(track)
-      showToast("Deleted from device", track.title)
+      showToast(t("track.deletedTitle"), track.title)
     } catch {
-      showToast("Failed to delete track")
+      showToast(t("track.deleteFailedTitle"))
     }
   }
 
@@ -75,9 +77,11 @@ export function DeleteTrackDialog({
         <Dialog.Overlay />
         <Dialog.Content className="gap-4">
           <View className="gap-1.5">
-            <Dialog.Title>Delete track from device?</Dialog.Title>
+            <Dialog.Title>{t("track.deleteTitle")}</Dialog.Title>
             <Dialog.Description>
-              {`"${track?.title || "This track"}" will be permanently deleted from your device storage.`}
+              {t("track.deleteDescription", {
+                title: track?.title || t("track.deleteFallbackTitle"),
+              })}
             </Dialog.Description>
           </View>
           <View className="flex-row justify-end gap-3">
@@ -86,7 +90,7 @@ export function DeleteTrackDialog({
               onPress={() => onOpenChange(false)}
               isDisabled={isDeleting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="danger"
@@ -95,7 +99,7 @@ export function DeleteTrackDialog({
               }}
               isDisabled={isDeleting}
             >
-              Delete
+              {t("track.deleteAction")}
             </Button>
           </View>
         </Dialog.Content>

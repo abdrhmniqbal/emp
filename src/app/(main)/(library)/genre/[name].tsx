@@ -12,6 +12,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import { useEffect, useMemo } from "react"
 
 import { ScrollView, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Animated from "react-native-reanimated"
 import { ContentSection } from "@/components/blocks/content-section"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
@@ -57,6 +58,7 @@ function getSafeRouteName(value: string | string[] | undefined) {
 const CHUNK_SIZE = 5
 
 export default function GenreDetailsScreen() {
+  const { t } = useTranslation()
   const { name } = useLocalSearchParams<{ name: string }>()
   const router = useRouter()
   const theme = useThemeColors()
@@ -92,7 +94,10 @@ export default function GenreDetailsScreen() {
   }
 
   function renderAlbumItem(album: GenreAlbumInfo) {
-    const subtitle = `${album.artist || "Unknown Artist"} · ${album.trackCount} tracks`
+    const subtitle = `${album.artist || t("library.unknownArtist")} · ${t(
+      "library.count.track",
+      { count: album.trackCount }
+    )}`
 
     return (
       <MusicCard
@@ -149,7 +154,7 @@ export default function GenreDetailsScreen() {
       >
         <Animated.View entering={screenEnterTransition()}>
           <ContentSection
-            title="Top Tracks"
+            title={t("home.topTracks")}
             data={topTracks}
             onViewMore={() =>
               router.push({
@@ -166,8 +171,10 @@ export default function GenreDetailsScreen() {
                   color={theme.muted}
                 />
               ),
-              title: "No top tracks",
-              message: `Play some ${genreName} music to see top tracks!`,
+              title: t("home.empty.topTracksTitle"),
+              message: t("library.genreTopTracksMessage", {
+                genre: genreName,
+              }),
             }}
             renderContent={(data) => (
               <RankedTrackCarousel data={data} chunkSize={CHUNK_SIZE} />
@@ -177,7 +184,7 @@ export default function GenreDetailsScreen() {
 
         <Animated.View entering={screenEnterTransition()}>
           <ContentSection
-            title="Recommended Albums"
+            title={t("library.recommendedAlbums")}
             data={previewAlbums}
             onViewMore={() =>
               router.push({ pathname: "./albums", params: { name: genreName } })
@@ -191,8 +198,10 @@ export default function GenreDetailsScreen() {
                   color={theme.muted}
                 />
               ),
-              title: "No albums found",
-              message: `No albums available in ${genreName}`,
+              title: t("library.empty.albumsFoundTitle"),
+              message: t("library.genreAlbumsUnavailable", {
+                genre: genreName,
+              }),
             }}
             renderContent={(data) => (
               <MediaCarousel

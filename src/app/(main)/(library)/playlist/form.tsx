@@ -3,6 +3,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import { BottomSheet, Button } from "heroui-native"
 
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { PlaylistForm } from "@/components/blocks/playlist-form/playlist-form"
 import { TrackPickerSheetContent } from "@/components/blocks/playlist-form/track-picker-sheet-content"
 import LocalTickIcon from "@/components/icons/local/tick"
@@ -29,6 +30,7 @@ function PlaylistFormEditor({
   onSaved,
 }: PlaylistFormEditorProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const {
     name,
     description,
@@ -64,7 +66,9 @@ function PlaylistFormEditor({
     <>
       <Stack.Screen
         options={{
-          title: isEditMode ? "Edit Playlist" : "Create Playlist",
+          title: isEditMode
+            ? t("playlist.editPlaylist")
+            : t("playlist.createPlaylist"),
           headerRight: () => (
             <Button
               onPress={save}
@@ -119,6 +123,7 @@ function PlaylistFormEditor({
 
 export default function PlaylistFormScreen() {
   const router = useRouter()
+  const { t } = useTranslation()
   const { id } = useLocalSearchParams<{ id?: string }>()
   const playlistId = typeof id === "string" ? id : undefined
   const isEditMode = Boolean(playlistId?.trim())
@@ -130,7 +135,7 @@ export default function PlaylistFormScreen() {
       <View className="flex-1 bg-background pt-4">
         <Stack.Screen
           options={{
-            title: "Edit Playlist",
+            title: t("playlist.editPlaylist"),
           }}
         />
       </View>
@@ -142,7 +147,7 @@ export default function PlaylistFormScreen() {
       <View className="flex-1 bg-background">
         <Stack.Screen
           options={{
-            title: "Edit Playlist",
+            title: t("playlist.editPlaylist"),
           }}
         />
       </View>

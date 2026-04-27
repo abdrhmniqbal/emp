@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders audio playback preferences, including crossfade controls.
  * Caller: Settings audio route.
- * Dependencies: HeroUI Native switch and slider, settings row pattern, crossfade settings module.
+ * Dependencies: HeroUI Native switch and slider, react-i18next, settings row pattern, crossfade settings module.
  * Main Functions: AudioSettingsScreen()
  * Side Effects: Persists audio crossfade preferences in document storage.
  */
@@ -9,6 +9,7 @@
 import { Slider, Switch } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
 import { setCrossfadeConfig } from "@/modules/settings/audio-crossfade"
@@ -19,6 +20,7 @@ function getSliderNumericValue(value: number | number[]): number {
 }
 
 export default function AudioSettingsScreen() {
+  const { t } = useTranslation()
   const crossfadeConfig = useSettingsStore((state) => state.crossfadeConfig)
   const [sliderValue, setSliderValue] = React.useState<number | null>(null)
   const resolvedSliderValue = sliderValue ?? crossfadeConfig.durationSeconds
@@ -43,11 +45,11 @@ export default function AudioSettingsScreen() {
       <View className="gap-5 px-4 py-4">
         <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
           <SettingsRow
-            title="Crossfade"
+            title={t("settings.audio.crossfade")}
             description={
               crossfadeConfig.isEnabled
-                ? "Blend between songs during playback."
-                : "Play each song with a clean transition."
+                ? t("settings.audio.crossfadeEnabled")
+                : t("settings.audio.crossfadeDisabled")
             }
             onPress={undefined}
             showChevron={false}
@@ -65,7 +67,9 @@ export default function AudioSettingsScreen() {
         {crossfadeConfig.isEnabled ? (
           <View className="rounded-[28px] border border-border/60 bg-default/25 px-5 pt-4 pb-4">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-sm text-muted">Duration</Text>
+              <Text className="text-sm text-muted">
+                {t("settings.audio.duration")}
+              </Text>
               <Text className="text-sm font-medium text-foreground">
                 {Math.round(resolvedSliderValue)}s
               </Text>
@@ -88,7 +92,7 @@ export default function AudioSettingsScreen() {
               </Slider.Track>
             </Slider>
             <Text className="mt-2 text-xs text-muted">
-              Choose how long the next track overlaps with the current one.
+              {t("settings.audio.durationHint")}
             </Text>
           </View>
         ) : null}

@@ -7,6 +7,7 @@
  */
 
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
+import { useTranslation } from "react-i18next"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { BackButton } from "@/components/patterns/back-button"
@@ -22,13 +23,14 @@ import { useThemeColors } from "@/modules/ui/theme"
 export default function HomeLayout() {
   const theme = useThemeColors()
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
       <Stack.Screen
         name="index"
         options={getLargeTitleRootScreenOptions({
-          title: "Home",
+          title: t("navigation.tabs.home"),
           headerRight: () => (
             <StackHeaderActions
               actions={[
@@ -51,13 +53,13 @@ export default function HomeLayout() {
       />
       <Stack.Screen
         name="recently-played"
-        options={getDrillDownScreenOptions("Recently Played", () => (
+        options={getDrillDownScreenOptions(t("home.recentlyPlayed"), () => (
           <BackButton className="-ml-2" />
         ))}
       />
       <Stack.Screen
         name="top-tracks"
-        options={getDrillDownScreenOptions("Top Tracks", () => (
+        options={getDrillDownScreenOptions(t("home.topTracks"), () => (
           <BackButton className="-ml-2" />
         ))}
       />

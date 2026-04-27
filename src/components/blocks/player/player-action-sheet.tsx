@@ -2,6 +2,7 @@ import type { Track } from "@/modules/player/player.types"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Text } from "react-native"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
@@ -21,6 +22,7 @@ export function PlayerActionSheet({
   track,
   onNavigate,
 }: PlayerActionSheetProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const { toast } = useToast()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
@@ -113,7 +115,7 @@ export function PlayerActionSheet({
               onPress={handleOpenArtist}
             >
               <Text className="text-base font-medium text-foreground">
-                Go to Artist
+                {t("player.menu.goToArtist")}
               </Text>
             </PressableFeedback>
             <PressableFeedback
@@ -121,7 +123,7 @@ export function PlayerActionSheet({
               onPress={handleOpenAlbum}
             >
               <Text className="text-base font-medium text-foreground">
-                Go to Album
+                {t("player.menu.goToAlbum")}
               </Text>
             </PressableFeedback>
             <PressableFeedback
@@ -129,7 +131,7 @@ export function PlayerActionSheet({
               onPress={handleOpenPlaylistPicker}
             >
               <Text className="text-base font-medium text-foreground">
-                Add to Playlist
+                {t("track.addToPlaylist")}
               </Text>
             </PressableFeedback>
           </BottomSheet.Content>

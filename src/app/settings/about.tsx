@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders app metadata and links to the project repository.
  * Caller: Settings about route.
- * Dependencies: Expo application metadata, Expo image, React Native linking, settings row pattern.
+ * Dependencies: Expo application metadata, Expo image, react-i18next, React Native linking, settings row pattern.
  * Main Functions: AboutSettingsScreen()
  * Side Effects: Opens the external project repository in the browser.
  */
@@ -10,11 +10,13 @@ import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { Image } from "expo-image"
 import { Linking, ScrollView, Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import appIcon from "@/assets/icon.png"
 import { SettingsRow } from "@/components/patterns/settings-row"
 
 export default function AboutSettingsScreen() {
+  const { t } = useTranslation()
   const appName = Constants.expoConfig?.name || "Startune Music"
   const version =
     Application.nativeApplicationVersion ||
@@ -36,7 +38,7 @@ export default function AboutSettingsScreen() {
               {appName}
             </Text>
             <Text className="mt-1 text-[13px] leading-5 text-muted">
-              v{version || "Unknown"}
+              v{version || t("common.unknown")}
             </Text>
           </View>
         </View>
@@ -46,8 +48,8 @@ export default function AboutSettingsScreen() {
             onPress={() => {
               void Linking.openURL(repositoryUrl)
             }}
-            title="GitHub"
-            description="Project source code."
+            title={t("settings.about.github")}
+            description={t("settings.about.repositoryDescription")}
           />
         </View>
       </View>

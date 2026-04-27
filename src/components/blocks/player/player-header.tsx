@@ -1,6 +1,7 @@
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { CastButton } from "react-native-google-cast"
 import Animated, {
@@ -26,6 +27,7 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   dragY,
 }) => {
   const { showComingSoon } = useComingSoonToast()
+  const { t } = useTranslation()
 
   const handleStyle = useAnimatedStyle(() => {
     return {
@@ -76,7 +78,7 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
             onOpenMore()
             return
           }
-          showComingSoon("Cast features")
+          showComingSoon(t("player.castFeatures"))
         }}
         className="absolute right-0 z-20 p-1"
       >

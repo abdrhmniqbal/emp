@@ -7,6 +7,7 @@
  */
 
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
+import { useTranslation } from "react-i18next"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
 import { BackButton } from "@/components/patterns/back-button"
@@ -25,13 +26,14 @@ import { useThemeColors } from "@/modules/ui/theme"
 export default function SearchLayout() {
   const theme = useThemeColors()
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
       <Stack.Screen
         name="index"
         options={getLargeTitleRootScreenOptions({
-          title: "Search",
+          title: t("navigation.tabs.search"),
           headerRight: () => (
             <StackHeaderActions
               actions={[
@@ -66,7 +68,7 @@ export default function SearchLayout() {
       />
       <Stack.Screen
         name="recently-added"
-        options={getDrillDownScreenOptions("Recently Added", () => (
+        options={getDrillDownScreenOptions(t("search.recentlyAdded"), () => (
           <BackButton className="-ml-2" />
         ))}
       />

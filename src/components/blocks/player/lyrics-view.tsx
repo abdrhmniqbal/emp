@@ -18,6 +18,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native"
+import { useTranslation } from "react-i18next"
 import Animated, {
   FadeIn,
   FadeOut,
@@ -222,6 +223,7 @@ const TTMLLineRow: React.FC<{
 
 export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { height } = useWindowDimensions()
   const karaokeEnabled = useUIStore(
     (state) => state.playerLyricsKaraokeEnabled
@@ -500,8 +502,8 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
               color={theme.muted}
             />
           }
-          title="No Lyrics"
-          message="This track does not have embedded lyrics yet."
+          title={t("library.empty.lyricsTitle")}
+          message={t("library.empty.lyricsMessage")}
           className="py-0"
         />
       </Animated.View>
@@ -638,7 +640,9 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
             className="text-xs font-semibold"
             style={{ color: effectiveMode !== "static" ? "#0A0A0A" : "white" }}
           >
-            Karaoke {effectiveMode !== "static" ? "On" : "Off"}
+            {effectiveMode !== "static"
+              ? t("player.karaokeOn")
+              : t("player.karaokeOff")}
           </Text>
         </PressableFeedback>
       ) : null}

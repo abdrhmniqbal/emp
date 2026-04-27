@@ -36,7 +36,7 @@ const mediaItemStyles = tv({
         base: "w-36 gap-2",
         imageContainer: "aspect-square w-full",
         content: "w-full",
-        title: "text-base uppercase leading-tight",
+        title: "text-base leading-tight",
       },
     },
   },

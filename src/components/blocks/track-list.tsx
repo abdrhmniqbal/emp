@@ -13,6 +13,7 @@ import {
 } from "@legendapp/list"
 import * as React from "react"
 import { useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   type NativeScrollEvent,
@@ -80,6 +81,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   renderItemPrefix,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
@@ -159,8 +161,8 @@ export const TrackList: React.FC<TrackListProps> = ({
                 color={theme.muted}
               />
             }
-            title="No Tracks"
-            message="Tracks you add to your library will appear here."
+            title={t("library.empty.tracksTitle")}
+            message={t("library.empty.tracksMessage")}
           />
         }
         contentContainerStyle={listContentContainerStyle}

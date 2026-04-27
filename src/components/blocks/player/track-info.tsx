@@ -2,6 +2,7 @@ import type { Track } from "@/modules/player/player.store"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Animated, { Layout } from "react-native-reanimated"
 
 import { cn } from "tailwind-variants"
@@ -24,6 +25,7 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
   compact = false,
   onPressArtist,
 }) => {
+  const { t } = useTranslation()
   const { data: isFavoriteQuery = track.isFavorite ?? false } = useIsFavorite(
     "track",
     track.id
@@ -35,7 +37,7 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
     compact ? "text-xl" : "text-2xl"
   )
   const artistClassName = cn("text-white/60", compact ? "text-base" : "text-lg")
-  const artistName = track.artist || "Unknown Artist"
+  const artistName = track.artist || t("library.unknownArtist")
   const isArtistPressable = Boolean(onPressArtist && track.artist?.trim())
 
   return (

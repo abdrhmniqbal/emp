@@ -10,6 +10,7 @@ import * as React from "react"
 
 import { useCallback, useMemo, useState } from "react"
 import { Keyboard, ScrollView, Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { LEGEND_LIST_SECTION_CONFIG } from "@/components/blocks/legend-list-config"
 import {
   MemoizedSearchResultRow,
@@ -96,8 +97,24 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   onTrackPress,
   onSeeMoreTracks,
 }) => {
+  const { t } = useTranslation()
   const [internalActiveTab, setInternalActiveTab] = useState<SearchTab>("All")
   const activeTab = activeTabProp ?? internalActiveTab
+
+  function getSearchTabLabel(tab: SearchTab) {
+    switch (tab) {
+      case "All":
+        return t("search.tabs.all")
+      case "Track":
+        return t("search.tabs.track")
+      case "Album":
+        return t("search.tabs.album")
+      case "Artist":
+        return t("search.tabs.artist")
+      case "Playlist":
+        return t("search.tabs.playlist")
+    }
+  }
 
   const setActiveTab = useCallback(
     (tab: SearchTab) => {
@@ -124,7 +141,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     if (hasQuery && showArtists && artists.length > 0) {
       appendSection(nextListData, {
         headerId: "artists-header",
-        title: "Artists",
+        title: t("library.artists"),
         showHeader: isAllTab,
         items: artists.map((artist) => ({
           id: `artist-${artist.id}`,
@@ -137,7 +154,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     if (hasQuery && showAlbums && albums.length > 0) {
       appendSection(nextListData, {
         headerId: "albums-header",
-        title: "Albums",
+        title: t("library.albums"),
         showHeader: isAllTab,
         items: albums.map((album) => ({
           id: `album-${album.id}`,
@@ -150,7 +167,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     if (hasQuery && showPlaylists && playlists.length > 0) {
       appendSection(nextListData, {
         headerId: "playlists-header",
-        title: "Playlists",
+        title: t("library.playlists"),
         showHeader: isAllTab,
         items: playlists.map((playlist) => ({
           id: `playlist-${playlist.id}`,
@@ -163,7 +180,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     if (hasQuery && showTracks && tracks.length > 0) {
       appendSection(nextListData, {
         headerId: "tracks-header",
-        title: "Tracks",
+        title: t("library.tracks"),
         showHeader: isAllTab || Boolean(onSeeMoreTracks),
         showSeeMore: Boolean(onSeeMoreTracks),
         items: tracks.map((track) => ({
@@ -186,6 +203,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     showArtists,
     showPlaylists,
     showTracks,
+    t,
     tracks,
   ])
 
@@ -202,7 +220,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
               </Text>
               {item.showSeeMore && onSeeMoreTracks && (
                 <PressableFeedback onPress={onSeeMoreTracks}>
-                  <Text className="text-xs text-muted">See more</Text>
+                  <Text className="text-xs text-muted">
+                    {t("common.seeMore")}
+                  </Text>
                 </PressableFeedback>
               )}
             </View>
@@ -225,6 +245,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       onPlaylistPress,
       onSeeMoreTracks,
       onTrackPress,
+      t,
     ]
   )
 
@@ -249,7 +270,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
             color={activeTab === tab ? "accent" : "default"}
             size="lg"
           >
-            <Chip.Label className="font-medium">{tab}</Chip.Label>
+            <Chip.Label className="font-medium">
+              {getSearchTabLabel(tab)}
+            </Chip.Label>
           </Chip>
         ))}
       </ScrollView>

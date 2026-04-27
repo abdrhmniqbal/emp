@@ -1,3 +1,12 @@
+/**
+ * Purpose: Persists and evaluates minimum duration filtering for indexed audio tracks.
+ * Caller: Track duration settings screen, library settings summary, media indexer.
+ * Dependencies: i18next localization, settings repository, settings store, settings types.
+ * Main Functions: ensureTrackDurationFilterConfigLoaded(), setTrackDurationFilterConfig(), getTrackDurationMinimumSeconds(), isAssetAllowedByTrackDuration(), getTrackDurationFilterLabel().
+ * Side Effects: Reads/writes track-duration-filter.json and mutates in-memory settings state.
+ */
+
+import { i18n } from "@/modules/localization/i18n"
 import type {
   TrackDurationFilterConfig,
   TrackDurationFilterMode,
@@ -138,26 +147,35 @@ export function getTrackDurationFilterLabel(
   config: TrackDurationFilterConfig
 ): string {
   if (config.mode === "min30s") {
-    return "At least 30s"
+    return i18n.t("settings.trackDuration.label.min30")
   }
 
   if (config.mode === "min60s") {
-    return "At least 1m"
+    return i18n.t("settings.trackDuration.label.min60")
   }
 
   if (config.mode === "min120s") {
-    return "At least 2m"
+    return i18n.t("settings.trackDuration.label.min120")
   }
 
   if (config.mode === "custom") {
     const seconds = getTrackDurationMinimumSeconds(config)
     if (seconds < 60) {
-      return `Custom ${seconds}s`
+      return i18n.t("settings.trackDuration.label.customSeconds", {
+        seconds,
+      })
     }
     const minutes = Math.floor(seconds / 60)
     const rem = seconds % 60
-    return rem > 0 ? `Custom ${minutes}m ${rem}s` : `Custom ${minutes}m`
+    return rem > 0
+      ? i18n.t("settings.trackDuration.label.customMinutesSeconds", {
+          minutes,
+          seconds: rem,
+        })
+      : i18n.t("settings.trackDuration.label.customMinutes", {
+          minutes,
+        })
   }
 
-  return "No filter"
+  return i18n.t("settings.trackDuration.label.off")
 }

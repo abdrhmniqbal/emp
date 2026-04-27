@@ -1,7 +1,7 @@
 /**
  * Purpose: Stores local settings defaults and the app-wide settings state.
- * Caller: Settings screens, settings persistence modules, bootstrap preload, and services reading preferences.
- * Dependencies: Zustand and settings type definitions.
+ * Caller: Settings screens, localization, settings persistence modules, bootstrap preload, and services reading preferences.
+ * Dependencies: Zustand, settings type definitions.
  * Main Functions: useSettingsStore, getSettingsState(), updateSettingsState(), default config getters.
  * Side Effects: Mutates in-memory Zustand settings state.
  */
@@ -11,10 +11,12 @@ import { create } from "zustand"
 import type {
   CrossfadeConfig,
   FolderFilterConfig,
+  LanguageCode,
   LoggingConfig,
   TrackDurationFilterConfig,
 } from "./settings.types"
 
+const DEFAULT_LANGUAGE_CODE: LanguageCode = "en"
 const DEFAULT_AUTO_SCAN_ENABLED = true
 const DEFAULT_INDEXER_NOTIFICATIONS_ENABLED = true
 const DEFAULT_CROSSFADE_CONFIG: CrossfadeConfig = {
@@ -34,6 +36,7 @@ const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
 }
 
 interface SettingsState {
+  languageCode: LanguageCode
   autoScanEnabled: boolean
   indexerNotificationsEnabled: boolean
   crossfadeConfig: CrossfadeConfig
@@ -43,6 +46,7 @@ interface SettingsState {
 }
 
 export const useSettingsStore = create<SettingsState>(() => ({
+  languageCode: DEFAULT_LANGUAGE_CODE,
   autoScanEnabled: DEFAULT_AUTO_SCAN_ENABLED,
   indexerNotificationsEnabled: DEFAULT_INDEXER_NOTIFICATIONS_ENABLED,
   crossfadeConfig: DEFAULT_CROSSFADE_CONFIG,
@@ -50,6 +54,10 @@ export const useSettingsStore = create<SettingsState>(() => ({
   loggingConfig: DEFAULT_LOGGING_CONFIG,
   trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
 }))
+
+export function getDefaultLanguageCode() {
+  return DEFAULT_LANGUAGE_CODE
+}
 
 export function getDefaultAutoScanEnabled() {
   return DEFAULT_AUTO_SCAN_ENABLED

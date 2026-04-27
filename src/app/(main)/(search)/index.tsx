@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders the search landing screen with quick access to recent additions.
  * Caller: Expo Router search tab.
- * Dependencies: Tracks query, player playback helpers, search/library navigation, theme colors, scroll state helpers.
+ * Dependencies: Tracks query, react-i18next, player playback helpers, search/library navigation, theme colors, scroll state helpers.
  * Main Functions: SearchScreen()
  * Side Effects: Updates scroll state, starts playback when a track card is pressed, and navigates to search/library detail routes.
  */
@@ -13,6 +13,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import { Input, PressableFeedback } from "heroui-native"
 import { useMemo } from "react"
 import { ScrollView, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { ContentSection } from "@/components/blocks/content-section"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
@@ -34,6 +35,7 @@ const RECENTLY_ADDED_LIMIT = 8
 
 export default function SearchScreen() {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const router = useRouter()
   const currentTrackId = useCurrentTrackId()
   const { data: dbTracks = [] } = useTracks({
@@ -89,19 +91,19 @@ export default function SearchScreen() {
           value=""
           editable={false}
           showSoftInputOnFocus={false}
-          placeholder="Search for tracks, artists, albums..."
+          placeholder={t("search.landingPlaceholder")}
           className="pl-12"
         />
         <PressableFeedback
           onPress={handleSearchPress}
           className="absolute inset-0 z-20"
           accessibilityRole="button"
-          accessibilityLabel="Open search"
+          accessibilityLabel={t("search.openSearch")}
         />
       </View>
 
       <ContentSection
-        title="Recently Added"
+        title={t("search.recentlyAdded")}
         data={recentlyAddedTracks}
         onViewMore={() => router.push("/(main)/(search)/recently-added")}
         emptyState={{
@@ -113,8 +115,8 @@ export default function SearchScreen() {
               color={theme.muted}
             />
           ),
-          title: "No recently added",
-          message: "New tracks added to your library will appear here.",
+          title: t("search.empty.recentlyAddedTitle"),
+          message: t("search.empty.recentlyAddedMessage"),
         }}
         renderContent={(data) => (
           <MediaCarousel

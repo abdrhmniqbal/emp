@@ -1,12 +1,13 @@
 /**
  * Purpose: Renders the Recently Played route with playback actions and a full history list.
  * Caller: Home stack nested route.
- * Dependencies: history query, track playback service, themed refresh control, theme colors.
+ * Dependencies: history query, react-i18next, track playback service, themed refresh control, theme colors.
  * Main Functions: RecentlyPlayedScreen()
  * Side Effects: Starts indexing on refresh and updates scroll state.
  */
 
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { TrackList } from "@/components/blocks/track-list"
@@ -28,6 +29,7 @@ const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 
 export default function RecentlyPlayedScreen() {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const { data: historyData, isLoading, isFetching, refetch } =
     useRecentlyPlayedTracks(RECENTLY_PLAYED_SCREEN_LIMIT)
@@ -68,8 +70,8 @@ export default function RecentlyPlayedScreen() {
               color={theme.muted}
             />
           }
-          title="No recently played"
-          message="Your listening history will appear here once you start playing music."
+          title={t("home.empty.recentlyPlayedTitle")}
+          message={t("home.empty.recentlyPlayedLongMessage")}
           className="mt-12 px-4"
         />
       ) : (

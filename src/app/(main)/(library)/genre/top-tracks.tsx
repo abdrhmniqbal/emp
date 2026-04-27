@@ -9,6 +9,7 @@
 import { useLocalSearchParams } from "expo-router"
 import { useEffect, useMemo } from "react"
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Animated from "react-native-reanimated"
 
 import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
@@ -51,6 +52,7 @@ function getSafeRouteName(value: string | string[] | undefined) {
 }
 
 export default function GenreTopTracksScreen() {
+  const { t } = useTranslation()
   const { name } = useLocalSearchParams<{ name: string }>()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const theme = useThemeColors()
@@ -105,7 +107,7 @@ export default function GenreTopTracksScreen() {
     <View className="flex-1 bg-background">
       <Stack.Screen
         options={{
-          title: `${genreName} Top Tracks`,
+          title: `${genreName} ${t("home.topTracks")}`,
         }}
       />
       {tracks.length === 0 ? (
@@ -123,8 +125,10 @@ export default function GenreTopTracksScreen() {
                 color={theme.muted}
               />
             }
-            title="No top tracks yet"
-            message={`Play some ${genreName} music to see your most played tracks here!`}
+            title={t("home.empty.topTracksYetTitle")}
+            message={t("library.genreTopTracksLongMessage", {
+              genre: genreName,
+            })}
             className="mt-12"
           />
         </Animated.View>

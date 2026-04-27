@@ -21,7 +21,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.startune.music",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
@@ -59,10 +61,13 @@
       [
         "react-native-file-viewer-turbo",
         {
-          "mimeTypes": ["*/*"]
+          "mimeTypes": [
+            "*/*"
+          ]
         }
       ],
-      "react-native-google-cast"
+      "react-native-google-cast",
+      "expo-localization"
     ]
   }
 }

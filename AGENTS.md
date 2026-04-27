@@ -22,6 +22,7 @@ You are an expert **Full-Stack Typescript Developer Agent.** Your primary goal i
 - **Dependency Management:** Check @package.json before adding new package or writing utilities that might already exist.
 - **Build Constraint:** Never execute the `bun run build` command.
 - **Automatic Optimization:** Never use memoization, because the project already use React Compiler.
+- **NEVER** use hardcoded strings for user-facing text, use localization strings instead.
 
 ## CODE QUALITY
 - **Architecture:** Adhere strictly to **SOLID**, **DRY**, and **KISS** principles.

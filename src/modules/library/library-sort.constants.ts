@@ -23,60 +23,60 @@ export const DEFAULT_SORT_CONFIG: Record<TabName, SortConfig> = {
 }
 
 export const TRACK_SORT_OPTIONS: { label: string; field: TrackSortField }[] = [
-  { label: "Title", field: "title" },
-  { label: "Artist", field: "artist" },
-  { label: "Album", field: "album" },
-  { label: "Year", field: "year" },
-  { label: "Play Count", field: "playCount" },
-  { label: "Date Added", field: "dateAdded" },
-  { label: "Filename", field: "filename" },
+  { label: "library.sortOption.title", field: "title" },
+  { label: "library.sortOption.artist", field: "artist" },
+  { label: "library.sortOption.album", field: "album" },
+  { label: "library.sortOption.year", field: "year" },
+  { label: "library.sortOption.playCount", field: "playCount" },
+  { label: "library.sortOption.dateAdded", field: "dateAdded" },
+  { label: "library.sortOption.filename", field: "filename" },
 ]
 
 export const ALBUM_TRACK_SORT_OPTIONS: {
   label: string
   field: AlbumTrackSortField
 }[] = [
-  { label: "Track Number", field: "trackNumber" },
-  { label: "Title", field: "title" },
-  { label: "Artist", field: "artist" },
-  { label: "Year", field: "year" },
-  { label: "Play Count", field: "playCount" },
-  { label: "Date Added", field: "dateAdded" },
-  { label: "Filename", field: "filename" },
+  { label: "library.sortOption.trackNumber", field: "trackNumber" },
+  { label: "library.sortOption.title", field: "title" },
+  { label: "library.sortOption.artist", field: "artist" },
+  { label: "library.sortOption.year", field: "year" },
+  { label: "library.sortOption.playCount", field: "playCount" },
+  { label: "library.sortOption.dateAdded", field: "dateAdded" },
+  { label: "library.sortOption.filename", field: "filename" },
 ]
 
 export const ALBUM_SORT_OPTIONS: { label: string; field: AlbumSortField }[] = [
-  { label: "Title", field: "title" },
-  { label: "Artist", field: "artist" },
-  { label: "Year", field: "year" },
-  { label: "Date Added", field: "dateAdded" },
-  { label: "Number of Tracks", field: "trackCount" },
+  { label: "library.sortOption.title", field: "title" },
+  { label: "library.sortOption.artist", field: "artist" },
+  { label: "library.sortOption.year", field: "year" },
+  { label: "library.sortOption.dateAdded", field: "dateAdded" },
+  { label: "library.sortOption.numberOfTracks", field: "trackCount" },
 ]
 
 export const ARTIST_SORT_OPTIONS: { label: string; field: ArtistSortField }[] =
   [
-    { label: "Name", field: "name" },
-    { label: "Date Added", field: "dateAdded" },
-    { label: "Number of Tracks", field: "trackCount" },
+    { label: "library.sortOption.name", field: "name" },
+    { label: "library.sortOption.dateAdded", field: "dateAdded" },
+    { label: "library.sortOption.numberOfTracks", field: "trackCount" },
   ]
 
 export const PLAYLIST_SORT_OPTIONS: {
   label: string
   field: PlaylistSortField
 }[] = [
-  { label: "Name", field: "name" },
-  { label: "Date Added", field: "dateAdded" },
-  { label: "Number of Tracks", field: "trackCount" },
+  { label: "library.sortOption.name", field: "name" },
+  { label: "library.sortOption.dateAdded", field: "dateAdded" },
+  { label: "library.sortOption.numberOfTracks", field: "trackCount" },
 ]
 
 export const FOLDER_SORT_OPTIONS: { label: string; field: FolderSortField }[] =
   [
-    { label: "Name", field: "name" },
-    { label: "Date Added", field: "dateAdded" },
-    { label: "Number of Files", field: "trackCount" },
+    { label: "library.sortOption.name", field: "name" },
+    { label: "library.sortOption.dateAdded", field: "dateAdded" },
+    { label: "library.sortOption.numberOfFiles", field: "trackCount" },
   ]
 
 export const GENRE_SORT_OPTIONS: { label: string; field: ArtistSortField }[] = [
-  { label: "Name", field: "name" },
-  { label: "Number of Tracks", field: "trackCount" },
+  { label: "library.sortOption.name", field: "name" },
+  { label: "library.sortOption.numberOfTracks", field: "trackCount" },
 ]

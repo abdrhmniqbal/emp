@@ -3,6 +3,7 @@ import type { Track } from "@/modules/player/player.types"
 import { Button, Input, PressableFeedback, TextArea } from "heroui-native"
 
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import ReorderableList, {
   useReorderableDrag,
 } from "react-native-reorderable-list"
@@ -82,12 +83,13 @@ export function PlaylistForm({
   openTrackSheet,
 }: PlaylistFormProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const header = (
     <View className="gap-4 pb-3">
       <View className="gap-2">
         <View className="flex-row items-center justify-between">
           <Text className="text-sm font-medium text-foreground">
-            Playlist Name
+            {t("playlist.name")}
           </Text>
           <Text className="text-xs text-muted">
             {name.length}/{MAX_PLAYLIST_NAME_LENGTH}
@@ -95,7 +97,7 @@ export function PlaylistForm({
         </View>
         <Input
           variant="secondary"
-          placeholder="Playlist name"
+          placeholder={t("playlist.namePlaceholder")}
           value={name}
           onChangeText={setName}
           maxLength={MAX_PLAYLIST_NAME_LENGTH}
@@ -105,7 +107,7 @@ export function PlaylistForm({
       <View className="gap-2">
         <View className="flex-row items-center justify-between">
           <Text className="text-sm font-medium text-foreground">
-            Description
+            {t("playlist.description")}
           </Text>
           <Text className="text-xs text-muted">
             {description.length}/{MAX_PLAYLIST_DESCRIPTION_LENGTH}
@@ -113,7 +115,7 @@ export function PlaylistForm({
         </View>
         <TextArea
           variant="secondary"
-          placeholder="Add a description"
+          placeholder={t("playlist.descriptionPlaceholder")}
           value={description}
           onChangeText={setDescription}
           maxLength={MAX_PLAYLIST_DESCRIPTION_LENGTH}
@@ -123,7 +125,7 @@ export function PlaylistForm({
 
       <View className="flex-row items-center justify-between">
         <Text className="text-lg font-bold text-foreground">
-          {selectedTracksList.length} Tracks
+          {t("library.count.track", { count: selectedTracksList.length })}
         </Text>
         <Button variant="ghost" onPress={openTrackSheet}>
           <View className="flex-row items-center gap-2">
@@ -133,7 +135,9 @@ export function PlaylistForm({
               height={18}
               color={theme.foreground}
             />
-            <Text className="font-semibold text-foreground">Add Tracks</Text>
+            <Text className="font-semibold text-foreground">
+              {t("playlist.addTracks")}
+            </Text>
           </View>
         </Button>
       </View>
@@ -161,8 +165,8 @@ export function PlaylistForm({
               color={theme.muted}
             />
           }
-          title="No tracks selected"
-          message="Tap Add Tracks to start building this playlist."
+          title={t("library.empty.tracksSelectedTitle")}
+          message={t("library.empty.selectedTracksMessage")}
           className="py-8"
         />
       )}

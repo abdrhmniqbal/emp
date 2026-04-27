@@ -6,6 +6,7 @@ import * as React from "react"
 import { useEffect, useState } from "react"
 
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { DeleteTrackDialog } from "@/components/blocks/delete-track-dialog"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
 import LocalAddIcon from "@/components/icons/local/add"
@@ -61,6 +62,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
 }) => {
   const router = useRouter()
   const { toast } = useToast()
+  const { t } = useTranslation()
   const theme = useThemeColors()
   const toggleFavoriteMutation = useToggleFavorite()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
@@ -254,8 +256,9 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     )
   }
 
-  const fallbackArtist = track.artist || "Unknown Artist"
-  const fallbackAlbum = track.album || "Unknown Album"
+  const unknownValue = t("common.unknown")
+  const fallbackArtist = track.artist || t("library.unknownArtist")
+  const fallbackAlbum = track.album || t("library.unknownAlbum")
 
   const fileName = (() => {
     if (track.filename) {
@@ -264,7 +267,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
 
     const uriPart = track.uri.split("/").pop() || ""
     if (!uriPart) {
-      return "Unknown file"
+      return t("library.unknownFile")
     }
 
     try {
@@ -275,7 +278,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   })()
   const filePath = (() => {
     if (!track.uri) {
-      return "Unknown file"
+      return t("library.unknownFile")
     }
 
     const uri = resolvedFileUri || track.uri
@@ -291,12 +294,12 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   })()
   const lastPlayed = (() => {
     if (!track.lastPlayedAt || !Number.isFinite(track.lastPlayedAt)) {
-      return "Never"
+      return t("track.never")
     }
 
     const date = new Date(track.lastPlayedAt)
     if (Number.isNaN(date.getTime())) {
-      return "Never"
+      return t("track.never")
     }
 
     return date.toLocaleString()
@@ -372,9 +375,9 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     return []
   })()
   const quickFacts = [
-    { label: "Quality", value: qualityLabel },
-    { label: "Codec", value: codecLabel || "Unknown" },
-    { label: "Format", value: formatLabel },
+    { label: t("track.metadata.quality"), value: qualityLabel },
+    { label: t("track.metadata.codec"), value: codecLabel || unknownValue },
+    { label: t("track.metadata.format"), value: formatLabel },
   ]
 
   const metadataItems: Array<{
@@ -383,33 +386,39 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     fullWidth?: boolean
   }> = [
     {
-      label: "Artist",
+      label: t("track.metadata.artist"),
       segments:
         artistNames.length > 0
           ? artistNames.map((name) => ({
               value: name,
               onPress: () => handleOpenArtist(name),
             }))
-          : [{ value: "Unknown Artist" }],
+          : [{ value: t("library.unknownArtist") }],
       fullWidth:
-        (artistNames.length > 0 ? artistNames.join(", ") : "Unknown Artist")
-          .length > 24,
+        (
+          artistNames.length > 0
+            ? artistNames.join(", ")
+            : t("library.unknownArtist")
+        ).length > 24,
     },
     {
-      label: "Album",
+      label: t("track.metadata.album"),
       segments:
         albumNames.length > 0
           ? albumNames.map((name) => ({
               value: name,
               onPress: () => handleOpenAlbum(name),
             }))
-          : [{ value: "Unknown Album" }],
+          : [{ value: t("library.unknownAlbum") }],
       fullWidth:
-        (albumNames.length > 0 ? albumNames.join(", ") : "Unknown Album")
-          .length > 24,
+        (
+          albumNames.length > 0
+            ? albumNames.join(", ")
+            : t("library.unknownAlbum")
+        ).length > 24,
     },
     {
-      label: "Genre",
+      label: t("track.metadata.genre"),
       segments:
         genreNames.length > 0
           ? genreNames.map((genreName) => ({
@@ -422,37 +431,38 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                 })
               },
             }))
-          : [{ value: "Unknown" }],
+          : [{ value: unknownValue }],
       fullWidth:
-        (genreNames.length > 0 ? genreNames.join(", ") : "Unknown").length > 24,
+        (genreNames.length > 0 ? genreNames.join(", ") : unknownValue).length >
+        24,
     },
     {
-      label: "Year",
-      segments: [{ value: track.year ? String(track.year) : "Unknown" }],
+      label: t("track.metadata.year"),
+      segments: [{ value: track.year ? String(track.year) : unknownValue }],
     },
     {
-      label: "Track / Disc",
+      label: t("track.metadata.trackDisc"),
       segments: [
         {
           value:
             track.trackNumber || track.discNumber
               ? `${track.trackNumber ?? "?"} / ${track.discNumber ?? "?"}`
-              : "Unknown",
+              : unknownValue,
         },
       ],
     },
-    { label: "Duration", segments: [{ value: durationLabel }] },
+    { label: t("track.metadata.duration"), segments: [{ value: durationLabel }] },
     {
-      label: "Play Count",
+      label: t("track.metadata.playCount"),
       segments: [{ value: String(track.playCount || 0) }],
     },
     {
-      label: "Last Played",
+      label: t("track.metadata.lastPlayed"),
       segments: [{ value: lastPlayed }],
       fullWidth: true,
     },
     {
-      label: "File",
+      label: t("track.metadata.file"),
       segments: [
         {
           value: filePath,
@@ -565,7 +575,9 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                     height={24}
                     color="white"
                   />
-                  <Text className="font-semibold text-white">Play</Text>
+                  <Text className="font-semibold text-white">
+                    {t("common.play")}
+                  </Text>
                 </View>
               </Button>
               <Button
@@ -606,7 +618,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                     color={theme.foreground}
                   />
                   <Text className="font-semibold text-foreground">
-                    Add to Queue
+                    {t("track.addToQueue")}
                   </Text>
                 </View>
               </Button>
@@ -623,7 +635,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                     color={theme.foreground}
                   />
                   <Text className="font-semibold text-foreground">
-                    Play Next
+                    {t("track.playNext")}
                   </Text>
                 </View>
               </Button>
@@ -642,7 +654,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                   color={theme.foreground}
                 />
                 <Text className="font-semibold text-foreground">
-                  Add to Playlist
+                  {t("track.addToPlaylist")}
                 </Text>
               </View>
             </Button>
@@ -660,7 +672,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                   color="white"
                 />
                 <Text className="font-semibold text-white">
-                  Delete from Device
+                  {t("track.deleteFromDevice")}
                 </Text>
               </View>
             </Button>

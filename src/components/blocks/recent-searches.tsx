@@ -2,6 +2,7 @@ import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useCallback } from "react"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
@@ -88,6 +89,7 @@ export const RecentSearches: React.FC<RecentSearchesProps> = ({
   onRemoveItem,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
 
   const getIconForType = useCallback((type?: string) => {
     switch (type) {
@@ -138,10 +140,10 @@ export const RecentSearches: React.FC<RecentSearchesProps> = ({
     <View className="px-4 py-4">
       <View className="mb-6 flex-row items-center justify-between">
         <Text className="text-lg font-bold text-foreground">
-          Recent Searches
+          {t("search.recentSearches")}
         </Text>
         <PressableFeedback className="active:opacity-50" onPress={onClear}>
-          <Text className="text-muted">Clear</Text>
+          <Text className="text-muted">{t("common.clear")}</Text>
         </PressableFeedback>
       </View>
       <View className="gap-2">

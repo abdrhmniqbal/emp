@@ -17,6 +17,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native"
+import { useTranslation } from "react-i18next"
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
 import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
@@ -88,6 +89,7 @@ export const FolderList: React.FC<FolderListProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
   const listContentContainerStyle = StyleSheet.flatten([
     { gap: 8, paddingBottom: 16 },
@@ -103,7 +105,7 @@ export const FolderList: React.FC<FolderListProps> = ({
   }
 
   const formatItemCount = (count: number) =>
-    `${count} ${count === 1 ? "item" : "items"}`
+    t("library.count.item", { count })
 
   const renderFolderItem = (item: Folder) => (
     <Item key={item.id} onPress={() => handlePress(item)}>
@@ -147,11 +149,11 @@ export const FolderList: React.FC<FolderListProps> = ({
       />
       <ItemContent>
         <ItemTitle>
-          {track.title || track.filename || "Unknown Track"}
+          {track.title || track.filename || t("library.unknownTrack")}
         </ItemTitle>
         <ItemDescription>
           {mergeText([
-            track.artist || "Unknown Artist",
+            track.artist || t("library.unknownArtist"),
             formatDuration(track.duration || 0),
           ])}
         </ItemDescription>
@@ -185,8 +187,8 @@ export const FolderList: React.FC<FolderListProps> = ({
             color={theme.muted}
           />
         }
-        title="No Folders"
-        message="Music folders you add will appear here."
+        title={t("library.empty.foldersTitle")}
+        message={t("library.empty.foldersMessage")}
       />
     )
   }

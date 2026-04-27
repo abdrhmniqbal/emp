@@ -6,6 +6,7 @@ import type {
 import type { SortConfig } from "@/modules/library/library-sort.types"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
@@ -51,6 +52,7 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
   onMomentumScrollEnd,
 }) => {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const effectiveSortConfig = React.useMemo<SortConfig>(
     () =>
       sortConfig ?? {
@@ -69,14 +71,14 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
       (albumsData || []).map((album) => ({
         id: album.id,
         title: album.title,
-        artist: album.artist?.name || "Unknown Artist",
+        artist: album.artist?.name || t("library.unknownArtist"),
         albumArtist: album.artist?.name,
         image: album.artwork || undefined,
         trackCount: album.trackCount || 0,
         year: album.year || 0,
         dateAdded: 0,
       })),
-    [albumsData]
+    [albumsData, t]
   )
   const sortedAlbums = React.useMemo(
     () => sortAlbums(albums, effectiveSortConfig),
@@ -101,8 +103,8 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
           color={theme.muted}
         />
       }
-      emptyTitle="No Albums"
-      emptyMessage="Albums you add to your library will appear here."
+      emptyTitle={t("library.empty.albumsTitle")}
+      emptyMessage={t("library.empty.albumsMessage")}
     >
       <AlbumGrid
         data={sortedAlbums}

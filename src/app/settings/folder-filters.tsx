@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders folder whitelist and blacklist controls for shaping indexed library content.
  * Caller: Settings folder-filters route.
- * Dependencies: Expo directory picker, HeroUI Native buttons and bottom sheet, settings store, indexer service, theme colors.
+ * Dependencies: Expo directory picker, HeroUI Native buttons and bottom sheet, react-i18next, settings store, indexer service, theme colors.
  * Main Functions: FolderFiltersScreen()
  * Side Effects: Persists folder filter configuration and can trigger library reindexing.
  */
@@ -10,6 +10,7 @@ import { Directory } from "expo-file-system"
 import { BottomSheet, Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import LocalAddIcon from "@/components/icons/local/add"
@@ -140,6 +141,7 @@ function getModeFromConfig(config: FolderFilterConfig): FolderFilterMode {
 export default function FolderFiltersScreen() {
   const insets = useSafeAreaInsets()
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const tracks = usePlayerTracks()
   const folderFilterConfig = useSettingsStore((state) => state.folderFilterConfig)
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
@@ -238,12 +240,12 @@ export default function FolderFiltersScreen() {
 
   function getModeLabel() {
     if (selectedMode === "whitelist") {
-      return "Whitelist"
+      return t("settings.library.whitelist")
     }
     if (selectedMode === "blacklist") {
-      return "Blacklist"
+      return t("settings.library.blacklist")
     }
-    return "Whitelist"
+    return t("settings.library.whitelist")
   }
 
   return (
@@ -260,10 +262,10 @@ export default function FolderFiltersScreen() {
           <View className="flex-row items-center justify-between py-1">
             <View className="flex-1 pr-4">
               <Text className="text-[16px] font-medium text-foreground">
-                Filter Mode
+                {t("settings.library.filterMode")}
               </Text>
               <Text className="mt-1 text-[13px] leading-5 text-muted">
-                Choose whether selected folders should be allowed or hidden.
+                {t("settings.library.filterModeDescription")}
               </Text>
             </View>
             <Button
@@ -289,20 +291,20 @@ export default function FolderFiltersScreen() {
               height={24}
               color={theme.accent}
             />
-            <Button.Label>Add New Folder</Button.Label>
+            <Button.Label>{t("settings.library.addNewFolder")}</Button.Label>
           </Button>
         </View>
 
         <View className="mb-3 flex-row items-center justify-between px-1">
           <Text className="text-[22px] font-semibold tracking-[-0.5px] text-foreground">
-            Folders
+            {t("settings.library.folders")}
           </Text>
           <Button
             variant="ghost"
             onPress={clearAllFolders}
             isDisabled={!hasAnyFilters || isIndexing}
           >
-            Clear All
+            {t("common.clearAll")}
           </Button>
         </View>
 
@@ -316,8 +318,8 @@ export default function FolderFiltersScreen() {
                 color={theme.muted}
               />
             }
-            title="No folders added"
-            message="Add one or more folders, then apply filter."
+            title={t("settings.library.noFoldersAdded")}
+            message={t("settings.library.noFoldersAddedMessage")}
             className="mt-4"
           />
         ) : (
@@ -348,7 +350,9 @@ export default function FolderFiltersScreen() {
           isDisabled={!hasPendingChanges || isIndexing}
           className="rounded-[22px]"
         >
-          {isIndexing ? "Indexing..." : "Apply Filter"}
+          {isIndexing
+            ? t("settings.library.indexing")
+            : t("settings.library.applyFilter")}
         </Button>
       </View>
 
@@ -360,7 +364,7 @@ export default function FolderFiltersScreen() {
             backgroundClassName="bg-surface"
           >
             <BottomSheet.Title className="mb-1 text-xl">
-              Select Filter Mode
+              {t("settings.library.selectFilterMode")}
             </BottomSheet.Title>
             <PressableFeedback
               className="h-14 flex-row items-center justify-between active:opacity-60"
@@ -376,7 +380,7 @@ export default function FolderFiltersScreen() {
                     : "text-foreground"
                 }`}
               >
-                Whitelist
+                {t("settings.library.whitelist")}
               </Text>
               {selectedMode === "whitelist" ? (
                 <LocalTickIcon
@@ -401,7 +405,7 @@ export default function FolderFiltersScreen() {
                     : "text-foreground"
                 }`}
               >
-                Blacklist
+                {t("settings.library.blacklist")}
               </Text>
               {selectedMode === "blacklist" ? (
                 <LocalTickIcon

@@ -2,6 +2,7 @@ import * as Notifications from "expo-notifications"
 import { Platform } from "react-native"
 
 import type { IndexerScanProgress } from "@/modules/indexer/indexer.types"
+import { i18n } from "@/modules/localization/i18n"
 import { logError, logInfo } from "@/modules/logging/logging.service"
 import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/indexer-notifications"
 
@@ -73,7 +74,7 @@ function getElapsedLabel() {
 }
 
 function formatProgressBody(progress: IndexerScanProgress) {
-  const fileName = progress.currentFile || "Preparing..."
+  const fileName = progress.currentFile || i18n.t("indexing.preparing")
   if (progress.total <= 0) {
     return `${getElapsedLabel()} • ${fileName}`
   }
@@ -103,8 +104,8 @@ async function configureNotifications() {
     await Notifications.setNotificationChannelAsync(
       INDEXER_NOTIFICATION_CHANNEL_ID,
       {
-        name: "Library Indexing",
-        description: "Shows music library indexing progress",
+        name: i18n.t("indexing.notification.channelName"),
+        description: i18n.t("indexing.notification.channelDescription"),
         importance: Notifications.AndroidImportance.LOW,
         vibrationPattern: [0],
         enableVibrate: false,
@@ -118,11 +119,11 @@ async function configureNotifications() {
     [
       {
         identifier: INDEXER_NOTIFICATION_ACTION_PAUSE,
-        buttonTitle: "Pause",
+        buttonTitle: i18n.t("indexing.notification.pause"),
       },
       {
         identifier: INDEXER_NOTIFICATION_ACTION_CANCEL,
-        buttonTitle: "Cancel",
+        buttonTitle: i18n.t("indexing.notification.cancel"),
         options: {
           isDestructive: true,
         },
@@ -135,11 +136,11 @@ async function configureNotifications() {
     [
       {
         identifier: INDEXER_NOTIFICATION_ACTION_RESUME,
-        buttonTitle: "Resume",
+        buttonTitle: i18n.t("indexing.notification.resume"),
       },
       {
         identifier: INDEXER_NOTIFICATION_ACTION_CANCEL,
-        buttonTitle: "Cancel",
+        buttonTitle: i18n.t("indexing.notification.cancel"),
         options: {
           isDestructive: true,
         },
@@ -266,8 +267,8 @@ export async function beginIndexerProgressNotification() {
   currentIndexerRunStartedAt = Date.now()
   const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
-    "Indexing music library",
-    `Preparing your library scan... • ${getElapsedLabel()}`,
+    i18n.t("indexing.notification.indexingLibrary"),
+    `${i18n.t("indexing.notification.preparingScan")} • ${getElapsedLabel()}`,
     { interactive: true, requestVersion }
   )
 }
@@ -278,8 +279,8 @@ export async function updateIndexerProgressNotification(
   const requestVersion = ++latestNotificationRequestVersion
   const title =
     progress.phase === "scanning"
-      ? "Scanning music files"
-      : "Processing music metadata"
+      ? i18n.t("indexing.notification.scanningFiles")
+      : i18n.t("indexing.notification.processingMetadata")
 
   await replaceIndexerNotification(title, formatProgressBody(progress), {
     interactive: true,
@@ -292,8 +293,8 @@ export async function completeIndexerProgressNotification(
 ) {
   const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
-    "Library indexing complete",
-    `${totalFiles} tracks updated • ${getElapsedLabel()}`,
+    i18n.t("indexing.notification.complete"),
+    `${i18n.t("indexing.notification.tracksUpdated", { count: totalFiles })} • ${getElapsedLabel()}`,
     { interactive: false, requestVersion }
   )
 }
@@ -301,8 +302,8 @@ export async function completeIndexerProgressNotification(
 export async function failIndexerProgressNotification() {
   const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
-    "Library indexing failed",
-    "Tap to reopen the app and try again",
+    i18n.t("indexing.notification.failed"),
+    i18n.t("indexing.notification.tapToReopen"),
     { interactive: false, requestVersion }
   )
 }
@@ -315,10 +316,10 @@ export async function pauseIndexerProgressNotification(progress: {
   const requestVersion = ++latestNotificationRequestVersion
   const body =
     progress.total > 0
-      ? `${progress.current}/${progress.total} • Paused`
-      : "Paused"
+      ? `${progress.current}/${progress.total} • ${i18n.t("indexing.paused")}`
+      : i18n.t("indexing.paused")
 
-  await replaceIndexerNotification("Library indexing paused", body, {
+  await replaceIndexerNotification(i18n.t("indexing.notification.paused"), body, {
     paused: true,
     interactive: true,
     requestVersion,
@@ -331,8 +332,8 @@ export async function resumeIndexerProgressNotification(
   const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
     progress.phase === "scanning"
-      ? "Scanning music files"
-      : "Processing music metadata",
+      ? i18n.t("indexing.notification.scanningFiles")
+      : i18n.t("indexing.notification.processingMetadata"),
     formatProgressBody(progress),
     {
       paused: false,

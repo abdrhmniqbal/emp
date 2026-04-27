@@ -8,6 +8,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import { Chip, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useCallback } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   type NativeScrollEvent,
@@ -134,25 +135,26 @@ const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({
   }
 }
 
-function getTypeLabel(type: FavoriteType): string {
-  switch (type) {
-    case "track":
-      return "Track"
-    case "artist":
-      return "Artist"
-    case "album":
-      return "Album"
-    case "playlist":
-      return "Playlist"
-    default:
-      return type
-  }
-}
-
 const TypeBadge: React.FC<{ type: FavoriteType }> = ({ type }) => {
+  const { t } = useTranslation()
+  const label = (() => {
+    switch (type) {
+      case "track":
+        return t("library.favoriteType.track")
+      case "artist":
+        return t("library.favoriteType.artist")
+      case "album":
+        return t("library.favoriteType.album")
+      case "playlist":
+        return t("library.favoriteType.playlist")
+      default:
+        return type
+    }
+  })()
+
   return (
     <Chip size="sm" variant="secondary" color="default" className="mr-2">
-      <Chip.Label>{getTypeLabel(type)}</Chip.Label>
+      <Chip.Label>{label}</Chip.Label>
     </Chip>
   )
 }
@@ -210,6 +212,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   onMomentumScrollEnd,
 }) => {
   const tracks = usePlayerTracks()
+  const { t } = useTranslation()
   const toggleFavoriteMutation = useToggleFavorite()
   const router = useRouter()
   const listContentContainerStyle = StyleSheet.flatten([
@@ -309,8 +312,8 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
                 color="#ef4444"
               />
             }
-            title="No Favorites"
-            message="Your favorite tracks, artists, and albums will appear here."
+            title={t("library.empty.favoritesTitle")}
+            message={t("library.empty.favoritesMessage")}
           />
         }
         {...LEGEND_LIST_ROW_CONFIG}

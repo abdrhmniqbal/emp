@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import type { Track } from "@/modules/player/player.store"
 
 import { View } from "react-native"
+import { useTranslation } from "react-i18next"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { MediaItem } from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
@@ -41,6 +42,7 @@ export function TrackRow({
   descriptionClassName,
 }: TrackRowProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const isCompactNoCoverRow = !showCover && rank !== undefined && rank !== null
   const fallbackIconSize =
     variant === "grid" ? ICON_SIZES.gridFallback : ICON_SIZES.listFallback
@@ -81,7 +83,7 @@ export function TrackRow({
         </MediaItem.Title>
         {showArtist ? (
           <MediaItem.Description className={descriptionClassName}>
-            {track.artist || "Unknown Artist"}
+            {track.artist || t("library.unknownArtist")}
           </MediaItem.Description>
         ) : null}
       </MediaItem.Content>

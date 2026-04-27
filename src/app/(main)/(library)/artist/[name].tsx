@@ -16,6 +16,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native"
+import { useTranslation } from "react-i18next"
 import Transition from "react-native-screen-transitions"
 import Animated, {
   Extrapolation,
@@ -108,6 +109,7 @@ function getSafeRouteName(value: string | string[] | undefined) {
 }
 
 export default function ArtistDetailsScreen() {
+  const { t } = useTranslation()
   const theme = useThemeColors()
   const router = useRouter()
   const { width: screenWidth } = useWindowDimensions()
@@ -129,7 +131,8 @@ export default function ArtistDetailsScreen() {
   const allTracks = usePlayerTracks()
   const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
   const parsedArtistRouteName = React.useMemo(() => getSafeRouteName(name), [name])
-  const artistName = parsedArtistRouteName.value.trim() || "Unknown Artist"
+  const artistName =
+    parsedArtistRouteName.value.trim() || t("library.unknownArtist")
 
   React.useEffect(() => {
     if (!parsedArtistRouteName.value.trim()) {
@@ -189,7 +192,7 @@ export default function ArtistDetailsScreen() {
     albums.map((album): Album => ({
       id: album.title,
       title: album.title,
-      artist: album.artist || "Unknown Artist",
+      artist: album.artist || t("library.unknownArtist"),
       albumArtist: album.albumArtist,
       image: album.image,
       trackCount: album.trackCount,
@@ -302,10 +305,10 @@ export default function ArtistDetailsScreen() {
   function getSortLabel() {
     const options =
       activeView === "tracks" ? TRACK_SORT_OPTIONS : ALBUM_SORT_OPTIONS
-    return (
-      options.find((option) => option.field === sortConfig.field)?.label ||
-      "Sort"
+    const selectedOption = options.find(
+      (option) => option.field === sortConfig.field
     )
+    return selectedOption ? t(selectedOption.label) : t("library.sort")
   }
 
   const renderHeroSection = () => (
@@ -354,7 +357,7 @@ export default function ArtistDetailsScreen() {
       <View className="absolute right-6 bottom-8 left-6">
         <Text className="mb-2 text-4xl font-bold text-white">{artistName}</Text>
         <Text className="text-base text-white/70">
-          {artistTracks.length} tracks
+          {t("library.count.track", { count: artistTracks.length })}
         </Text>
       </View>
     </View>
@@ -398,7 +401,9 @@ export default function ArtistDetailsScreen() {
                       itemId: artistId,
                       isCurrentlyFavorite: isArtistFavorite,
                       name: artistName,
-                      subtitle: `${artistTracks.length} tracks`,
+                      subtitle: t("library.count.track", {
+                        count: artistTracks.length,
+                      }),
                       image: artistImage,
                     })
                   }}
@@ -448,7 +453,7 @@ export default function ArtistDetailsScreen() {
             >
               <View className="px-6">
                 <SectionTitle
-                  title="Tracks"
+                  title={t("library.tracks")}
                   onViewMore={() => navigateTo("tracks")}
                 />
                 <View style={{ gap: 8 }}>
@@ -475,7 +480,7 @@ export default function ArtistDetailsScreen() {
               {albums.length > 0 && (
                 <View className="mt-8 px-6">
                   <SectionTitle
-                    title="Albums"
+                    title={t("library.albums")}
                     onViewMore={() => navigateTo("albums")}
                   />
                   <AlbumGrid
@@ -528,7 +533,7 @@ export default function ArtistDetailsScreen() {
                         />
                       </PressableFeedback>
                       <Text className="text-lg font-bold text-foreground">
-                        All Tracks
+                        {t("library.allTracks")}
                       </Text>
                     </View>
                     <SortSheet.Trigger label={getSortLabel()} iconSize={14} />

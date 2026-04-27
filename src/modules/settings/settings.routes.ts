@@ -2,7 +2,7 @@
  * Purpose: Defines settings category links and native stack titles for settings screens.
  * Caller: Settings index route and settings stack layout.
  * Dependencies: Settings route type definitions.
- * Main Functions: SETTINGS_CATEGORY_ROUTES, SETTINGS_SCREEN_TITLES.
+ * Main Functions: SETTINGS_CATEGORY_ROUTES, SETTINGS_SCREEN_TITLE_KEYS.
  * Side Effects: None.
  */
 
@@ -11,45 +11,51 @@ import type { SettingsRouteDefinition } from "./settings.types"
 export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
   {
     name: "appearance",
-    title: "Appearance",
-    description: "Theme and visual preferences.",
+    titleKey: "settings.routes.appearance.title",
+    descriptionKey: "settings.routes.appearance.description",
+  },
+  {
+    name: "language",
+    titleKey: "settings.routes.language.title",
+    descriptionKey: "settings.routes.language.description",
   },
   {
     name: "audio",
-    title: "Audio",
-    description: "Playback transitions and audio behavior.",
+    titleKey: "settings.routes.audio.title",
+    descriptionKey: "settings.routes.audio.description",
   },
   {
     name: "notifications",
-    title: "Notifications",
-    description: "Notification behavior and alerts.",
+    titleKey: "settings.routes.notifications.title",
+    descriptionKey: "settings.routes.notifications.description",
   },
   {
     name: "library",
-    title: "Library",
-    description: "Scanning, filters, and indexing behavior.",
+    titleKey: "settings.routes.library.title",
+    descriptionKey: "settings.routes.library.description",
   },
   {
     name: "advanced",
-    title: "Advanced",
-    description: "System-level and troubleshooting settings.",
+    titleKey: "settings.routes.advanced.title",
+    descriptionKey: "settings.routes.advanced.description",
   },
   {
     name: "about",
-    title: "About",
-    description: "App information and build details.",
+    titleKey: "settings.routes.about.title",
+    descriptionKey: "settings.routes.about.description",
   },
 ]
 
-export const SETTINGS_SCREEN_TITLES: Record<string, string> = {
-  index: "Settings",
-  appearance: "Appearance",
-  audio: "Audio",
-  notifications: "Notifications",
-  library: "Library",
-  advanced: "Advanced",
-  about: "About",
-  "folder-filters": "Folder Filters",
-  "track-duration-filter": "Track Duration Filter",
-  "log-level": "Log Level",
+export const SETTINGS_SCREEN_TITLE_KEYS: Record<string, string> = {
+  index: "settings.routes.index.title",
+  appearance: "settings.routes.appearance.title",
+  language: "settings.routes.language.title",
+  audio: "settings.routes.audio.title",
+  notifications: "settings.routes.notifications.title",
+  library: "settings.routes.library.title",
+  advanced: "settings.routes.advanced.title",
+  about: "settings.routes.about.title",
+  "folder-filters": "settings.routes.folderFilters.title",
+  "track-duration-filter": "settings.routes.trackDurationFilter.title",
+  "log-level": "settings.routes.logLevel.title",
 }

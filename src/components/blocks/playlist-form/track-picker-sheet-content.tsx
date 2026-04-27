@@ -3,6 +3,7 @@ import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { BottomSheet, Button } from "heroui-native"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { LEGEND_LIST_PICKER_CONFIG } from "@/components/blocks/legend-list-config"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -26,9 +27,13 @@ export function TrackPickerSheetContent({
   onClearSelection,
 }: TrackPickerSheetContentProps) {
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const insets = useSafeAreaInsets()
   const selectedCount = selectedTracks.size
-  const applyLabel = selectedCount === 0 ? "Apply" : `Apply (${selectedCount})`
+  const applyLabel =
+    selectedCount === 0
+      ? t("playlist.apply")
+      : t("playlist.applyWithCount", { count: selectedCount })
 
   return (
     <BottomSheet.Content
@@ -79,8 +84,8 @@ export function TrackPickerSheetContent({
                 color={theme.muted}
               />
             }
-            title="No tracks found"
-            message="Try a different keyword."
+            title={t("library.empty.tracksFoundTitle")}
+            message={t("search.tryDifferentKeyword")}
             className="py-10"
           />
         )}
@@ -91,14 +96,16 @@ export function TrackPickerSheetContent({
         style={{ paddingBottom: Math.max(insets.bottom, 12) }}
       >
         <View className="mb-2 flex-row items-center justify-between">
-          <Text className="text-sm text-muted">{selectedCount} selected</Text>
+          <Text className="text-sm text-muted">
+            {t("playlist.selected", { count: selectedCount })}
+          </Text>
           <Button
             onPress={onClearSelection}
             variant="ghost"
             isDisabled={selectedCount === 0}
             className="h-8 px-0"
           >
-            Clear selection
+            {t("playlist.clearSelection")}
           </Button>
         </View>
         <Button onPress={onApply} variant="primary" className="w-full">

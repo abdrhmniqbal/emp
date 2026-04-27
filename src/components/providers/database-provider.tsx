@@ -1,6 +1,7 @@
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator"
 import { useEffect, useRef, useState } from "react"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
@@ -16,6 +17,7 @@ export function DatabaseProvider({
   onReady?: () => void
   onError?: () => void
 }) {
+  const { t } = useTranslation()
   const [databaseError, setDatabaseError] = useState<Error | null>(null)
   const lifecycleRef = useRef<"idle" | "loading" | "ready" | "error">("idle")
   const { success, error } = useMigrations(db, migrations)
@@ -85,10 +87,12 @@ export function DatabaseProvider({
 
     return (
       <View className="flex-1 items-center justify-center bg-background p-4">
-        <Text className="mb-2 text-center text-danger">Database Error</Text>
+        <Text className="mb-2 text-center text-danger">
+          {t("database.errorTitle")}
+        </Text>
         <Text className="text-muted-foreground text-center text-sm">
           {isLegacySchemaConflict
-            ? "Schema conflict detected. Clear app data or reinstall once to re-baseline migrations."
+            ? t("database.schemaConflict")
             : message}
         </Text>
       </View>

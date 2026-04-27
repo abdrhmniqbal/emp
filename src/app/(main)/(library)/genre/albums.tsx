@@ -14,6 +14,7 @@ import { useLocalSearchParams } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { useEffect, useMemo, useState } from "react"
 import { Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 
 import Animated from "react-native-reanimated"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
@@ -61,6 +62,7 @@ function getSafeRouteName(value: string | string[] | undefined) {
 }
 
 export default function GenreAlbumsScreen() {
+  const { t } = useTranslation()
   const { name } = useLocalSearchParams<{ name: string }>()
   const router = useRouter()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
@@ -135,7 +137,7 @@ export default function GenreAlbumsScreen() {
     const selected = ALBUM_SORT_OPTIONS.find(
       (option) => option.field === sortConfig.field
     )
-    return selected?.label || "Sort"
+    return selected ? t(selected.label) : t("library.sort")
   }
 
   return (
@@ -149,7 +151,9 @@ export default function GenreAlbumsScreen() {
       <View className="flex-1 bg-background">
         <Stack.Screen
           options={{
-            title: `${genreName.trim()} Albums`,
+            title: t("library.genreAlbumsTitle", {
+              genre: genreName.trim(),
+            }),
           }}
         />
 
@@ -168,8 +172,10 @@ export default function GenreAlbumsScreen() {
                   color={theme.muted}
                 />
               }
-              title="No albums found"
-              message={`No albums available in ${genreName}`}
+              title={t("library.empty.albumsFoundTitle")}
+              message={t("library.genreAlbumsUnavailable", {
+                genre: genreName,
+              })}
               className="mt-12"
             />
           </Animated.View>

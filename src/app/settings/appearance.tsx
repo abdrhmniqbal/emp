@@ -1,13 +1,14 @@
 /**
  * Purpose: Renders appearance preferences for choosing light, dark, or adaptive app theme behavior.
  * Caller: Settings appearance route.
- * Dependencies: Uniwind theme controls, local tick icon, theme colors.
+ * Dependencies: Uniwind theme controls, react-i18next, local tick icon, theme colors.
  * Main Functions: AppearanceSettingsScreen()
  * Side Effects: Persists the selected Uniwind theme mode.
  */
 
 import { PressableFeedback } from "heroui-native"
 import { ScrollView, Text, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { Uniwind, useUniwind } from "uniwind"
 
 import LocalTickIcon from "@/components/icons/local/tick"
@@ -16,19 +17,20 @@ import { useThemeColors } from "@/modules/ui/theme"
 type ThemeValue = "light" | "dark" | "system"
 
 interface AppearanceOption {
-  label: string
+  labelKey: string
   value: ThemeValue
 }
 
 const APPEARANCE_OPTIONS: AppearanceOption[] = [
-  { label: "Light", value: "light" },
-  { label: "Dark", value: "dark" },
-  { label: "System", value: "system" },
+  { labelKey: "settings.appearance.options.light", value: "light" },
+  { labelKey: "settings.appearance.options.dark", value: "dark" },
+  { labelKey: "settings.appearance.options.system", value: "system" },
 ]
 
 export default function AppearanceSettingsScreen() {
   const { theme: currentTheme, hasAdaptiveThemes } = useUniwind()
   const theme = useThemeColors()
+  const { t } = useTranslation()
 
   const currentMode: ThemeValue = hasAdaptiveThemes
     ? "system"
@@ -51,7 +53,7 @@ export default function AppearanceSettingsScreen() {
               }`}
             >
               <Text className="flex-1 text-[16px] font-medium text-foreground">
-                {option.label}
+                {t(option.labelKey)}
               </Text>
               {currentMode === option.value && (
                 <LocalTickIcon

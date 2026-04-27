@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders the Home landing screen with recently played and top tracks previews.
  * Caller: Expo Router home tab.
- * Dependencies: history queries, track playback service, themed refresh control, theme colors.
+ * Dependencies: history queries, react-i18next, track playback service, themed refresh control, theme colors.
  * Main Functions: HomeScreen()
  * Side Effects: Starts indexing on refresh and updates scroll state.
  */
@@ -11,6 +11,7 @@ import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-
 import * as React from "react"
 
 import { ScrollView, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import { ContentSection } from "@/components/blocks/content-section"
 import { MediaCarousel } from "@/components/blocks/media-carousel"
 import { RankedTrackCarousel } from "@/components/blocks/ranked-track-carousel"
@@ -42,6 +43,7 @@ const TOP_TRACKS_LIMIT = 25
 export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
+  const { t } = useTranslation()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const currentTrackId = useCurrentTrackId()
   const {
@@ -104,7 +106,7 @@ export default function HomeScreen() {
     >
       <View style={{ paddingTop: SCREEN_SECTION_TOP_SPACING }}>
         <ContentSection
-          title="Recently Played"
+          title={t("home.recentlyPlayed")}
           data={recentlyPlayedTracks}
           onViewMore={() => router.push("/(main)/(home)/recently-played")}
           emptyState={{
@@ -116,8 +118,8 @@ export default function HomeScreen() {
                 color={theme.muted}
               />
             ),
-            title: "No recently played",
-            message: "Start playing music!",
+            title: t("home.empty.recentlyPlayedTitle"),
+            message: t("home.empty.recentlyPlayedMessage"),
           }}
           renderContent={(data) => (
             <MediaCarousel
@@ -130,7 +132,7 @@ export default function HomeScreen() {
         />
 
         <ContentSection
-          title="Top Tracks"
+          title={t("home.topTracks")}
           data={topTracks}
           onViewMore={() => router.push("/(main)/(home)/top-tracks")}
           emptyState={{
@@ -142,8 +144,8 @@ export default function HomeScreen() {
                 color={theme.muted}
               />
             ),
-            title: "No top tracks",
-            message: "Play more music together!",
+            title: t("home.empty.topTracksTitle"),
+            message: t("home.empty.topTracksMessage"),
           }}
           renderContent={(data) => (
             <RankedTrackCarousel data={data} chunkSize={CHUNK_SIZE} />

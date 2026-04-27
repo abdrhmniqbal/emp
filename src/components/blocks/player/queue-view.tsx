@@ -14,6 +14,7 @@ import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import ReorderableList, {
   useReorderableDrag,
 } from "react-native-reorderable-list"
+import { useTranslation } from "react-i18next"
 import { cn } from "tailwind-variants"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
@@ -117,6 +118,7 @@ const ITEM_HEIGHT = 64
 const ITEM_GAP = 6
 
 export const QueueView: React.FC = () => {
+  const { t } = useTranslation()
   const currentTrack = useCurrentTrack()
   const { queue, upNext, currentIndex } = usePlayerQueueInfo()
   const listRef = useRef<FlatList>(null)
@@ -175,7 +177,7 @@ export const QueueView: React.FC = () => {
     >
       <View className="mb-2 flex-row items-center justify-between px-2">
         <Text className="text-sm text-white/60">
-          Up Next • {upNext.length} {upNext.length === 1 ? "track" : "tracks"}
+          {t("player.upNext")} • {t("library.count.track", { count: upNext.length })}
         </Text>
       </View>
       <View className="flex-1">

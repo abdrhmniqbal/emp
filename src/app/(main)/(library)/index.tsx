@@ -22,6 +22,7 @@ import {
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useTranslation } from "react-i18next"
 import { cn } from "tailwind-variants"
 import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
@@ -135,7 +136,7 @@ const LIBRARY_SORT_OPTIONS: Record<LibraryTab, LibrarySortOption[]> = {
   Tracks: TRACK_SORT_OPTIONS,
   Albums: ALBUM_SORT_OPTIONS,
   Artists: ARTIST_SORT_OPTIONS,
-  Genres: [{ label: "Name", field: "name" }],
+  Genres: [{ label: "library.sortOption.name", field: "name" }],
   Playlists: PLAYLIST_SORT_OPTIONS,
   Folders: FOLDER_SORT_OPTIONS,
   Favorites: [],
@@ -143,6 +144,7 @@ const LIBRARY_SORT_OPTIONS: Record<LibraryTab, LibrarySortOption[]> = {
 
 export default function LibraryScreen() {
   const router = useRouter()
+  const { t } = useTranslation()
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
   const hasMiniPlayer = useHasCurrentTrack()
@@ -229,7 +231,29 @@ export default function LibraryScreen() {
     )
 
   const showPlayButtons = activeTab === "Tracks" || activeTab === "Favorites"
-  const currentSortOptions = LIBRARY_SORT_OPTIONS[activeTab]
+
+  function getLibraryTabLabel(tab: LibraryTab) {
+    switch (tab) {
+      case "Tracks":
+        return t("library.tracks")
+      case "Albums":
+        return t("library.albums")
+      case "Artists":
+        return t("library.artists")
+      case "Genres":
+        return t("library.genres")
+      case "Playlists":
+        return t("library.playlists")
+      case "Folders":
+        return t("library.folders")
+      case "Favorites":
+        return t("library.favorites")
+    }
+  }
+  const currentSortOptions =
+    activeTab === "Genres"
+      ? [{ label: t("library.name"), field: "name" as const }]
+      : LIBRARY_SORT_OPTIONS[activeTab]
   const handleListScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     handleScroll(event.nativeEvent.contentOffset.y)
   }
@@ -389,8 +413,8 @@ export default function LibraryScreen() {
     const selected = currentSortOptions.find(
       (option) => option.field === sortConfig.field
     )
-    return selected?.label || "Sort"
-  }, [currentSortOptions, sortConfig.field])
+    return selected ? t(selected.label) : t("library.sort")
+  }, [currentSortOptions, sortConfig.field, t])
 
   const itemCount = React.useMemo(() => {
     switch (activeTab) {
@@ -512,8 +536,8 @@ export default function LibraryScreen() {
                     color={theme.muted}
                   />
                 }
-                title="No genres found"
-                message="Start playing music to see genres here!"
+                title={t("library.empty.genresFoundTitle")}
+                message={t("home.empty.recentlyPlayedMessage")}
                 className="mt-8"
               />
             )}
@@ -598,7 +622,7 @@ export default function LibraryScreen() {
                         isSelected ? "text-foreground" : "text-muted"
                       )}
                     >
-                      {tab}
+                      {getLibraryTabLabel(tab)}
                     </Tabs.Label>
                   )}
                 </Tabs.Trigger>
@@ -610,8 +634,8 @@ export default function LibraryScreen() {
         <View className="flex-row items-center justify-between px-4 pb-4">
           <Text className="text-lg font-bold text-foreground">
             {activeTab === "Folders"
-              ? `${itemCount} Items`
-              : `${itemCount} ${activeTab}`}
+              ? t("library.items", { count: itemCount })
+              : `${itemCount} ${getLibraryTabLabel(activeTab)}`}
           </Text>
           {currentSortOptions.length > 0 && (
             <SortSheet.Trigger label={sortLabel} iconSize={16} />

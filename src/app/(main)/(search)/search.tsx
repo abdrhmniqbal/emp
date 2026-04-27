@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders interactive search with sequenced route transition, search input focus, recent searches, and result tabs.
  * Caller: Search tab route.
- * Dependencies: search queries/mutations, recent-search cache, router navigation, InteractionManager, reanimated entry transitions, theme colors.
+ * Dependencies: search queries/mutations, react-i18next, recent-search cache, router navigation, InteractionManager, reanimated entry transitions, theme colors.
  * Main Functions: SearchInteractionScreen()
  * Side Effects: Updates recent-search storage/cache and navigates to media detail routes.
  */
@@ -23,6 +23,7 @@ import {
 } from "react-native"
 import Animated, { FadeInUp, runOnJS } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useTranslation } from "react-i18next"
 
 import {
   RecentSearches,
@@ -71,6 +72,7 @@ function HeaderSearchInput({
   onBack,
   focusWhenReady,
 }: HeaderSearchInputProps) {
+  const { t } = useTranslation()
   const [inputValue, setInputValue] = useState(initialValue)
   const inputRef = useRef<TextInput>(null)
   const shouldFocus = focusWhenReady && initialValue.trim().length === 0
@@ -106,7 +108,7 @@ function HeaderSearchInput({
           onPress={onBack}
           className="absolute inset-y-0 left-1 z-20 w-10 items-center justify-center"
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t("common.goBack")}
         >
           <LocalArrowLeftIcon
             fill="none"
@@ -118,7 +120,7 @@ function HeaderSearchInput({
 
         <Input
           ref={inputRef}
-          placeholder="Tracks, artists, albums..."
+          placeholder={t("search.searchPlaceholder")}
           placeholderTextColor={theme.muted}
           value={inputValue}
           onChangeText={handleChangeText}
@@ -146,6 +148,7 @@ function HeaderSearchInput({
 }
 
 export default function SearchInteractionScreen() {
+  const { t } = useTranslation()
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
   const navigation = useNavigation()
@@ -320,7 +323,7 @@ export default function SearchInteractionScreen() {
     pushRecentSearch({
       query,
       title: query,
-      subtitle: "Search",
+      subtitle: t("navigation.tabs.search"),
     })
   }
 
@@ -389,11 +392,11 @@ export default function SearchInteractionScreen() {
 
   function handleTrackPress(track: Track) {
     dismissKeyboard()
-    const title = track.title || "Unknown Track"
+    const title = track.title || t("library.unknownTrack")
     pushRecentSearch({
       query: title,
       title,
-      subtitle: track.artist || "Track",
+      subtitle: track.artist || t("library.favoriteType.track"),
       type: "track",
     })
   }
@@ -403,7 +406,7 @@ export default function SearchInteractionScreen() {
     pushRecentSearch({
       query: artist.name,
       title: artist.name,
-      subtitle: "Artist",
+      subtitle: t("library.favoriteType.artist"),
       type: "artist",
       targetId: artist.id,
       image: artist.image,
@@ -426,7 +429,7 @@ export default function SearchInteractionScreen() {
     pushRecentSearch({
       query: album.title,
       title: album.title,
-      subtitle: album.artist || "Album",
+      subtitle: album.artist || t("library.favoriteType.album"),
       type: "album",
       targetId: album.id,
       image: album.image,
@@ -449,7 +452,7 @@ export default function SearchInteractionScreen() {
     pushRecentSearch({
       query: playlist.title,
       title: playlist.title,
-      subtitle: "Playlist",
+      subtitle: t("library.favoriteType.playlist"),
       type: "playlist",
       targetId: playlist.id,
       image: playlist.image || playlist.images?.[0],
