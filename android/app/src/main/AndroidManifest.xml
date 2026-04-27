@@ -1,3 +1,10 @@
+<!--
+  Purpose: Declares Android permissions, package queries, application metadata, launch routes, and file/deep-link intent filters.
+  Caller: Android runtime and package manager.
+  Dependencies: MainApplication, MainActivity, Expo notification metadata, app resources.
+  Main Functions: MainActivity launcher, app scheme links, audio file open-with intents.
+  Side Effects: Registers app capabilities with Android package manager.
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -43,6 +50,12 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="acme"/>
         <data android:scheme="exp+startune-music"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="content" android:mimeType="audio/*"/>
+        <data android:scheme="file" android:mimeType="audio/*"/>
       </intent-filter>
     </activity>
   </application>

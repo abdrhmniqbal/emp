@@ -33,6 +33,24 @@
         "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_AUDIO_PLAYBACK",
         "POST_NOTIFICATIONS"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": [
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "content",
+              "mimeType": "audio/*"
+            },
+            {
+              "scheme": "file",
+              "mimeType": "audio/*"
+            }
+          ]
+        }
       ]
     },
     "plugins": [
