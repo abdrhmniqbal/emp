@@ -1,3 +1,9 @@
+# Purpose: Generates categorized GitHub release notes and patches them onto an existing release draft.
+# Caller: .github/workflows/release-apk.yml reusable workflow job.
+# Dependencies: actions/checkout, GitHub CLI, jq, git tags, GITHUB_TOKEN contents write permission.
+# Main Functions: Resolve previous tag, build release-body.md, locate release ID, update release body through GitHub API.
+# Side Effects: Updates the GitHub Release body for the requested tag.
+
 name: Release Notes
 
 on:
@@ -13,55 +19,55 @@ on:
 
 jobs:
   generate-release-notes:
-    name: Generate and Apply Release Notes
+    name: Generate and Attach Release Notes
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout
+      - name: Checkout release tag
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: refs/tags/${{ inputs.release_tag }}
 
-      - name: Ensure tags are available
+      - name: Fetch tags
         run: git fetch --force --tags origin
 
-      - name: Generate release body (categorized)
+      - name: Generate release notes
         env:
           GH_TOKEN: ${{ secrets.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
-          CURRENT_TAG="${{ inputs.release_tag }}"
-          NOREPLY_EMAIL_PATTERN='^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$'
-          CONVENTIONAL_COMMIT_PATTERN='^(feat|fix|perf)(\([^)]+\))?(!)?:[[:space:]]+(.+)$'
 
-          if [[ "${CURRENT_TAG}" == *-* ]]; then
-            PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || true)"
-            echo "Pre-release detected. Using nearest previous tag: ${PREVIOUS_TAG:-<none>}"
+          NOREPLY_EMAIL_PATTERN='^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$'
+          CONVENTIONAL_COMMIT_PATTERN='^(feat|fix|perf|refactor|docs|style|test|chore|ci|build)(\([^)]+\))?(!)?:[[:space:]]+(.+)$'
+
+          if [[ "${RELEASE_TAG}" == *-* ]]; then
+            PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${RELEASE_TAG}^" 2>/dev/null || true)"
           else
             PREVIOUS_TAG="$(
-              git tag --sort=-version:refname \
-                | awk -v current_tag="${CURRENT_TAG}" '
-                    /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $0 != current_tag { print; exit }
-                  '
+              git tag --merged "${RELEASE_TAG}^" --sort=-version:refname 2>/dev/null \
+                | awk '
+                    /^v[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }
+                  ' \
+                || true
             )"
-            echo "Stable release detected. Using previous stable tag: ${PREVIOUS_TAG:-<none>}"
           fi
 
           if [ -n "${PREVIOUS_TAG}" ]; then
-            RANGE="${PREVIOUS_TAG}..${CURRENT_TAG}"
-            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}"
+            RANGE="${PREVIOUS_TAG}..${RELEASE_TAG}"
+            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${RELEASE_TAG}"
           else
-            RANGE="${CURRENT_TAG}"
+            RANGE="${RELEASE_TAG}"
             COMPARE_URL=""
           fi
 
-          NOTES_PATH="release-body.md"
           FEATURES_FILE="$(mktemp)"
           CHANGES_FILE="$(mktemp)"
           FIXES_FILE="$(mktemp)"
+          NOTES_PATH="release-body.md"
 
           resolve_author_ref() {
             local commit_sha="$1"
@@ -78,14 +84,9 @@ jobs:
               return
             fi
 
-            local api_login=""
+            local api_login
             api_login="$(
-              curl -fsSL \
-                -H "Authorization: Bearer ${GH_TOKEN}" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${commit_sha}" \
-                | jq -r '.author.login // empty' \
-                || true
+              gh api "repos/${GITHUB_REPOSITORY}/commits/${commit_sha}" --jq '.author.login // empty' 2>/dev/null || true
             )"
 
             if [ -n "${api_login}" ]; then
@@ -98,6 +99,7 @@ jobs:
 
           to_sentence_case() {
             local value="$1"
+
             if [ -z "${value}" ]; then
               echo "${value}"
               return
@@ -113,26 +115,25 @@ jobs:
               continue
             fi
 
+            if [[ ! "${subject}" =~ ${CONVENTIONAL_COMMIT_PATTERN} ]]; then
+              continue
+            fi
+
+            commit_type="${BASH_REMATCH[1]}"
+            clean_subject="$(to_sentence_case "${BASH_REMATCH[4]}")"
             author_ref="$(resolve_author_ref "${sha}" "${author_name}" "${author_email}")"
 
-            clean_subject="${subject}"
-            if [[ "${subject}" =~ ${CONVENTIONAL_COMMIT_PATTERN} ]]; then
-              commit_type="${BASH_REMATCH[1]}"
-              clean_subject="${BASH_REMATCH[4]}"
-              clean_subject="$(to_sentence_case "${clean_subject}")"
-              if [[ "${commit_type}" == "feat" ]]; then
-                first_word="$(echo "${clean_subject}" | awk '{print $1}')"
-                if [[ "${first_word,,}" == "add" ]]; then
-                  printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FEATURES_FILE}"
-                else
-                  printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${CHANGES_FILE}"
-                fi
-              elif [[ "${commit_type}" == "fix" ]]; then
+            case "${commit_type}" in
+              feat)
+                printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FEATURES_FILE}"
+                ;;
+              fix)
                 printf -- '- Fix %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FIXES_FILE}"
-              else
+                ;;
+              *)
                 printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${CHANGES_FILE}"
-              fi
-            fi
+                ;;
+            esac
           done < <(git log --no-merges --pretty=format:'%H%x09%s%x09%an%x09%ae' "${RANGE}")
 
           {
@@ -163,35 +164,56 @@ jobs:
             fi
           } > "${NOTES_PATH}"
 
-          echo "RELEASE_BODY_PATH=${NOTES_PATH}" >> "$GITHUB_ENV"
+          echo "RELEASE_BODY_PATH=${NOTES_PATH}" >> "${GITHUB_ENV}"
 
-      - name: Wait for draft release to exist
+      - name: Attach notes to release draft
         env:
           GH_TOKEN: ${{ secrets.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
-          RELEASE_TAG="${{ inputs.release_tag }}"
 
+          find_release_id() {
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" \
+              | jq -sr --arg tag "${RELEASE_TAG}" '[.[][] | select(.tag_name == $tag) | .id][0] // empty'
+          }
+
+          RELEASE_ID=""
           for attempt in $(seq 1 12); do
-            if gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-              echo "Release draft found for ${RELEASE_TAG}"
-              exit 0
+            RELEASE_ID="$(find_release_id)"
+
+            if [ -n "${RELEASE_ID}" ]; then
+              break
             fi
 
-            echo "Waiting for draft release ${RELEASE_TAG} to be available (${attempt}/12)"
+            echo "Waiting for release ${RELEASE_TAG} to be available (${attempt}/12)"
             sleep 5
           done
 
-          echo "Timed out waiting for draft release ${RELEASE_TAG}"
-          exit 1
+          if [ -z "${RELEASE_ID}" ]; then
+            echo "Release ${RELEASE_TAG} was not found"
+            exit 1
+          fi
 
-      - name: Update release draft body
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ inputs.release_tag }}
-          tag_name: ${{ inputs.release_tag }}
-          token: ${{ secrets.token }}
-          body_path: ${{ env.RELEASE_BODY_PATH }}
-          draft: true
-          prerelease: ${{ contains(inputs.release_tag, '-rc.') }}
-          generate_release_notes: false
+          if [[ "${RELEASE_TAG}" == *-rc.* ]]; then
+            PRERELEASE=true
+          else
+            PRERELEASE=false
+          fi
+
+          jq -n \
+            --arg name "${RELEASE_TAG}" \
+            --arg tag_name "${RELEASE_TAG}" \
+            --rawfile body "${RELEASE_BODY_PATH}" \
+            --argjson draft true \
+            --argjson prerelease "${PRERELEASE}" \
+            '{name: $name, tag_name: $tag_name, body: $body, draft: $draft, prerelease: $prerelease}' \
+            > release-update.json
+
+          gh api \
+            --method PATCH \
+            "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" \
+            --input release-update.json \
+            >/dev/null
+
+          echo "Attached release notes to ${RELEASE_TAG}"
