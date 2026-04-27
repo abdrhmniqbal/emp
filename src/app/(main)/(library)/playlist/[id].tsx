@@ -375,10 +375,17 @@ export default function PlaylistDetailsScreen() {
               </View>
 
               <Animated.View entering={screenEnterTransition()}>
-                <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
+                <PlaybackActionsRow
+                  onPlay={playAll}
+                  onShuffle={shuffle}
+                  className="mb-4"
+                />
               </Animated.View>
 
-              <View className="mt-5 flex-row items-center justify-between">
+              <View
+                className="flex-row items-center justify-between"
+                style={{ marginBottom: 8 }}
+              >
                 <Text className="text-lg font-bold text-foreground">
                   {t("library.count.track", { count: tracks.length })}
                 </Text>

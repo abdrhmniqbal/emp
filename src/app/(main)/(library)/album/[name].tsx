@@ -22,7 +22,6 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
 import {
   DETAIL_HEADER_BOTTOM_SPACING,
-  SCREEN_SECTION_HEADING_GAP,
   SCREEN_SECTION_TOP_SPACING,
 } from "@/constants/layout"
 import { Stack } from "@/layouts/stack"
@@ -361,12 +360,13 @@ export default function AlbumDetailsScreen() {
                 <PlaybackActionsRow
                   onPlay={playAllTracks}
                   onShuffle={shuffleTracks}
+                  className="mb-4"
                 />
               </Animated.View>
 
               <View
                 className="flex-row items-center justify-between"
-                style={{ marginBottom: SCREEN_SECTION_HEADING_GAP }}
+                style={{ marginBottom: 8 }}
               >
                 <Text className="text-lg font-bold text-foreground">
                   {t("library.count.track", { count: sortedTracks.length })}

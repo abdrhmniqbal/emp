@@ -644,8 +644,12 @@ export default function LibraryScreen() {
 
         <View className="flex-1 px-4">
           {showPlayButtons && (
-            <View className="mb-2">
-              <PlaybackActionsRow onPlay={playAll} onShuffle={shuffle} />
+            <View className="mb-4">
+              <PlaybackActionsRow
+                onPlay={playAll}
+                onShuffle={shuffle}
+                className="mb-0"
+              />
             </View>
           )}
           <View className="flex-1">{renderTabContent()}</View>

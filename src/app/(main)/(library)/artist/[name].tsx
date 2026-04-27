@@ -541,6 +541,7 @@ export default function ArtistDetailsScreen() {
                   <PlaybackActionsRow
                     onPlay={playAllTracks}
                     onShuffle={shuffleTracks}
+                    className="mb-2"
                   />
                 </Animated.View>
               </>

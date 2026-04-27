@@ -151,7 +151,7 @@ export default function GenreTopTracksScreen() {
             <PlaybackActionsRow
               onPlay={playAll}
               onShuffle={shuffle}
-              className="px-0 py-4"
+              className="mb-2 px-0 py-0"
             />
           }
         />

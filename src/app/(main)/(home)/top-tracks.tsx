@@ -169,7 +169,7 @@ export default function TopTracksScreen() {
                 <PlaybackActionsRow
                   onPlay={playAll}
                   onShuffle={shuffle}
-                  className="px-0 py-0"
+                  className="mb-2 px-0 py-0"
                 />
               </Animated.View>
             }
