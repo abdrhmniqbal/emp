@@ -193,7 +193,13 @@ async function ensureNotificationPermission() {
 async function replaceIndexerNotification(
   title: string,
   body: string,
-  options?: { paused?: boolean; interactive?: boolean; requestVersion?: number }
+  options?: {
+    autoDismiss?: boolean
+    paused?: boolean
+    interactive?: boolean
+    requestVersion?: number
+    sticky?: boolean
+  }
 ) {
   const requestVersion = options?.requestVersion ?? ++latestNotificationRequestVersion
 
@@ -233,6 +239,8 @@ async function replaceIndexerNotification(
   try {
     const paused = options?.paused ?? false
     const interactive = options?.interactive ?? false
+    const sticky = options?.sticky ?? interactive
+    const autoDismiss = options?.autoDismiss ?? !sticky
     const categoryIdentifier = interactive
       ? paused
         ? INDEXER_NOTIFICATION_PAUSED_CATEGORY_ID
@@ -254,8 +262,8 @@ async function replaceIndexerNotification(
         body,
         color: "#FFFFFF",
         sound: false,
-        sticky: true,
-        autoDismiss: false,
+        sticky,
+        autoDismiss,
         categoryIdentifier,
         data: {
           source: "indexer-progress",
@@ -307,7 +315,7 @@ export async function completeIndexerProgressNotification(
   await replaceIndexerNotification(
     i18n.t("indexing.notification.complete"),
     `${i18n.t("indexing.notification.tracksUpdated", { count: totalFiles })} • ${getElapsedLabel()}`,
-    { interactive: false, requestVersion }
+    { autoDismiss: true, interactive: false, requestVersion, sticky: false }
   )
 }
 
@@ -316,7 +324,7 @@ export async function failIndexerProgressNotification() {
   await replaceIndexerNotification(
     i18n.t("indexing.notification.failed"),
     i18n.t("indexing.notification.tapToReopen"),
-    { interactive: false, requestVersion }
+    { autoDismiss: true, interactive: false, requestVersion, sticky: false }
   )
 }
 

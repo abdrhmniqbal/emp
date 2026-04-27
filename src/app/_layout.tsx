@@ -116,7 +116,15 @@ export default function Layout() {
         return
       }
 
-      const responseKey = `${response.notification.request.identifier}:${response.actionIdentifier}`
+      const responseTitle = response.notification.request.content.title ?? ""
+      const responseBody = response.notification.request.content.body ?? ""
+      const responseKey = [
+        response.notification.request.identifier,
+        response.actionIdentifier,
+        response.notification.date,
+        responseTitle,
+        responseBody,
+      ].join(":")
       if (handledNotificationResponseRef.current === responseKey) {
         return
       }
