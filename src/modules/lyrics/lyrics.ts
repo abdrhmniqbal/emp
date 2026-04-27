@@ -1,5 +1,5 @@
 /**
- * Purpose: Normalizes and parses static, synced, and timed-markup lyric text.
+ * Purpose: Normalizes and parses static, synced, timestamp-tagged, and timed-markup lyric text.
  * Caller: Lyrics source resolver and player lyrics view.
  * Dependencies: JSON parsing and text normalization helpers.
  * Main Functions: normalizeLyricsText(), splitLyricsLines(), parseSyncedLyricsLines(), parseTimedMarkupLines(), parseTTMLLines(), hasMeaningfulTimedMarkupTiming(), hasMeaningfulTTMLTiming()
@@ -53,6 +53,8 @@ interface JsonTimedLyricEntry {
 const LRC_METADATA_HEADER_LINE_REGEX =
   /^\[(id|ti|ar|al|au|lr|length|by|offset|re|tool|re\/tool|ve)\s*:[^\]\r\n]*\]$/gim
 const LRC_COMMENT_LINE_REGEX = /^\s*#.*$/gm
+const TIMED_ANGLE_TAG_REGEX =
+  /<(\d{1,2}:\d{2}(?::\d{2})?(?:\.\d{1,3})?)>/g
 
 function normalizeJsonLyrics(raw: string): string | null {
   try {
@@ -331,6 +333,63 @@ function readTimedMarkupEnd(tag: string, begin: number): number {
   return begin
 }
 
+function isAngleTimedLyrics(raw: string): boolean {
+  TIMED_ANGLE_TAG_REGEX.lastIndex = 0
+  return TIMED_ANGLE_TAG_REGEX.test(raw)
+}
+
+function parseAngleTimedLine(rawLine: string, lineIndex: number) {
+  TIMED_ANGLE_TAG_REGEX.lastIndex = 0
+  const tags = [...rawLine.matchAll(TIMED_ANGLE_TAG_REGEX)].map((match) => ({
+    time: parseTimedMarkupTimestamp(match[1] || "0"),
+    index: match.index ?? 0,
+    endIndex: (match.index ?? 0) + (match[0]?.length ?? 0),
+  }))
+
+  if (tags.length < 2) {
+    return null
+  }
+
+  const words: TimedMarkupWord[] = []
+  for (let index = 0; index < tags.length - 1; index += 1) {
+    const current = tags[index]
+    const next = tags[index + 1]
+    if (!current || !next) {
+      continue
+    }
+
+    const text = decodeMarkupText(rawLine.slice(current.endIndex, next.index))
+    if (!text) {
+      continue
+    }
+
+    words.push({
+      text,
+      begin: current.time,
+      end: next.time,
+    })
+  }
+
+  if (words.length === 0) {
+    return null
+  }
+
+  return {
+    id: `timed-angle-${lineIndex}`,
+    begin: words[0]?.begin ?? 0,
+    end: words[words.length - 1]?.end ?? 0,
+    words,
+  }
+}
+
+function parseAngleTimedLines(raw: string): TimedMarkupLine[] {
+  return raw
+    .split("\n")
+    .map(parseAngleTimedLine)
+    .filter((line): line is TimedMarkupLine => line !== null)
+    .sort((a, b) => a.begin - b.begin)
+}
+
 export function isTimedMarkupLyrics(raw: string): boolean {
   const trimmed = raw.trim()
   const lower = trimmed.toLowerCase()
@@ -338,6 +397,7 @@ export function isTimedMarkupLyrics(raw: string): boolean {
     lower.includes("<?xml") ||
     lower.includes("<tt") ||
     lower.includes("<html") ||
+    isAngleTimedLyrics(trimmed) ||
     /<(?:\w+:)?p\b[^>]*(?:begin|end|dur)\s*=/i.test(trimmed) ||
     /<(?:\w+:)?span\b[^>]*(?:begin|end|dur)\s*=/i.test(trimmed)
   )
@@ -357,6 +417,11 @@ export function parseTimedMarkupLines(
   const trimmed = raw.trim()
   if (!isTimedMarkupLyrics(trimmed)) {
     return []
+  }
+
+  const angleTimedLines = parseAngleTimedLines(trimmed)
+  if (angleTimedLines.length > 0) {
+    return angleTimedLines
   }
 
   const lines: TimedMarkupLine[] = []
