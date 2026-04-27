@@ -1,7 +1,7 @@
 /**
  * Purpose: Sets up native audio playback and replaces the active TrackPlayer queue when playback starts.
  * Caller: track rows, player controls, queue recovery flows, bootstrap playback setup.
- * Dependencies: TrackPlayer native module, player store, playback session service, player activity service, crossfade transition service, logging service.
+ * Dependencies: TrackPlayer native module, notification icon asset, player store, playback session service, player activity service, crossfade transition service, logging service.
  * Main Functions: setupPlayer(), playTrack()
  * Side Effects: Initializes native playback, updates notification options, resets native queue and volume transitions, starts playback, persists session state.
  */
@@ -9,6 +9,7 @@
 import type { Track } from "@/modules/player/player.types"
 
 import { processColor } from "react-native"
+import notificationIcon from "@/assets/notification-icon.png"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 import { handleTrackActivated } from "@/modules/player/player-activity.service"
 import {
@@ -97,6 +98,7 @@ export async function setupPlayer() {
         Capability.SkipToPrevious,
       ],
       progressUpdateEventInterval: 0.5,
+      icon: notificationIcon,
       color: processColor("#FFFFFF") as number,
     })
 
