@@ -1,5 +1,5 @@
 /**
- * Purpose: Renders static, synced, and TTML lyrics with session-only karaoke and zoom controls.
+ * Purpose: Renders static, synced, and timed-markup lyrics with session-only karaoke and zoom controls.
  * Caller: FullPlayerContent when the player expanded view is lyrics.
  * Dependencies: lyrics parsers/source resolver, player controls/store, UI store, theme colors, React Query.
  * Main Functions: LyricsView()
@@ -32,11 +32,11 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { queryClient } from "@/lib/tanstack-query"
 import {
   hasMeaningfulSyncedLyricsTiming,
-  hasMeaningfulTTMLTiming,
+  hasMeaningfulTimedMarkupTiming,
+  parseTimedMarkupLines,
   parseSyncedLyricsLines,
-  parseTTMLLines,
   splitLyricsLines,
-  type TTMLLine,
+  type TimedMarkupLine,
 } from "@/modules/lyrics/lyrics"
 import { resolveTrackLyricsSource } from "@/modules/lyrics/lyrics-source"
 import { seekTo } from "@/modules/player/player-controls.service"
@@ -48,7 +48,7 @@ import {
   useUIStore,
 } from "@/modules/ui/ui.store"
 
-type LyricsMode = "static" | "synced" | "ttml"
+type LyricsMode = "static" | "synced" | "timedMarkup"
 
 interface LyricsViewProps {
   track: Track | null
@@ -57,7 +57,7 @@ interface LyricsViewProps {
 const AUTO_SCROLL_RESUME_DELAY_MS = 100
 const FONT_SCALE_VALUES = [1, 1.2, 1.4] as const
 
-function findTTMLLineIndex(lines: TTMLLine[], time: number) {
+function findTimedMarkupLineIndex(lines: TimedMarkupLine[], time: number) {
   return lines.findIndex((line, index) => {
     const nextLine = lines[index + 1]
     return time >= line.begin && (!nextLine || time < nextLine.begin)
@@ -74,7 +74,7 @@ function findSyncedLineIndex(
   })
 }
 
-const TTMLWordSpan: React.FC<{
+const TimedMarkupWordSpan: React.FC<{
   text: string
   begin: number
   end: number
@@ -171,8 +171,8 @@ const TTMLWordSpan: React.FC<{
   )
 }
 
-const TTMLLineRow: React.FC<{
-  line: TTMLLine
+const TimedMarkupLineRow: React.FC<{
+  line: TimedMarkupLine
   isActive: boolean
   isPast: boolean
   fontScale: number
@@ -205,7 +205,7 @@ const TTMLLineRow: React.FC<{
     >
       <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
         {line.words.map((word) => (
-          <TTMLWordSpan
+          <TimedMarkupWordSpan
             key={`${line.id}-${word.begin}-${word.end}-${word.text}`}
             text={word.text}
             begin={word.begin}
@@ -269,34 +269,34 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     queryClient
   )
 
-  const ttmlLines = React.useMemo(
-    () => (resolvedLyrics ? parseTTMLLines(resolvedLyrics) : []),
+  const timedMarkupLines = React.useMemo(
+    () => (resolvedLyrics ? parseTimedMarkupLines(resolvedLyrics) : []),
     [resolvedLyrics]
   )
-  const hasTimedTTML = React.useMemo(
-    () => hasMeaningfulTTMLTiming(ttmlLines),
-    [ttmlLines]
+  const hasTimedMarkup = React.useMemo(
+    () => hasMeaningfulTimedMarkupTiming(timedMarkupLines),
+    [timedMarkupLines]
   )
-  const hasTTML = ttmlLines.length > 0
+  const hasTimedMarkupLyrics = timedMarkupLines.length > 0
   const lines = React.useMemo(
-    () => (hasTTML ? [] : splitLyricsLines(resolvedLyrics)),
-    [hasTTML, resolvedLyrics]
+    () => (hasTimedMarkupLyrics ? [] : splitLyricsLines(resolvedLyrics)),
+    [hasTimedMarkupLyrics, resolvedLyrics]
   )
   const syncedLines = React.useMemo(
-    () => (hasTTML ? [] : parseSyncedLyricsLines(resolvedLyrics)),
-    [hasTTML, resolvedLyrics]
+    () => (hasTimedMarkupLyrics ? [] : parseSyncedLyricsLines(resolvedLyrics)),
+    [hasTimedMarkupLyrics, resolvedLyrics]
   )
   const hasTimedSyncedLyrics = React.useMemo(
     () => hasMeaningfulSyncedLyricsTiming(syncedLines),
     [syncedLines]
   )
 
-  const hasStaticLyrics = lines.length > 0 || hasTTML
-  const hasSyncedLyrics = hasTimedSyncedLyrics || hasTimedTTML
+  const hasStaticLyrics = lines.length > 0 || hasTimedMarkupLyrics
+  const hasSyncedLyrics = hasTimedSyncedLyrics || hasTimedMarkup
 
-  const effectiveMode: LyricsMode = hasTimedTTML
+  const effectiveMode: LyricsMode = hasTimedMarkup
     ? karaokeEnabled
-      ? "ttml"
+      ? "timedMarkup"
       : "static"
     : karaokeEnabled && hasTimedSyncedLyrics
       ? "synced"
@@ -347,8 +347,8 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     }
 
     const getActiveIndex = (time: number) => {
-      if (effectiveMode === "ttml") {
-        return findTTMLLineIndex(ttmlLines, time)
+      if (effectiveMode === "timedMarkup") {
+        return findTimedMarkupLineIndex(timedMarkupLines, time)
       }
 
       if (effectiveMode === "synced") {
@@ -359,7 +359,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     }
 
     const syncPlaybackTime = (time: number) => {
-      if (effectiveMode === "ttml") {
+      if (effectiveMode === "timedMarkup") {
         currentTimeSv.value = time
       }
 
@@ -382,7 +382,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     })
 
     return unsubscribe
-  }, [currentTimeSv, effectiveMode, syncedLines, ttmlLines])
+  }, [currentTimeSv, effectiveMode, syncedLines, timedMarkupLines])
 
   React.useEffect(() => {
     syncedLineOffsetRef.current = {}
@@ -449,7 +449,8 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   }, [clearAutoScrollResumeTimeout])
 
   React.useEffect(() => {
-    const isSyncedMode = effectiveMode === "synced" || effectiveMode === "ttml"
+    const isSyncedMode =
+      effectiveMode === "synced" || effectiveMode === "timedMarkup"
     if (
       !isSyncedMode ||
       activeSyncedLineIndex < 0 ||
@@ -458,7 +459,8 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       return
     }
 
-    const activeLines = effectiveMode === "ttml" ? ttmlLines : syncedLines
+    const activeLines =
+      effectiveMode === "timedMarkup" ? timedMarkupLines : syncedLines
     const activeLine = activeLines[activeSyncedLineIndex]
     if (!activeLine) {
       return
@@ -476,7 +478,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     activeSyncedLineIndex,
     effectiveMode,
     syncedLines,
-    ttmlLines,
+    timedMarkupLines,
     viewportHeight,
     fontScale,
   ])
@@ -510,15 +512,17 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     )
   }
 
-  const ttmlStaticLines = hasTTML
-    ? ttmlLines.map((line) => ({
+  const timedMarkupStaticLines = hasTimedMarkupLyrics
+    ? timedMarkupLines.map((line) => ({
         id: line.id,
         text: line.words.map((w) => w.text).join(""),
         isSpacer: false,
       }))
     : []
 
-  const staticDisplayLines = hasTTML ? ttmlStaticLines : lines
+  const staticDisplayLines = hasTimedMarkupLyrics
+    ? timedMarkupStaticLines
+    : lines
 
   return (
     <Animated.View
@@ -546,14 +550,14 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
           gap: 10,
         }}
       >
-        {effectiveMode === "ttml"
-          ? ttmlLines.map((line, index) => {
+        {effectiveMode === "timedMarkup"
+          ? timedMarkupLines.map((line, index) => {
               const isActive = index === activeSyncedLineIndex
               const isPast =
                 activeSyncedLineIndex >= 0 && index < activeSyncedLineIndex
 
               return (
-                <TTMLLineRow
+                <TimedMarkupLineRow
                   key={line.id}
                   line={line}
                   isActive={isActive}

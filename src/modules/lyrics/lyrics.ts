@@ -1,3 +1,11 @@
+/**
+ * Purpose: Normalizes and parses static, synced, and timed-markup lyric text.
+ * Caller: Lyrics source resolver and player lyrics view.
+ * Dependencies: JSON parsing and text normalization helpers.
+ * Main Functions: normalizeLyricsText(), splitLyricsLines(), parseSyncedLyricsLines(), parseTimedMarkupLines(), parseTTMLLines(), hasMeaningfulTimedMarkupTiming(), hasMeaningfulTTMLTiming()
+ * Side Effects: None.
+ */
+
 interface LyricsLine {
   id: string
   text: string
@@ -10,18 +18,21 @@ interface SyncedLyricsLine {
   text: string
 }
 
-export interface TTMLWord {
+export interface TimedMarkupWord {
   text: string
   begin: number
   end: number
 }
 
-export interface TTMLLine {
+export interface TimedMarkupLine {
   id: string
   begin: number
   end: number
-  words: TTMLWord[]
+  words: TimedMarkupWord[]
 }
+
+export type TTMLWord = TimedMarkupWord
+export type TTMLLine = TimedMarkupLine
 
 function hasMoreThanOneDistinctTime(values: number[]) {
   const distinctValues = new Set(
@@ -245,7 +256,44 @@ export function hasMeaningfulSyncedLyricsTiming(lines: SyncedLyricsLine[]) {
   return hasMoreThanOneDistinctTime(lines.map((line) => line.time))
 }
 
-function parseTTMLTimestamp(raw: string): number {
+function decodeMarkupText(raw: string) {
+  return raw
+    .replace(/<(?:\w+:)?br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+}
+
+function parseTimedMarkupTimestamp(raw: string): number {
+  const normalized = raw.trim()
+  if (!normalized) {
+    return 0
+  }
+
+  const unitMatch = normalized.match(/^(-?\d+(?:\.\d+)?)(h|m|s|ms)$/i)
+  if (unitMatch) {
+    const value = Number.parseFloat(unitMatch[1] || "0")
+    const unit = (unitMatch[2] || "").toLowerCase()
+    if (unit === "h") {
+      return value * 3600
+    }
+
+    if (unit === "m") {
+      return value * 60
+    }
+
+    if (unit === "ms") {
+      return value / 1000
+    }
+
+    return value
+  }
+
   const parts = raw.split(":")
   if (parts.length === 3) {
     const hours = Number(parts[0] || 0)
@@ -261,51 +309,81 @@ function parseTTMLTimestamp(raw: string): number {
   return Number.parseFloat(raw) || 0
 }
 
-export function isTTML(raw: string): boolean {
+function readTimedMarkupAttribute(tag: string, name: string): string | undefined {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  const match = tag.match(
+    new RegExp(`(?:^|\\s|:)${escapedName}\\s*=\\s*(['"])(.*?)\\1`, "i")
+  )
+  return match?.[2]
+}
+
+function readTimedMarkupEnd(tag: string, begin: number): number {
+  const end = readTimedMarkupAttribute(tag, "end")
+  if (end !== undefined) {
+    return parseTimedMarkupTimestamp(end)
+  }
+
+  const dur = readTimedMarkupAttribute(tag, "dur")
+  if (dur !== undefined) {
+    return begin + parseTimedMarkupTimestamp(dur)
+  }
+
+  return begin
+}
+
+export function isTimedMarkupLyrics(raw: string): boolean {
   const trimmed = raw.trim()
+  const lower = trimmed.toLowerCase()
   return (
-    trimmed.includes("<?xml") ||
-    trimmed.includes("<tt") ||
-    trimmed.includes("<html")
+    lower.includes("<?xml") ||
+    lower.includes("<tt") ||
+    lower.includes("<html") ||
+    /<(?:\w+:)?p\b[^>]*(?:begin|end|dur)\s*=/i.test(trimmed) ||
+    /<(?:\w+:)?span\b[^>]*(?:begin|end|dur)\s*=/i.test(trimmed)
   )
 }
 
-export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
+export function isTTML(raw: string): boolean {
+  return isTimedMarkupLyrics(raw)
+}
+
+export function parseTimedMarkupLines(
+  raw: string | null | undefined
+): TimedMarkupLine[] {
   if (!raw) {
     return []
   }
 
   const trimmed = raw.trim()
-  if (!isTTML(trimmed)) {
+  if (!isTimedMarkupLyrics(trimmed)) {
     return []
   }
 
-  const lines: TTMLLine[] = []
-  const pRegex =
-    /<p\s[^>]*begin="([^"]+)"[^>]*end="([^"]+)"[^>]*>([\s\S]*?)<\/p>/g
+  const lines: TimedMarkupLine[] = []
+  const pRegex = /<(?:\w+:)?p\b([^>]*)>([\s\S]*?)<\/(?:\w+:)?p>/gi
   let pMatch: RegExpExecArray | null
 
   let lineIndex = 0
   while ((pMatch = pRegex.exec(trimmed)) !== null) {
-    const pBegin = parseTTMLTimestamp(pMatch[1] || "0")
-    const pEnd = parseTTMLTimestamp(pMatch[2] || "0")
-    const innerContent = pMatch[3] || ""
+    const pAttributes = pMatch[1] || ""
+    const pBegin = parseTimedMarkupTimestamp(
+      readTimedMarkupAttribute(pAttributes, "begin") || "0"
+    )
+    const pEnd = readTimedMarkupEnd(pAttributes, pBegin)
+    const innerContent = pMatch[2] || ""
 
-    const words: TTMLWord[] = []
+    const words: TimedMarkupWord[] = []
     const spanRegex =
-      /<span\s[^>]*begin="([^"]+)"[^>]*end="([^"]+)"[^>]*>([\s\S]*?)<\/span>/g
+      /<(?:\w+:)?span\b([^>]*)>([\s\S]*?)<\/(?:\w+:)?span>/gi
     let spanMatch: RegExpExecArray | null
 
     while ((spanMatch = spanRegex.exec(innerContent)) !== null) {
-      const begin = parseTTMLTimestamp(spanMatch[1] || "0")
-      const end = parseTTMLTimestamp(spanMatch[2] || "0")
-      const text = (spanMatch[3] || "")
-        .replace(/<[^>]+>/g, "")
-        .replace(/&amp;/g, "&")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&apos;/g, "'")
+      const spanAttributes = spanMatch[1] || ""
+      const begin = parseTimedMarkupTimestamp(
+        readTimedMarkupAttribute(spanAttributes, "begin") || String(pBegin)
+      )
+      const end = readTimedMarkupEnd(spanAttributes, begin)
+      const text = decodeMarkupText(spanMatch[2] || "")
 
       if (text) {
         words.push({ text, begin, end })
@@ -313,14 +391,7 @@ export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
     }
 
     if (words.length === 0) {
-      const plainText = innerContent
-        .replace(/<[^>]+>/g, "")
-        .replace(/&amp;/g, "&")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&apos;/g, "'")
-        .trim()
+      const plainText = decodeMarkupText(innerContent).trim()
 
       if (plainText) {
         words.push({ text: plainText, begin: pBegin, end: pEnd })
@@ -329,7 +400,7 @@ export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
 
     if (words.length > 0) {
       lines.push({
-        id: `ttml-${lineIndex}`,
+        id: `timed-markup-${lineIndex}`,
         begin: pBegin,
         end: pEnd,
         words,
@@ -338,10 +409,45 @@ export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
     }
   }
 
+  if (lines.length === 0) {
+    const spanRegex =
+      /<(?:\w+:)?span\b([^>]*)>([\s\S]*?)<\/(?:\w+:)?span>/gi
+    let spanMatch: RegExpExecArray | null
+    const words: TimedMarkupWord[] = []
+
+    while ((spanMatch = spanRegex.exec(trimmed)) !== null) {
+      const spanAttributes = spanMatch[1] || ""
+      const begin = parseTimedMarkupTimestamp(
+        readTimedMarkupAttribute(spanAttributes, "begin") || "0"
+      )
+      const end = readTimedMarkupEnd(spanAttributes, begin)
+      const text = decodeMarkupText(spanMatch[2] || "")
+
+      if (text) {
+        words.push({ text, begin, end })
+      }
+    }
+
+    if (words.length > 0) {
+      const firstBegin = Math.min(...words.map((word) => word.begin))
+      const lastEnd = Math.max(...words.map((word) => word.end))
+      lines.push({
+        id: "timed-markup-0",
+        begin: Number.isFinite(firstBegin) ? firstBegin : 0,
+        end: Number.isFinite(lastEnd) ? lastEnd : 0,
+        words,
+      })
+    }
+  }
+
   return lines.sort((a, b) => a.begin - b.begin)
 }
 
-export function hasMeaningfulTTMLTiming(lines: TTMLLine[]) {
+export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
+  return parseTimedMarkupLines(raw)
+}
+
+export function hasMeaningfulTimedMarkupTiming(lines: TimedMarkupLine[]) {
   if (lines.length === 0) {
     return false
   }
@@ -364,4 +470,8 @@ export function hasMeaningfulTTMLTiming(lines: TTMLLine[]) {
     hasMoreThanOneDistinctTime(lines.flatMap((line) => [line.begin, line.end])) ||
     hasMoreThanOneDistinctTime(words.flatMap((word) => [word.begin, word.end]))
   )
+}
+
+export function hasMeaningfulTTMLTiming(lines: TTMLLine[]) {
+  return hasMeaningfulTimedMarkupTiming(lines)
 }
