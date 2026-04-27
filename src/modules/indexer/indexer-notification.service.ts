@@ -1,3 +1,11 @@
+/**
+ * Purpose: Manages Android/iOS progress notifications for active library indexing runs
+ * Caller: indexer.service and notification response bootstrap handlers
+ * Dependencies: expo-notifications, react-native Platform, localization, logging, indexer notification settings
+ * Main Functions: beginIndexerProgressNotification(), updateIndexerProgressNotification(), completeIndexerProgressNotification(), failIndexerProgressNotification(), pauseIndexerProgressNotification(), resumeIndexerProgressNotification(), dismissIndexerProgressNotification()
+ * Side Effects: Requests notification permissions, configures Android channels/categories, schedules and dismisses OS notifications
+ */
+
 import * as Notifications from "expo-notifications"
 import { Platform } from "react-native"
 
@@ -244,6 +252,7 @@ async function replaceIndexerNotification(
       content: {
         title,
         body,
+        color: "#FFFFFF",
         sound: false,
         sticky: true,
         autoDismiss: false,
@@ -254,7 +263,10 @@ async function replaceIndexerNotification(
           paused,
         },
       },
-      trigger: null,
+      trigger:
+        Platform.OS === "android"
+          ? { channelId: INDEXER_NOTIFICATION_CHANNEL_ID }
+          : null,
     })
     activeNotificationId = INDEXER_NOTIFICATION_ID
     lastNotificationSignature = signature
