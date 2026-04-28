@@ -25,7 +25,7 @@ import {
   useCurrentTrack,
   usePlayerQueueInfo,
 } from "@/modules/player/player-selectors"
-import { playTrack } from "@/modules/player/player.service"
+import { skipToQueueItem } from "@/modules/player/player-controls.service"
 import {
   getQueueState,
   type Track,
@@ -131,15 +131,15 @@ export const QueueView: React.FC = () => {
     }
     void moveInQueue(from, to)
   }, [])
-  const handlePlayFromQueue = useCallback((track: Track) => {
-    void playTrack(track, getQueueState())
+  const handlePlayFromQueue = useCallback((index: number) => {
+    void skipToQueueItem(index)
   }, [])
   const renderItem = useCallback(
     ({ item, index }: { item: Track; index: number }) => (
       <MemoizedQueueItem
         track={item}
         isPlayedTrack={currentIndex >= 0 && index < currentIndex}
-        onPress={() => handlePlayFromQueue(item)}
+        onPress={() => handlePlayFromQueue(index)}
         onRemove={() => handleRemove(item.id)}
       />
     ),

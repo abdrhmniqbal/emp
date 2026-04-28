@@ -150,6 +150,28 @@ export async function playNext() {
   }
 }
 
+export async function skipToQueueItem(index: number) {
+  try {
+    const hasNativeQueue = await ensureNativePlaybackQueue()
+    if (!hasNativeQueue) {
+      logWarn("Skipped jumping to track because no playback queue is available")
+      return
+    }
+
+    logInfo("Skipping to specific track in queue", { index })
+    await TrackPlayer.skip(index)
+    await syncCurrentTrackFromPlayer({ skipQueueRefresh: true })
+    await persistPlaybackSession({
+      force: true,
+      cursorOnly: true,
+      consumeImmediateQueue: true,
+    })
+    logInfo("Skipped to specific track in queue", { index })
+  } catch (error) {
+    logError("Failed to skip to specific track in queue", error, { index })
+  }
+}
+
 export async function playPrevious() {
   try {
     const hasNativeQueue = await ensureNativePlaybackQueue()
