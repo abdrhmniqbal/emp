@@ -1,9 +1,9 @@
 /**
- * Purpose: Scans the device media library, extracts audio metadata/artwork, and commits indexed tracks into SQLite.
+ * Purpose: Scans the device media library, extracts audio metadata/artwork, rebuilds split relations, and commits indexed tracks into SQLite.
  * Caller: indexer.service startIndexing(), bootstrap auto-scan, manual library refresh actions.
- * Dependencies: Expo MediaLibrary/FileSystem, Drizzle DB schema, metadata repository, folder/duration filters, indexer runtime.
- * Main Functions: scanMediaLibrary(), getLastIndexerRunSnapshot()
- * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, emits incremental commit notifications, marks missing tracks deleted.
+ * Dependencies: Expo MediaLibrary/FileSystem, Drizzle DB schema, metadata repository, split settings config, folder/duration filters, indexer runtime.
+ * Main Functions: scanMediaLibrary(), rebuildSplitMetadataRelations(), getLastIndexerRunSnapshot()
+ * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, rebuilds split artist/genre relations, emits incremental commit notifications, marks missing tracks deleted.
  */
 
 import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
@@ -1001,9 +1001,9 @@ async function upsertPreparedAsset(
   const relationArtistIds = Array.from(
     new Set(
       await Promise.all(
-        relationArtistNames.map((artist) =>
-          getOrCreateArtist(artist, lookupCache)
-        )
+        [...relationArtistNames, metadata.artist ?? ""]
+          .filter((artist): artist is string => Boolean(artist))
+          .map((artist) => getOrCreateArtist(artist, lookupCache))
       )
     )
   )
@@ -1245,9 +1245,12 @@ export async function rebuildSplitMetadataRelations(
         const relationArtistIds = Array.from(
           new Set(
             await Promise.all(
-              relationArtistNames.map((artist) =>
-                getOrCreateArtist(artist, lookupCache)
-              )
+              [
+                ...relationArtistNames,
+                primaryArtistName ?? "",
+              ]
+                .filter((artist): artist is string => Boolean(artist))
+                .map((artist) => getOrCreateArtist(artist, lookupCache))
             )
           )
         )

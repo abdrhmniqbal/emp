@@ -1,3 +1,11 @@
+/**
+ * Purpose: Repositories for library browsing, artist lookup, recent-search persistence, and global search results.
+ * Caller: Search screens, artist/album detail routes, recent-search mutations, and library query hooks.
+ * Dependencies: Drizzle DB client, artist/album/track tables, recent-search settings storage, artwork resolver, track transformers.
+ * Main Functions: listArtists(), listAlbums(), getTracksByArtistName(), getTracksByAlbumName(), searchLibrary(), addRecentSearch(), getRecentSearches()
+ * Side Effects: Reads/writes SQLite rows and app-settings JSON stored in SQLite, updates recent-search persistence, and resolves artwork metadata.
+ */
+
 import type { Track } from "@/modules/player/player.types"
 import {
   and,
@@ -814,7 +822,11 @@ export async function getTracksByArtistName(
 
     return fallbackTracks
       .filter(
-        (track) => normalizeLookup(track.artist?.name) === normalizedArtistName
+        (track) =>
+          normalizeLookup(track.artist?.name) === normalizedArtistName ||
+          track.featuredArtists?.some(
+            (entry) => normalizeLookup(entry.artist?.name) === normalizedArtistName
+          )
       )
       .map(transformDBTrackToTrack)
   }
@@ -878,6 +890,12 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
   }
 
   try {
+    const featuredArtistTrackMatchIds = db
+      .select({ trackId: trackArtists.trackId })
+      .from(trackArtists)
+      .innerJoin(artists, eq(artists.id, trackArtists.artistId))
+      .where(like(artists.name, searchTerm))
+
     const [artistResults, albumResults, playlistResults, titleTrackResults] =
       await Promise.all([
         db.query.artists.findMany({
@@ -925,7 +943,13 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
           },
         }),
         db.query.tracks.findMany({
-          where: and(eq(tracks.isDeleted, 0), like(tracks.title, searchTerm)),
+          where: and(
+            eq(tracks.isDeleted, 0),
+            or(
+              like(tracks.title, searchTerm),
+              inArray(tracks.id, featuredArtistTrackMatchIds)
+            )
+          ),
           with: {
             artist: true,
             featuredArtists: {
@@ -956,27 +980,23 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
       matchedArtistIds.length > 0 && matchedAlbumIds.length > 0
         ? or(
             inArray(tracks.artistId, matchedArtistIds),
-            sql`${tracks.id} IN (
-              SELECT ${trackArtists.trackId}
-              FROM ${trackArtists}
-              WHERE ${trackArtists.artistId} IN (${sql.join(
-                matchedArtistIds.map((id) => sql`${id}`),
-                sql`, `
-              )})
-            )`,
+            inArray(
+              tracks.id,
+              db.select({ trackId: trackArtists.trackId })
+                .from(trackArtists)
+                .where(inArray(trackArtists.artistId, matchedArtistIds))
+            ),
             inArray(tracks.albumId, matchedAlbumIds)
           )
         : matchedArtistIds.length > 0
           ? or(
               inArray(tracks.artistId, matchedArtistIds),
-              sql`${tracks.id} IN (
-                SELECT ${trackArtists.trackId}
-                FROM ${trackArtists}
-                WHERE ${trackArtists.artistId} IN (${sql.join(
-                  matchedArtistIds.map((id) => sql`${id}`),
-                  sql`, `
-                )})
-              )`
+              inArray(
+                tracks.id,
+                db.select({ trackId: trackArtists.trackId })
+                  .from(trackArtists)
+                  .where(inArray(trackArtists.artistId, matchedArtistIds))
+              )
             )
           : matchedAlbumIds.length > 0
             ? inArray(tracks.albumId, matchedAlbumIds)
