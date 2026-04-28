@@ -3,7 +3,7 @@
  * Caller: indexer.service startIndexing(), bootstrap auto-scan, manual library refresh actions.
  * Dependencies: Expo MediaLibrary/FileSystem, Drizzle DB schema, metadata repository, folder/duration filters, indexer runtime.
  * Main Functions: scanMediaLibrary(), getLastIndexerRunSnapshot()
- * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, marks missing tracks deleted.
+ * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, emits incremental commit notifications, marks missing tracks deleted.
  */
 
 import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
@@ -90,6 +90,12 @@ interface BatchProcessingResult {
   preparedCount: number
   committedCount: number
   failedCount: number
+}
+
+interface IncrementalCommitResult {
+  committedAssets: number
+  processedAssets: number
+  totalAssets: number
 }
 
 interface PreparedBatchResult {
@@ -555,7 +561,8 @@ async function hardDeleteSoftDeletedTracksInScopes(
 export async function scanMediaLibrary(
   onProgress?: (progress: IndexerScanProgress) => void,
   forceFullScan = false,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  onIncrementalCommit?: (result: IncrementalCommitResult) => Promise<void> | void
 ): Promise<void> {
   const startedAt = Date.now()
   let discoveredAssets = 0
@@ -695,6 +702,14 @@ export async function scanMediaLibrary(
     preparedAssetsCount += batchResult.preparedCount
     committedAssetsCount += batchResult.committedCount
     failedAssetsCount += batchResult.failedCount
+
+    if (batchResult.committedCount > 0) {
+      await onIncrementalCommit?.({
+        committedAssets: committedAssetsCount,
+        processedAssets: i + batch.length,
+        totalAssets: assetsToProcess.length,
+      })
+    }
 
     await yieldToEventLoop()
   }

@@ -1,3 +1,11 @@
+/**
+ * Purpose: Orchestrates indexer runs, progress state, cancellation, queued runs, and incremental UI refresh.
+ * Caller: Settings/library refresh controls, bootstrap auto-scan, notification actions.
+ * Dependencies: Indexer repository/runtime/progress services, indexed media refresh service, logging service.
+ * Main Functions: startIndexing(), forceReindexLibrary(), stopIndexing(), pauseIndexing(), resumeIndexing(), cancelIndexing().
+ * Side Effects: Reads media library through repository, writes indexer progress/runtime state, refreshes player/query caches.
+ */
+
 import { refreshIndexedMediaState } from "@/modules/indexer/indexer-refresh.service"
 import { scanMediaLibrary } from "@/modules/indexer/indexer.repository"
 import {
@@ -26,6 +34,8 @@ import {
 } from "@/modules/indexer/indexer-progress.service"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
+const INCREMENTAL_REFRESH_INTERVAL_MS = 1500
+
 export async function startIndexing(
   forceFullScan = false,
   showProgress = true
@@ -43,6 +53,7 @@ export async function startIndexing(
 
   beginIndexerProgress(showProgress)
   logInfo("Indexer started", { forceFullScan, showProgress })
+  let lastIncrementalRefreshAt = 0
 
   try {
     await scanMediaLibrary(
@@ -54,7 +65,24 @@ export async function startIndexing(
         updateIndexerProgress(progress)
       },
       forceFullScan,
-      controller.signal
+      controller.signal,
+      async () => {
+        if (isIndexerRunStale(controller, currentRunToken)) {
+          return
+        }
+
+        const now = Date.now()
+        if (now - lastIncrementalRefreshAt < INCREMENTAL_REFRESH_INTERVAL_MS) {
+          return
+        }
+
+        lastIncrementalRefreshAt = now
+        try {
+          await refreshIndexedMediaState()
+        } catch (error) {
+          logError("Incremental indexed media refresh failed", error)
+        }
+      }
     )
 
     if (isIndexerRunStale(controller, currentRunToken)) {
