@@ -33,6 +33,7 @@ import {
 } from "@/modules/player/player.utils"
 
 import {
+  getIsShuffledState,
   getRepeatModeState,
   getTracksState,
   setImmediateQueueTrackIdsState,
@@ -131,15 +132,30 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
       queueLength: playlistTracks?.length ?? getTracksState().length,
     })
 
+    const wasShuffled = getIsShuffledState()
     const tracks = playlistTracks || getTracksState()
-    const { queue, queueTrackIds } = buildPlaybackQueue(tracks, track.id)
+    const { queue: linearQueue, queueTrackIds: linearQueueTrackIds } =
+      buildPlaybackQueue(tracks, track.id)
 
-    setQueueState(queue)
-    setOriginalQueueState(queue)
-    setQueueTrackIdsState(queueTrackIds)
-    setOriginalQueueTrackIdsState(queueTrackIds)
+    let effectiveQueue = linearQueue
+    let effectiveQueueTrackIds = linearQueueTrackIds
+
+    if (wasShuffled && linearQueue.length > 1) {
+      const [head, ...rest] = linearQueue
+      for (let i = rest.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[rest[i], rest[j]] = [rest[j], rest[i]]
+      }
+      effectiveQueue = head ? [head, ...rest] : rest
+      effectiveQueueTrackIds = effectiveQueue.map((t) => t.id)
+    }
+
+    setQueueState(effectiveQueue)
+    setOriginalQueueState(linearQueue)
+    setQueueTrackIdsState(effectiveQueueTrackIds)
+    setOriginalQueueTrackIdsState(linearQueueTrackIds)
     setImmediateQueueTrackIdsState([])
-    setIsShuffledState(false)
+    setIsShuffledState(wasShuffled)
     setActiveTrack(track)
     setIsPlayingState(true)
     setPlaybackProgress(0, track.duration || 0)
@@ -147,7 +163,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     await TrackPlayer.reset()
     await resetCrossfadeVolume()
 
-    await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))
+    await TrackPlayer.add(effectiveQueue.map(mapTrackToTrackPlayerInput))
     await TrackPlayer.setRepeatMode(mapRepeatMode(getRepeatModeState()))
 
     await TrackPlayer.play()
