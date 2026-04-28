@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders advanced maintenance and device-behavior settings for logs, listening history, and background activity.
  * Caller: Settings advanced route.
- * Dependencies: Expo application metadata, HeroUI Native dialog/toast, react-i18next, battery optimization helpers, logging service, history mutations, settings row pattern.
+ * Dependencies: Expo application metadata, HeroUI Native ListGroup, dialog/toast, react-i18next, battery optimization helpers, logging service, history mutations.
  * Main Functions: AdvancedSettingsScreen()
  * Side Effects: Opens system settings, shares logs, clears listening history, and launches external background-activity guidance.
  */
@@ -9,12 +9,11 @@
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { Button, Dialog, Toast, useToast } from "heroui-native"
+import { Button, Dialog, ListGroup, Separator, Toast, useToast } from "heroui-native"
 import { useState } from "react"
 import { Linking, Platform, ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
-import { SettingsRow } from "@/components/patterns/settings-row"
 import {
   isIgnoringBatteryOptimizations,
   openBatteryOptimizationSettings as openNativeBatteryOptimizationSettings,
@@ -144,59 +143,89 @@ export default function AdvancedSettingsScreen() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="gap-5 px-4 py-4">
-          <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
-            <SettingsRow
-              onPress={() => router.push("/settings/log-level")}
-              title={t("settings.routes.logLevel.title")}
-              description={
-                loggingLevel === "extra"
-                  ? t("settings.advanced.logExtraDescription")
-                  : t("settings.advanced.logMinimalDescription")
-              }
-            />
-
-            <SettingsRow
+          <ListGroup >
+            <ListGroup.Item onPress={() => router.push("/settings/log-level")}>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.routes.logLevel.title")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {loggingLevel === "extra"
+                    ? t("settings.advanced.logExtraDescription")
+                    : t("settings.advanced.logMinimalDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item
               onPress={() => {
                 void handleShareCrashLogs()
               }}
-              title={t("settings.advanced.shareCrashLogs")}
-              description={t("settings.advanced.shareCrashLogsDescription")}
-              className="border-t border-border/60"
-            />
-          </View>
-          <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
-            <SettingsRow
+            >
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.advanced.shareCrashLogs")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.advanced.shareCrashLogsDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+          </ListGroup>
+
+          <ListGroup >
+            <ListGroup.Item
               onPress={() => setIsResetHistoryDialogOpen(true)}
-              title={t("settings.advanced.resetListeningHistory")}
-              description={t(
-                "settings.advanced.resetListeningHistoryDescription"
-              )}
-              isDisabled={isResettingHistory}
-              showChevron={false}
-            />
-          </View>
-          <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
-            <SettingsRow
+              disabled={isResettingHistory}
+            >
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.advanced.resetListeningHistory")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.advanced.resetListeningHistoryDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+            </ListGroup.Item>
+          </ListGroup>
+
+          <ListGroup >
+            <ListGroup.Item
               onPress={() => {
                 void openBatteryOptimizationSettings()
               }}
-              title={t("settings.advanced.disableBatteryOptimization")}
-              description={
-                Platform.OS === "android"
-                  ? t("settings.advanced.disableBatteryOptimizationAndroid")
-                  : t("settings.advanced.openSystemSettings")
-              }
-            />
-
-            <SettingsRow
+            >
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.advanced.disableBatteryOptimization")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {Platform.OS === "android"
+                    ? t("settings.advanced.disableBatteryOptimizationAndroid")
+                    : t("settings.advanced.openSystemSettings")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item
               onPress={() => {
                 void openDontKillMyApp()
               }}
-              title={t("settings.advanced.dontKillMyApp")}
-              description={t("settings.advanced.dontKillMyAppDescription")}
-              className="border-t border-border/60"
-            />
-          </View>
+            >
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.advanced.dontKillMyApp")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.advanced.dontKillMyAppDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+          </ListGroup>
         </View>
       </ScrollView>
 

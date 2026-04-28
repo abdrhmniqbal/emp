@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "拆分多個值"
+      },
+      "artistSplitMode": {
+        "title": "藝人分割模式"
       }
     },
     "appearance": {

@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "拆分多个值"
+      },
+      "artistSplitMode": {
+        "title": "艺术家分割模式"
       }
     },
     "appearance": {

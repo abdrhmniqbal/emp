@@ -1,13 +1,14 @@
 /**
  * Purpose: Renders appearance preferences for choosing light, dark, or adaptive app theme behavior.
  * Caller: Settings appearance route.
- * Dependencies: Uniwind theme controls, react-i18next, local tick icon, theme colors.
+ * Dependencies: Uniwind theme controls, react-i18next, local tick icon, HeroUI Native ListGroup, theme colors.
  * Main Functions: AppearanceSettingsScreen()
  * Side Effects: Persists the selected Uniwind theme mode.
  */
 
-import { PressableFeedback } from "heroui-native"
-import { ScrollView, Text, View } from "react-native"
+import { ListGroup, Separator } from "heroui-native"
+import * as React from "react"
+import { ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import { Uniwind, useUniwind } from "uniwind"
 
@@ -43,29 +44,30 @@ export default function AppearanceSettingsScreen() {
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
       <View className="gap-5 px-4 py-4">
-        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
+        <ListGroup>
           {APPEARANCE_OPTIONS.map((option, index) => (
-            <PressableFeedback
-              key={option.value}
-              onPress={() => handleThemeChange(option.value)}
-              className={`flex-row items-center px-5 py-4 active:opacity-70 ${
-                index > 0 ? "border-t border-border/60" : ""
-              }`}
-            >
-              <Text className="flex-1 text-[16px] font-medium text-foreground">
-                {t(option.labelKey)}
-              </Text>
-              {currentMode === option.value && (
-                <LocalTickIcon
-                  fill="none"
-                  width={24}
-                  height={24}
-                  color={theme.accent}
-                />
-              )}
-            </PressableFeedback>
+            <React.Fragment key={option.value}>
+              {index > 0 && <Separator className="mx-4" />}
+              <ListGroup.Item
+                onPress={() => handleThemeChange(option.value)}
+              >
+                <ListGroup.ItemContent>
+                  <ListGroup.ItemTitle>{t(option.labelKey)}</ListGroup.ItemTitle>
+                </ListGroup.ItemContent>
+                {currentMode === option.value && (
+                  <ListGroup.ItemSuffix>
+                    <LocalTickIcon
+                      fill="none"
+                      width={24}
+                      height={24}
+                      color={theme.accent}
+                    />
+                  </ListGroup.ItemSuffix>
+                )}
+              </ListGroup.Item>
+            </React.Fragment>
           ))}
-        </View>
+        </ListGroup>
       </View>
     </ScrollView>
   )

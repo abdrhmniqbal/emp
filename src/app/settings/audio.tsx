@@ -1,17 +1,16 @@
 /**
  * Purpose: Renders audio playback preferences, including crossfade controls.
  * Caller: Settings audio route.
- * Dependencies: HeroUI Native switch and slider, react-i18next, settings row pattern, crossfade settings module.
+ * Dependencies: HeroUI Native ListGroup, switch and slider, react-i18next, crossfade settings module.
  * Main Functions: AudioSettingsScreen()
  * Side Effects: Persists audio crossfade preferences in document storage.
  */
 
-import { Slider, Switch } from "heroui-native"
+import { ListGroup, Separator, Slider, Switch } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
-import { SettingsRow } from "@/components/patterns/settings-row"
 import { setCrossfadeConfig } from "@/modules/settings/audio-crossfade"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 
@@ -43,59 +42,66 @@ export default function AudioSettingsScreen() {
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       <View className="gap-5 px-4 py-4">
-        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
-          <SettingsRow
-            title={t("settings.audio.crossfade")}
-            description={
-              crossfadeConfig.isEnabled
-                ? t("settings.audio.crossfadeEnabled")
-                : t("settings.audio.crossfadeDisabled")
-            }
-            onPress={undefined}
-            showChevron={false}
-            rightContent={
+        <ListGroup >
+          <ListGroup.Item>
+            <ListGroup.ItemContent>
+              <ListGroup.ItemTitle>
+                {t("settings.audio.crossfade")}
+              </ListGroup.ItemTitle>
+              <ListGroup.ItemDescription>
+                {crossfadeConfig.isEnabled
+                  ? t("settings.audio.crossfadeEnabled")
+                  : t("settings.audio.crossfadeDisabled")}
+              </ListGroup.ItemDescription>
+            </ListGroup.ItemContent>
+            <ListGroup.ItemSuffix>
               <Switch
                 isSelected={crossfadeConfig.isEnabled}
                 onSelectedChange={(isSelected) => {
                   void handleCrossfadeToggle(isSelected)
                 }}
               />
-            }
-          />
-        </View>
+            </ListGroup.ItemSuffix>
+          </ListGroup.Item>
 
-        {crossfadeConfig.isEnabled ? (
-          <View className="rounded-[28px] border border-border/60 bg-default/25 px-5 pt-4 pb-4">
-            <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-sm text-muted">
-                {t("settings.audio.duration")}
-              </Text>
-              <Text className="text-sm font-medium text-foreground">
-                {Math.round(resolvedSliderValue)}s
-              </Text>
-            </View>
-            <Slider
-              minValue={1}
-              maxValue={12}
-              step={1}
-              value={resolvedSliderValue}
-              onChange={(value) => {
-                setSliderValue(getSliderNumericValue(value))
-              }}
-              onChangeEnd={(value) => {
-                void handleCrossfadeSlidingComplete(getSliderNumericValue(value))
-              }}
-            >
-              <Slider.Track className="h-2 rounded-full bg-border">
-                <Slider.Fill className="rounded-full bg-accent" />
-                <Slider.Thumb />
-              </Slider.Track>
-            </Slider>
-            <Text className="mt-2 text-xs text-muted">
-              {t("settings.audio.durationHint")}
-            </Text>
-          </View>
-        ) : null}
+          {crossfadeConfig.isEnabled ? (
+            <>
+              <Separator className="mx-4" />
+              <ListGroup.Item>
+                <ListGroup.ItemContent>
+                  <View className="mb-3 flex-row items-center justify-between">
+                    <ListGroup.ItemTitle>
+                      {t("settings.audio.duration")}
+                    </ListGroup.ItemTitle>
+                    <Text className="text-sm font-medium text-foreground">
+                      {Math.round(resolvedSliderValue)}s
+                    </Text>
+                  </View>
+                  <Slider
+                    minValue={1}
+                    maxValue={12}
+                    step={1}
+                    value={resolvedSliderValue}
+                    onChange={(value) => {
+                      setSliderValue(getSliderNumericValue(value))
+                    }}
+                    onChangeEnd={(value) => {
+                      void handleCrossfadeSlidingComplete(getSliderNumericValue(value))
+                    }}
+                  >
+                    <Slider.Track className="h-2 rounded-full bg-border">
+                      <Slider.Fill className="rounded-full bg-accent" />
+                      <Slider.Thumb />
+                    </Slider.Track>
+                  </Slider>
+                  <Text className="mt-2 text-xs text-muted">
+                    {t("settings.audio.durationHint")}
+                  </Text>
+                </ListGroup.ItemContent>
+              </ListGroup.Item>
+            </>
+          ) : null}
+        </ListGroup>
       </View>
     </ScrollView>
   )

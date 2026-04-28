@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "अनेक मानों को विभाजित करें"
+      },
+      "artistSplitMode": {
+        "title": "कलाकार विभाजन मोड"
       }
     },
     "appearance": {

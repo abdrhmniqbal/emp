@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "複数の値を分割する"
+      },
+      "artistSplitMode": {
+        "title": "アーティスト分割モード"
       }
     },
     "appearance": {

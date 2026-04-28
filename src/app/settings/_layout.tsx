@@ -33,6 +33,7 @@ const DETAIL_SETTINGS_SCREENS = [
   "split-multiple-values",
   "track-duration-filter",
   "log-level",
+  "artist-split-mode",
 ] as const
 
 export default function SettingsLayout() {

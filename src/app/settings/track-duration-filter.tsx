@@ -1,12 +1,12 @@
 /**
  * Purpose: Renders minimum track-duration filtering controls for library indexing.
  * Caller: Settings track-duration-filter route.
- * Dependencies: HeroUI Native slider and press feedback, react-i18next, settings store, indexer service, theme colors.
+ * Dependencies: HeroUI Native ListGroup, Slider, react-i18next, settings store, indexer service, theme colors.
  * Main Functions: TrackDurationFilterScreen()
  * Side Effects: Persists duration filter settings and triggers reindexing when values change.
  */
 
-import { PressableFeedback, Slider } from "heroui-native"
+import { ListGroup, Separator, Slider } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
@@ -103,73 +103,77 @@ export default function TrackDurationFilterScreen() {
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
       <View className="gap-5 px-4 py-4">
-        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
+        <ListGroup >
           {DURATION_OPTIONS.map((option, index) => (
-            <PressableFeedback
-              key={option.value}
-              onPress={() => {
-                void handleModeSelect(option.value)
-              }}
-              className={`flex-row items-center px-5 py-4 active:opacity-70 ${
-                index > 0 ? "border-t border-border/60" : ""
-              }`}
-              isDisabled={isIndexing}
-            >
-              <View className="flex-1 gap-0.5 pr-2">
-                <Text className="text-[16px] font-medium text-foreground">
-                  {t(option.labelKey)}
-                </Text>
-                {option.descriptionKey ? (
-                  <Text className="text-[13px] leading-5 text-muted">
-                    {t(option.descriptionKey)}
-                  </Text>
-                ) : null}
-              </View>
-              {config.mode === option.value && (
-                <LocalTickIcon
-                  fill="none"
-                  width={24}
-                  height={24}
-                  color={theme.accent}
-                />
-              )}
-            </PressableFeedback>
+            <React.Fragment key={option.value}>
+              {index > 0 && <Separator className="mx-4" />}
+              <ListGroup.Item
+                onPress={() => {
+                  void handleModeSelect(option.value)
+                }}
+                disabled={isIndexing}
+              >
+                <ListGroup.ItemContent>
+                  <ListGroup.ItemTitle>{t(option.labelKey)}</ListGroup.ItemTitle>
+                  {option.descriptionKey ? (
+                    <ListGroup.ItemDescription>
+                      {t(option.descriptionKey)}
+                    </ListGroup.ItemDescription>
+                  ) : null}
+                </ListGroup.ItemContent>
+                {config.mode === option.value && (
+                  <ListGroup.ItemSuffix>
+                    <LocalTickIcon
+                      fill="none"
+                      width={24}
+                      height={24}
+                      color={theme.accent}
+                    />
+                  </ListGroup.ItemSuffix>
+                )}
+              </ListGroup.Item>
+            </React.Fragment>
           ))}
-        </View>
 
-        {config.mode === "custom" ? (
-          <View className="rounded-[28px] border border-border/60 bg-default/25 px-5 pt-4 pb-4">
-            <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-sm text-muted">
-                {t("settings.trackDuration.minimumDuration")}
-              </Text>
-              <Text className="text-sm font-medium text-foreground">
-                {formatDuration(resolvedCustomSliderValue)}
-              </Text>
-            </View>
-            <Slider
-              minValue={0}
-              maxValue={600}
-              step={5}
-              value={resolvedCustomSliderValue}
-              isDisabled={isIndexing}
-              onChange={(value) => {
-                setCustomSliderValue(getSliderNumericValue(value))
-              }}
-              onChangeEnd={(value) => {
-                void handleCustomSlidingComplete(getSliderNumericValue(value))
-              }}
-            >
-              <Slider.Track className="h-2 rounded-full bg-border">
-                <Slider.Fill className="rounded-full bg-accent" />
-                <Slider.Thumb />
-              </Slider.Track>
-            </Slider>
-            <Text className="mt-2 text-xs text-muted">
-              {t("settings.trackDuration.changesHint")}
-            </Text>
-          </View>
-        ) : null}
+          {config.mode === "custom" ? (
+            <>
+              <Separator className="mx-4" />
+              <ListGroup.Item>
+                <ListGroup.ItemContent>
+                  <View className="mb-3 flex-row items-center justify-between">
+                    <ListGroup.ItemTitle>
+                      {t("settings.trackDuration.minimumDuration")}
+                    </ListGroup.ItemTitle>
+                    <Text className="text-sm font-medium text-foreground">
+                      {formatDuration(resolvedCustomSliderValue)}
+                    </Text>
+                  </View>
+                  <Slider
+                    minValue={0}
+                    maxValue={600}
+                    step={5}
+                    value={resolvedCustomSliderValue}
+                    isDisabled={isIndexing}
+                    onChange={(value) => {
+                      setCustomSliderValue(getSliderNumericValue(value))
+                    }}
+                    onChangeEnd={(value) => {
+                      void handleCustomSlidingComplete(getSliderNumericValue(value))
+                    }}
+                  >
+                    <Slider.Track className="h-2 rounded-full bg-border">
+                      <Slider.Fill className="rounded-full bg-accent" />
+                      <Slider.Thumb />
+                    </Slider.Track>
+                  </Slider>
+                  <Text className="mt-2 text-xs text-muted">
+                    {t("settings.trackDuration.changesHint")}
+                  </Text>
+                </ListGroup.ItemContent>
+              </ListGroup.Item>
+            </>
+          ) : null}
+        </ListGroup>
       </View>
     </ScrollView>
   )

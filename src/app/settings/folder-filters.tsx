@@ -1,13 +1,13 @@
 /**
  * Purpose: Renders folder whitelist and blacklist controls for shaping indexed library content.
  * Caller: Settings folder-filters route.
- * Dependencies: Expo directory picker, HeroUI Native buttons and bottom sheet, react-i18next, settings store, indexer service, theme colors.
+ * Dependencies: Expo directory picker, HeroUI Native Card, ListGroup, Separator, buttons and bottom sheet, react-i18next, settings store, indexer service, theme colors.
  * Main Functions: FolderFiltersScreen()
  * Side Effects: Persists folder filter configuration and can trigger library reindexing.
  */
 
 import { Directory } from "expo-file-system"
-import { BottomSheet, Button, PressableFeedback } from "heroui-native"
+import { BottomSheet, Button, Card, ListGroup, PressableFeedback, Separator } from "heroui-native"
 import * as React from "react"
 import { ScrollView, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
@@ -90,37 +90,38 @@ function FolderRow({
   const trackCount = folder?.trackCount ?? 0
 
   return (
-    <View className={`py-3 ${isLast ? "" : "border-b border-border/60"}`}>
-      <View className="flex-row items-start justify-between">
-        <View className="flex-1 gap-1 pr-2">
-          <Text className="text-base font-semibold text-foreground">
-            {displayName}
-          </Text>
-          <Text className="text-xs leading-4 text-muted" numberOfLines={2}>
+    <>
+      <ListGroup.Item disabled={isDisabled}>
+        <ListGroup.ItemContent>
+          <ListGroup.ItemTitle>{displayName}</ListGroup.ItemTitle>
+          <ListGroup.ItemDescription numberOfLines={2}>
             {path}
-          </Text>
+          </ListGroup.ItemDescription>
           {trackCount > 0 ? (
-            <Text className="text-xs text-muted">
+            <ListGroup.ItemDescription>
               {trackCount} {trackCount === 1 ? "track" : "tracks"}
-            </Text>
+            </ListGroup.ItemDescription>
           ) : null}
-        </View>
-        <Button
-          variant="ghost"
-          onPress={() => onRemove(path)}
-          isDisabled={isDisabled}
-          hitSlop={8}
-          isIconOnly
-        >
-          <LocalCancelIcon
-            fill="none"
-            width={18}
-            height={18}
-            color={removeIconColor}
-          />
-        </Button>
-      </View>
-    </View>
+        </ListGroup.ItemContent>
+        <ListGroup.ItemSuffix>
+          <Button
+            variant="ghost"
+            onPress={() => onRemove(path)}
+            isDisabled={isDisabled}
+            hitSlop={8}
+            isIconOnly
+          >
+            <LocalCancelIcon
+              fill="none"
+              width={18}
+              height={18}
+              color={removeIconColor}
+            />
+          </Button>
+        </ListGroup.ItemSuffix>
+      </ListGroup.Item>
+      {!isLast && <Separator className="mx-4" />}
+    </>
   )
 }
 
@@ -258,42 +259,43 @@ export default function FolderFiltersScreen() {
           paddingTop: 16,
         }}
       >
-        <View className="mb-6 rounded-[28px] border border-border/60 bg-background px-5 py-4">
-          <View className="flex-row items-center justify-between py-1">
-            <View className="flex-1 pr-4">
-              <Text className="text-[16px] font-medium text-foreground">
-                {t("settings.library.filterMode")}
-              </Text>
-              <Text className="mt-1 text-[13px] leading-5 text-muted">
-                {t("settings.library.filterModeDescription")}
-              </Text>
+        <Card className="mb-6">
+          <Card.Body>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1 pr-4 pb-2">
+                <Card.Title>{t("settings.library.filterMode")}</Card.Title>
+                <Card.Description>
+                  {t("settings.library.filterModeDescription")}
+                </Card.Description>
+              </View>
+              <Button
+                variant="secondary"
+                onPress={() => setIsModeSheetOpen(true)}
+                isDisabled={isIndexing}
+              >
+                {getModeLabel()}
+              </Button>
             </View>
+          </Card.Body>
+          <Card.Footer>
             <Button
+              onPress={() => {
+                void pickFolder()
+              }}
               variant="secondary"
-              onPress={() => setIsModeSheetOpen(true)}
               isDisabled={isIndexing}
+              className="flex-1"
             >
-              {getModeLabel()}
+              <LocalAddIcon
+                fill="none"
+                width={24}
+                height={24}
+                color={theme.accent}
+              />
+              <Button.Label>{t("settings.library.addNewFolder")}</Button.Label>
             </Button>
-          </View>
-
-          <Button
-            onPress={() => {
-              void pickFolder()
-            }}
-            variant="secondary"
-            isDisabled={isIndexing}
-            className="mt-4"
-          >
-            <LocalAddIcon
-              fill="none"
-              width={24}
-              height={24}
-              color={theme.accent}
-            />
-            <Button.Label>{t("settings.library.addNewFolder")}</Button.Label>
-          </Button>
-        </View>
+          </Card.Footer>
+        </Card>
 
         <View className="mb-3 flex-row items-center justify-between px-1">
           <Text className="text-[22px] font-semibold tracking-[-0.5px] text-foreground">
@@ -323,7 +325,7 @@ export default function FolderFiltersScreen() {
             className="mt-4"
           />
         ) : (
-          <View className="rounded-[28px] border border-border/60 bg-background px-5 py-2">
+          <ListGroup >
             {folderPaths.map((path, index) => (
               <FolderRow
                 key={path}
@@ -335,7 +337,7 @@ export default function FolderFiltersScreen() {
                 isDisabled={isIndexing}
               />
             ))}
-          </View>
+          </ListGroup>
         )}
       </ScrollView>
 

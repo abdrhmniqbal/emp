@@ -10,14 +10,9 @@ import type { SettingsRouteDefinition } from "./settings.types"
 
 export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
   {
-    name: "appearance",
-    titleKey: "settings.routes.appearance.title",
-    descriptionKey: "settings.routes.appearance.description",
-  },
-  {
-    name: "language",
-    titleKey: "settings.routes.language.title",
-    descriptionKey: "settings.routes.language.description",
+    name: "library",
+    titleKey: "settings.routes.library.title",
+    descriptionKey: "settings.routes.library.description",
   },
   {
     name: "audio",
@@ -30,9 +25,14 @@ export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
     descriptionKey: "settings.routes.notifications.description",
   },
   {
-    name: "library",
-    titleKey: "settings.routes.library.title",
-    descriptionKey: "settings.routes.library.description",
+    name: "appearance",
+    titleKey: "settings.routes.appearance.title",
+    descriptionKey: "settings.routes.appearance.description",
+  },
+  {
+    name: "language",
+    titleKey: "settings.routes.language.title",
+    descriptionKey: "settings.routes.language.description",
   },
   {
     name: "advanced",
@@ -59,4 +59,5 @@ export const SETTINGS_SCREEN_TITLE_KEYS: Record<string, string> = {
   "split-multiple-values": "settings.routes.splitMultipleValues.title",
   "track-duration-filter": "settings.routes.trackDurationFilter.title",
   "log-level": "settings.routes.logLevel.title",
+  "artist-split-mode": "settings.routes.artistSplitMode.title",
 }

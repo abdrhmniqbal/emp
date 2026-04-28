@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "여러 값 분할"
+      },
+      "artistSplitMode": {
+        "title": "아티스트 분할 모드"
       }
     },
     "appearance": {

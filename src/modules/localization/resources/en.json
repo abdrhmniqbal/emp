@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "Split Multiple Values"
+      },
+      "artistSplitMode": {
+        "title": "Artist Split Mode"
       }
     },
     "appearance": {
@@ -337,7 +340,7 @@
       "splitMultipleValues": "Split Multiple Values",
       "splitMultipleValuesSummary": "Mode: {{mode}} · Artist: {{artistSymbols}} · Genre: {{genreSymbols}}",
       "artistSplitSymbols": "Artist Split Symbols",
-      "artistSplitSymbolsDescription": "Symbols used to split artists and album artists metadata. Values are trimmed automatically.",
+      "artistSplitSymbolsDescription": "Symbols used to split artists and album artists metadata.",
       "unsplitArtists": "Unsplit Artists",
       "unsplitArtistsDescription": "Artists in this list stay intact even when they contain split symbols.",
       "unsplitArtistsPlaceholder": "Artist with /, Artist with &",

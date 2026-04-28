@@ -1,36 +1,50 @@
 /**
  * Purpose: Lets users configure tag-based symbol splitting for artists/genres, unsplit artist exceptions, and artist display mode.
  * Caller: Settings split-multiple-values route.
- * Dependencies: HeroUI Native form controls, settings split config module/store, and indexer relation rebuild.
- * Main Functions: SplitMultipleValuesSettingsScreen(), SplitTagListEditor()
- * Side Effects: Persists split settings config, rebuilds split metadata relations, and refreshes indexed media state.
+ * Dependencies: HeroUI Native BottomSheet, ListGroup, Chip, TagGroup, form controls, settings split config module/store, indexer relation rebuild.
+ * Main Functions: SplitMultipleValuesSettingsScreen(), TagEditorSheet()
+ * Side Effects: Persists split settings config and rebuilds split metadata relations.
  */
 
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import {
+  BottomSheet,
   Button,
-  Description,
+  Chip,
   Input,
-  Label,
-  PressableFeedback,
+  ListGroup,
+  Separator,
   TagGroup,
   TextField,
+  useBottomSheetAwareHandlers,
 } from "heroui-native"
 import * as React from "react"
-import { ScrollView, Text, View } from "react-native"
+import { ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
 import LocalAddIcon from "@/components/icons/local/add"
-import LocalTickIcon from "@/components/icons/local/tick"
 import { rebuildSplitRelationsForConfig } from "@/modules/indexer/indexer.service"
 import { setSplitMultipleValueConfig } from "@/modules/settings/split-multiple-values"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 import { useThemeColors } from "@/modules/ui/theme"
 
-type SplitMode = "original" | "split"
+function normalizeValues(values: string[]) {
+  const seen = new Set<string>()
+  const next: string[] = []
+  for (const value of values) {
+    const item = value.trim()
+    const key = item.toLowerCase()
+    if (!item || seen.has(key)) continue
+    seen.add(key)
+    next.push(item)
+  }
+  return next
+}
 
-interface SplitTagListEditorProps {
+interface TagEditorSheetProps {
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
   title: string
-  description: string
   values: string[]
   placeholder: string
   addLabel: string
@@ -38,52 +52,23 @@ interface SplitTagListEditorProps {
   onChange: (values: string[]) => void
 }
 
-function normalizeValues(values: string[]) {
-  const seen = new Set<string>()
-  const next: string[] = []
-
-  for (const value of values) {
-    const item = value.trim()
-    const key = item.toLowerCase()
-
-    if (!item || seen.has(key)) {
-      continue
-    }
-
-    seen.add(key)
-    next.push(item)
-  }
-
-  return next
-}
-
-function SplitTagListEditor({
-  title,
-  description,
+function TagEditorSheetContent({
   values,
   placeholder,
   addLabel,
   removeLabel,
   onChange,
-}: SplitTagListEditorProps) {
+}: Omit<TagEditorSheetProps, "isOpen" | "onOpenChange" | "title">) {
   const theme = useThemeColors()
   const [inputValue, setInputValue] = React.useState("")
-  const trimmedInputValue = inputValue.trim()
+  const trimmedInput = inputValue.trim()
+  const { onFocus, onBlur } = useBottomSheetAwareHandlers()
 
   function addValue() {
-    if (!trimmedInputValue) {
-      return
-    }
-
-    const nextValues = normalizeValues([...values, trimmedInputValue])
-
-    if (nextValues.length === values.length) {
-      setInputValue("")
-      return
-    }
-
+    if (!trimmedInput) return
+    const next = normalizeValues([...values, trimmedInput])
+    if (next.length !== values.length) onChange(next)
     setInputValue("")
-    onChange(nextValues)
   }
 
   function removeValues(keys: Set<string | number>) {
@@ -91,17 +76,15 @@ function SplitTagListEditor({
   }
 
   return (
-    <View className="rounded-[28px] border border-border/60 bg-background px-5 py-4">
-      <TextField>
-        <Label>{title}</Label>
-        <Description className="mb-3">{description}</Description>
+    <>
+      {values.length > 0 ? (
         <TagGroup
           selectionMode="none"
-          variant="surface"
           size="md"
           onRemove={removeValues}
+          className="mb-3"
         >
-          <TagGroup.List className="mb-3 flex-row flex-wrap gap-2">
+          <TagGroup.List className="flex-row flex-wrap gap-2">
             {values.map((value) => (
               <TagGroup.Item key={value} id={value}>
                 <TagGroup.ItemLabel>{value}</TagGroup.ItemLabel>
@@ -112,151 +95,217 @@ function SplitTagListEditor({
             ))}
           </TagGroup.List>
         </TagGroup>
-        <View className="flex-row items-center gap-2">
+      ) : null}
+      <View className="flex-row items-center gap-2">
+        <TextField className="flex-1">
           <Input
             variant="secondary"
             value={inputValue}
             onChangeText={setInputValue}
             onSubmitEditing={addValue}
             placeholder={placeholder}
-            className="min-h-12 flex-1"
+            className="min-h-12"
             returnKeyType="done"
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
-          <Button
-            accessibilityLabel={addLabel}
-            variant="secondary"
-            isIconOnly
-            isDisabled={!trimmedInputValue}
-            className="h-12 w-12"
-            onPress={addValue}
-          >
-            <LocalAddIcon
-              fill="none"
-              width={22}
-              height={22}
-              color={theme.foreground}
-            />
-          </Button>
-        </View>
-      </TextField>
-    </View>
+        </TextField>
+        <Button
+          accessibilityLabel={addLabel}
+          variant="secondary"
+          isIconOnly
+          isDisabled={!trimmedInput}
+          className="h-12 w-12"
+          onPress={addValue}
+        >
+          <LocalAddIcon
+            fill="none"
+            width={22}
+            height={22}
+            color={theme.foreground}
+          />
+        </Button>
+      </View>
+    </>
+  )
+}
+
+function TagEditorSheet({
+  isOpen,
+  onOpenChange,
+  title,
+  ...contentProps
+}: TagEditorSheetProps) {
+  return (
+    <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
+      <BottomSheet.Portal>
+        <BottomSheet.Overlay isCloseOnPress />
+        <BottomSheet.Content
+          backgroundClassName="bg-surface"
+          keyboardBehavior="extend"
+        >
+          <BottomSheet.Title className="mb-3 text-xl">{title}</BottomSheet.Title>
+          <TagEditorSheetContent {...contentProps} />
+        </BottomSheet.Content>
+      </BottomSheet.Portal>
+    </BottomSheet>
   )
 }
 
 export default function SplitMultipleValuesSettingsScreen() {
   const { t } = useTranslation()
-  const theme = useThemeColors()
+  const router = useRouter()
   const config = useSettingsStore((state) => state.splitMultipleValueConfig)
-  const [artistSplitMode, setArtistSplitMode] = React.useState<SplitMode>(
-    config.artistSplitMode
-  )
-
-  React.useEffect(() => {
-    setArtistSplitMode(config.artistSplitMode)
-  }, [config])
+  const [artistSymbolsOpen, setArtistSymbolsOpen] = React.useState(false)
+  const [unsplitArtistsOpen, setUnsplitArtistsOpen] = React.useState(false)
+  const [genreSymbolsOpen, setGenreSymbolsOpen] = React.useState(false)
 
   async function updateSplitConfig(next: {
     artistSplitSymbols?: string[]
     unsplitArtists?: string[]
     genreSplitSymbols?: string[]
-    artistSplitMode?: SplitMode
   }) {
-    const config = await setSplitMultipleValueConfig(next)
-    await rebuildSplitRelationsForConfig(config)
+    const updated = await setSplitMultipleValueConfig(next)
+    await rebuildSplitRelationsForConfig(updated)
   }
 
+  const currentModeLabel =
+    config.artistSplitMode === "split"
+      ? t("settings.library.artistSplitModeSplit")
+      : t("settings.library.artistSplitModeOriginal")
+
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 40 }}
-    >
-      <View className="gap-5 px-4 py-4">
-        <SplitTagListEditor
-          title={t("settings.library.artistSplitSymbols")}
-          description={t("settings.library.artistSplitSymbolsDescription")}
-          values={config.artistSplitSymbols}
-          placeholder={t("settings.library.splitSymbolsPlaceholder")}
-          addLabel={t("settings.library.addSplitSymbol")}
-          removeLabel={t("settings.library.removeSplitSymbol")}
-          onChange={(artistSplitSymbols) => {
-            void updateSplitConfig({ artistSplitSymbols })
-          }}
-        />
+    <>
+      <ScrollView
+        className="flex-1 bg-background"
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <View className="gap-5 px-4 py-4">
+          <ListGroup>
+            <ListGroup.Item onPress={() => setArtistSymbolsOpen(true)}>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.artistSplitSymbols")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.library.artistSplitSymbolsDescription")}
+                </ListGroup.ItemDescription>
+                {config.artistSplitSymbols.length > 0 ? (
+                  <View className="mt-1.5 flex-row flex-wrap gap-1">
+                    {config.artistSplitSymbols.map((s) => (
+                      <Chip key={s} variant="secondary" size="sm">
+                        <Chip.Label>{s}</Chip.Label>
+                      </Chip>
+                    ))}
+                  </View>
+                ) : null}
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
 
-        <SplitTagListEditor
-          title={t("settings.library.unsplitArtists")}
-          description={t("settings.library.unsplitArtistsDescription")}
-          values={config.unsplitArtists}
-          placeholder={t("settings.library.unsplitArtistsPlaceholder")}
-          addLabel={t("settings.library.addUnsplitArtist")}
-          removeLabel={t("settings.library.removeUnsplitArtist")}
-          onChange={(unsplitArtists) => {
-            void updateSplitConfig({ unsplitArtists })
-          }}
-        />
+            <Separator className="mx-4" />
 
-        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
-          <Text className="px-5 pt-4 pb-2 text-[16px] font-medium text-foreground">
-            {t("settings.library.artistSplitMode")}
-          </Text>
-          {(
-            [
-              {
-                value: "split",
-                titleKey: "settings.library.artistSplitModeSplit",
-                descriptionKey:
-                  "settings.library.artistSplitModeSplitDescription",
-              },
-              {
-                value: "original",
-                titleKey: "settings.library.artistSplitModeOriginal",
-                descriptionKey:
-                  "settings.library.artistSplitModeOriginalDescription",
-              },
-            ] as const
-          ).map((option, index) => (
-            <PressableFeedback
-              key={option.value}
-              className={`flex-row items-center px-5 py-4 active:opacity-70 ${
-                index > 0 ? "border-t border-border/60" : ""
-              }`}
-              onPress={() => {
-                setArtistSplitMode(option.value)
-                void updateSplitConfig({ artistSplitMode: option.value })
-              }}
+            <ListGroup.Item onPress={() => setUnsplitArtistsOpen(true)}>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.unsplitArtists")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.library.unsplitArtistsDescription")}
+                </ListGroup.ItemDescription>
+                {config.unsplitArtists.length > 0 ? (
+                  <View className="mt-1.5 flex-row flex-wrap gap-1">
+                    {config.unsplitArtists.map((a) => (
+                      <Chip key={a} variant="secondary" size="sm">
+                        <Chip.Label>{a}</Chip.Label>
+                      </Chip>
+                    ))}
+                  </View>
+                ) : null}
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+
+            <Separator className="mx-4" />
+
+            <ListGroup.Item onPress={() => setGenreSymbolsOpen(true)}>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.genreSplitSymbols")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.library.genreSplitSymbolsDescription")}
+                </ListGroup.ItemDescription>
+                {config.genreSplitSymbols.length > 0 ? (
+                  <View className="mt-1.5 flex-row flex-wrap gap-1">
+                    {config.genreSplitSymbols.map((s) => (
+                      <Chip key={s} variant="secondary" size="sm">
+                        <Chip.Label>{s}</Chip.Label>
+                      </Chip>
+                    ))}
+                  </View>
+                ) : null}
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+
+            <Separator className="mx-4" />
+
+            <ListGroup.Item
+              onPress={() => router.push("/settings/artist-split-mode")}
             >
-              <View className="flex-1 gap-0.5 pr-2">
-                <Text className="text-[16px] font-medium text-foreground">
-                  {t(option.titleKey)}
-                </Text>
-                <Text className="text-[13px] leading-5 text-muted">
-                  {t(option.descriptionKey)}
-                </Text>
-              </View>
-              {artistSplitMode === option.value ? (
-                <LocalTickIcon
-                  fill="none"
-                  width={24}
-                  height={24}
-                  color={theme.accent}
-                />
-              ) : null}
-            </PressableFeedback>
-          ))}
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.artistSplitMode")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {currentModeLabel}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+          </ListGroup>
         </View>
+      </ScrollView>
 
-        <SplitTagListEditor
-          title={t("settings.library.genreSplitSymbols")}
-          description={t("settings.library.genreSplitSymbolsDescription")}
-          values={config.genreSplitSymbols}
-          placeholder={t("settings.library.splitSymbolsPlaceholder")}
-          addLabel={t("settings.library.addSplitSymbol")}
-          removeLabel={t("settings.library.removeSplitSymbol")}
-          onChange={(genreSplitSymbols) => {
-            void updateSplitConfig({ genreSplitSymbols })
-          }}
-        />
-      </View>
-    </ScrollView>
+      <TagEditorSheet
+        isOpen={artistSymbolsOpen}
+        onOpenChange={setArtistSymbolsOpen}
+        title={t("settings.library.artistSplitSymbols")}
+        values={config.artistSplitSymbols}
+        placeholder={t("settings.library.splitSymbolsPlaceholder")}
+        addLabel={t("settings.library.addSplitSymbol")}
+        removeLabel={t("settings.library.removeSplitSymbol")}
+        onChange={(artistSplitSymbols) => {
+          void updateSplitConfig({ artistSplitSymbols })
+        }}
+      />
+
+      <TagEditorSheet
+        isOpen={unsplitArtistsOpen}
+        onOpenChange={setUnsplitArtistsOpen}
+        title={t("settings.library.unsplitArtists")}
+        values={config.unsplitArtists}
+        placeholder={t("settings.library.unsplitArtistsPlaceholder")}
+        addLabel={t("settings.library.addUnsplitArtist")}
+        removeLabel={t("settings.library.removeUnsplitArtist")}
+        onChange={(unsplitArtists) => {
+          void updateSplitConfig({ unsplitArtists })
+        }}
+      />
+
+      <TagEditorSheet
+        isOpen={genreSymbolsOpen}
+        onOpenChange={setGenreSymbolsOpen}
+        title={t("settings.library.genreSplitSymbols")}
+        values={config.genreSplitSymbols}
+        placeholder={t("settings.library.splitSymbolsPlaceholder")}
+        addLabel={t("settings.library.addSplitSymbol")}
+        removeLabel={t("settings.library.removeSplitSymbol")}
+        onChange={(genreSplitSymbols) => {
+          void updateSplitConfig({ genreSplitSymbols })
+        }}
+      />
+    </>
   )
 }

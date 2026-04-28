@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "Разделить несколько значений"
+      },
+      "artistSplitMode": {
+        "title": "Режим разделения исполнителей"
       }
     },
     "appearance": {

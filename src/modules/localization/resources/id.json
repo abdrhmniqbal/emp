@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "Pisah Nilai Ganda"
+      },
+      "artistSplitMode": {
+        "title": "Mode Pisah Artis"
       }
     },
     "appearance": {
@@ -337,7 +340,7 @@
       "splitMultipleValues": "Pisah Nilai Ganda",
       "splitMultipleValuesSummary": "Mode: {{mode}} · Artis: {{artistSymbols}} · Genre: {{genreSymbols}}",
       "artistSplitSymbols": "Simbol Pemisah Artis",
-      "artistSplitSymbolsDescription": "Simbol untuk memisah metadata artis dan artis album. Spasi otomatis dipangkas.",
+      "artistSplitSymbolsDescription": "Simbol untuk memisah metadata artis dan artis album.",
       "unsplitArtists": "Artis Tidak Dipisah",
       "unsplitArtistsDescription": "Artis di daftar ini tetap utuh meski mengandung simbol pemisah.",
       "unsplitArtistsPlaceholder": "Artis dengan /, artis dengan &",

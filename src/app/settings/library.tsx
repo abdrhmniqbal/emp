@@ -1,18 +1,17 @@
 /**
  * Purpose: Renders library settings for scanning behavior, split metadata preferences, folder and duration filters, and reindexing.
  * Caller: Settings library route.
- * Dependencies: Expo Router, react-i18next, settings store, indexer services, settings row pattern, HeroUI Native dialog and switch.
+ * Dependencies: Expo Router, react-i18next, settings store, indexer services, HeroUI Native ListGroup, dialog and switch.
  * Main Functions: LibrarySettingsScreen()
  * Side Effects: Persists library settings, shows a manual reindex dialog, and can trigger a full library reindex.
  */
 
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { Button, Dialog, Switch } from "heroui-native"
+import { Button, Dialog, ListGroup, Separator, Switch } from "heroui-native"
 import * as React from "react"
 import { ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
-import { SettingsRow } from "@/components/patterns/settings-row"
 import { forceReindexLibrary } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { setAutoScanEnabled } from "@/modules/settings/auto-scan"
@@ -65,58 +64,80 @@ export default function LibrarySettingsScreen() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="gap-5 px-4 py-4">
-          <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
-            <SettingsRow
-              title={t("settings.library.splitMultipleValues")}
-              description={getSplitMultipleValuesSummary()}
-              onPress={() => router.push("/settings/split-multiple-values")}
-            />
-            <SettingsRow
-              title={t("settings.routes.folderFilters.title")}
-              description={t("settings.library.folderFiltersDescription")}
-              onPress={() => router.push("/settings/folder-filters")}
-              className="border-t border-border/60"
-            />
-            <SettingsRow
-              title={t("settings.library.trackDurationFilter")}
-              description={getTrackDurationFilterLabel(
-                trackDurationFilterConfig
-              )}
-              onPress={() => router.push("/settings/track-duration-filter")}
-              className="border-t border-border/60"
-            />
-            <SettingsRow
-              title={t("settings.library.autoScan")}
-              description={
-                autoScanEnabled
-                  ? t("settings.library.autoScanEnabled")
-                  : t("settings.library.autoScanDisabled")
-              }
-              onPress={undefined}
-              showChevron={false}
-              rightContent={
+          <ListGroup>
+            <ListGroup.Item onPress={() => router.push("/settings/folder-filters")}>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.routes.folderFilters.title")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.library.folderFiltersDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item onPress={() => router.push("/settings/track-duration-filter")}>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.trackDurationFilter")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {getTrackDurationFilterLabel(trackDurationFilterConfig)}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item onPress={() => router.push("/settings/split-multiple-values")}>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.splitMultipleValues")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.library.artistSplitSymbolsDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.autoScan")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {autoScanEnabled
+                    ? t("settings.library.autoScanEnabled")
+                    : t("settings.library.autoScanDisabled")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix>
                 <Switch
                   isSelected={autoScanEnabled}
                   onSelectedChange={(isSelected) => {
                     void setAutoScanEnabled(isSelected)
                   }}
                 />
-              }
-              className="border-t border-border/60"
-            />
-            <SettingsRow
-              title={t("settings.library.reindexLibrary")}
-              description={
-                isIndexing
-                  ? t("settings.library.reindexInProgress")
-                  : t("settings.library.reindexDescription")
-              }
+              </ListGroup.ItemSuffix>
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item
               onPress={() => setShowReindexDialog(true)}
-              showChevron={false}
-              isDisabled={isIndexing}
-              className="border-t border-border/60"
-            />
-          </View>
+              disabled={isIndexing}
+            >
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.reindexLibrary")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {isIndexing
+                    ? t("settings.library.reindexInProgress")
+                    : t("settings.library.reindexDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+            </ListGroup.Item>
+          </ListGroup>
         </View>
       </ScrollView>
 

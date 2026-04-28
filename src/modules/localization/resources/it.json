@@ -271,6 +271,9 @@
       },
       "splitMultipleValues": {
         "title": "Dividere più valori"
+      },
+      "artistSplitMode": {
+        "title": "Modalità divisione artisti"
       }
     },
     "appearance": {

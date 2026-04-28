@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders app metadata and links to the project repository.
  * Caller: Settings about route.
- * Dependencies: Expo application metadata, Expo image, react-i18next, React Native linking, settings row pattern.
+ * Dependencies: Expo application metadata, Expo image, react-i18next, React Native linking, HeroUI Native ListGroup.
  * Main Functions: AboutSettingsScreen()
  * Side Effects: Opens the external project repository in the browser.
  */
@@ -9,11 +9,11 @@
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { Image } from "expo-image"
+import { ListGroup } from "heroui-native"
 import { Linking, ScrollView, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
 import appIcon from "@/assets/icon.png"
-import { SettingsRow } from "@/components/patterns/settings-row"
 
 export default function AboutSettingsScreen() {
   const { t } = useTranslation()
@@ -43,15 +43,23 @@ export default function AboutSettingsScreen() {
           </View>
         </View>
 
-        <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
-          <SettingsRow
+        <ListGroup >
+          <ListGroup.Item
             onPress={() => {
               void Linking.openURL(repositoryUrl)
             }}
-            title={t("settings.about.github")}
-            description={t("settings.about.repositoryDescription")}
-          />
-        </View>
+          >
+            <ListGroup.ItemContent>
+              <ListGroup.ItemTitle>
+                {t("settings.about.github")}
+              </ListGroup.ItemTitle>
+              <ListGroup.ItemDescription>
+                {t("settings.about.repositoryDescription")}
+              </ListGroup.ItemDescription>
+            </ListGroup.ItemContent>
+            <ListGroup.ItemSuffix />
+          </ListGroup.Item>
+        </ListGroup>
       </View>
     </ScrollView>
   )
