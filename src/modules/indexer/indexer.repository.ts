@@ -3,7 +3,7 @@
  * Caller: indexer.service startIndexing(), bootstrap auto-scan, manual library refresh actions.
  * Dependencies: Expo MediaLibrary/FileSystem, Drizzle DB schema, metadata repository, split settings config, folder/duration filters, indexer runtime.
  * Main Functions: scanMediaLibrary(), rebuildSplitMetadataRelations(), getLastIndexerRunSnapshot()
- * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, rebuilds split artist/genre relations, emits incremental commit notifications, marks missing tracks deleted.
+ * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, recomputes stored artist artwork from primary tracks during reindex, rebuilds split artist/genre relations, emits incremental commit notifications, marks missing tracks deleted.
  */
 
 import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
@@ -139,7 +139,7 @@ function chunkArray<T>(items: T[], size: number): T[][] {
   return chunks
 }
 
-function normalizeText(value?: string): string | undefined {
+function normalizeText(value?: string | null): string | undefined {
   if (!value) {
     return undefined
   }
@@ -1480,8 +1480,7 @@ async function updateArtistCounts(): Promise<void> {
     artwork = COALESCE(
       (
         SELECT t.artwork FROM tracks t
-        JOIN track_artists ta ON ta.track_id = t.id
-        WHERE ta.artist_id = artists.id
+        WHERE t.artist_id = artists.id
           AND t.is_deleted = 0
           AND t.artwork IS NOT NULL
         ORDER BY COALESCE(t.last_played_at, 0) DESC, COALESCE(t.date_added, 0) DESC
@@ -1492,12 +1491,22 @@ async function updateArtistCounts(): Promise<void> {
         JOIN track_artists ta ON ta.track_id = t.id
         JOIN albums a ON a.id = t.album_id
         WHERE ta.artist_id = artists.id
+          AND t.artist_id != artists.id
           AND t.is_deleted = 0
           AND a.artwork IS NOT NULL
         ORDER BY COALESCE(t.last_played_at, 0) DESC, COALESCE(t.date_added, 0) DESC
         LIMIT 1
       ),
-      artists.artwork
+      (
+        SELECT a.artwork FROM tracks t
+        JOIN albums a ON a.id = t.album_id
+        WHERE t.artist_id = artists.id
+          AND t.is_deleted = 0
+          AND a.artwork IS NOT NULL
+        ORDER BY COALESCE(t.last_played_at, 0) DESC, COALESCE(t.date_added, 0) DESC
+        LIMIT 1
+      ),
+      NULL
     ),
     updated_at = ${Date.now()}
   `)

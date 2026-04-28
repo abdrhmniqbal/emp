@@ -1,12 +1,10 @@
 /**
- * Purpose: Builds reusable artist picker sheet items from resolved track artist data.
+ * Purpose: Builds reusable artist picker sheet items from stored artist-row data.
  * Caller: Track action sheet and player route.
- * Dependencies: Shared artist picker item types and artist artwork resolver.
+ * Dependencies: Shared artist picker item types.
  * Main Functions: buildArtistPickerItems()
  * Side Effects: None.
  */
-
-import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 
 import type { ArtistPickerSheetItem } from "./artist-picker-sheet"
 
@@ -48,11 +46,7 @@ export function buildArtistPickerItems(
     items.push({
       value: source.artist.name.trim(),
       subtitle: translateTrackCount(source.artist.trackCount || 0),
-      image: resolveArtistArtwork(
-        source.artwork,
-        source.artist.artwork,
-        source.albumArtwork
-      ),
+      image: source.artist.artwork || undefined,
     })
   }
 
@@ -64,11 +58,7 @@ export function buildArtistPickerItems(
     items.push({
       value: entry.artist.name.trim(),
       subtitle: translateTrackCount(entry.artist.trackCount || 0),
-      image: resolveArtistArtwork(
-        source.artwork,
-        entry.artist.artwork,
-        source.albumArtwork
-      ),
+      image: entry.artist.artwork || undefined,
     })
   }
 

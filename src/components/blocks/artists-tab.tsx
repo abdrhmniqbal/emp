@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders the artist grid for the library tab using stored artist artwork and sort state.
+ * Caller: Library tab artist surface.
+ * Dependencies: Artists query hook, artist grid UI, sort store, theme colors, and localization.
+ * Main Functions: ArtistsTab()
+ * Side Effects: None.
+ */
+
 import type {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -10,7 +18,6 @@ import { useTranslation } from "react-i18next"
 import { type Artist, ArtistGrid } from "@/components/blocks/artist-grid"
 import { LibraryTabState } from "@/components/blocks/library-tab-state"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
-import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 import { sortArtists } from "@/modules/library/library-sort.utils"
 import { useArtists } from "@/modules/library/library.queries"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -71,11 +78,7 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
         id: artist.id,
         name: artist.name,
         trackCount: artist.trackCount || 0,
-        image: resolveArtistArtwork(
-          artist.trackArtwork,
-          artist.artwork,
-          artist.albumArtwork
-        ),
+        image: artist.artwork || undefined,
         dateAdded: 0,
       })),
     [artistsData]

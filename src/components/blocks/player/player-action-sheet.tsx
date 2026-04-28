@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders player quick actions and handles navigation to albums, artists, and playlists.
  * Caller: Player route.
- * Dependencies: HeroUI Native sheet components, router navigation, playlist picker flow, split settings state, and value navigation sheet.
+ * Dependencies: HeroUI Native sheet components, router navigation, playlist picker flow, artist hydration, and reusable artist picker sheet.
  * Main Functions: PlayerActionSheet()
  * Side Effects: Navigates to artist/album routes and opens playlist picker workflows.
  */
@@ -9,14 +9,23 @@
 import type { Track } from "@/modules/player/player.types"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useQueries } from "@tanstack/react-query"
 
+import { ArtistPickerSheet } from "@/components/blocks/artist-picker-sheet"
+import { buildArtistPickerItems } from "@/components/blocks/artist-picker.utils"
 import { Text } from "react-native"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
-import { ValueNavigationSheet } from "@/components/blocks/value-navigation-sheet"
+import { getArtistByName } from "@/modules/library/library.repository"
 import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
+
+interface ArtistPickerSourceArtist {
+  name: string
+  artwork: string | null
+  trackCount: number
+}
 
 interface PlayerActionSheetProps {
   visible: boolean
@@ -38,6 +47,75 @@ export function PlayerActionSheet({
   const { toast } = useToast()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
+  const normalizedArtistNames = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          artistNames.map((name) => name.trim()).filter((name) => name.length > 0)
+        )
+      ),
+    [artistNames]
+  )
+
+  const resolvedArtistQueries = useQueries({
+    queries: normalizedArtistNames.map((name) => ({
+      queryKey: ["artists", "name", name.toLowerCase()] as const,
+      enabled: name.length > 0,
+      queryFn: async () => await getArtistByName(name),
+    })),
+  })
+
+  const resolvedArtists = useMemo<ArtistPickerSourceArtist[]>(
+    () =>
+      resolvedArtistQueries
+        .map((query, index) => {
+          const name = normalizedArtistNames[index]
+          if (!name) {
+            return null
+          }
+
+          return {
+            name,
+            artwork: query.data?.artwork || null,
+            trackCount: query.data?.trackCount || 0,
+          }
+        })
+        .filter((artist): artist is ArtistPickerSourceArtist => Boolean(artist)),
+    [normalizedArtistNames, resolvedArtistQueries]
+  )
+
+  const artistPickerSource = useMemo(() => {
+    const artistsByName = new Map(
+      resolvedArtists.map((artist) => [artist.name.trim().toLowerCase(), artist])
+    )
+
+    const buildArtist = (name: string) => {
+      const matchedArtist = artistsByName.get(name.trim().toLowerCase())
+
+      return {
+        name,
+        artwork: matchedArtist?.artwork || null,
+        trackCount: matchedArtist?.trackCount || 0,
+      }
+    }
+
+    return {
+      artist: artistNames[0] ? buildArtist(artistNames[0]) : null,
+      featuredArtists: artistNames.slice(1).map((name) => ({
+        artist: buildArtist(name),
+      })),
+    }
+  }, [artistNames, resolvedArtists])
+
+  const artistPickerItems = useMemo(
+    () =>
+      buildArtistPickerItems(
+        artistPickerSource,
+        artistNames,
+        (count) => t("library.count.track", { count })
+      ),
+    [artistNames, artistPickerSource, t]
+  )
 
   const showPlaylistToast = (title: string, description?: string) => {
     toast.show({
@@ -91,6 +169,7 @@ export function PlayerActionSheet({
     }
 
     onOpenChange(false)
+    setIsPlaylistPickerOpen(false)
     setIsArtistSelectionOpen(true)
   }
 
@@ -180,11 +259,11 @@ export function PlayerActionSheet({
         }}
       />
 
-      <ValueNavigationSheet
+      <ArtistPickerSheet
         isOpen={isArtistSelectionOpen}
         onOpenChange={setIsArtistSelectionOpen}
         title={t("player.selectArtistTitle")}
-        values={artistNames}
+        items={artistPickerItems}
         onSelectValue={(value) => {
           handleOpenArtist(value)
         }}

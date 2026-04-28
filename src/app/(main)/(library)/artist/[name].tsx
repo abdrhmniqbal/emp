@@ -1,8 +1,8 @@
 /**
  * Purpose: Renders artist detail overview, artist tracks, artist albums, and artist header actions.
  * Caller: Expo Router artist detail route.
- * Dependencies: artist track queries, split artist settings, playback service, favorites mutations, sort store, media transition helpers, theme and UI scroll stores.
- * Main Functions: ArtistDetailsScreen(), trackMatchesArtistName(), buildAlbumGridItems()
+ * Dependencies: artist metadata and track queries, split artist settings, playback service, favorites mutations, sort store, media transition helpers, theme and UI scroll stores.
+ * Main Functions: ArtistDetailsScreen(), trackMatchesArtistName(), mergeArtistTracks()
  * Side Effects: Plays tracks, toggles artist favorites, navigates to album routes, updates scroll UI state.
  */
 
@@ -71,28 +71,28 @@ import {
   setSortConfig,
   useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
+import { sortAlbums, sortTracks } from "@/modules/library/library-sort.utils"
 import {
-  sortAlbums,
-  sortTracks,
-} from "@/modules/library/library-sort.utils"
-import { useTracksByArtistName } from "@/modules/library/library.queries"
-import { logWarn } from "@/modules/logging/logging.service"
+  useArtistByName,
+  useTracksByArtistName,
+} from "@/modules/library/library.queries"
 import {
   useCurrentTrack,
   usePlayerTracks,
 } from "@/modules/player/player-selectors"
-import { playTrack } from "@/modules/player/player.service"
-import { useSettingsStore } from "@/modules/settings/settings.store"
 import {
   type SplitMultipleValueConfig,
   splitArtistsValue,
 } from "@/modules/settings/split-multiple-values"
+import { useSettingsStore } from "@/modules/settings/settings.store"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
+import { logWarn } from "@/modules/logging/logging.service"
+import { playTrack } from "@/modules/player/player.service"
 import { cn } from "@/utils/common"
 
 const SCROLL_SYNC_DELTA = 12
@@ -215,8 +215,9 @@ export default function ArtistDetailsScreen() {
     artistTracksFromQuery,
     fallbackArtistTracks
   )
-  const artistId = artistTracks[0]?.artistId
-  const artistImage = artistTracks.find((track) => track.image)?.image
+  const { data: artistRecord } = useArtistByName(artistName)
+  const artistId = artistRecord?.id
+  const artistImage = artistRecord?.artwork || undefined
   const artistTransitionId = resolveArtistTransitionId({
     transitionId,
     id: artistId,

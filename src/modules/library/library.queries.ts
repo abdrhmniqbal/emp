@@ -1,3 +1,11 @@
+/**
+ * Purpose: Exposes React Query hooks for local library, artist, album, track, search, and recent-search data.
+ * Caller: Library screens, artist and album detail routes, and search surfaces.
+ * Dependencies: Local library repository functions and TanStack React Query.
+ * Main Functions: useArtists(), useArtist(), useArtistByName(), useAlbums(), useAlbum(), useTracksByAlbumName(), useTracksByArtistName(), useSearch(), useRecentSearches()
+ * Side Effects: Triggers cached SQLite reads through React Query.
+ */
+
 import type { Track } from "@/modules/player/player.types"
 import { useDebouncedValue } from "@tanstack/react-pacer/debouncer"
 import { useQuery } from "@tanstack/react-query"
@@ -8,6 +16,7 @@ import { libraryKeys } from "./library.keys"
 import {
   getAlbumById,
   getArtistById,
+  getArtistByName,
   getRecentSearches,
   getTracksByAlbumName,
   getTracksByArtistName,
@@ -45,7 +54,21 @@ export function useArtist(id: string) {
   return useQuery(
     {
       queryKey: libraryKeys.artist(id),
+      enabled: id.trim().length > 0,
       queryFn: async () => await getArtistById(id),
+    },
+    queryClient
+  )
+}
+
+export function useArtistByName(name: string) {
+  const normalizedName = normalizeLookup(name)
+
+  return useQuery(
+    {
+      queryKey: ["artists", "name", normalizedName] as const,
+      enabled: normalizedName.length > 0,
+      queryFn: async () => await getArtistByName(normalizedName),
     },
     queryClient
   )

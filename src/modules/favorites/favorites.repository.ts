@@ -1,8 +1,15 @@
+/**
+ * Purpose: Reads and mutates favorite tracks, artists, albums, and playlists.
+ * Caller: Favorites queries and mutations.
+ * Dependencies: Drizzle DB client, music tables, and localization strings.
+ * Main Functions: addFavorite(), removeFavorite(), isFavorite(), getFavorites()
+ * Side Effects: Updates favorite flags in SQLite and reads favorite rows for list surfaces.
+ */
+
 import { and, desc, eq, gt } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import { albums, artists, playlists, tracks } from "@/db/schema"
-import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 import { i18n } from "@/modules/localization/i18n"
 
 import type { FavoriteEntry, FavoriteType } from "./favorites.types"
@@ -124,13 +131,12 @@ export async function getFavorites(
       const favoriteArtists = await db.query.artists.findMany({
         where: and(eq(artists.isFavorite, 1), gt(artists.trackCount, 0)),
         orderBy: [desc(artists.favoritedAt)],
-        with: {
-          tracks: {
-            limit: 1,
-            with: {
-              album: true,
-            },
-          },
+        columns: {
+          id: true,
+          name: true,
+          artwork: true,
+          trackCount: true,
+          favoritedAt: true,
         },
       })
       favorites.push(
@@ -139,11 +145,7 @@ export async function getFavorites(
           type: "artist" as const,
           name: artist.name,
           subtitle: i18n.t("library.count.track", { count: artist.trackCount }),
-          image: resolveArtistArtwork(
-            artist.tracks[0]?.artwork,
-            artist.artwork,
-            artist.tracks[0]?.album?.artwork
-          ),
+          image: artist.artwork || undefined,
           dateAdded: artist.favoritedAt || Date.now(),
         }))
       )

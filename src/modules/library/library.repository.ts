@@ -1,9 +1,9 @@
 /**
  * Purpose: Repositories for library browsing, artist lookup, recent-search persistence, and global search results.
  * Caller: Search screens, artist/album detail routes, recent-search mutations, and library query hooks.
- * Dependencies: Drizzle DB client, artist/album/track tables, recent-search settings storage, artwork resolver, track transformers.
- * Main Functions: listArtists(), listAlbums(), getTracksByArtistName(), getTracksByAlbumName(), searchLibrary(), addRecentSearch(), getRecentSearches()
- * Side Effects: Reads/writes SQLite rows and app-settings JSON stored in SQLite, updates recent-search persistence, and resolves artwork metadata.
+ * Dependencies: Drizzle DB client, artist/album/track tables, recent-search settings storage, and track transformers.
+ * Main Functions: listArtists(), listAlbums(), getArtistByName(), getTracksByArtistName(), getTracksByAlbumName(), searchLibrary(), addRecentSearch(), getRecentSearches()
+ * Side Effects: Reads/writes SQLite rows and app-settings JSON stored in SQLite, updates recent-search persistence, and stores artist artwork on the artist row during indexing.
  */
 
 import type { Track } from "@/modules/player/player.types"
@@ -30,7 +30,6 @@ import {
   trackArtists,
   tracks,
 } from "@/db/schema"
-import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
 import { logError } from "@/modules/logging/logging.service"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
@@ -213,21 +212,6 @@ async function hydrateRecentSearchEntry(
             name: true,
             artwork: true,
           },
-          with: {
-            albums: {
-              columns: {
-                artwork: true,
-              },
-              limit: 1,
-            },
-            tracks: {
-              where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
-              columns: {
-                artwork: true,
-              },
-              limit: 1,
-            },
-          },
         })
       : await db.query.artists.findFirst({
           where: and(
@@ -238,21 +222,6 @@ async function hydrateRecentSearchEntry(
             id: true,
             name: true,
             artwork: true,
-          },
-          with: {
-            albums: {
-              columns: {
-                artwork: true,
-              },
-              limit: 1,
-            },
-            tracks: {
-              where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
-              columns: {
-                artwork: true,
-              },
-              limit: 1,
-            },
           },
         })
 
@@ -265,13 +234,7 @@ async function hydrateRecentSearchEntry(
       query: artist.name || item.query,
       title: artist.name || item.title,
       targetId: artist.id,
-      image:
-        item.image ||
-        resolveArtistArtwork(
-          artist.tracks[0]?.artwork,
-          artist.artwork,
-          artist.albums[0]?.artwork
-        ),
+      image: item.image || artist.artwork || undefined,
     }
   }
 
@@ -518,21 +481,6 @@ export async function listArtists(
       createdAt: true,
       trackCount: true,
     },
-    with: {
-      albums: {
-        columns: {
-          artwork: true,
-        },
-        limit: 1,
-      },
-      tracks: {
-        where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
-        columns: {
-          artwork: true,
-        },
-        limit: 1,
-      },
-    },
     orderBy,
   })
 
@@ -542,10 +490,29 @@ export async function listArtists(
     sortName: artist.sortName,
     artwork: artist.artwork,
     createdAt: artist.createdAt,
-    albumArtwork: artist.albums[0]?.artwork || null,
-    trackArtwork: artist.tracks[0]?.artwork || null,
     trackCount: artist.trackCount || 0,
   }))
+}
+
+export async function getArtistByName(name: string) {
+  const normalizedName = normalizeLookup(name)
+  if (!normalizedName) {
+    return null
+  }
+
+  return db.query.artists.findFirst({
+    where: and(
+      gt(artists.trackCount, 0),
+      eq(sql`lower(coalesce(${artists.name}, ''))`, normalizedName)
+    ),
+    columns: {
+      id: true,
+      name: true,
+      artwork: true,
+      createdAt: true,
+      trackCount: true,
+    },
+  })
 }
 
 export async function getArtistById(id: string) {
@@ -900,20 +867,10 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
       await Promise.all([
         db.query.artists.findMany({
           where: and(like(artists.name, searchTerm), gt(artists.trackCount, 0)),
-          with: {
-            albums: {
-              columns: {
-                artwork: true,
-              },
-              limit: 1,
-            },
-            tracks: {
-              where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
-              columns: {
-                artwork: true,
-              },
-              limit: 1,
-            },
+          columns: {
+            id: true,
+            name: true,
+            artwork: true,
           },
           orderBy: [asc(sql`lower(coalesce(${artists.name}, ''))`)],
           limit: 10,
@@ -1052,11 +1009,7 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
         type: "Artist",
         followerCount: 0,
         isVerified: false,
-        image: resolveArtistArtwork(
-          artist.tracks[0]?.artwork,
-          artist.artwork,
-          artist.albums[0]?.artwork
-        ),
+        image: artist.artwork || undefined,
       })),
       albums: albumResults.map((album) => ({
         id: album.id,
