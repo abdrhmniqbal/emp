@@ -28,6 +28,9 @@ export interface ExtractedMetadata {
   album?: string
   albumArtist?: string
   genres: string[]
+  rawArtist?: string
+  rawAlbumArtist?: string
+  rawGenre?: string
   year?: number
   trackNumber?: number
   discNumber?: number
@@ -440,6 +443,9 @@ export async function extractMetadata(
             metadata.artist ||
             undefined,
       genres: splitGenresValue(metadata.genre, splitConfig),
+      rawArtist: metadata.artist || undefined,
+      rawAlbumArtist: metadata.albumArtist || metadata.artist || undefined,
+      rawGenre: metadata.genre || undefined,
       year: metadata.year || undefined,
       trackNumber: metadata.trackNumber || undefined,
       discNumber: metadata.discNumber || undefined,
@@ -458,6 +464,9 @@ export async function extractMetadata(
       title: cleanFilename(filename),
       artists: [],
       genres: [],
+      rawArtist: undefined,
+      rawAlbumArtist: undefined,
+      rawGenre: undefined,
       duration,
     }
   }

@@ -1,3 +1,11 @@
+/**
+ * Purpose: Defines the SQLite schema and Drizzle relations for music library, playback, playlists, and settings data.
+ * Caller: Drizzle client, migrations, repositories, and query modules.
+ * Dependencies: drizzle-orm SQLite core and relation helpers.
+ * Main Functions: artists, albums, genres, tracks, trackGenres, trackArtists, playlists, playlistTracks, playHistory, appSettings.
+ * Side Effects: None.
+ */
+
 import { relations } from "drizzle-orm"
 import {
   index,
@@ -130,6 +138,9 @@ export const tracks = sqliteTable(
     composer: text("composer"),
     comment: text("comment"),
     artwork: text("artwork"),
+    rawArtist: text("raw_artist"),
+    rawAlbumArtist: text("raw_album_artist"),
+    rawGenre: text("raw_genre"),
 
     createdAt: integer("created_at")
       .notNull()

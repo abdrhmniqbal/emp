@@ -7,7 +7,10 @@
  */
 
 import { refreshIndexedMediaState } from "@/modules/indexer/indexer-refresh.service"
-import { scanMediaLibrary } from "@/modules/indexer/indexer.repository"
+import {
+  rebuildSplitMetadataRelations,
+  scanMediaLibrary,
+} from "@/modules/indexer/indexer.repository"
 import {
   consumeQueuedIndexerRun,
   finishIndexerRunRuntime,
@@ -33,6 +36,7 @@ import {
   updateIndexerProgress,
 } from "@/modules/indexer/indexer-progress.service"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
+import type { SplitMultipleValueConfig } from "@/modules/settings/split-multiple-values"
 
 const INCREMENTAL_REFRESH_INTERVAL_MS = 1500
 
@@ -127,6 +131,14 @@ export async function startIndexing(
 
 export async function forceReindexLibrary(showProgress = true) {
   await startIndexing(true, showProgress)
+}
+
+export async function rebuildSplitRelationsForConfig(
+  config: SplitMultipleValueConfig
+) {
+  const result = await rebuildSplitMetadataRelations(config)
+  await refreshIndexedMediaState()
+  return result
 }
 
 export function stopIndexing() {

@@ -1,12 +1,11 @@
 /**
  * Purpose: Renders library settings for scanning behavior, split metadata preferences, folder and duration filters, and reindexing.
  * Caller: Settings library route.
- * Dependencies: Expo Router, react-i18next, settings store, split settings state marker, indexer services, settings row pattern, HeroUI Native dialog and switch.
+ * Dependencies: Expo Router, react-i18next, settings store, indexer services, settings row pattern, HeroUI Native dialog and switch.
  * Main Functions: LibrarySettingsScreen()
- * Side Effects: Persists library settings, blocks navigation while split-setting reindex decisions are required, and can trigger a full library reindex.
+ * Side Effects: Persists library settings, shows a manual reindex dialog, and can trigger a full library reindex.
  */
 
-import { useFocusEffect, usePreventRemove } from "@react-navigation/native"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button, Dialog, Switch } from "heroui-native"
 import * as React from "react"
@@ -19,10 +18,6 @@ import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { setAutoScanEnabled } from "@/modules/settings/auto-scan"
 import { getTrackDurationFilterLabel } from "@/modules/settings/track-duration-filter"
 import { useSettingsStore } from "@/modules/settings/settings.store"
-import {
-  consumeSplitSettingsReindexPrompt,
-  getSplitMultipleValuesSummary,
-} from "@/modules/settings/split-settings-state"
 
 export default function LibrarySettingsScreen() {
   const router = useRouter()
@@ -36,38 +31,29 @@ export default function LibrarySettingsScreen() {
     (state) => state.splitMultipleValueConfig
   )
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
-  const [requiresReindexDecision, setRequiresReindexDecision] =
-    React.useState(false)
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (consumeSplitSettingsReindexPrompt()) {
-        setRequiresReindexDecision(true)
-        setShowReindexDialog(true)
-      }
-    }, [])
-  )
+  function getSplitMultipleValuesSummary() {
+    const modeLabel =
+      splitMultipleValueConfig.artistSplitMode === "original"
+        ? t("settings.library.artistSplitModeOriginal")
+        : t("settings.library.artistSplitModeSplit")
 
-  usePreventRemove(requiresReindexDecision, () => {
-    setShowReindexDialog(true)
-  })
+    return t("settings.library.splitMultipleValuesSummary", {
+      mode: modeLabel,
+      artistSymbols: splitMultipleValueConfig.artistSplitSymbols.join(" "),
+      genreSymbols: splitMultipleValueConfig.genreSplitSymbols.join(" "),
+    })
+  }
 
   function handleReindexDialogOpenChange(isOpen: boolean) {
-    if (requiresReindexDecision && !isOpen) {
-      setShowReindexDialog(true)
-      return
-    }
-
     setShowReindexDialog(isOpen)
   }
 
   function handleReindexLater() {
-    setRequiresReindexDecision(false)
     setShowReindexDialog(false)
   }
 
   function handleConfirmForceReindex() {
-    setRequiresReindexDecision(false)
     setShowReindexDialog(false)
     void forceReindexLibrary(true)
   }
@@ -82,9 +68,7 @@ export default function LibrarySettingsScreen() {
           <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
             <SettingsRow
               title={t("settings.library.splitMultipleValues")}
-              description={getSplitMultipleValuesSummary(
-                splitMultipleValueConfig
-              )}
+              description={getSplitMultipleValuesSummary()}
               onPress={() => router.push("/settings/split-multiple-values")}
             />
             <SettingsRow
@@ -141,11 +125,8 @@ export default function LibrarySettingsScreen() {
         onOpenChange={handleReindexDialogOpenChange}
       >
         <Dialog.Portal>
-          <Dialog.Overlay isCloseOnPress={!requiresReindexDecision} />
-          <Dialog.Content
-            className="gap-4"
-            isSwipeable={!requiresReindexDecision}
-          >
+          <Dialog.Overlay isCloseOnPress />
+          <Dialog.Content className="gap-4" isSwipeable>
             <View className="gap-1.5">
               <Dialog.Title>
                 {t("settings.library.reindexDialogTitle")}

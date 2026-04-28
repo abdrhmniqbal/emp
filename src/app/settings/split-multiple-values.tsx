@@ -1,9 +1,9 @@
 /**
  * Purpose: Lets users configure tag-based symbol splitting for artists/genres, unsplit artist exceptions, and artist display mode.
  * Caller: Settings split-multiple-values route.
- * Dependencies: HeroUI Native form controls, settings split config module/store, and split settings reindex prompt state.
+ * Dependencies: HeroUI Native form controls, settings split config module/store, and indexer relation rebuild.
  * Main Functions: SplitMultipleValuesSettingsScreen(), SplitTagListEditor()
- * Side Effects: Persists split settings config and marks deferred library reindex prompt.
+ * Side Effects: Persists split settings config, rebuilds split metadata relations, and refreshes indexed media state.
  */
 
 import {
@@ -21,9 +21,9 @@ import { useTranslation } from "react-i18next"
 
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalTickIcon from "@/components/icons/local/tick"
+import { rebuildSplitRelationsForConfig } from "@/modules/indexer/indexer.service"
 import { setSplitMultipleValueConfig } from "@/modules/settings/split-multiple-values"
 import { useSettingsStore } from "@/modules/settings/settings.store"
-import { markSplitSettingsReindexPrompt } from "@/modules/settings/split-settings-state"
 import { useThemeColors } from "@/modules/ui/theme"
 
 type SplitMode = "original" | "split"
@@ -161,8 +161,8 @@ export default function SplitMultipleValuesSettingsScreen() {
     genreSplitSymbols?: string[]
     artistSplitMode?: SplitMode
   }) {
-    await setSplitMultipleValueConfig(next)
-    markSplitSettingsReindexPrompt()
+    const config = await setSplitMultipleValueConfig(next)
+    await rebuildSplitRelationsForConfig(config)
   }
 
   return (
