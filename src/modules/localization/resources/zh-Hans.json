@@ -87,6 +87,7 @@
   "library": {
     "tracks": "曲目",
     "albums": "专辑",
+    "featuredOn": "Featured On",
     "artists": "艺术家",
     "genres": "流派",
     "genre": "流派",

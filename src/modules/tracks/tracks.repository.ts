@@ -1,15 +1,15 @@
 /**
  * Purpose: Provides track read/write access for library lists, detail views, favorites, and playback history.
  * Caller: tracks queries, tracks mutations, player activity services, library screens.
- * Dependencies: Drizzle database client, tracks table, play_history table.
+ * Dependencies: Drizzle database client, tracks table, track_artists table, play_history table.
  * Main Functions: listTracks(), getTrackById(), setTrackFavoriteStatus(), incrementTrackPlayCount()
  * Side Effects: Reads tracks from DB; writes favorite status, play counts, and play history records.
  */
 
-import { and, asc, desc, eq, like, sql } from "drizzle-orm"
+import { and, asc, desc, eq, like, or, sql } from "drizzle-orm"
 
 import { db } from "@/db/client"
-import { playHistory, tracks } from "@/db/schema"
+import { playHistory, trackArtists, tracks } from "@/db/schema"
 
 import type { TrackFilter } from "./tracks.types"
 
@@ -33,7 +33,16 @@ export async function listTracks(filters?: TrackFilter) {
   const results = await db.query.tracks.findMany({
     where: and(
       eq(tracks.isDeleted, 0),
-      filters?.artistId ? eq(tracks.artistId, filters.artistId) : undefined,
+      filters?.artistId
+        ? or(
+            eq(tracks.artistId, filters.artistId),
+            sql`${tracks.id} IN (
+              SELECT ${trackArtists.trackId}
+              FROM ${trackArtists}
+              WHERE ${trackArtists.artistId} = ${filters.artistId}
+            )`
+          )
+        : undefined,
       filters?.albumId ? eq(tracks.albumId, filters.albumId) : undefined,
       filters?.isFavorite ? eq(tracks.isFavorite, 1) : undefined,
       filters?.searchQuery
@@ -42,7 +51,16 @@ export async function listTracks(filters?: TrackFilter) {
     ),
     with: {
       artist: true,
-      album: true,
+      featuredArtists: {
+        with: {
+          artist: true,
+        },
+      },
+      album: {
+        with: {
+          artist: true,
+        },
+      },
       genres: {
         with: {
           genre: true,

@@ -1,13 +1,52 @@
+/**
+ * Purpose: Converts Drizzle database result shapes into app-facing player/library domain models.
+ * Caller: Track, library, history, genre, playlist, and player repositories.
+ * Dependencies: Player domain types and database result types.
+ * Main Functions: transformDBTrackToTrack(), transformDBAlbumToAlbum(), transformDBArtistToArtist().
+ * Side Effects: None.
+ */
+
 import type { Album, Artist, Track } from "@/modules/player/player.types"
 import type { DBAlbum, DBArtist, DBTrack } from "@/types/database"
 
+function joinUniqueValues(values: Array<string | null | undefined>) {
+  const seen = new Set<string>()
+  const result: string[] = []
+
+  for (const value of values) {
+    const normalized = value?.trim()
+    if (!normalized) {
+      continue
+    }
+
+    const key = normalized.toLowerCase()
+    if (seen.has(key)) {
+      continue
+    }
+
+    seen.add(key)
+    result.push(normalized)
+  }
+
+  return result.join(", ")
+}
+
 export function transformDBTrackToTrack(dbTrack: DBTrack): Track {
+  const artist = joinUniqueValues([
+    dbTrack.artist?.name,
+    ...(dbTrack.featuredArtists?.map((entry) => entry.artist?.name) ?? []),
+  ])
+  const albumArtist = dbTrack.album?.artist?.name?.trim() || artist
+  const genre = joinUniqueValues(
+    dbTrack.genres?.map((entry) => entry.genre?.name) ?? []
+  )
+
   return {
     id: dbTrack.id,
     title: dbTrack.title,
-    artist: dbTrack.artist?.name,
+    artist: artist || undefined,
     artistId: dbTrack.artistId || undefined,
-    albumArtist: dbTrack.artist?.name,
+    albumArtist: albumArtist || undefined,
     album: dbTrack.album?.title,
     albumId: dbTrack.albumId || undefined,
     duration: dbTrack.duration,
@@ -30,7 +69,7 @@ export function transformDBTrackToTrack(dbTrack: DBTrack): Track {
     isFavorite: Boolean(dbTrack.isFavorite),
     discNumber: dbTrack.discNumber || undefined,
     trackNumber: dbTrack.trackNumber || undefined,
-    genre: dbTrack.genres?.[0]?.genre?.name,
+    genre: genre || undefined,
   }
 }
 

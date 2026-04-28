@@ -87,6 +87,7 @@
   "library": {
     "tracks": "Lagu",
     "albums": "Album",
+    "featuredOn": "Featured On",
     "artists": "Artis",
     "genres": "Genre",
     "genre": "Genre",

@@ -87,6 +87,7 @@
   "library": {
     "tracks": "트랙",
     "albums": "앨범",
+    "featuredOn": "Featured On",
     "artists": "아티스트",
     "genres": "장르",
     "genre": "장르",

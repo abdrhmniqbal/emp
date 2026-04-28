@@ -25,6 +25,11 @@ export async function getTrackHistory(): Promise<Track[]> {
         track: {
           with: {
             artist: true,
+            featuredArtists: {
+              with: {
+                artist: true,
+              },
+            },
             album: true,
             genres: {
               with: {
@@ -56,6 +61,11 @@ export async function getTopTracksByPeriod(
         orderBy: [desc(tracks.playCount), desc(tracks.lastPlayedAt)],
         with: {
           artist: true,
+          featuredArtists: {
+            with: {
+              artist: true,
+            },
+          },
           album: true,
           genres: {
             with: {
@@ -82,6 +92,11 @@ export async function getTopTracksByPeriod(
         track: {
           with: {
             artist: true,
+            featuredArtists: {
+              with: {
+                artist: true,
+              },
+            },
             album: true,
             genres: {
               with: {

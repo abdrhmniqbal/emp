@@ -10,7 +10,16 @@ export async function getAllTracks(): Promise<Track[]> {
     where: eq(tracks.isDeleted, 0),
     with: {
       artist: true,
-      album: true,
+      featuredArtists: {
+        with: {
+          artist: true,
+        },
+      },
+      album: {
+        with: {
+          artist: true,
+        },
+      },
       genres: {
         with: {
           genre: true,

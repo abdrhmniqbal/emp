@@ -1,8 +1,8 @@
 /**
  * Purpose: Renders artist detail overview, artist tracks, artist albums, and artist header actions.
  * Caller: Expo Router artist detail route.
- * Dependencies: artist track queries, playback service, favorites mutations, sort store, media transition helpers, theme and UI scroll stores.
- * Main Functions: ArtistDetailsScreen()
+ * Dependencies: artist track queries, split artist settings, playback service, favorites mutations, sort store, media transition helpers, theme and UI scroll stores.
+ * Main Functions: ArtistDetailsScreen(), trackMatchesArtistName(), buildAlbumGridItems()
  * Side Effects: Plays tracks, toggles artist favorites, navigates to album routes, updates scroll UI state.
  */
 
@@ -82,6 +82,11 @@ import {
   usePlayerTracks,
 } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
+import { useSettingsStore } from "@/modules/settings/settings.store"
+import {
+  type SplitMultipleValueConfig,
+  splitArtistsValue,
+} from "@/modules/settings/split-multiple-values"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
   handleScroll,
@@ -117,6 +122,32 @@ function getSafeRouteName(value: string | string[] | undefined) {
   }
 }
 
+function trackMatchesArtistName(
+  track: Track,
+  normalizedArtistName: string,
+  splitMultipleValueConfig: SplitMultipleValueConfig
+) {
+  const candidateValues = [track.artist, track.albumArtist]
+
+  return candidateValues.some((value) =>
+    splitArtistsValue(value, splitMultipleValueConfig).some(
+      (artist) => artist.trim().toLowerCase() === normalizedArtistName
+    )
+  )
+}
+
+function mergeArtistTracks(primary: Track[], fallback: Track[]) {
+  const tracksById = new Map(primary.map((track) => [track.id, track]))
+
+  for (const track of fallback) {
+    if (!tracksById.has(track.id)) {
+      tracksById.set(track.id, track)
+    }
+  }
+
+  return Array.from(tracksById.values())
+}
+
 export default function ArtistDetailsScreen() {
   const { t } = useTranslation()
   const theme = useThemeColors()
@@ -133,12 +164,15 @@ export default function ArtistDetailsScreen() {
 
   const [isHeaderSolid, setIsHeaderSolid] = useState(false)
   const [activeView, setActiveView] = useState<
-    "overview" | "tracks" | "albums"
+    "overview" | "tracks" | "albums" | "featuredOn"
   >("overview")
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const scrollY = useSharedValue(0)
   const currentTrack = useCurrentTrack()
   const allTracks = usePlayerTracks()
+  const splitMultipleValueConfig = useSettingsStore(
+    (state) => state.splitMultipleValueConfig
+  )
   const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
   const parsedArtistRouteName = React.useMemo(() => getSafeRouteName(name), [name])
   const artistName =
@@ -170,14 +204,17 @@ export default function ArtistDetailsScreen() {
     isLoading: isArtistTracksLoading,
     isFetching: isArtistTracksFetching,
   } = useTracksByArtistName(artistName)
-  const artistTracks =
-    artistTracksFromQuery.length > 0
-      ? artistTracksFromQuery
-      : allTracks.filter(
-          (track) =>
-            (track.artist || track.albumArtist || "").trim().toLowerCase() ===
-            normalizedArtistName
-        )
+  const fallbackArtistTracks = allTracks.filter((track) =>
+    trackMatchesArtistName(
+      track,
+      normalizedArtistName,
+      splitMultipleValueConfig
+    )
+  )
+  const artistTracks = mergeArtistTracks(
+    artistTracksFromQuery,
+    fallbackArtistTracks
+  )
   const artistId = artistTracks[0]?.artistId
   const artistImage = artistTracks.find((track) => track.image)?.image
   const artistTransitionId = resolveArtistTransitionId({
@@ -192,32 +229,65 @@ export default function ArtistDetailsScreen() {
   const isLoading =
     (isArtistTracksLoading || isArtistTracksFetching) &&
     artistTracks.length === 0
-  const albums = buildArtistAlbums(artistTracks)
+  const albumArtistTracks = artistTracks.filter((track) =>
+    trackMatchesArtistName(
+      { ...track, artist: track.albumArtist },
+      normalizedArtistName,
+      splitMultipleValueConfig
+    )
+  )
+  const featuredOnTracks = artistTracks.filter(
+    (track) =>
+      !trackMatchesArtistName(
+        { ...track, artist: track.albumArtist },
+        normalizedArtistName,
+        splitMultipleValueConfig
+      )
+  )
+  const albums = buildArtistAlbums(albumArtistTracks)
+  const featuredOnAlbums = buildArtistAlbums(featuredOnTracks)
   const sortedArtistTracks = sortTracks(
     artistTracks,
     allSortConfigs.ArtistTracks
   )
   const popularTracks = sortedArtistTracks.slice(0, 5)
   const sortedAlbums = sortAlbums(
-    albums.map((album): Album => ({
+    buildAlbumGridItems(albums, t("library.unknownArtist")),
+    allSortConfigs.ArtistAlbums
+  )
+  const sortedFeaturedOnAlbums = sortAlbums(
+    buildAlbumGridItems(featuredOnAlbums, t("library.unknownArtist")),
+    allSortConfigs.ArtistAlbums
+  )
+  const displayedAlbums =
+    activeView === "featuredOn" ? sortedFeaturedOnAlbums : sortedAlbums
+  const displayedAlbumTitle =
+    activeView === "featuredOn" ? t("library.featuredOn") : t("library.albums")
+  const hasAlbumSections =
+    sortedAlbums.length > 0 || sortedFeaturedOnAlbums.length > 0
+  const currentTab =
+    activeView === "tracks"
+      ? "ArtistTracks"
+      : activeView === "albums" || activeView === "featuredOn"
+        ? "ArtistAlbums"
+        : "ArtistTracks"
+  const sortConfig = allSortConfigs[currentTab]
+
+  function buildAlbumGridItems(
+    artistAlbums: ReturnType<typeof buildArtistAlbums>,
+    unknownArtist: string
+  ): Album[] {
+    return artistAlbums.map((album): Album => ({
       id: album.title,
       title: album.title,
-      artist: album.artist || t("library.unknownArtist"),
+      artist: album.albumArtist || album.artist || unknownArtist,
       albumArtist: album.albumArtist,
       image: album.image,
       trackCount: album.trackCount,
       year: album.year || 0,
       dateAdded: 0,
-    })),
-    allSortConfigs.ArtistAlbums
-  )
-  const currentTab =
-    activeView === "tracks"
-      ? "ArtistTracks"
-      : activeView === "albums"
-        ? "ArtistAlbums"
-        : "ArtistTracks"
-  const sortConfig = allSortConfigs[currentTab]
+    }))
+  }
 
   const smoothScrollY = useDerivedValue(() =>
     withTiming(scrollY.value, { duration: 90 })
@@ -274,7 +344,7 @@ export default function ArtistDetailsScreen() {
     setSortConfig(currentTab, field, order)
   }
 
-  function navigateTo(view: "overview" | "tracks" | "albums") {
+  function navigateTo(view: "overview" | "tracks" | "albums" | "featuredOn") {
     setActiveView(view)
   }
 
@@ -511,7 +581,7 @@ export default function ArtistDetailsScreen() {
                 </View>
               </View>
 
-              {albums.length > 0 && (
+              {sortedAlbums.length > 0 && (
                 <View className="mt-8 px-6">
                   <SectionTitle
                     title={t("library.albums")}
@@ -519,9 +589,21 @@ export default function ArtistDetailsScreen() {
                   />
                   <AlbumGrid
                     horizontal
-                    data={albums.map(
-                      (album) => ({ ...album, id: album.title }) as Album
-                    )}
+                    data={sortedAlbums}
+                    onAlbumPress={openAlbum}
+                  />
+                </View>
+              )}
+
+              {sortedFeaturedOnAlbums.length > 0 && (
+                <View className="mt-8 px-6">
+                  <SectionTitle
+                    title={t("library.featuredOn")}
+                    onViewMore={() => navigateTo("featuredOn")}
+                  />
+                  <AlbumGrid
+                    horizontal
+                    data={sortedFeaturedOnAlbums}
                     onAlbumPress={openAlbum}
                   />
                 </View>
@@ -581,11 +663,11 @@ export default function ArtistDetailsScreen() {
               </>
             }
           />
-        ) : (
+        ) : hasAlbumSections ? (
           <AlbumGrid
-            data={sortedAlbums}
+            data={displayedAlbums}
             onAlbumPress={openAlbum}
-            resetScrollKey={`${artistId || artistName}-albums-${sortConfig.field}-${sortConfig.order}`}
+            resetScrollKey={`${artistId || artistName}-${activeView}-${sortConfig.field}-${sortConfig.order}`}
             contentContainerStyle={{
               paddingBottom: 200,
               paddingHorizontal: 16,
@@ -621,7 +703,7 @@ export default function ArtistDetailsScreen() {
                         />
                       </PressableFeedback>
                       <Text className="text-lg font-bold text-foreground">
-                        All Albums
+                        {displayedAlbumTitle}
                       </Text>
                     </View>
                     <SortSheet.Trigger label={getSortLabel()} iconSize={14} />
@@ -630,13 +712,15 @@ export default function ArtistDetailsScreen() {
               </>
             }
           />
+        ) : (
+          <View className="flex-1 bg-background" />
         )}
 
         <SortSheet.Content
           options={
             activeView === "tracks"
               ? TRACK_SORT_OPTIONS
-              : activeView === "albums"
+              : activeView === "albums" || activeView === "featuredOn"
                 ? ALBUM_SORT_OPTIONS
                 : []
           }

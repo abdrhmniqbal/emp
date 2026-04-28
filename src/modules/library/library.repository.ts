@@ -19,6 +19,7 @@ import {
   artists,
   playlists,
   playlistTracks,
+  trackArtists,
   tracks,
 } from "@/db/schema"
 import { resolveArtistArtwork } from "@/modules/artists/artist-artwork"
@@ -317,7 +318,11 @@ async function hydrateRecentSearchEntry(
               with: {
                 track: {
                   with: {
-                    album: true,
+                    album: {
+                      with: {
+                        artist: true,
+                      },
+                    },
                   },
                 },
               },
@@ -546,7 +551,17 @@ export async function getArtistById(id: string) {
       tracks: {
         where: eq(tracks.isDeleted, 0),
         with: {
-          album: true,
+          artist: true,
+          featuredArtists: {
+            with: {
+              artist: true,
+            },
+          },
+          album: {
+            with: {
+              artist: true,
+            },
+          },
           genres: {
             with: {
               genre: true,
@@ -648,6 +663,11 @@ export async function getAlbumById(id: string) {
         ],
         with: {
           artist: true,
+          featuredArtists: {
+            with: {
+              artist: true,
+            },
+          },
           genres: {
             with: {
               genre: true,
@@ -693,7 +713,16 @@ export async function getTracksByAlbumName(albumName: string): Promise<Track[]> 
       where: eq(tracks.isDeleted, 0),
       with: {
         artist: true,
-        album: true,
+        featuredArtists: {
+          with: {
+            artist: true,
+          },
+        },
+        album: {
+          with: {
+            artist: true,
+          },
+        },
         genres: {
           with: {
             genre: true,
@@ -718,7 +747,16 @@ export async function getTracksByAlbumName(albumName: string): Promise<Track[]> 
     where: and(eq(tracks.isDeleted, 0), inArray(tracks.albumId, matchingAlbumIds)),
     with: {
       artist: true,
-      album: true,
+      featuredArtists: {
+        with: {
+          artist: true,
+        },
+      },
+      album: {
+        with: {
+          artist: true,
+        },
+      },
       genres: {
         with: {
           genre: true,
@@ -755,7 +793,16 @@ export async function getTracksByArtistName(
       where: eq(tracks.isDeleted, 0),
       with: {
         artist: true,
-        album: true,
+        featuredArtists: {
+          with: {
+            artist: true,
+          },
+        },
+        album: {
+          with: {
+            artist: true,
+          },
+        },
         genres: {
           with: {
             genre: true,
@@ -773,10 +820,32 @@ export async function getTracksByArtistName(
   }
 
   const results = await db.query.tracks.findMany({
-    where: and(eq(tracks.isDeleted, 0), inArray(tracks.artistId, matchingArtistIds)),
+    where: and(
+      eq(tracks.isDeleted, 0),
+      or(
+        inArray(tracks.artistId, matchingArtistIds),
+        sql`${tracks.id} IN (
+          SELECT ${trackArtists.trackId}
+          FROM ${trackArtists}
+          WHERE ${trackArtists.artistId} IN (${sql.join(
+            matchingArtistIds.map((id) => sql`${id}`),
+            sql`, `
+          )})
+        )`
+      )
+    ),
     with: {
       artist: true,
-      album: true,
+      featuredArtists: {
+        with: {
+          artist: true,
+        },
+      },
+      album: {
+        with: {
+          artist: true,
+        },
+      },
       genres: {
         with: {
           genre: true,
@@ -859,7 +928,16 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
           where: and(eq(tracks.isDeleted, 0), like(tracks.title, searchTerm)),
           with: {
             artist: true,
-            album: true,
+            featuredArtists: {
+              with: {
+                artist: true,
+              },
+            },
+            album: {
+              with: {
+                artist: true,
+              },
+            },
             genres: {
               with: {
                 genre: true,
@@ -878,10 +956,28 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
       matchedArtistIds.length > 0 && matchedAlbumIds.length > 0
         ? or(
             inArray(tracks.artistId, matchedArtistIds),
+            sql`${tracks.id} IN (
+              SELECT ${trackArtists.trackId}
+              FROM ${trackArtists}
+              WHERE ${trackArtists.artistId} IN (${sql.join(
+                matchedArtistIds.map((id) => sql`${id}`),
+                sql`, `
+              )})
+            )`,
             inArray(tracks.albumId, matchedAlbumIds)
           )
         : matchedArtistIds.length > 0
-          ? inArray(tracks.artistId, matchedArtistIds)
+          ? or(
+              inArray(tracks.artistId, matchedArtistIds),
+              sql`${tracks.id} IN (
+                SELECT ${trackArtists.trackId}
+                FROM ${trackArtists}
+                WHERE ${trackArtists.artistId} IN (${sql.join(
+                  matchedArtistIds.map((id) => sql`${id}`),
+                  sql`, `
+                )})
+              )`
+            )
           : matchedAlbumIds.length > 0
             ? inArray(tracks.albumId, matchedAlbumIds)
             : null
@@ -891,7 +987,16 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
           where: and(eq(tracks.isDeleted, 0), relationTrackFilter),
           with: {
             artist: true,
-            album: true,
+            featuredArtists: {
+              with: {
+                artist: true,
+              },
+            },
+            album: {
+              with: {
+                artist: true,
+              },
+            },
             genres: {
               with: {
                 genre: true,

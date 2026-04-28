@@ -87,6 +87,7 @@
   "library": {
     "tracks": "Tracks",
     "albums": "Albums",
+    "featuredOn": "Featured On",
     "artists": "Artists",
     "genres": "Genres",
     "genre": "Genre",

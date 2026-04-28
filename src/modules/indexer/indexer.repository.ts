@@ -3,7 +3,7 @@
  * Caller: indexer.service startIndexing(), bootstrap auto-scan, manual library refresh actions.
  * Dependencies: Expo MediaLibrary/FileSystem, Drizzle DB schema, metadata repository, folder/duration filters, indexer runtime.
  * Main Functions: scanMediaLibrary(), getLastIndexerRunSnapshot()
- * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_genres/indexer_state, marks missing tracks deleted.
+ * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, marks missing tracks deleted.
  */
 
 import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
@@ -17,6 +17,7 @@ import {
   artists,
   genres,
   indexerState,
+  trackArtists,
   trackGenres,
   tracks,
 } from "@/db/schema"
@@ -965,6 +966,20 @@ async function upsertPreparedAsset(
   const artistId = metadata.artist
     ? await getOrCreateArtist(metadata.artist, lookupCache)
     : null
+  const relationArtistNames = metadata.artists.length
+    ? metadata.artists
+    : metadata.artist
+      ? [metadata.artist]
+      : []
+  const relationArtistIds = Array.from(
+    new Set(
+      await Promise.all(
+        relationArtistNames.map((artist) =>
+          getOrCreateArtist(artist, lookupCache)
+        )
+      )
+    )
+  )
 
   const albumArtistId =
     metadata.albumArtist && metadata.albumArtist !== metadata.artist
@@ -1057,8 +1072,18 @@ async function upsertPreparedAsset(
   }
 
   await db.delete(trackGenres).where(eq(trackGenres.trackId, asset.id))
+  await db.delete(trackArtists).where(eq(trackArtists.trackId, asset.id))
   if (signal?.aborted) {
     return
+  }
+
+  if (relationArtistIds.length > 0) {
+    await db.insert(trackArtists).values(
+      relationArtistIds.map((relationArtistId) => ({
+        trackId: asset.id,
+        artistId: relationArtistId,
+      }))
+    )
   }
 
   await db.insert(trackGenres).values(
@@ -1230,17 +1255,22 @@ async function updateArtistCounts(): Promise<void> {
   await db.run(sql`
     UPDATE artists 
     SET track_count = (
-      SELECT COUNT(*) FROM tracks 
-      WHERE tracks.artist_id = artists.id AND tracks.is_deleted = 0
+      SELECT COUNT(DISTINCT t.id)
+      FROM tracks t
+      JOIN track_artists ta ON ta.track_id = t.id
+      WHERE ta.artist_id = artists.id AND t.is_deleted = 0
     ),
     album_count = (
-      SELECT COUNT(DISTINCT album_id) FROM tracks 
-      WHERE tracks.artist_id = artists.id AND tracks.is_deleted = 0
+      SELECT COUNT(DISTINCT t.album_id)
+      FROM tracks t
+      JOIN track_artists ta ON ta.track_id = t.id
+      WHERE ta.artist_id = artists.id AND t.is_deleted = 0
     ),
     artwork = COALESCE(
       (
         SELECT t.artwork FROM tracks t
-        WHERE t.artist_id = artists.id
+        JOIN track_artists ta ON ta.track_id = t.id
+        WHERE ta.artist_id = artists.id
           AND t.is_deleted = 0
           AND t.artwork IS NOT NULL
         ORDER BY COALESCE(t.last_played_at, 0) DESC, COALESCE(t.date_added, 0) DESC
@@ -1248,8 +1278,9 @@ async function updateArtistCounts(): Promise<void> {
       ),
       (
         SELECT a.artwork FROM tracks t
+        JOIN track_artists ta ON ta.track_id = t.id
         JOIN albums a ON a.id = t.album_id
-        WHERE t.artist_id = artists.id
+        WHERE ta.artist_id = artists.id
           AND t.is_deleted = 0
           AND a.artwork IS NOT NULL
         ORDER BY COALESCE(t.last_played_at, 0) DESC, COALESCE(t.date_added, 0) DESC

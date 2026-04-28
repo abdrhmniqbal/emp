@@ -87,6 +87,7 @@
   "library": {
     "tracks": "トラック",
     "albums": "アルバム",
+    "featuredOn": "Featured On",
     "artists": "アーティスト",
     "genres": "ジャンル",
     "genre": "ジャンル",

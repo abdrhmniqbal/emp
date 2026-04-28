@@ -1,3 +1,11 @@
+/**
+ * Purpose: Provides playlist persistence, membership queries, ordering, and playlist track hydration.
+ * Caller: Playlist queries, mutations, picker sheets, and playlist detail screens.
+ * Dependencies: Drizzle database client, playlist tables, track relations, and logging service.
+ * Main Functions: listPlaylists(), getPlaylistById(), createPlaylist(), addTrackToPlaylist(), removeTrackFromPlaylist(), reorderPlaylistTracks().
+ * Side Effects: Reads and writes playlist rows and playlist track membership rows.
+ */
+
 import { and, asc, desc, eq, inArray } from "drizzle-orm"
 
 import { db } from "@/db/client"
@@ -119,6 +127,12 @@ export async function listPlaylists() {
         with: {
           track: {
             with: {
+              artist: true,
+              featuredArtists: {
+                with: {
+                  artist: true,
+                },
+              },
               album: true,
               genres: {
                 with: {
@@ -174,6 +188,11 @@ export async function getPlaylistById(id: string) {
           track: {
             with: {
               artist: true,
+              featuredArtists: {
+                with: {
+                  artist: true,
+                },
+              },
               album: true,
               genres: {
                 with: {

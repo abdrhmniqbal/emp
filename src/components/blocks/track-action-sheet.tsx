@@ -423,7 +423,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         .filter((value, index, all) => all.indexOf(value) === index) ?? []
 
     if (names.length > 0) {
-      return names.slice(0, 2)
+      return names
     }
 
     const fallbackGenreNames = splitGenresValue(
@@ -431,7 +431,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       splitMultipleValueConfig
     )
     if (fallbackGenreNames.length > 0) {
-      return dedupeValues(fallbackGenreNames).slice(0, 2)
+      return dedupeValues(fallbackGenreNames)
     }
 
     return []

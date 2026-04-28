@@ -87,6 +87,7 @@
   "library": {
     "tracks": "Pistes",
     "albums": "Albums",
+    "featuredOn": "Featured On",
     "artists": "Artistes",
     "genres": "Genre",
     "genre": "Genre",

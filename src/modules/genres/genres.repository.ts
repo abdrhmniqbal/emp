@@ -192,6 +192,11 @@ export async function getTopTracksByGenre(
         ),
       with: {
         artist: true,
+        featuredArtists: {
+          with: {
+            artist: true,
+          },
+        },
         album: true,
         genres: {
           with: {
@@ -239,6 +244,11 @@ export async function getAllTracksByGenre(genre: string): Promise<Track[]> {
         ),
       with: {
         artist: true,
+        featuredArtists: {
+          with: {
+            artist: true,
+          },
+        },
         album: true,
         genres: {
           with: {
