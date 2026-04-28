@@ -1,0 +1,424 @@
+{
+  "common": {
+    "cancel": "रद्द करें",
+    "clear": "साफ़ करें",
+    "clearAll": "सब साफ़ करें",
+    "goBack": "वापस जाएँ",
+    "play": "चलाएँ",
+    "playAll": "सभी चलाएँ",
+    "shuffle": "शफल",
+    "reset": "रीसेट करें",
+    "seeMore": "और देखें",
+    "unknown": "अज्ञात"
+  },
+  "navigation": {
+    "tabs": {
+      "home": "होम",
+      "search": "खोजें",
+      "library": "लाइब्रेरी"
+    }
+  },
+  "database": {
+    "errorTitle": "डेटाबेस त्रुटि",
+    "schemaConflict": "स्कीमा विरोध का पता चला. री-बेसलाइन माइग्रेशन के लिए ऐप डेटा साफ़ करें या एक बार पुनः इंस्टॉल करें।"
+  },
+  "indexing": {
+    "scanning": "फ़ाइलें स्कैन की जा रही हैं...",
+    "preparing": "तैयारी...",
+    "processing": "ट्रैक संसाधित हो रहे हैं...",
+    "cleanup": "सफ़ाई हो रही है...",
+    "complete": "लाइब्रेरी अपडेट की गई",
+    "paused": "रुका हुआ",
+    "tracksIndexed": "{{count}} ट्रैक अनुक्रमित",
+    "notification": {
+      "channelName": "लाइब्रेरी इंडेक्सिंग",
+      "channelDescription": "संगीत लाइब्रेरी अनुक्रमण प्रगति दिखाता है",
+      "pause": "विराम",
+      "resume": "जारी रखें",
+      "cancel": "रद्द करें",
+      "indexingLibrary": "संगीत पुस्तकालय का अनुक्रमण",
+      "preparingScan": "आपकी लाइब्रेरी स्कैन तैयार की जा रही है...",
+      "scanningFiles": "संगीत फ़ाइलें स्कैन करना",
+      "processingMetadata": "संगीत मेटाडेटा संसाधित करना",
+      "complete": "लाइब्रेरी अनुक्रमण पूर्ण",
+      "tracksUpdated": "{{count}} ट्रैक अपडेट किए गए",
+      "failed": "लाइब्रेरी अनुक्रमण विफल रहा",
+      "tapToReopen": "ऐप को दोबारा खोलने के लिए टैप करें और पुनः प्रयास करें",
+      "paused": "लाइब्रेरी अनुक्रमणिका रोक दी गई"
+    }
+  },
+  "home": {
+    "recentlyPlayed": "हाल ही में चलाए गए",
+    "topTracks": "टॉप ट्रैक",
+    "tabs": {
+      "realtime": "वास्तविक समय",
+      "daily": "दैनिक",
+      "weekly": "साप्ताहिक"
+    },
+    "empty": {
+      "recentlyPlayedTitle": "हाल ही में कुछ नहीं चलाया गया",
+      "recentlyPlayedMessage": "संगीत बजाना शुरू करें!",
+      "recentlyPlayedLongMessage": "जैसे ही आप संगीत बजाना शुरू करेंगे, आपका सुनने का इतिहास यहां दिखाई देगा।",
+      "topTracksTitle": "कोई शीर्ष ट्रैक नहीं",
+      "topTracksYetTitle": "अभी तक कोई शीर्ष ट्रैक नहीं",
+      "topTracksMessage": "और संगीत चलाएँ!",
+      "topTracksYetMessage": "यहां अपने सर्वाधिक बजाए गए ट्रैक देखने के लिए कुछ संगीत चलाएं!"
+    }
+  },
+  "search": {
+    "tabs": {
+      "all": "सब",
+      "track": "ट्रैक",
+      "album": "एलबम",
+      "artist": "कलाकार",
+      "playlist": "प्लेलिस्ट"
+    },
+    "openSearch": "खोज खोलें",
+    "landingPlaceholder": "ट्रैक, कलाकार, एल्बम खोजें...",
+    "searchPlaceholder": "ट्रैक, कलाकार, एल्बम...",
+    "recentSearches": "हाल की खोजें",
+    "recentlyAdded": "हाल ही में जोड़ा गया",
+    "tryDifferentKeyword": "कोई भिन्न कीवर्ड आज़माएँ.",
+    "empty": {
+      "recentlyAddedTitle": "हाल ही में नहीं जोड़ा गया",
+      "recentlyAddedMessage": "आपकी लाइब्रेरी में जोड़े गए नए ट्रैक यहां दिखाई देंगे।"
+    }
+  },
+  "library": {
+    "tracks": "ट्रैक",
+    "albums": "एलबम",
+    "artists": "कलाकार",
+    "genres": "शैलियाँ",
+    "genre": "शैली",
+    "playlists": "प्लेलिस्ट",
+    "folders": "फ़ोल्डर",
+    "favorites": "पसंदीदा",
+    "items": "{{count}} आइटम",
+    "sort": "क्रमबद्ध करें",
+    "sortBy": "क्रमबद्ध करें",
+    "allTracks": "सभी ट्रैक",
+    "name": "नाम",
+    "sortOption": {
+      "trackNumber": "ट्रैक नंबर",
+      "title": "शीर्षक",
+      "artist": "कलाकार",
+      "album": "एलबम",
+      "year": "वर्ष",
+      "playCount": "गिनती खेलें",
+      "dateAdded": "तिथि जोड़ी गई",
+      "addedToPlaylist": "प्लेलिस्ट में जोड़ा गया",
+      "filename": "फ़ाइलनाम",
+      "name": "नाम",
+      "numberOfTracks": "ट्रैक की संख्या",
+      "numberOfFiles": "फाइलों की संख्या"
+    },
+    "recommendedAlbums": "अनुशंसित एल्बम",
+    "playlistNotFound": "प्लेलिस्ट नहीं मिली",
+    "playlistRemovedMessage": "हो सकता है कि यह प्लेलिस्ट हटा दी गई हो.",
+    "genreAlbumsTitle": "{{genre}} एल्बम",
+    "genreAlbumsUnavailable": "{{genre}} में कोई एल्बम उपलब्ध नहीं है",
+    "genreTopTracksMessage": "शीर्ष ट्रैक देखने के लिए कुछ {{genre}} संगीत बजाएं!",
+    "genreTopTracksLongMessage": "यहां अपने सर्वाधिक बजाए गए ट्रैक देखने के लिए कुछ {{genre}} संगीत चलाएं!",
+    "unknownArtist": "अज्ञात कलाकार",
+    "unknownAlbum": "अज्ञात एल्बम",
+    "unknownFile": "अज्ञात फ़ाइल",
+    "unknownTrack": "अज्ञात ट्रैक",
+    "count": {
+      "track": "{{count}} ट्रैक",
+      "track_one": "{{count}} ट्रैक",
+      "track_other": "{{count}} ट्रैक",
+      "track_plural": "{{count}} ट्रैक",
+      "item": "{{count}} आइटम",
+      "item_one": "{{count}} आइटम",
+      "item_other": "{{count}} आइटम",
+      "item_plural": "{{count}} आइटम"
+    },
+    "favoriteType": {
+      "track": "ट्रैक",
+      "artist": "कलाकार",
+      "album": "एलबम",
+      "playlist": "प्लेलिस्ट"
+    },
+    "empty": {
+      "albumsTitle": "कोई एल्बम नहीं",
+      "albumsFoundTitle": "कोई एल्बम नहीं मिला",
+      "albumsMessage": "आपके द्वारा अपनी लाइब्रेरी में जोड़े गए एल्बम यहां दिखाई देंगे।",
+      "artistsTitle": "कोई कलाकार नहीं",
+      "artistsMessage": "आपकी संगीत लाइब्रेरी के कलाकार यहां दिखाई देंगे.",
+      "favoritesTitle": "कोई पसंदीदा नहीं",
+      "favoritesMessage": "आपके पसंदीदा ट्रैक, कलाकार और एल्बम यहां दिखाई देंगे।",
+      "foldersTitle": "कोई फ़ोल्डर नहीं",
+      "foldersMessage": "आपके द्वारा जोड़े गए संगीत फ़ोल्डर यहां दिखाई देंगे.",
+      "genresFoundTitle": "कोई शैलियाँ नहीं मिलीं",
+      "tracksTitle": "कोई ट्रैक नहीं",
+      "tracksFoundTitle": "कोई ट्रैक नहीं मिला",
+      "tracksSelectedTitle": "कोई ट्रैक चयनित नहीं",
+      "tracksMessage": "आपके द्वारा अपनी लाइब्रेरी में जोड़े गए ट्रैक यहां दिखाई देंगे।",
+      "lyricsTitle": "कोई गीत नहीं",
+      "lyricsMessage": "इस ट्रैक में अभी तक एम्बेडेड गीत नहीं हैं।",
+      "playlistsTitle": "कोई प्लेलिस्ट नहीं",
+      "playlistsFoundTitle": "कोई प्लेलिस्ट नहीं मिली",
+      "playlistsMessage": "अपने संगीत को व्यवस्थित करने के लिए अपनी पहली प्लेलिस्ट बनाएं।",
+      "playlistsFoundMessage": "ट्रैक व्यवस्थित करने के लिए अपनी पहली प्लेलिस्ट बनाएं।",
+      "selectedTracksMessage": "इस प्लेलिस्ट को बनाना शुरू करने के लिए ट्रैक जोड़ें पर टैप करें।"
+    }
+  },
+  "playlist": {
+    "newPlaylist": "नई प्लेलिस्ट",
+    "playlist": "प्लेलिस्ट",
+    "createPlaylist": "प्लेलिस्ट बनाएं",
+    "editPlaylist": "प्लेलिस्ट संपादित करें",
+    "createNewPlaylist": "नई प्लेलिस्ट बनाएं",
+    "name": "प्लेलिस्ट का नाम",
+    "namePlaceholder": "प्लेलिस्ट का नाम",
+    "description": "विवरण",
+    "descriptionPlaceholder": "विवरण जोड़ें",
+    "addTracks": "ट्रैक जोड़ें",
+    "searchPlaceholder": "प्लेलिस्ट खोजें...",
+    "searchTracksPlaceholder": "ट्रैक खोजें...",
+    "selected": "{{count}} चयनित",
+    "apply": "आवेदन करें",
+    "applyWithCount": "लागू करें ({{count}})",
+    "clearSelection": "स्पष्ट चयन",
+    "selectPlaylist": "प्लेलिस्ट {{name}} चुनें",
+    "selectTrack": "{{title}} चुनें",
+    "deleteTitle": "प्लेलिस्ट हटाएं?",
+    "deleteDescription": "इस क्रिया को पूर्ववत नहीं किया जा सकता. आपकी प्लेलिस्ट और उसका ट्रैक ऑर्डर हटा दिया जाएगा."
+  },
+  "track": {
+    "never": "कभी नहीं",
+    "addToQueue": "कतार में जोड़ें",
+    "playNext": "अगला खेलें",
+    "addToPlaylist": "प्लेलिस्ट में जोड़ें",
+    "metadata": {
+      "quality": "गुणवत्ता",
+      "codec": "कोडेक",
+      "format": "प्रारूप",
+      "artist": "कलाकार",
+      "album": "एलबम",
+      "genre": "शैली",
+      "year": "वर्ष",
+      "trackDisc": "ट्रैक/डिस्क",
+      "duration": "अवधि",
+      "playCount": "गिनती खेलें",
+      "lastPlayed": "अंतिम बार खेला गया",
+      "file": "फ़ाइल"
+    },
+    "deleteTitle": "डिवाइस से ट्रैक हटाएं?",
+    "deleteDescription": "\"{{title}}\" आपके डिवाइस स्टोरेज से स्थायी रूप से हटा दिया जाएगा।",
+    "deleteFromDevice": "डिवाइस से हटाएँ",
+    "deleteFallbackTitle": "यह ट्रैक",
+    "deleteAction": "हटाएँ",
+    "permissionRequiredTitle": "मीडिया की अनुमति आवश्यक है",
+    "permissionRequiredDescription": "अपने डिवाइस से ट्रैक हटाने के लिए मीडिया एक्सेस की अनुमति दें।",
+    "deleteFailedTitle": "ट्रैक हटाने में विफल",
+    "deletedTitle": "डिवाइस से हटा दिया गया"
+  },
+  "player": {
+    "castFeatures": "कास्ट विशेषताएँ",
+    "upNext": "अगला",
+    "menu": {
+      "goToArtist": "कलाकार के पास जाएँ",
+      "goToAlbum": "एल्बम पर जाएँ"
+    },
+    "karaokeOn": "कराओके चालू",
+    "karaokeOff": "कराओके बंद",
+    "selectArtistTitle": "कलाकार चुनें",
+    "selectGenreTitle": "शैली चुनें"
+  },
+  "settings": {
+    "routes": {
+      "index": {
+        "title": "सेटिंग्स"
+      },
+      "appearance": {
+        "title": "दिखावट",
+        "description": "थीम, भाषा और दृश्य प्राथमिकताएँ।"
+      },
+      "audio": {
+        "title": "ऑडियो",
+        "description": "प्लेबैक संक्रमण और ऑडियो व्यवहार।"
+      },
+      "notifications": {
+        "title": "सूचनाएं",
+        "description": "अधिसूचना व्यवहार और अलर्ट."
+      },
+      "library": {
+        "title": "पुस्तकालय",
+        "description": "स्कैनिंग, फ़िल्टर और अनुक्रमण व्यवहार।"
+      },
+      "advanced": {
+        "title": "उन्नत",
+        "description": "सिस्टम-स्तर और समस्या निवारण सेटिंग्स।"
+      },
+      "about": {
+        "title": "के बारे में",
+        "description": "ऐप की जानकारी और निर्माण विवरण।"
+      },
+      "language": {
+        "title": "भाषा",
+        "description": "ऐप प्रदर्शन भाषा चुनें."
+      },
+      "folderFilters": {
+        "title": "फ़ोल्डर फ़िल्टर"
+      },
+      "trackDurationFilter": {
+        "title": "ट्रैक अवधि फ़िल्टर"
+      },
+      "logLevel": {
+        "title": "लॉग स्तर"
+      },
+      "splitMultipleValues": {
+        "title": "अनेक मानों को विभाजित करें"
+      }
+    },
+    "appearance": {
+      "languageDescription": "वर्तमान भाषा: {{language}}.",
+      "options": {
+        "light": "रोशनी",
+        "dark": "अंधेरा",
+        "system": "सिस्टम"
+      }
+    },
+    "language": {
+      "english": "अंग्रेज़ी",
+      "englishNative": "English",
+      "indonesian": "इंडोनेशियाई",
+      "indonesianNative": "Bahasa Indonesia",
+      "hindi": "हिन्दी",
+      "hindiNative": "हिन्दी",
+      "chineseSimplified": "सरल चीनी",
+      "chineseSimplifiedNative": "简体中文",
+      "chineseTraditional": "पारंपरिक चीनी",
+      "chineseTraditionalNative": "繁體中文",
+      "japanese": "जापानी",
+      "japaneseNative": "日本語",
+      "russian": "रूसी",
+      "russianNative": "Русский",
+      "german": "जर्मन",
+      "germanNative": "Deutsch",
+      "french": "फ़्रेंच",
+      "frenchNative": "Français",
+      "korean": "कोरियाई",
+      "koreanNative": "한국어",
+      "italian": "इतालवी",
+      "italianNative": "Italiano",
+      "spanish": "स्पैनिश",
+      "spanishNative": "Español",
+      "dutch": "डच",
+      "dutchNative": "Nederlands",
+      "portugueseBrazil": "ब्राज़ीली पुर्तगाली",
+      "portugueseBrazilNative": "Português do Brasil"
+    },
+    "library": {
+      "filterMode": "फ़िल्टर मोड",
+      "filterModeDescription": "चुनें कि चयनित फ़ोल्डरों को अनुमति दी जानी चाहिए या छिपा दी जानी चाहिए।",
+      "addNewFolder": "नया फ़ोल्डर जोड़ें",
+      "folders": "फ़ोल्डर",
+      "noFoldersAdded": "कोई फ़ोल्डर नहीं जोड़ा गया",
+      "noFoldersAddedMessage": "एक या अधिक फ़ोल्डर जोड़ें, फिर फ़िल्टर लागू करें।",
+      "applyFilter": "फ़िल्टर लागू करें",
+      "indexing": "अनुक्रमणिका...",
+      "selectFilterMode": "फ़िल्टर मोड चुनें",
+      "whitelist": "श्वेतसूची",
+      "blacklist": "काली सूची",
+      "folderFiltersDescription": "विशिष्ट फ़ोल्डरों को श्वेतसूची या कालीसूची में डालें।",
+      "trackDurationFilter": "ट्रैक अवधि फ़िल्टर",
+      "autoScan": "ऑटो स्कैन",
+      "autoScanEnabled": "ऐप लॉन्च होने पर और फ़ाइलें बदलने पर पुनः स्कैन करें।",
+      "autoScanDisabled": "जरूरत पड़ने पर मैन्युअल रूप से स्कैन करें।",
+      "reindexLibrary": "रीइंडेक्स लाइब्रेरी",
+      "reindexInProgress": "अनुक्रमणिका प्रगति पर है...",
+      "reindexDescription": "अपरिवर्तित फ़ाइलों सहित सभी ट्रैक को पुनः स्कैन करें।",
+      "reindexDialogTitle": "रीइंडेक्स लाइब्रेरी को बाध्य करें?",
+      "reindexDialogDescription": "यह पहले से अनुक्रमित और अपरिवर्तित फ़ाइलों सहित सभी संगीत फ़ाइलों को फिर से स्कैन करेगा। इसमें सामान्य अनुक्रमण से अधिक समय लग सकता है.",
+      "reindexAction": "पुनः अनुक्रमणिका",
+      "splitMultipleValues": "अनेक मानों को विभाजित करें",
+      "splitMultipleValuesSummary": "मोड: {{mode}} · कलाकार: {{artistSymbols}} · शैली: {{genreSymbols}}",
+      "artistSplitSymbols": "कलाकार विभाजित प्रतीक",
+      "artistSplitSymbolsDescription": "कलाकारों और एल्बम कलाकारों के मेटाडेटा को विभाजित करने के लिए उपयोग किए जाने वाले प्रतीक। मान स्वचालित रूप से काट दिए जाते हैं.",
+      "unsplitArtists": "अनस्प्लिट कलाकार",
+      "unsplitArtistsDescription": "इस सूची में कलाकार विभाजित प्रतीक होने पर भी बरकरार रहते हैं।",
+      "unsplitArtistsPlaceholder": "कलाकार के साथ /, कलाकार के साथ &",
+      "artistSplitMode": "आर्टिस्ट स्प्लिट मोड",
+      "artistSplitModeSplit": "मूल्यों को विभाजित करें",
+      "artistSplitModeSplitDescription": "प्रत्येक पहचाने गए कलाकार को एक अलग नाम के रूप में दिखाएं।",
+      "artistSplitModeOriginal": "मूल तार",
+      "artistSplitModeOriginalDescription": "फ़ाइल मेटाडेटा से मूल कलाकार पाठ दिखाएँ।",
+      "genreSplitSymbols": "शैली विभाजन चिह्न",
+      "genreSplitSymbolsDescription": "कई शैलियों के मेटाडेटा को विभाजित करने के लिए उपयोग किए जाने वाले प्रतीक।",
+      "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "reindexLaterAction": "नहीं, बाद में"
+    },
+    "audio": {
+      "crossfade": "क्रॉसफ़ेड",
+      "crossfadeEnabled": "प्लेबैक के दौरान गानों के बीच मिश्रण करें।",
+      "crossfadeDisabled": "प्रत्येक गीत को स्वच्छ परिवर्तन के साथ बजाएं।",
+      "duration": "अवधि",
+      "durationHint": "चुनें कि अगला ट्रैक वर्तमान ट्रैक के साथ कितनी देर तक ओवरलैप होता है।"
+    },
+    "notifications": {
+      "indexerNotifications": "अनुक्रमणिका सूचनाएं",
+      "indexerNotificationsEnabled": "अनुक्रमणित करते समय सिस्टम सूचनाएं दिखाएं।",
+      "indexerNotificationsDisabled": "अपने सिस्टम ट्रे से अनुक्रमण सूचनाएं छुपाएं।"
+    },
+    "trackDuration": {
+      "noFilter": "कोई फ़िल्टर नहीं",
+      "noFilterDescription": "सभी ट्रैक शामिल करें.",
+      "min30": "कम से कम 30 सेकंड",
+      "min30Description": "बहुत छोटी क्लिप हटा दें.",
+      "min60": "कम से कम 1 मिनट",
+      "min60Description": "संगीत की लंबाई सामान्य रखें.",
+      "min120": "कम से कम 2 मिनट",
+      "min120Description": "पूर्ण लंबाई वाले ट्रैक पर ध्यान दें.",
+      "custom": "कस्टम",
+      "customDescription": "अपनी स्वयं की न्यूनतम अवधि निर्धारित करें।",
+      "minimumDuration": "न्यूनतम अवधि",
+      "changesHint": "परिवर्तन अनुक्रमण पर लागू होते हैं और अगले स्कैन पर इस अवधि से नीचे के ट्रैक हटा देते हैं।",
+      "label": {
+        "min30": "कम से कम 30",
+        "min60": "कम से कम 1 मी",
+        "min120": "कम से कम 2 मी",
+        "customSeconds": "कस्टम {{seconds}}s",
+        "customMinutesSeconds": "कस्टम {{minutes}}m {{seconds}}s",
+        "customMinutes": "कस्टम {{minutes}}m",
+        "off": "कोई फ़िल्टर नहीं"
+      }
+    },
+    "logLevel": {
+      "minimal": "न्यूनतम",
+      "minimalDescription": "केवल त्रुटियाँ और क्रैश।",
+      "extra": "अतिरिक्त",
+      "extraDescription": "निदान और पुनर्प्राप्ति योग्य चेतावनियों सहित सब कुछ।"
+    },
+    "advanced": {
+      "logExtraDescription": "अतिरिक्त: डिबग, जानकारी, चेतावनियाँ और त्रुटियाँ कैप्चर करें।",
+      "logMinimalDescription": "न्यूनतम: केवल महत्वपूर्ण और त्रुटि लॉग कैप्चर करें।",
+      "shareCrashLogs": "क्रैश लॉग साझा करें",
+      "shareCrashLogsDescription": "त्रुटि लॉग को स्थानीय फ़ाइल में सहेजता है और एक शेयर शीट खोलता है।",
+      "resetListeningHistory": "सुनने का इतिहास रीसेट करें",
+      "resetListeningHistoryDescription": "हाल ही में खेले गए और टॉप-ट्रैक आँकड़े साफ़ करें।",
+      "disableBatteryOptimization": "बैटरी अनुकूलन अक्षम करें",
+      "disableBatteryOptimizationAndroid": "पृष्ठभूमि प्रतिबंधों को रोकें ताकि अनुक्रमण और प्लेबैक विश्वसनीय बने रहें।",
+      "openSystemSettings": "सिस्टम सेटिंग्स खोलें.",
+      "dontKillMyApp": "Don't Kill My App!",
+      "dontKillMyAppDescription": "डिवाइस-विशिष्ट बैटरी और पृष्ठभूमि प्रक्रिया मार्गदर्शन खोलें।",
+      "resetDialogTitle": "सुनने का इतिहास रीसेट करें?",
+      "resetDialogDescription": "यह हाल ही में खेले गए को साफ़ कर देगा और टॉप-ट्रैक आँकड़े रीसेट कर देगा। आपकी संगीत फ़ाइलें, प्लेलिस्ट और पसंदीदा अपरिवर्तित रहेंगे।",
+      "logsReadyTitle": "लॉग साझा करने के लिए तैयार हैं",
+      "logsUnableTitle": "लॉग साझा करने में असमर्थ",
+      "logsReadyDescription": "नवीनतम कैप्चर किए गए लॉग के साथ शेयर शीट खोली गई।",
+      "tryAgainDescription": "थोड़ी देर में पुनः प्रयास करें.",
+      "historyResetTitle": "सुनने का इतिहास रीसेट",
+      "historyResetDescription": "हाल ही में खेले गए और टॉप-ट्रैक आँकड़े साफ़ कर दिए गए हैं।",
+      "historyResetUnableTitle": "इतिहास रीसेट करने में असमर्थ",
+      "batteryAlreadyDisabledTitle": "बैटरी अनुकूलन पहले से ही अक्षम है",
+      "batteryAlreadyDisabledDescription": "किसी अतिरिक्त कार्रवाई की आवश्यकता नहीं है.",
+      "unableToOpenLinkTitle": "लिंक खोलने में असमर्थ"
+    },
+    "about": {
+      "github": "GitHub",
+      "repositoryDescription": "प्रोजेक्ट स्रोत कोड."
+    }
+  }
+}

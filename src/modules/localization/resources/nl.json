@@ -1,0 +1,424 @@
+{
+  "common": {
+    "cancel": "Annuleer",
+    "clear": "Wissen",
+    "clearAll": "Alles wissen",
+    "goBack": "Ga terug",
+    "play": "Afspelen",
+    "playAll": "Alles afspelen",
+    "shuffle": "Shuffle",
+    "reset": "Opnieuw instellen",
+    "seeMore": "Zie meer",
+    "unknown": "Onbekend"
+  },
+  "navigation": {
+    "tabs": {
+      "home": "Home",
+      "search": "Zoeken",
+      "library": "Bibliotheek"
+    }
+  },
+  "database": {
+    "errorTitle": "Databasefout",
+    "schemaConflict": "Schemaconflict gedetecteerd. Wis app-gegevens of installeer deze één keer opnieuw om migraties opnieuw te baseren."
+  },
+  "indexing": {
+    "scanning": "Bestanden scannen...",
+    "preparing": "Voorbereiden...",
+    "processing": "Nummers verwerken...",
+    "cleanup": "Opruimen...",
+    "complete": "Bibliotheek bijgewerkt",
+    "paused": "Gepauzeerd",
+    "tracksIndexed": "{{count}} nummers geïndexeerd",
+    "notification": {
+      "channelName": "Indexering van bibliotheken",
+      "channelDescription": "Toont de voortgang van het indexeren van de muziekbibliotheek",
+      "pause": "Pauze",
+      "resume": "Hervatten",
+      "cancel": "Annuleer",
+      "indexingLibrary": "Indexeren van muziekbibliotheek",
+      "preparingScan": "Uw bibliotheekscan voorbereiden...",
+      "scanningFiles": "Muziekbestanden scannen",
+      "processingMetadata": "Verwerken van muziekmetadata",
+      "complete": "Indexering van bibliotheek voltooid",
+      "tracksUpdated": "{{count}} nummers bijgewerkt",
+      "failed": "Indexering van bibliotheek is mislukt",
+      "tapToReopen": "Tik om de app opnieuw te openen en probeer het opnieuw",
+      "paused": "Het indexeren van de bibliotheek is onderbroken"
+    }
+  },
+  "home": {
+    "recentlyPlayed": "Recent gespeeld",
+    "topTracks": "Topnummers",
+    "tabs": {
+      "realtime": "Realtime",
+      "daily": "Dagelijks",
+      "weekly": "Wekelijks"
+    },
+    "empty": {
+      "recentlyPlayedTitle": "Geen recent gespeeld",
+      "recentlyPlayedMessage": "Begin met het afspelen van muziek!",
+      "recentlyPlayedLongMessage": "Je luistergeschiedenis verschijnt hier zodra je muziek begint af te spelen.",
+      "topTracksTitle": "Geen topnummers",
+      "topTracksYetTitle": "Nog geen topnummers",
+      "topTracksMessage": "Speel meer muziek samen!",
+      "topTracksYetMessage": "Speel wat muziek om hier je meest gespeelde nummers te zien!"
+    }
+  },
+  "search": {
+    "tabs": {
+      "all": "Allemaal",
+      "track": "Nummer",
+      "album": "Album",
+      "artist": "Artiest",
+      "playlist": "Afspeellijst"
+    },
+    "openSearch": "Zoeken openen",
+    "landingPlaceholder": "Zoeken naar nummers, artiesten, albums...",
+    "searchPlaceholder": "Nummers, artiesten, albums...",
+    "recentSearches": "Recente zoekopdrachten",
+    "recentlyAdded": "Recent toegevoegd",
+    "tryDifferentKeyword": "Probeer een ander zoekwoord.",
+    "empty": {
+      "recentlyAddedTitle": "Geen recent toegevoegd",
+      "recentlyAddedMessage": "Nieuwe nummers die aan je bibliotheek zijn toegevoegd, verschijnen hier."
+    }
+  },
+  "library": {
+    "tracks": "Nummers",
+    "albums": "Albums",
+    "artists": "Artiesten",
+    "genres": "Genres",
+    "genre": "Genre",
+    "playlists": "Afspeellijsten",
+    "folders": "Mappen",
+    "favorites": "Favorieten",
+    "items": "{{count}}-artikelen",
+    "sort": "Sorteren",
+    "sortBy": "Sorteer op",
+    "allTracks": "Alle nummers",
+    "name": "Naam",
+    "sortOption": {
+      "trackNumber": "Tracknummer",
+      "title": "Titel",
+      "artist": "Artiest",
+      "album": "Album",
+      "year": "Jaar",
+      "playCount": "Speel tellen",
+      "dateAdded": "Datum toegevoegd",
+      "addedToPlaylist": "Toegevoegd aan afspeellijst",
+      "filename": "Bestandsnaam",
+      "name": "Naam",
+      "numberOfTracks": "Aantal nummers",
+      "numberOfFiles": "Aantal bestanden"
+    },
+    "recommendedAlbums": "Aanbevolen albums",
+    "playlistNotFound": "Afspeellijst niet gevonden",
+    "playlistRemovedMessage": "Deze afspeellijst is mogelijk verwijderd.",
+    "genreAlbumsTitle": "{{genre}}-albums",
+    "genreAlbumsUnavailable": "Er zijn geen albums beschikbaar in {{genre}}",
+    "genreTopTracksMessage": "Speel wat {{genre}}-muziek om topnummers te zien!",
+    "genreTopTracksLongMessage": "Speel wat {{genre}}-muziek om hier je meest gespeelde nummers te zien!",
+    "unknownArtist": "Onbekende artiest",
+    "unknownAlbum": "Onbekend album",
+    "unknownFile": "Onbekend bestand",
+    "unknownTrack": "Onbekend nummer",
+    "count": {
+      "track": "{{count}}-nummer",
+      "track_one": "{{count}}-nummer",
+      "track_other": "{{count}} nummers",
+      "track_plural": "{{count}} nummers",
+      "item": "{{count}}-artikel",
+      "item_one": "{{count}}-artikel",
+      "item_other": "{{count}}-artikelen",
+      "item_plural": "{{count}}-artikelen"
+    },
+    "favoriteType": {
+      "track": "Nummer",
+      "artist": "Artiest",
+      "album": "Album",
+      "playlist": "Afspeellijst"
+    },
+    "empty": {
+      "albumsTitle": "Geen albums",
+      "albumsFoundTitle": "Geen albums gevonden",
+      "albumsMessage": "Albums die u aan uw bibliotheek toevoegt, worden hier weergegeven.",
+      "artistsTitle": "Geen artiesten",
+      "artistsMessage": "Artiesten uit je muziekbibliotheek verschijnen hier.",
+      "favoritesTitle": "Geen favorieten",
+      "favoritesMessage": "Je favoriete nummers, artiesten en albums verschijnen hier.",
+      "foldersTitle": "Geen mappen",
+      "foldersMessage": "Muziekmappen die u toevoegt, worden hier weergegeven.",
+      "genresFoundTitle": "Geen genres gevonden",
+      "tracksTitle": "Geen nummers",
+      "tracksFoundTitle": "Geen nummers gevonden",
+      "tracksSelectedTitle": "Geen nummers geselecteerd",
+      "tracksMessage": "Nummers die je aan je bibliotheek toevoegt, verschijnen hier.",
+      "lyricsTitle": "Geen songteksten",
+      "lyricsMessage": "Dit nummer heeft nog geen ingesloten songteksten.",
+      "playlistsTitle": "Geen afspeellijsten",
+      "playlistsFoundTitle": "Geen afspeellijsten gevonden",
+      "playlistsMessage": "Maak uw eerste afspeellijst om uw muziek te ordenen.",
+      "playlistsFoundMessage": "Maak je eerste afspeellijst om nummers te ordenen.",
+      "selectedTracksMessage": "Tik op Nummers toevoegen om deze afspeellijst te maken."
+    }
+  },
+  "playlist": {
+    "newPlaylist": "Nieuwe afspeellijst",
+    "playlist": "Afspeellijst",
+    "createPlaylist": "Maak een afspeellijst",
+    "editPlaylist": "Bewerk afspeellijst",
+    "createNewPlaylist": "Maak een nieuwe afspeellijst",
+    "name": "Naam van afspeellijst",
+    "namePlaceholder": "Naam van afspeellijst",
+    "description": "Beschrijving",
+    "descriptionPlaceholder": "Voeg een beschrijving toe",
+    "addTracks": "Voeg nummers toe",
+    "searchPlaceholder": "Zoek afspeellijsten...",
+    "searchTracksPlaceholder": "Nummers zoeken...",
+    "selected": "{{count}} geselecteerd",
+    "apply": "Toepassen",
+    "applyWithCount": "Toepassen ({{count}})",
+    "clearSelection": "Duidelijke selectie",
+    "selectPlaylist": "Selecteer afspeellijst {{name}}",
+    "selectTrack": "Selecteer {{title}}",
+    "deleteTitle": "Speellijst verwijderen?",
+    "deleteDescription": "Deze actie kan niet ongedaan worden gemaakt. Je afspeellijst en de trackvolgorde worden verwijderd."
+  },
+  "track": {
+    "never": "Nooit",
+    "addToQueue": "Toevoegen aan wachtrij",
+    "playNext": "Speel Volgende",
+    "addToPlaylist": "Toevoegen aan afspeellijst",
+    "metadata": {
+      "quality": "Kwaliteit",
+      "codec": "Codec",
+      "format": "Formaat",
+      "artist": "Artiest",
+      "album": "Album",
+      "genre": "Genre",
+      "year": "Jaar",
+      "trackDisc": "Nummer / schijf",
+      "duration": "Duur",
+      "playCount": "Speel tellen",
+      "lastPlayed": "Laatst gespeeld",
+      "file": "Bestand"
+    },
+    "deleteTitle": "Track verwijderen van apparaat?",
+    "deleteDescription": "\"{{title}}\" wordt permanent verwijderd uit uw apparaatopslag.",
+    "deleteFromDevice": "Verwijderen van apparaat",
+    "deleteFallbackTitle": "Dit nummer",
+    "deleteAction": "Verwijderen",
+    "permissionRequiredTitle": "Mediatoestemming vereist",
+    "permissionRequiredDescription": "Sta mediatoegang toe om nummers van uw apparaat te verwijderen.",
+    "deleteFailedTitle": "Kan track niet verwijderen",
+    "deletedTitle": "Verwijderd van apparaat"
+  },
+  "player": {
+    "castFeatures": "Cast-functies",
+    "upNext": "Volgende",
+    "menu": {
+      "goToArtist": "Ga naar Artiest",
+      "goToAlbum": "Ga naar Album"
+    },
+    "karaokeOn": "Karaoke aan",
+    "karaokeOff": "Karaoke uit",
+    "selectArtistTitle": "Kies artiest",
+    "selectGenreTitle": "Kies genre"
+  },
+  "settings": {
+    "routes": {
+      "index": {
+        "title": "Instellingen"
+      },
+      "appearance": {
+        "title": "Uiterlijk",
+        "description": "Thema-, taal- en visuele voorkeuren."
+      },
+      "audio": {
+        "title": "Audio",
+        "description": "Afspeelovergangen en audiogedrag."
+      },
+      "notifications": {
+        "title": "Meldingen",
+        "description": "Meldingsgedrag en waarschuwingen."
+      },
+      "library": {
+        "title": "Bibliotheek",
+        "description": "Scan-, filter- en indexeringsgedrag."
+      },
+      "advanced": {
+        "title": "Geavanceerd",
+        "description": "Instellingen op systeemniveau en probleemoplossing."
+      },
+      "about": {
+        "title": "Over",
+        "description": "App-informatie en builddetails."
+      },
+      "language": {
+        "title": "Taal",
+        "description": "Kies de weergavetaal van de app."
+      },
+      "folderFilters": {
+        "title": "Mapfilters"
+      },
+      "trackDurationFilter": {
+        "title": "Trackduurfilter"
+      },
+      "logLevel": {
+        "title": "Logniveau"
+      },
+      "splitMultipleValues": {
+        "title": "Meerdere waarden splitsen"
+      }
+    },
+    "appearance": {
+      "languageDescription": "Huidige taal: {{language}}.",
+      "options": {
+        "light": "Licht",
+        "dark": "Donker",
+        "system": "Systeem"
+      }
+    },
+    "language": {
+      "english": "Engels",
+      "englishNative": "English",
+      "indonesian": "Indonesisch",
+      "indonesianNative": "Bahasa Indonesia",
+      "hindi": "Hindi",
+      "hindiNative": "हिन्दी",
+      "chineseSimplified": "Chinees vereenvoudigd",
+      "chineseSimplifiedNative": "简体中文",
+      "chineseTraditional": "Chinees traditioneel",
+      "chineseTraditionalNative": "繁體中文",
+      "japanese": "Japans",
+      "japaneseNative": "日本語",
+      "russian": "Russisch",
+      "russianNative": "Русский",
+      "german": "Duits",
+      "germanNative": "Deutsch",
+      "french": "Frans",
+      "frenchNative": "Français",
+      "korean": "Koreaans",
+      "koreanNative": "한국어",
+      "italian": "Italiaans",
+      "italianNative": "Italiano",
+      "spanish": "Spaans",
+      "spanishNative": "Español",
+      "dutch": "Nederlands",
+      "dutchNative": "Nederlands",
+      "portugueseBrazil": "Braziliaans Portugees",
+      "portugueseBrazilNative": "Português do Brasil"
+    },
+    "library": {
+      "filterMode": "Filtermodus",
+      "filterModeDescription": "Kies of geselecteerde mappen moeten worden toegestaan of verborgen.",
+      "addNewFolder": "Nieuwe map toevoegen",
+      "folders": "Mappen",
+      "noFoldersAdded": "Geen mappen toegevoegd",
+      "noFoldersAddedMessage": "Voeg een of meer mappen toe en pas vervolgens het filter toe.",
+      "applyFilter": "Filter toepassen",
+      "indexing": "Indexeren...",
+      "selectFilterMode": "Selecteer Filtermodus",
+      "whitelist": "Witte lijst",
+      "blacklist": "Zwarte lijst",
+      "folderFiltersDescription": "Specifieke mappen op de witte of zwarte lijst zetten.",
+      "trackDurationFilter": "Trackduurfilter",
+      "autoScan": "Automatisch scannen",
+      "autoScanEnabled": "Scan opnieuw bij het starten van de app en wanneer bestanden veranderen.",
+      "autoScanDisabled": "Handmatig scannen wanneer dat nodig is.",
+      "reindexLibrary": "Bibliotheek opnieuw indexeren",
+      "reindexInProgress": "Indexering wordt uitgevoerd...",
+      "reindexDescription": "Scan alle nummers opnieuw, inclusief ongewijzigde bestanden.",
+      "reindexDialogTitle": "Bibliotheek opnieuw indexeren?",
+      "reindexDialogDescription": "Hierdoor worden alle muziekbestanden opnieuw gescand, inclusief reeds geïndexeerde en ongewijzigde bestanden. Het kan langer duren dan normaal indexeren.",
+      "reindexAction": "Opnieuw indexeren",
+      "splitMultipleValues": "Meerdere waarden splitsen",
+      "splitMultipleValuesSummary": "Modus: {{mode}} · Artiest: {{artistSymbols}} · Genre: {{genreSymbols}}",
+      "artistSplitSymbols": "Artist gesplitste symbolen",
+      "artistSplitSymbolsDescription": "Symbolen die worden gebruikt om de metagegevens van artiesten en albumartiesten te splitsen. Waarden worden automatisch bijgesneden.",
+      "unsplitArtists": "Ongesplitste artiesten",
+      "unsplitArtistsDescription": "Artiesten in deze lijst blijven intact, zelfs als ze gesplitste symbolen bevatten.",
+      "unsplitArtistsPlaceholder": "Artiest met /, Artiest met &",
+      "artistSplitMode": "Splitsmodus voor artiesten",
+      "artistSplitModeSplit": "Waarden splitsen",
+      "artistSplitModeSplitDescription": "Toon elke gedetecteerde artiest als een aparte naam.",
+      "artistSplitModeOriginal": "Originele snaren",
+      "artistSplitModeOriginalDescription": "Toon de originele artiestentekst uit de metagegevens van het bestand.",
+      "genreSplitSymbols": "Genre-gesplitste symbolen",
+      "genreSplitSymbolsDescription": "Symbolen die worden gebruikt om metadata van meerdere genres te splitsen.",
+      "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "reindexLaterAction": "Nee, later"
+    },
+    "audio": {
+      "crossfade": "Crossfaden",
+      "crossfadeEnabled": "Meng tussen nummers tijdens het afspelen.",
+      "crossfadeDisabled": "Speel elk nummer met een zuivere overgang.",
+      "duration": "Duur",
+      "durationHint": "Kies hoe lang het volgende nummer het huidige overlapt."
+    },
+    "notifications": {
+      "indexerNotifications": "Indexer-meldingen",
+      "indexerNotificationsEnabled": "Toon systeemmeldingen tijdens het indexeren.",
+      "indexerNotificationsDisabled": "Verberg indexeringsmeldingen in uw systeemvak."
+    },
+    "trackDuration": {
+      "noFilter": "Geen filter",
+      "noFilterDescription": "Voeg alle nummers toe.",
+      "min30": "Minstens 30 seconden",
+      "min30Description": "Sluit zeer korte clips uit.",
+      "min60": "Minstens 1 minuut",
+      "min60Description": "Houd normale muzieklengtes aan.",
+      "min120": "Minstens 2 minuten",
+      "min120Description": "Focus op nummers van volledige lengte.",
+      "custom": "Aangepast",
+      "customDescription": "Stel uw eigen minimale duur in.",
+      "minimumDuration": "Minimale duur",
+      "changesHint": "Wijzigingen zijn van toepassing op het indexeren en verwijderen van tracks onder deze duur bij de volgende scan.",
+      "label": {
+        "min30": "Minstens dertig",
+        "min60": "Minimaal 1m",
+        "min120": "Minimaal 2m",
+        "customSeconds": "Aangepaste {{seconds}}'s",
+        "customMinutesSeconds": "Aangepaste {{minutes}}m {{seconds}}'s",
+        "customMinutes": "Aangepaste {{minutes}}m",
+        "off": "Geen filter"
+      }
+    },
+    "logLevel": {
+      "minimal": "Minimaal",
+      "minimalDescription": "Alleen fouten en crashes.",
+      "extra": "Extra",
+      "extraDescription": "Alles, inclusief diagnostiek en herstelbare waarschuwingen."
+    },
+    "advanced": {
+      "logExtraDescription": "Extra: leg foutopsporing, informatie, waarschuwingen en fouten vast.",
+      "logMinimalDescription": "Minimaal: leg alleen kritieke en foutlogboeken vast.",
+      "shareCrashLogs": "Deel crashlogboeken",
+      "shareCrashLogsDescription": "Slaat foutenlogboeken op in een lokaal bestand en opent een deelblad.",
+      "resetListeningHistory": "Luistergeschiedenis opnieuw instellen",
+      "resetListeningHistoryDescription": "Wis onlangs gespeelde en beste trackstatistieken.",
+      "disableBatteryOptimization": "Schakel batterijoptimalisatie uit",
+      "disableBatteryOptimizationAndroid": "Voorkom achtergrondbeperkingen, zodat indexeren en afspelen betrouwbaar blijven.",
+      "openSystemSettings": "Systeeminstellingen openen.",
+      "dontKillMyApp": "Don't Kill My App!",
+      "dontKillMyAppDescription": "Open apparaatspecifieke batterij- en achtergrondprocesbegeleiding.",
+      "resetDialogTitle": "Luistergeschiedenis resetten?",
+      "resetDialogDescription": "Hiermee worden recent gespeelde nummers gewist en de statistieken van de bovenste nummers gereset. Je muziekbestanden, afspeellijsten en favorieten blijven ongewijzigd.",
+      "logsReadyTitle": "Logboeken klaar om te delen",
+      "logsUnableTitle": "Kan logboeken niet delen",
+      "logsReadyDescription": "Deelblad geopend met de laatst vastgelegde logboeken.",
+      "tryAgainDescription": "Probeer het zo nog eens.",
+      "historyResetTitle": "Luistergeschiedenis gereset",
+      "historyResetDescription": "Recent gespeelde nummers en statistieken van de beste nummers zijn gewist.",
+      "historyResetUnableTitle": "Kan de geschiedenis niet resetten",
+      "batteryAlreadyDisabledTitle": "Batterijoptimalisatie is al uitgeschakeld",
+      "batteryAlreadyDisabledDescription": "Er is geen aanvullende actie nodig.",
+      "unableToOpenLinkTitle": "Kan link niet openen"
+    },
+    "about": {
+      "github": "GitHub",
+      "repositoryDescription": "Projectbroncode."
+    }
+  }
+}

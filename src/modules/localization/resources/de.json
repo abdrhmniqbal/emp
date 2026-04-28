@@ -1,0 +1,424 @@
+{
+  "common": {
+    "cancel": "Abbrechen",
+    "clear": "Klar",
+    "clearAll": "Alles löschen",
+    "goBack": "Geh zurück",
+    "play": "Spielen",
+    "playAll": "Alles spielen",
+    "shuffle": "Mischen",
+    "reset": "Zurücksetzen",
+    "seeMore": "Mehr sehen",
+    "unknown": "Unbekannt"
+  },
+  "navigation": {
+    "tabs": {
+      "home": "Zuhause",
+      "search": "Suchen",
+      "library": "Bibliothek"
+    }
+  },
+  "database": {
+    "errorTitle": "Datenbankfehler",
+    "schemaConflict": "Schemakonflikt erkannt. Löschen Sie die App-Daten oder installieren Sie sie einmal neu, um Migrationen neu zu starten."
+  },
+  "indexing": {
+    "scanning": "Dateien werden gescannt...",
+    "preparing": "Vorbereiten...",
+    "processing": "Tracks werden verarbeitet...",
+    "cleanup": "Aufräumen...",
+    "complete": "Bibliothek aktualisiert",
+    "paused": "Angehalten",
+    "tracksIndexed": "{{count}} Tracks indiziert",
+    "notification": {
+      "channelName": "Bibliotheksindizierung",
+      "channelDescription": "Zeigt den Indexierungsfortschritt der Musikbibliothek an",
+      "pause": "Pause",
+      "resume": "Lebenslauf",
+      "cancel": "Abbrechen",
+      "indexingLibrary": "Indizierung der Musikbibliothek",
+      "preparingScan": "Bereiten Sie Ihren Bibliotheksscan vor...",
+      "scanningFiles": "Musikdateien scannen",
+      "processingMetadata": "Verarbeitung von Musikmetadaten",
+      "complete": "Die Indizierung der Bibliothek ist abgeschlossen",
+      "tracksUpdated": "{{count}}-Tracks aktualisiert",
+      "failed": "Die Indizierung der Bibliothek ist fehlgeschlagen",
+      "tapToReopen": "Tippen Sie, um die App erneut zu öffnen und es erneut zu versuchen",
+      "paused": "Die Indizierung der Bibliothek wurde angehalten"
+    }
+  },
+  "home": {
+    "recentlyPlayed": "Kürzlich gespielt",
+    "topTracks": "Top-Titel",
+    "tabs": {
+      "realtime": "Echtzeit",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich"
+    },
+    "empty": {
+      "recentlyPlayedTitle": "Nein, kürzlich gespielt",
+      "recentlyPlayedMessage": "Fangen Sie an, Musik zu spielen!",
+      "recentlyPlayedLongMessage": "Ihr Hörverlauf wird hier angezeigt, sobald Sie mit der Musikwiedergabe beginnen.",
+      "topTracksTitle": "Keine Top-Titel",
+      "topTracksYetTitle": "Noch keine Top-Titel",
+      "topTracksMessage": "Spielen Sie gemeinsam mehr Musik!",
+      "topTracksYetMessage": "Spielen Sie Musik ab, um Ihre meistgespielten Titel hier zu sehen!"
+    }
+  },
+  "search": {
+    "tabs": {
+      "all": "Alle",
+      "track": "Verfolgen",
+      "album": "Album",
+      "artist": "Künstler",
+      "playlist": "Wiedergabeliste"
+    },
+    "openSearch": "Suche öffnen",
+    "landingPlaceholder": "Suche nach Titeln, Künstlern, Alben...",
+    "searchPlaceholder": "Titel, Künstler, Alben...",
+    "recentSearches": "Aktuelle Suchanfragen",
+    "recentlyAdded": "Kürzlich hinzugefügt",
+    "tryDifferentKeyword": "Versuchen Sie es mit einem anderen Schlüsselwort.",
+    "empty": {
+      "recentlyAddedTitle": "Nein, kürzlich hinzugefügt",
+      "recentlyAddedMessage": "Neue Titel, die Ihrer Bibliothek hinzugefügt wurden, werden hier angezeigt."
+    }
+  },
+  "library": {
+    "tracks": "Spuren",
+    "albums": "Alben",
+    "artists": "Künstler",
+    "genres": "Genres",
+    "genre": "Genre",
+    "playlists": "Wiedergabelisten",
+    "folders": "Ordner",
+    "favorites": "Favoriten",
+    "items": "{{count}} Artikel",
+    "sort": "Sortieren",
+    "sortBy": "Sortieren nach",
+    "allTracks": "Alle Titel",
+    "name": "Name",
+    "sortOption": {
+      "trackNumber": "Titelnummer",
+      "title": "Titel",
+      "artist": "Künstler",
+      "album": "Album",
+      "year": "Jahr",
+      "playCount": "Anzahl spielen",
+      "dateAdded": "Datum hinzugefügt",
+      "addedToPlaylist": "Zur Playlist hinzugefügt",
+      "filename": "Dateiname",
+      "name": "Name",
+      "numberOfTracks": "Anzahl der Spuren",
+      "numberOfFiles": "Anzahl der Dateien"
+    },
+    "recommendedAlbums": "Empfohlene Alben",
+    "playlistNotFound": "Playlist nicht gefunden",
+    "playlistRemovedMessage": "Diese Playlist wurde möglicherweise entfernt.",
+    "genreAlbumsTitle": "{{genre}}-Alben",
+    "genreAlbumsUnavailable": "Keine Alben in {{genre}} verfügbar",
+    "genreTopTracksMessage": "Spielen Sie {{genre}}-Musik, um Top-Titel zu sehen!",
+    "genreTopTracksLongMessage": "Spielen Sie {{genre}}-Musik, um Ihre meistgespielten Titel hier zu sehen!",
+    "unknownArtist": "Unbekannter Künstler",
+    "unknownAlbum": "Unbekanntes Album",
+    "unknownFile": "Unbekannte Datei",
+    "unknownTrack": "Unbekannter Track",
+    "count": {
+      "track": "{{count}}-Spur",
+      "track_one": "{{count}}-Spur",
+      "track_other": "{{count}} Spuren",
+      "track_plural": "{{count}} Spuren",
+      "item": "{{count}} Artikel",
+      "item_one": "{{count}} Artikel",
+      "item_other": "{{count}} Artikel",
+      "item_plural": "{{count}} Artikel"
+    },
+    "favoriteType": {
+      "track": "Verfolgen",
+      "artist": "Künstler",
+      "album": "Album",
+      "playlist": "Wiedergabeliste"
+    },
+    "empty": {
+      "albumsTitle": "Keine Alben",
+      "albumsFoundTitle": "Keine Alben gefunden",
+      "albumsMessage": "Alben, die Sie zu Ihrer Bibliothek hinzufügen, werden hier angezeigt.",
+      "artistsTitle": "Keine Künstler",
+      "artistsMessage": "Hier werden Künstler aus Ihrer Musikbibliothek angezeigt.",
+      "favoritesTitle": "Keine Favoriten",
+      "favoritesMessage": "Hier werden Ihre Lieblingstitel, -künstler und -alben angezeigt.",
+      "foldersTitle": "Keine Ordner",
+      "foldersMessage": "Die von Ihnen hinzugefügten Musikordner werden hier angezeigt.",
+      "genresFoundTitle": "Keine Genres gefunden",
+      "tracksTitle": "Keine Spuren",
+      "tracksFoundTitle": "Keine Titel gefunden",
+      "tracksSelectedTitle": "Keine Titel ausgewählt",
+      "tracksMessage": "Titel, die Sie Ihrer Bibliothek hinzufügen, werden hier angezeigt.",
+      "lyricsTitle": "Kein Liedtext",
+      "lyricsMessage": "Für diesen Titel ist noch kein Liedtext eingebettet.",
+      "playlistsTitle": "Keine Playlists",
+      "playlistsFoundTitle": "Keine Playlists gefunden",
+      "playlistsMessage": "Erstellen Sie Ihre erste Playlist, um Ihre Musik zu organisieren.",
+      "playlistsFoundMessage": "Erstellen Sie Ihre erste Playlist, um Titel zu organisieren.",
+      "selectedTracksMessage": "Tippen Sie auf „Titel hinzufügen“, um mit der Erstellung dieser Wiedergabeliste zu beginnen."
+    }
+  },
+  "playlist": {
+    "newPlaylist": "Neue Playlist",
+    "playlist": "Wiedergabeliste",
+    "createPlaylist": "Playlist erstellen",
+    "editPlaylist": "Playlist bearbeiten",
+    "createNewPlaylist": "Neue Playlist erstellen",
+    "name": "Name der Wiedergabeliste",
+    "namePlaceholder": "Name der Wiedergabeliste",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Fügen Sie eine Beschreibung hinzu",
+    "addTracks": "Tracks hinzufügen",
+    "searchPlaceholder": "Playlists durchsuchen...",
+    "searchTracksPlaceholder": "Titel suchen...",
+    "selected": "{{count}} ausgewählt",
+    "apply": "Bewerben",
+    "applyWithCount": "Bewerben ({{count}})",
+    "clearSelection": "Klare Auswahl",
+    "selectPlaylist": "Wählen Sie die Wiedergabeliste {{name}} aus",
+    "selectTrack": "Wählen Sie {{title}}",
+    "deleteTitle": "Playlist löschen?",
+    "deleteDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Ihre Playlist und ihre Titelreihenfolge werden entfernt."
+  },
+  "track": {
+    "never": "Niemals",
+    "addToQueue": "Zur Warteschlange hinzufügen",
+    "playNext": "Als nächstes spielen",
+    "addToPlaylist": "Zur Playlist hinzufügen",
+    "metadata": {
+      "quality": "Qualität",
+      "codec": "Codec",
+      "format": "Formatieren",
+      "artist": "Künstler",
+      "album": "Album",
+      "genre": "Genre",
+      "year": "Jahr",
+      "trackDisc": "Titel/Disc",
+      "duration": "Dauer",
+      "playCount": "Anzahl spielen",
+      "lastPlayed": "Zuletzt gespielt",
+      "file": "Datei"
+    },
+    "deleteTitle": "Titel vom Gerät löschen?",
+    "deleteDescription": "„{{title}}“ wird dauerhaft aus Ihrem Gerätespeicher gelöscht.",
+    "deleteFromDevice": "Vom Gerät löschen",
+    "deleteFallbackTitle": "Dieser Track",
+    "deleteAction": "Löschen",
+    "permissionRequiredTitle": "Medienerlaubnis erforderlich",
+    "permissionRequiredDescription": "Erlauben Sie den Medienzugriff, um Titel von Ihrem Gerät zu löschen.",
+    "deleteFailedTitle": "Der Titel konnte nicht gelöscht werden",
+    "deletedTitle": "Vom Gerät gelöscht"
+  },
+  "player": {
+    "castFeatures": "Besetzungsfunktionen",
+    "upNext": "Als nächstes",
+    "menu": {
+      "goToArtist": "Gehen Sie zu Künstler",
+      "goToAlbum": "Gehen Sie zum Album"
+    },
+    "karaokeOn": "Karaoke an",
+    "karaokeOff": "Karaoke aus",
+    "selectArtistTitle": "Künstler auswählen",
+    "selectGenreTitle": "Wählen Sie ein Genre"
+  },
+  "settings": {
+    "routes": {
+      "index": {
+        "title": "Einstellungen"
+      },
+      "appearance": {
+        "title": "Aussehen",
+        "description": "Thema, Sprache und visuelle Vorlieben."
+      },
+      "audio": {
+        "title": "Audio",
+        "description": "Wiedergabeübergänge und Audioverhalten."
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "description": "Benachrichtigungsverhalten und Warnungen."
+      },
+      "library": {
+        "title": "Bibliothek",
+        "description": "Scan-, Filter- und Indizierungsverhalten."
+      },
+      "advanced": {
+        "title": "Fortgeschritten",
+        "description": "Einstellungen auf Systemebene und zur Fehlerbehebung."
+      },
+      "about": {
+        "title": "Über",
+        "description": "App-Informationen und Build-Details."
+      },
+      "language": {
+        "title": "Sprache",
+        "description": "Wählen Sie die Anzeigesprache der App."
+      },
+      "folderFilters": {
+        "title": "Ordnerfilter"
+      },
+      "trackDurationFilter": {
+        "title": "Filter für die Verfolgungsdauer"
+      },
+      "logLevel": {
+        "title": "Protokollebene"
+      },
+      "splitMultipleValues": {
+        "title": "Mehrere Werte aufteilen"
+      }
+    },
+    "appearance": {
+      "languageDescription": "Aktuelle Sprache: {{language}}.",
+      "options": {
+        "light": "Licht",
+        "dark": "Dunkel",
+        "system": "System"
+      }
+    },
+    "language": {
+      "english": "Englisch",
+      "englishNative": "English",
+      "indonesian": "Indonesisch",
+      "indonesianNative": "Bahasa Indonesia",
+      "hindi": "Hindi",
+      "hindiNative": "हिन्दी",
+      "chineseSimplified": "Chinesisch (vereinfacht)",
+      "chineseSimplifiedNative": "简体中文",
+      "chineseTraditional": "Chinesisch (traditionell)",
+      "chineseTraditionalNative": "繁體中文",
+      "japanese": "Japanisch",
+      "japaneseNative": "日本語",
+      "russian": "Russisch",
+      "russianNative": "Русский",
+      "german": "Deutsch",
+      "germanNative": "Deutsch",
+      "french": "Französisch",
+      "frenchNative": "Français",
+      "korean": "Koreanisch",
+      "koreanNative": "한국어",
+      "italian": "Italienisch",
+      "italianNative": "Italiano",
+      "spanish": "Spanisch",
+      "spanishNative": "Español",
+      "dutch": "Niederländisch",
+      "dutchNative": "Nederlands",
+      "portugueseBrazil": "Brasilianisches Portugiesisch",
+      "portugueseBrazilNative": "Português do Brasil"
+    },
+    "library": {
+      "filterMode": "Filtermodus",
+      "filterModeDescription": "Wählen Sie, ob ausgewählte Ordner zugelassen oder ausgeblendet werden sollen.",
+      "addNewFolder": "Neuen Ordner hinzufügen",
+      "folders": "Ordner",
+      "noFoldersAdded": "Keine Ordner hinzugefügt",
+      "noFoldersAddedMessage": "Fügen Sie einen oder mehrere Ordner hinzu und wenden Sie dann den Filter an.",
+      "applyFilter": "Filter anwenden",
+      "indexing": "Indizierung...",
+      "selectFilterMode": "Wählen Sie Filtermodus",
+      "whitelist": "Whitelist",
+      "blacklist": "Schwarze Liste",
+      "folderFiltersDescription": "Bestimmte Ordner auf die Whitelist oder Blacklist setzen.",
+      "trackDurationFilter": "Filter für die Verfolgungsdauer",
+      "autoScan": "Automatischer Scan",
+      "autoScanEnabled": "Beim Start der App und bei Dateiänderungen erneut scannen.",
+      "autoScanDisabled": "Scannen Sie bei Bedarf manuell.",
+      "reindexLibrary": "Bibliothek neu indizieren",
+      "reindexInProgress": "Indizierung läuft...",
+      "reindexDescription": "Scannen Sie alle Titel erneut, einschließlich unveränderter Dateien.",
+      "reindexDialogTitle": "Neuindizierung der Bibliothek erzwingen?",
+      "reindexDialogDescription": "Dadurch werden alle Musikdateien erneut gescannt, einschließlich bereits indizierter und unveränderter Dateien. Es kann länger dauern als die normale Indizierung.",
+      "reindexAction": "Neu indizieren",
+      "splitMultipleValues": "Mehrere Werte aufteilen",
+      "splitMultipleValuesSummary": "Modus: {{mode}} · Künstler: {{artistSymbols}} · Genre: {{genreSymbols}}",
+      "artistSplitSymbols": "Künstler-Split-Symbole",
+      "artistSplitSymbolsDescription": "Symbole zur Aufteilung der Metadaten von Künstlern und Albumkünstlern. Die Werte werden automatisch gekürzt.",
+      "unsplitArtists": "Ungeteilte Künstler",
+      "unsplitArtistsDescription": "Künstler in dieser Liste bleiben auch dann erhalten, wenn sie geteilte Symbole enthalten.",
+      "unsplitArtistsPlaceholder": "Künstler mit /, Künstler mit &",
+      "artistSplitMode": "Künstler-Split-Modus",
+      "artistSplitModeSplit": "Werte aufteilen",
+      "artistSplitModeSplitDescription": "Zeigen Sie jeden erkannten Künstler als separaten Namen an.",
+      "artistSplitModeOriginal": "Originalsaiten",
+      "artistSplitModeOriginalDescription": "Zeigt den ursprünglichen Künstlertext aus den Dateimetadaten an.",
+      "genreSplitSymbols": "Genre-Split-Symbole",
+      "genreSplitSymbolsDescription": "Symbole, die zum Aufteilen mehrerer Genre-Metadaten verwendet werden.",
+      "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "reindexLaterAction": "Nein, später"
+    },
+    "audio": {
+      "crossfade": "Überblendung",
+      "crossfadeEnabled": "Mischen Sie während der Wiedergabe zwischen Songs.",
+      "crossfadeDisabled": "Spielen Sie jedes Lied mit einem sauberen Übergang.",
+      "duration": "Dauer",
+      "durationHint": "Wählen Sie aus, wie lange der nächste Titel mit dem aktuellen überlappt."
+    },
+    "notifications": {
+      "indexerNotifications": "Indexer-Benachrichtigungen",
+      "indexerNotificationsEnabled": "Systembenachrichtigungen während der Indizierung anzeigen.",
+      "indexerNotificationsDisabled": "Blenden Sie Indizierungsbenachrichtigungen in der Taskleiste aus."
+    },
+    "trackDuration": {
+      "noFilter": "Kein Filter",
+      "noFilterDescription": "Alle Titel einbeziehen.",
+      "min30": "Mindestens 30 Sekunden",
+      "min30Description": "Schließen Sie sehr kurze Clips aus.",
+      "min60": "Mindestens 1 Minute",
+      "min60Description": "Behalten Sie die normale Musiklänge bei.",
+      "min120": "Mindestens 2 Minuten",
+      "min120Description": "Konzentrieren Sie sich auf Titel in voller Länge.",
+      "custom": "Benutzerdefiniert",
+      "customDescription": "Legen Sie Ihre eigene Mindestdauer fest.",
+      "minimumDuration": "Mindestdauer",
+      "changesHint": "Änderungen gelten für die Indizierung und das Entfernen von Titeln unterhalb dieser Dauer beim nächsten Scan.",
+      "label": {
+        "min30": "Mindestens 30er Jahre",
+        "min60": "Mindestens 1m",
+        "min120": "Mindestens 2m",
+        "customSeconds": "Benutzerdefinierte {{seconds}}s",
+        "customMinutesSeconds": "Benutzerdefinierte {{minutes}}m {{seconds}}s",
+        "customMinutes": "Benutzerdefinierte {{minutes}}m",
+        "off": "Kein Filter"
+      }
+    },
+    "logLevel": {
+      "minimal": "Minimal",
+      "minimalDescription": "Nur Fehler und Abstürze.",
+      "extra": "Extra",
+      "extraDescription": "Alles, einschließlich Diagnose und wiederherstellbaren Warnungen."
+    },
+    "advanced": {
+      "logExtraDescription": "Extra: Debug, Informationen, Warnungen und Fehler erfassen.",
+      "logMinimalDescription": "Minimal: Nur kritische Protokolle und Fehlerprotokolle erfassen.",
+      "shareCrashLogs": "Absturzprotokolle teilen",
+      "shareCrashLogsDescription": "Speichert Fehlerprotokolle in einer lokalen Datei und öffnet ein Freigabeblatt.",
+      "resetListeningHistory": "Hörverlauf zurücksetzen",
+      "resetListeningHistoryDescription": "Löschen Sie die zuletzt gespielten Statistiken und die Top-Track-Statistiken.",
+      "disableBatteryOptimization": "Deaktivieren Sie die Batterieoptimierung",
+      "disableBatteryOptimizationAndroid": "Verhindern Sie Hintergrundeinschränkungen, damit Indizierung und Wiedergabe zuverlässig bleiben.",
+      "openSystemSettings": "Öffnen Sie die Systemeinstellungen.",
+      "dontKillMyApp": "Don't Kill My App!",
+      "dontKillMyAppDescription": "Öffnen Sie gerätespezifische Batterie- und Hintergrundprozessanleitungen.",
+      "resetDialogTitle": "Hörverlauf zurücksetzen?",
+      "resetDialogDescription": "Dadurch werden zuletzt gespielte Titel gelöscht und die Top-Track-Statistiken zurückgesetzt. Ihre Musikdateien, Playlists und Favoriten bleiben unverändert.",
+      "logsReadyTitle": "Protokolle stehen zum Teilen bereit",
+      "logsUnableTitle": "Protokolle können nicht geteilt werden",
+      "logsReadyDescription": "Freigabeblatt mit den zuletzt erfassten Protokollen geöffnet.",
+      "tryAgainDescription": "Versuchen Sie es gleich noch einmal.",
+      "historyResetTitle": "Der Hörverlauf wurde zurückgesetzt",
+      "historyResetDescription": "Die Statistiken zu den zuletzt gespielten Titeln und den besten Titeln wurden gelöscht.",
+      "historyResetUnableTitle": "Der Verlauf kann nicht zurückgesetzt werden",
+      "batteryAlreadyDisabledTitle": "Batterieoptimierung bereits deaktiviert",
+      "batteryAlreadyDisabledDescription": "Es sind keine weiteren Maßnahmen erforderlich.",
+      "unableToOpenLinkTitle": "Link kann nicht geöffnet werden"
+    },
+    "about": {
+      "github": "GitHub",
+      "repositoryDescription": "Quellcode des Projekts."
+    }
+  }
+}

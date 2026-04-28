@@ -10,6 +10,7 @@ import {
   i18n,
   i18nReady,
   DEFAULT_LANGUAGE_CODE,
+  getDeviceLanguageCode,
   isSupportedLanguageCode,
 } from "./i18n"
 import type { LanguageCode, LanguageOption } from "./localization.types"
@@ -19,7 +20,6 @@ import {
   saveSettingsConfig,
 } from "@/modules/settings/settings.repository"
 import {
-  getDefaultLanguageCode,
   getSettingsState,
   updateSettingsState,
 } from "@/modules/settings/settings.store"
@@ -41,6 +41,66 @@ const LANGUAGE_OPTIONS: LanguageOption[] = [
     labelKey: "settings.language.indonesian",
     nativeLabelKey: "settings.language.indonesianNative",
   },
+  {
+    code: "hi",
+    labelKey: "settings.language.hindi",
+    nativeLabelKey: "settings.language.hindiNative",
+  },
+  {
+    code: "zh-Hans",
+    labelKey: "settings.language.chineseSimplified",
+    nativeLabelKey: "settings.language.chineseSimplifiedNative",
+  },
+  {
+    code: "zh-Hant",
+    labelKey: "settings.language.chineseTraditional",
+    nativeLabelKey: "settings.language.chineseTraditionalNative",
+  },
+  {
+    code: "ja",
+    labelKey: "settings.language.japanese",
+    nativeLabelKey: "settings.language.japaneseNative",
+  },
+  {
+    code: "ru",
+    labelKey: "settings.language.russian",
+    nativeLabelKey: "settings.language.russianNative",
+  },
+  {
+    code: "de",
+    labelKey: "settings.language.german",
+    nativeLabelKey: "settings.language.germanNative",
+  },
+  {
+    code: "fr",
+    labelKey: "settings.language.french",
+    nativeLabelKey: "settings.language.frenchNative",
+  },
+  {
+    code: "ko",
+    labelKey: "settings.language.korean",
+    nativeLabelKey: "settings.language.koreanNative",
+  },
+  {
+    code: "it",
+    labelKey: "settings.language.italian",
+    nativeLabelKey: "settings.language.italianNative",
+  },
+  {
+    code: "es",
+    labelKey: "settings.language.spanish",
+    nativeLabelKey: "settings.language.spanishNative",
+  },
+  {
+    code: "nl",
+    labelKey: "settings.language.dutch",
+    nativeLabelKey: "settings.language.dutchNative",
+  },
+  {
+    code: "pt-BR",
+    labelKey: "settings.language.portugueseBrazil",
+    nativeLabelKey: "settings.language.portugueseBrazilNative",
+  },
 ]
 
 let loadPromise: Promise<LanguageCode> | null = null
@@ -55,7 +115,7 @@ function sanitizeConfig(config: unknown): LanguageConfig {
   return {
     languageCode: isSupportedLanguageCode(source.languageCode)
       ? source.languageCode
-      : getDefaultLanguageCode(),
+      : getDeviceLanguageCode(),
   }
 }
 
@@ -82,7 +142,7 @@ export async function ensureLanguageConfigLoaded(): Promise<LanguageCode> {
   loadPromise = (async () => {
     const config = await loadSettingsConfig(
       LANGUAGE_SETTINGS_FILE,
-      { languageCode: DEFAULT_LANGUAGE_CODE },
+      { languageCode: getDeviceLanguageCode() },
       sanitizeConfig
     )
     updateSettingsState({ languageCode: config.languageCode })

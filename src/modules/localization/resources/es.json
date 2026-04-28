@@ -1,0 +1,424 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "clear": "Borrar",
+    "clearAll": "Borrar todo",
+    "goBack": "volver",
+    "play": "Jugar",
+    "playAll": "Reproducir todo",
+    "shuffle": "barajar",
+    "reset": "Reiniciar",
+    "seeMore": "Ver más",
+    "unknown": "Desconocido"
+  },
+  "navigation": {
+    "tabs": {
+      "home": "Inicio",
+      "search": "Buscar",
+      "library": "Biblioteca"
+    }
+  },
+  "database": {
+    "errorTitle": "Error de base de datos",
+    "schemaConflict": "Se detectó un conflicto de esquema. Borre los datos de la aplicación o vuelva a instalarla una vez para volver a realizar las migraciones de referencia."
+  },
+  "indexing": {
+    "scanning": "Escaneando archivos...",
+    "preparing": "Preparando...",
+    "processing": "Procesando pistas...",
+    "cleanup": "Limpiando...",
+    "complete": "Biblioteca actualizada",
+    "paused": "En pausa",
+    "tracksIndexed": "Pistas {{count}} indexadas",
+    "notification": {
+      "channelName": "Indexación de bibliotecas",
+      "channelDescription": "Muestra el progreso de indexación de la biblioteca de música.",
+      "pause": "Pausa",
+      "resume": "Currículum",
+      "cancel": "Cancelar",
+      "indexingLibrary": "Biblioteca de música de indexación",
+      "preparingScan": "Preparando el escaneo de su biblioteca...",
+      "scanningFiles": "Escanear archivos de música",
+      "processingMetadata": "Procesamiento de metadatos musicales",
+      "complete": "Indexación de biblioteca completa",
+      "tracksUpdated": "Pistas {{count}} actualizadas",
+      "failed": "Falló la indexación de la biblioteca",
+      "tapToReopen": "Toca para volver a abrir la aplicación e inténtalo de nuevo.",
+      "paused": "Indexación de la biblioteca en pausa"
+    }
+  },
+  "home": {
+    "recentlyPlayed": "Jugado recientemente",
+    "topTracks": "Pistas principales",
+    "tabs": {
+      "realtime": "En tiempo real",
+      "daily": "Diariamente",
+      "weekly": "Semanal"
+    },
+    "empty": {
+      "recentlyPlayedTitle": "No jugado recientemente",
+      "recentlyPlayedMessage": "¡Empiece a reproducir música!",
+      "recentlyPlayedLongMessage": "Tu historial de escucha aparecerá aquí una vez que comiences a reproducir música.",
+      "topTracksTitle": "Sin pistas principales",
+      "topTracksYetTitle": "Aún no hay canciones destacadas",
+      "topTracksMessage": "¡Toquen más música juntos!",
+      "topTracksYetMessage": "¡Reproduce algo de música para ver tus pistas más reproducidas aquí!"
+    }
+  },
+  "search": {
+    "tabs": {
+      "all": "Todos",
+      "track": "Seguimiento",
+      "album": "Álbum",
+      "artist": "Artista",
+      "playlist": "Lista de reproducción"
+    },
+    "openSearch": "abrir búsqueda",
+    "landingPlaceholder": "Busca pistas, artistas, álbumes...",
+    "searchPlaceholder": "Temas, artistas, álbumes...",
+    "recentSearches": "Búsquedas recientes",
+    "recentlyAdded": "Agregado recientemente",
+    "tryDifferentKeyword": "Pruebe con una palabra clave diferente.",
+    "empty": {
+      "recentlyAddedTitle": "No agregado recientemente",
+      "recentlyAddedMessage": "Las nuevas pistas agregadas a tu biblioteca aparecerán aquí."
+    }
+  },
+  "library": {
+    "tracks": "Pistas",
+    "albums": "Álbumes",
+    "artists": "Artistas",
+    "genres": "Géneros",
+    "genre": "Género",
+    "playlists": "Listas de reproducción",
+    "folders": "Carpetas",
+    "favorites": "Favoritos",
+    "items": "Artículos {{count}}",
+    "sort": "ordenar",
+    "sortBy": "Ordenar por",
+    "allTracks": "Todas las pistas",
+    "name": "Nombre",
+    "sortOption": {
+      "trackNumber": "Número de pista",
+      "title": "Título",
+      "artist": "Artista",
+      "album": "Álbum",
+      "year": "Año",
+      "playCount": "Recuento de juegos",
+      "dateAdded": "Fecha agregada",
+      "addedToPlaylist": "Agregado a la lista de reproducción",
+      "filename": "Nombre de archivo",
+      "name": "Nombre",
+      "numberOfTracks": "Número de pistas",
+      "numberOfFiles": "Número de archivos"
+    },
+    "recommendedAlbums": "Álbumes recomendados",
+    "playlistNotFound": "Lista de reproducción no encontrada",
+    "playlistRemovedMessage": "Es posible que esta lista de reproducción se haya eliminado.",
+    "genreAlbumsTitle": "Álbumes de {{genre}}",
+    "genreAlbumsUnavailable": "No hay álbumes disponibles en {{genre}}",
+    "genreTopTracksMessage": "¡Reproduce música de {{genre}} para ver las mejores canciones!",
+    "genreTopTracksLongMessage": "¡Reproduce música de {{genre}} para ver tus pistas más reproducidas aquí!",
+    "unknownArtist": "Artista desconocido",
+    "unknownAlbum": "Álbum desconocido",
+    "unknownFile": "Archivo desconocido",
+    "unknownTrack": "Pista desconocida",
+    "count": {
+      "track": "Pista {{count}}",
+      "track_one": "Pista {{count}}",
+      "track_other": "Pistas {{count}}",
+      "track_plural": "Pistas {{count}}",
+      "item": "artículo {{count}}",
+      "item_one": "artículo {{count}}",
+      "item_other": "Artículos {{count}}",
+      "item_plural": "Artículos {{count}}"
+    },
+    "favoriteType": {
+      "track": "Seguimiento",
+      "artist": "Artista",
+      "album": "Álbum",
+      "playlist": "Lista de reproducción"
+    },
+    "empty": {
+      "albumsTitle": "Sin álbumes",
+      "albumsFoundTitle": "No se encontraron álbumes",
+      "albumsMessage": "Los álbumes que agregues a tu biblioteca aparecerán aquí.",
+      "artistsTitle": "Sin artistas",
+      "artistsMessage": "Los artistas de tu biblioteca de música aparecerán aquí.",
+      "favoritesTitle": "Sin favoritos",
+      "favoritesMessage": "Tus pistas, artistas y álbumes favoritos aparecerán aquí.",
+      "foldersTitle": "Sin carpetas",
+      "foldersMessage": "Las carpetas de música que agregues aparecerán aquí.",
+      "genresFoundTitle": "No se encontraron géneros",
+      "tracksTitle": "Sin pistas",
+      "tracksFoundTitle": "No se encontraron pistas",
+      "tracksSelectedTitle": "No hay pistas seleccionadas",
+      "tracksMessage": "Las pistas que agregues a tu biblioteca aparecerán aquí.",
+      "lyricsTitle": "Sin letras",
+      "lyricsMessage": "Esta pista aún no tiene letras incrustadas.",
+      "playlistsTitle": "Sin listas de reproducción",
+      "playlistsFoundTitle": "No se encontraron listas de reproducción",
+      "playlistsMessage": "Crea tu primera lista de reproducción para organizar tu música.",
+      "playlistsFoundMessage": "Crea tu primera lista de reproducción para organizar pistas.",
+      "selectedTracksMessage": "Toca Agregar pistas para comenzar a crear esta lista de reproducción."
+    }
+  },
+  "playlist": {
+    "newPlaylist": "Nueva lista de reproducción",
+    "playlist": "Lista de reproducción",
+    "createPlaylist": "Crear lista de reproducción",
+    "editPlaylist": "Editar lista de reproducción",
+    "createNewPlaylist": "Crear nueva lista de reproducción",
+    "name": "Nombre de la lista de reproducción",
+    "namePlaceholder": "Nombre de la lista de reproducción",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Agregar una descripción",
+    "addTracks": "Agregar pistas",
+    "searchPlaceholder": "Buscar listas de reproducción...",
+    "searchTracksPlaceholder": "Buscar pistas...",
+    "selected": "{{count}} seleccionado",
+    "apply": "Aplicar",
+    "applyWithCount": "Aplicar ({{count}})",
+    "clearSelection": "Borrar selección",
+    "selectPlaylist": "Seleccionar lista de reproducción {{name}}",
+    "selectTrack": "Seleccionar {{title}}",
+    "deleteTitle": "¿Eliminar lista de reproducción?",
+    "deleteDescription": "Esta acción no se puede deshacer. Se eliminarán tu lista de reproducción y el orden de las pistas."
+  },
+  "track": {
+    "never": "nunca",
+    "addToQueue": "Agregar a la cola",
+    "playNext": "Reproducir siguiente",
+    "addToPlaylist": "Agregar a la lista de reproducción",
+    "metadata": {
+      "quality": "Calidad",
+      "codec": "Códec",
+      "format": "Formato",
+      "artist": "Artista",
+      "album": "Álbum",
+      "genre": "Género",
+      "year": "Año",
+      "trackDisc": "Pista / Disco",
+      "duration": "Duración",
+      "playCount": "Recuento de juegos",
+      "lastPlayed": "Jugado por última vez",
+      "file": "Archivo"
+    },
+    "deleteTitle": "¿Eliminar pista del dispositivo?",
+    "deleteDescription": "\"{{title}}\" se eliminará permanentemente del almacenamiento de su dispositivo.",
+    "deleteFromDevice": "Eliminar del dispositivo",
+    "deleteFallbackTitle": "esta pista",
+    "deleteAction": "Eliminar",
+    "permissionRequiredTitle": "Se requiere permiso de medios",
+    "permissionRequiredDescription": "Permita el acceso a los medios para eliminar pistas de su dispositivo.",
+    "deleteFailedTitle": "No se pudo eliminar la pista",
+    "deletedTitle": "Eliminado del dispositivo"
+  },
+  "player": {
+    "castFeatures": "Funciones de reparto",
+    "upNext": "A continuación",
+    "menu": {
+      "goToArtist": "Ir al artista",
+      "goToAlbum": "Ir al álbum"
+    },
+    "karaokeOn": "karaoke encendido",
+    "karaokeOff": "karaoke desactivado",
+    "selectArtistTitle": "Elige artista",
+    "selectGenreTitle": "Elige género"
+  },
+  "settings": {
+    "routes": {
+      "index": {
+        "title": "Configuración"
+      },
+      "appearance": {
+        "title": "Apariencia",
+        "description": "Tema, idioma y preferencias visuales."
+      },
+      "audio": {
+        "title": "Audio",
+        "description": "Transiciones de reproducción y comportamiento de audio."
+      },
+      "notifications": {
+        "title": "Notificaciones",
+        "description": "Comportamiento de notificación y alertas."
+      },
+      "library": {
+        "title": "Biblioteca",
+        "description": "Comportamiento de escaneo, filtros e indexación."
+      },
+      "advanced": {
+        "title": "Avanzado",
+        "description": "Configuración a nivel del sistema y solución de problemas."
+      },
+      "about": {
+        "title": "Acerca de",
+        "description": "Información de la aplicación y detalles de compilación."
+      },
+      "language": {
+        "title": "Idioma",
+        "description": "Elija el idioma de visualización de la aplicación."
+      },
+      "folderFilters": {
+        "title": "Filtros de carpeta"
+      },
+      "trackDurationFilter": {
+        "title": "Filtro de duración de pista"
+      },
+      "logLevel": {
+        "title": "Nivel de registro"
+      },
+      "splitMultipleValues": {
+        "title": "Dividir múltiples valores"
+      }
+    },
+    "appearance": {
+      "languageDescription": "Idioma actual: {{language}}.",
+      "options": {
+        "light": "Luz",
+        "dark": "oscuro",
+        "system": "Sistema"
+      }
+    },
+    "language": {
+      "english": "Inglés",
+      "englishNative": "English",
+      "indonesian": "Indonesio",
+      "indonesianNative": "Bahasa Indonesia",
+      "hindi": "Hindi",
+      "hindiNative": "हिन्दी",
+      "chineseSimplified": "Chino simplificado",
+      "chineseSimplifiedNative": "简体中文",
+      "chineseTraditional": "Chino tradicional",
+      "chineseTraditionalNative": "繁體中文",
+      "japanese": "Japonés",
+      "japaneseNative": "日本語",
+      "russian": "Ruso",
+      "russianNative": "Русский",
+      "german": "Alemán",
+      "germanNative": "Deutsch",
+      "french": "Francés",
+      "frenchNative": "Français",
+      "korean": "Coreano",
+      "koreanNative": "한국어",
+      "italian": "Italiano",
+      "italianNative": "Italiano",
+      "spanish": "Español",
+      "spanishNative": "Español",
+      "dutch": "Neerlandés",
+      "dutchNative": "Nederlands",
+      "portugueseBrazil": "Portugués de Brasil",
+      "portugueseBrazilNative": "Português do Brasil"
+    },
+    "library": {
+      "filterMode": "Modo de filtro",
+      "filterModeDescription": "Elija si las carpetas seleccionadas deben permitirse u ocultarse.",
+      "addNewFolder": "Agregar nueva carpeta",
+      "folders": "Carpetas",
+      "noFoldersAdded": "No se agregaron carpetas",
+      "noFoldersAddedMessage": "Agregue una o más carpetas y luego aplique el filtro.",
+      "applyFilter": "Aplicar filtro",
+      "indexing": "Indexación...",
+      "selectFilterMode": "Seleccione el modo de filtro",
+      "whitelist": "Lista blanca",
+      "blacklist": "Lista negra",
+      "folderFiltersDescription": "Carpetas específicas en la lista blanca o negra.",
+      "trackDurationFilter": "Filtro de duración de pista",
+      "autoScan": "Escaneo automático",
+      "autoScanEnabled": "Vuelva a escanear al iniciar la aplicación y cuando cambien los archivos.",
+      "autoScanDisabled": "Escanee manualmente cuando sea necesario.",
+      "reindexLibrary": "Biblioteca de reindexación",
+      "reindexInProgress": "Indexación en curso...",
+      "reindexDescription": "Vuelva a escanear todas las pistas, incluidos los archivos sin cambios.",
+      "reindexDialogTitle": "¿Forzar reindexación de la biblioteca?",
+      "reindexDialogDescription": "Esto volverá a escanear todos los archivos de música, incluidos los archivos ya indexados y sin cambios. Es posible que la indexación tarde más de lo normal.",
+      "reindexAction": "Reindexar",
+      "splitMultipleValues": "Dividir múltiples valores",
+      "splitMultipleValuesSummary": "Modo: {{mode}} · Artista: {{artistSymbols}} · Género: {{genreSymbols}}",
+      "artistSplitSymbols": "Símbolos divididos por artistas",
+      "artistSplitSymbolsDescription": "Símbolos utilizados para dividir los metadatos de artistas y artistas de álbumes. Los valores se recortan automáticamente.",
+      "unsplitArtists": "Artistas no divididos",
+      "unsplitArtistsDescription": "Los artistas de esta lista permanecen intactos incluso cuando contienen símbolos divididos.",
+      "unsplitArtistsPlaceholder": "Artista con /, Artista con &",
+      "artistSplitMode": "Modo de división de artista",
+      "artistSplitModeSplit": "Valores divididos",
+      "artistSplitModeSplitDescription": "Muestra cada artista detectado como un nombre separado.",
+      "artistSplitModeOriginal": "cuerdas originales",
+      "artistSplitModeOriginalDescription": "Muestra el texto original del artista a partir de los metadatos del archivo.",
+      "genreSplitSymbols": "Símbolos de división de género",
+      "genreSplitSymbolsDescription": "Símbolos utilizados para dividir metadatos de varios géneros.",
+      "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "reindexLaterAction": "No, más tarde"
+    },
+    "audio": {
+      "crossfade": "fundido cruzado",
+      "crossfadeEnabled": "Mezcla entre canciones durante la reproducción.",
+      "crossfadeDisabled": "Reproduce cada canción con una transición limpia.",
+      "duration": "Duración",
+      "durationHint": "Elija durante cuánto tiempo se superpondrá la siguiente pista con la actual."
+    },
+    "notifications": {
+      "indexerNotifications": "Notificaciones del indexador",
+      "indexerNotificationsEnabled": "Mostrar notificaciones del sistema durante la indexación.",
+      "indexerNotificationsDisabled": "Oculte las notificaciones de indexación de la bandeja del sistema."
+    },
+    "trackDuration": {
+      "noFilter": "Sin filtro",
+      "noFilterDescription": "Incluye todas las pistas.",
+      "min30": "Al menos 30 segundos",
+      "min30Description": "Excluye clips muy cortos.",
+      "min60": "Al menos 1 minuto",
+      "min60Description": "Mantenga la duración normal de la música.",
+      "min120": "Al menos 2 minutos",
+      "min120Description": "Centrarse en pistas de larga duración.",
+      "custom": "personalizado",
+      "customDescription": "Establece tu propia duración mínima.",
+      "minimumDuration": "Duración mínima",
+      "changesHint": "Los cambios se aplican a la indexación y eliminan las pistas por debajo de esta duración en el siguiente escaneo.",
+      "label": {
+        "min30": "Al menos 30 años",
+        "min60": "Al menos 1 m",
+        "min120": "Al menos 2 m",
+        "customSeconds": "{{seconds}} personalizados",
+        "customMinutesSeconds": "{{minutes}}m {{seconds}} personalizados",
+        "customMinutes": "Personalizado {{minutes}}m",
+        "off": "Sin filtro"
+      }
+    },
+    "logLevel": {
+      "minimal": "mínimo",
+      "minimalDescription": "Solo errores y fallas.",
+      "extra": "Adicional",
+      "extraDescription": "Todo, incluidos diagnósticos y avisos recuperables."
+    },
+    "advanced": {
+      "logExtraDescription": "Extra: captura depuración, información, advertencias y errores.",
+      "logMinimalDescription": "Mínimo: capture solo registros críticos y de errores.",
+      "shareCrashLogs": "Compartir registros de fallos",
+      "shareCrashLogsDescription": "Guarda los registros de errores en un archivo local y abre una hoja para compartir.",
+      "resetListeningHistory": "Restablecer el historial de escucha",
+      "resetListeningHistoryDescription": "Borra las estadísticas reproducidas recientemente y de las mejores pistas.",
+      "disableBatteryOptimization": "Deshabilitar la optimización de la batería",
+      "disableBatteryOptimizationAndroid": "Evite las restricciones en segundo plano para que la indexación y la reproducción sigan siendo confiables.",
+      "openSystemSettings": "Abra la configuración del sistema.",
+      "dontKillMyApp": "Don't Kill My App!",
+      "dontKillMyAppDescription": "Abra la guía de proceso en segundo plano y batería específica del dispositivo.",
+      "resetDialogTitle": "¿Restablecer el historial de escucha?",
+      "resetDialogDescription": "Esto borrará las reproducciones recientes y restablecerá las estadísticas de las pistas principales. Tus archivos de música, listas de reproducción y favoritos permanecerán sin cambios.",
+      "logsReadyTitle": "Registros listos para compartir",
+      "logsUnableTitle": "No se pueden compartir registros",
+      "logsReadyDescription": "Compartir hoja abierta con los últimos registros capturados.",
+      "tryAgainDescription": "Inténtalo de nuevo en un momento.",
+      "historyResetTitle": "Restablecer el historial de escucha",
+      "historyResetDescription": "Se han borrado las estadísticas reproducidas recientemente y de las mejores pistas.",
+      "historyResetUnableTitle": "No se puede restablecer el historial",
+      "batteryAlreadyDisabledTitle": "La optimización de la batería ya está deshabilitada",
+      "batteryAlreadyDisabledDescription": "No se necesita ninguna acción adicional.",
+      "unableToOpenLinkTitle": "No se puede abrir el enlace"
+    },
+    "about": {
+      "github": "GitHub",
+      "repositoryDescription": "Código fuente del proyecto."
+    }
+  }
+}
