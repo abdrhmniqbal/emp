@@ -348,6 +348,10 @@
       "genreSplitSymbols": "Símbolos de división de género",
       "genreSplitSymbolsDescription": "Símbolos utilizados para dividir metadatos de varios géneros.",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "Agregar símbolo de división",
+      "removeSplitSymbol": "Eliminar símbolo de división",
+      "addUnsplitArtist": "Agregar artista sin dividir",
+      "removeUnsplitArtist": "Eliminar artista sin dividir",
       "reindexLaterAction": "No, más tarde"
     },
     "audio": {

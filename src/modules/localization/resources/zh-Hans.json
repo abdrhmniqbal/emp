@@ -348,6 +348,10 @@
       "genreSplitSymbols": "流派分割符号",
       "genreSplitSymbolsDescription": "用于分割多个流派元数据的符号。",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "添加拆分符号",
+      "removeSplitSymbol": "移除拆分符号",
+      "addUnsplitArtist": "添加不拆分艺人",
+      "removeUnsplitArtist": "移除不拆分艺人",
       "reindexLaterAction": "不，稍后"
     },
     "audio": {

@@ -348,6 +348,10 @@
       "genreSplitSymbols": "Genre-gesplitste symbolen",
       "genreSplitSymbolsDescription": "Symbolen die worden gebruikt om metadata van meerdere genres te splitsen.",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "Splitsymbool toevoegen",
+      "removeSplitSymbol": "Splitsymbool verwijderen",
+      "addUnsplitArtist": "Niet te splitsen artiest toevoegen",
+      "removeUnsplitArtist": "Niet te splitsen artiest verwijderen",
       "reindexLaterAction": "Nee, later"
     },
     "audio": {

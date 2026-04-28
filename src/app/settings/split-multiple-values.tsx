@@ -1,16 +1,25 @@
 /**
- * Purpose: Lets users configure symbol-based splitting for artists/genres, unsplit artist exceptions, and artist display mode.
+ * Purpose: Lets users configure tag-based symbol splitting for artists/genres, unsplit artist exceptions, and artist display mode.
  * Caller: Settings split-multiple-values route.
- * Dependencies: React Native inputs, settings split config module/store, and split settings reindex prompt state.
- * Main Functions: SplitMultipleValuesSettingsScreen()
+ * Dependencies: HeroUI Native form controls, settings split config module/store, and split settings reindex prompt state.
+ * Main Functions: SplitMultipleValuesSettingsScreen(), SplitTagListEditor()
  * Side Effects: Persists split settings config and marks deferred library reindex prompt.
  */
 
-import { PressableFeedback } from "heroui-native"
+import {
+  Button,
+  Description,
+  Input,
+  Label,
+  PressableFeedback,
+  TagGroup,
+  TextField,
+} from "heroui-native"
 import * as React from "react"
-import { ScrollView, Text, TextInput, View } from "react-native"
+import { ScrollView, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
+import LocalAddIcon from "@/components/icons/local/add"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { setSplitMultipleValueConfig } from "@/modules/settings/split-multiple-values"
 import { useSettingsStore } from "@/modules/settings/settings.store"
@@ -19,38 +28,130 @@ import { useThemeColors } from "@/modules/ui/theme"
 
 type SplitMode = "original" | "split"
 
-function parseCommaSeparated(value: string) {
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter((item) => item.length > 0)
+interface SplitTagListEditorProps {
+  title: string
+  description: string
+  values: string[]
+  placeholder: string
+  addLabel: string
+  removeLabel: string
+  onChange: (values: string[]) => void
 }
 
-function toCommaText(values: string[]) {
-  return values.join(", ")
+function normalizeValues(values: string[]) {
+  const seen = new Set<string>()
+  const next: string[] = []
+
+  for (const value of values) {
+    const item = value.trim()
+    const key = item.toLowerCase()
+
+    if (!item || seen.has(key)) {
+      continue
+    }
+
+    seen.add(key)
+    next.push(item)
+  }
+
+  return next
+}
+
+function SplitTagListEditor({
+  title,
+  description,
+  values,
+  placeholder,
+  addLabel,
+  removeLabel,
+  onChange,
+}: SplitTagListEditorProps) {
+  const theme = useThemeColors()
+  const [inputValue, setInputValue] = React.useState("")
+  const trimmedInputValue = inputValue.trim()
+
+  function addValue() {
+    if (!trimmedInputValue) {
+      return
+    }
+
+    const nextValues = normalizeValues([...values, trimmedInputValue])
+
+    if (nextValues.length === values.length) {
+      setInputValue("")
+      return
+    }
+
+    setInputValue("")
+    onChange(nextValues)
+  }
+
+  function removeValues(keys: Set<string | number>) {
+    onChange(values.filter((item) => !keys.has(item)))
+  }
+
+  return (
+    <View className="rounded-[28px] border border-border/60 bg-background px-5 py-4">
+      <TextField>
+        <Label>{title}</Label>
+        <Description className="mb-3">{description}</Description>
+        <TagGroup
+          selectionMode="none"
+          variant="surface"
+          size="md"
+          onRemove={removeValues}
+        >
+          <TagGroup.List className="mb-3 flex-row flex-wrap gap-2">
+            {values.map((value) => (
+              <TagGroup.Item key={value} id={value}>
+                <TagGroup.ItemLabel>{value}</TagGroup.ItemLabel>
+                <TagGroup.ItemRemoveButton
+                  accessibilityLabel={`${removeLabel} ${value}`}
+                />
+              </TagGroup.Item>
+            ))}
+          </TagGroup.List>
+        </TagGroup>
+        <View className="flex-row items-center gap-2">
+          <Input
+            variant="secondary"
+            value={inputValue}
+            onChangeText={setInputValue}
+            onSubmitEditing={addValue}
+            placeholder={placeholder}
+            className="min-h-12 flex-1"
+            returnKeyType="done"
+          />
+          <Button
+            accessibilityLabel={addLabel}
+            variant="secondary"
+            isIconOnly
+            isDisabled={!trimmedInputValue}
+            className="h-12 w-12"
+            onPress={addValue}
+          >
+            <LocalAddIcon
+              fill="none"
+              width={22}
+              height={22}
+              color={theme.foreground}
+            />
+          </Button>
+        </View>
+      </TextField>
+    </View>
+  )
 }
 
 export default function SplitMultipleValuesSettingsScreen() {
   const { t } = useTranslation()
   const theme = useThemeColors()
   const config = useSettingsStore((state) => state.splitMultipleValueConfig)
-  const [artistSymbolsInput, setArtistSymbolsInput] = React.useState(
-    toCommaText(config.artistSplitSymbols)
-  )
-  const [unsplitArtistsInput, setUnsplitArtistsInput] = React.useState(
-    toCommaText(config.unsplitArtists)
-  )
-  const [genreSymbolsInput, setGenreSymbolsInput] = React.useState(
-    toCommaText(config.genreSplitSymbols)
-  )
   const [artistSplitMode, setArtistSplitMode] = React.useState<SplitMode>(
     config.artistSplitMode
   )
 
   React.useEffect(() => {
-    setArtistSymbolsInput(toCommaText(config.artistSplitSymbols))
-    setUnsplitArtistsInput(toCommaText(config.unsplitArtists))
-    setGenreSymbolsInput(toCommaText(config.genreSplitSymbols))
     setArtistSplitMode(config.artistSplitMode)
   }, [config])
 
@@ -70,47 +171,29 @@ export default function SplitMultipleValuesSettingsScreen() {
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       <View className="gap-5 px-4 py-4">
-        <View className="rounded-[28px] border border-border/60 bg-background px-5 py-4">
-          <Text className="mb-2 text-[16px] font-medium text-foreground">
-            {t("settings.library.artistSplitSymbols")}
-          </Text>
-          <Text className="mb-3 text-[13px] leading-5 text-muted">
-            {t("settings.library.artistSplitSymbolsDescription")}
-          </Text>
-          <TextInput
-            value={artistSymbolsInput}
-            onChangeText={setArtistSymbolsInput}
-            onBlur={() => {
-              void updateSplitConfig({
-                artistSplitSymbols: parseCommaSeparated(artistSymbolsInput),
-              })
-            }}
-            placeholder={t("settings.library.splitSymbolsPlaceholder")}
-            placeholderTextColor={theme.muted}
-            className="rounded-xl border border-border/60 bg-default/25 px-4 py-3 text-foreground"
-          />
-        </View>
+        <SplitTagListEditor
+          title={t("settings.library.artistSplitSymbols")}
+          description={t("settings.library.artistSplitSymbolsDescription")}
+          values={config.artistSplitSymbols}
+          placeholder={t("settings.library.splitSymbolsPlaceholder")}
+          addLabel={t("settings.library.addSplitSymbol")}
+          removeLabel={t("settings.library.removeSplitSymbol")}
+          onChange={(artistSplitSymbols) => {
+            void updateSplitConfig({ artistSplitSymbols })
+          }}
+        />
 
-        <View className="rounded-[28px] border border-border/60 bg-background px-5 py-4">
-          <Text className="mb-2 text-[16px] font-medium text-foreground">
-            {t("settings.library.unsplitArtists")}
-          </Text>
-          <Text className="mb-3 text-[13px] leading-5 text-muted">
-            {t("settings.library.unsplitArtistsDescription")}
-          </Text>
-          <TextInput
-            value={unsplitArtistsInput}
-            onChangeText={setUnsplitArtistsInput}
-            onBlur={() => {
-              void updateSplitConfig({
-                unsplitArtists: parseCommaSeparated(unsplitArtistsInput),
-              })
-            }}
-            placeholder={t("settings.library.unsplitArtistsPlaceholder")}
-            placeholderTextColor={theme.muted}
-            className="rounded-xl border border-border/60 bg-default/25 px-4 py-3 text-foreground"
-          />
-        </View>
+        <SplitTagListEditor
+          title={t("settings.library.unsplitArtists")}
+          description={t("settings.library.unsplitArtistsDescription")}
+          values={config.unsplitArtists}
+          placeholder={t("settings.library.unsplitArtistsPlaceholder")}
+          addLabel={t("settings.library.addUnsplitArtist")}
+          removeLabel={t("settings.library.removeUnsplitArtist")}
+          onChange={(unsplitArtists) => {
+            void updateSplitConfig({ unsplitArtists })
+          }}
+        />
 
         <View className="overflow-hidden rounded-[28px] border border-border/60 bg-background">
           <Text className="px-5 pt-4 pb-2 text-[16px] font-medium text-foreground">
@@ -162,26 +245,17 @@ export default function SplitMultipleValuesSettingsScreen() {
           ))}
         </View>
 
-        <View className="rounded-[28px] border border-border/60 bg-background px-5 py-4">
-          <Text className="mb-2 text-[16px] font-medium text-foreground">
-            {t("settings.library.genreSplitSymbols")}
-          </Text>
-          <Text className="mb-3 text-[13px] leading-5 text-muted">
-            {t("settings.library.genreSplitSymbolsDescription")}
-          </Text>
-          <TextInput
-            value={genreSymbolsInput}
-            onChangeText={setGenreSymbolsInput}
-            onBlur={() => {
-              void updateSplitConfig({
-                genreSplitSymbols: parseCommaSeparated(genreSymbolsInput),
-              })
-            }}
-            placeholder={t("settings.library.splitSymbolsPlaceholder")}
-            placeholderTextColor={theme.muted}
-            className="rounded-xl border border-border/60 bg-default/25 px-4 py-3 text-foreground"
-          />
-        </View>
+        <SplitTagListEditor
+          title={t("settings.library.genreSplitSymbols")}
+          description={t("settings.library.genreSplitSymbolsDescription")}
+          values={config.genreSplitSymbols}
+          placeholder={t("settings.library.splitSymbolsPlaceholder")}
+          addLabel={t("settings.library.addSplitSymbol")}
+          removeLabel={t("settings.library.removeSplitSymbol")}
+          onChange={(genreSplitSymbols) => {
+            void updateSplitConfig({ genreSplitSymbols })
+          }}
+        />
       </View>
     </ScrollView>
   )

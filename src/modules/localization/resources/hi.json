@@ -348,6 +348,10 @@
       "genreSplitSymbols": "शैली विभाजन चिह्न",
       "genreSplitSymbolsDescription": "कई शैलियों के मेटाडेटा को विभाजित करने के लिए उपयोग किए जाने वाले प्रतीक।",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "विभाजन चिह्न जोड़ें",
+      "removeSplitSymbol": "विभाजन चिह्न हटाएं",
+      "addUnsplitArtist": "अनस्प्लिट कलाकार जोड़ें",
+      "removeUnsplitArtist": "अनस्प्लिट कलाकार हटाएं",
       "reindexLaterAction": "नहीं, बाद में"
     },
     "audio": {

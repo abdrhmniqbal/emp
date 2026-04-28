@@ -348,6 +348,10 @@
       "genreSplitSymbols": "Simbol Pemisah Genre",
       "genreSplitSymbolsDescription": "Simbol untuk memisah metadata multi-genre.",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "Tambah simbol pemisah",
+      "removeSplitSymbol": "Hapus simbol pemisah",
+      "addUnsplitArtist": "Tambah artis tanpa pemisahan",
+      "removeUnsplitArtist": "Hapus artis tanpa pemisahan",
       "reindexLaterAction": "Tidak, nanti"
     },
     "audio": {

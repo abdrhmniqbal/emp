@@ -348,6 +348,10 @@
       "genreSplitSymbols": "장르 분할 기호",
       "genreSplitSymbolsDescription": "여러 장르의 메타데이터를 분할하는 데 사용되는 기호입니다.",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "분할 기호 추가",
+      "removeSplitSymbol": "분할 기호 제거",
+      "addUnsplitArtist": "분할하지 않을 아티스트 추가",
+      "removeUnsplitArtist": "분할하지 않을 아티스트 제거",
       "reindexLaterAction": "아니요, 나중에"
     },
     "audio": {

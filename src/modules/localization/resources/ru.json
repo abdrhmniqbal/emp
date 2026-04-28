@@ -348,6 +348,10 @@
       "genreSplitSymbols": "Символы разделения жанров",
       "genreSplitSymbolsDescription": "Символы, используемые для разделения метаданных нескольких жанров.",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "Добавить символ разделения",
+      "removeSplitSymbol": "Удалить символ разделения",
+      "addUnsplitArtist": "Добавить неделимого исполнителя",
+      "removeUnsplitArtist": "Удалить неделимого исполнителя",
       "reindexLaterAction": "Нет, позже"
     },
     "audio": {

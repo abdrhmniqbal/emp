@@ -3,10 +3,10 @@
  * Caller: Settings library route.
  * Dependencies: Expo Router, react-i18next, settings store, split settings state marker, indexer services, settings row pattern, HeroUI Native dialog and switch.
  * Main Functions: LibrarySettingsScreen()
- * Side Effects: Persists library settings and can trigger a full library reindex.
+ * Side Effects: Persists library settings, blocks navigation while split-setting reindex decisions are required, and can trigger a full library reindex.
  */
 
-import { useFocusEffect } from "@react-navigation/native"
+import { useFocusEffect, usePreventRemove } from "@react-navigation/native"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button, Dialog, Switch } from "heroui-native"
 import * as React from "react"
@@ -36,16 +36,38 @@ export default function LibrarySettingsScreen() {
     (state) => state.splitMultipleValueConfig
   )
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
+  const [requiresReindexDecision, setRequiresReindexDecision] =
+    React.useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
       if (consumeSplitSettingsReindexPrompt()) {
+        setRequiresReindexDecision(true)
         setShowReindexDialog(true)
       }
     }, [])
   )
 
+  usePreventRemove(requiresReindexDecision, () => {
+    setShowReindexDialog(true)
+  })
+
+  function handleReindexDialogOpenChange(isOpen: boolean) {
+    if (requiresReindexDecision && !isOpen) {
+      setShowReindexDialog(true)
+      return
+    }
+
+    setShowReindexDialog(isOpen)
+  }
+
+  function handleReindexLater() {
+    setRequiresReindexDecision(false)
+    setShowReindexDialog(false)
+  }
+
   function handleConfirmForceReindex() {
+    setRequiresReindexDecision(false)
     setShowReindexDialog(false)
     void forceReindexLibrary(true)
   }
@@ -114,10 +136,16 @@ export default function LibrarySettingsScreen() {
         </View>
       </ScrollView>
 
-      <Dialog isOpen={showReindexDialog} onOpenChange={setShowReindexDialog}>
+      <Dialog
+        isOpen={showReindexDialog}
+        onOpenChange={handleReindexDialogOpenChange}
+      >
         <Dialog.Portal>
-          <Dialog.Overlay />
-          <Dialog.Content className="gap-4">
+          <Dialog.Overlay isCloseOnPress={!requiresReindexDecision} />
+          <Dialog.Content
+            className="gap-4"
+            isSwipeable={!requiresReindexDecision}
+          >
             <View className="gap-1.5">
               <Dialog.Title>
                 {t("settings.library.reindexDialogTitle")}
@@ -127,10 +155,7 @@ export default function LibrarySettingsScreen() {
               </Dialog.Description>
             </View>
             <View className="flex-row justify-end gap-3">
-              <Button
-                variant="ghost"
-                onPress={() => setShowReindexDialog(false)}
-              >
+              <Button variant="ghost" onPress={handleReindexLater}>
                 {t("settings.library.reindexLaterAction")}
               </Button>
               <Button onPress={handleConfirmForceReindex}>

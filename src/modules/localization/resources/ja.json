@@ -348,6 +348,10 @@
       "genreSplitSymbols": "ジャンル分割シンボル",
       "genreSplitSymbolsDescription": "複数のジャンルのメタデータを分割するために使用されるシンボル。",
       "splitSymbolsPlaceholder": "ft., feat., /, ;, &",
+      "addSplitSymbol": "分割記号を追加",
+      "removeSplitSymbol": "分割記号を削除",
+      "addUnsplitArtist": "分割しないアーティストを追加",
+      "removeUnsplitArtist": "分割しないアーティストを削除",
       "reindexLaterAction": "いや、後で"
     },
     "audio": {
