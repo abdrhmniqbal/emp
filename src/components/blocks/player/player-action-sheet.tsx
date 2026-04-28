@@ -70,7 +70,7 @@ export function PlayerActionSheet({
     setIsPlaylistPickerOpen(false)
     setIsArtistSelectionOpen(false)
     onNavigate?.()
-    router.push({
+    router.dismissTo({
       pathname: "/artist/[name]",
       params: { name: normalizedArtistName },
     })
@@ -103,7 +103,7 @@ export function PlayerActionSheet({
     onOpenChange(false)
     setIsPlaylistPickerOpen(false)
     onNavigate?.()
-    router.push({
+    router.dismissTo({
       pathname: "/album/[name]",
       params: {
         name: albumName,

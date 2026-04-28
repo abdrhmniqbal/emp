@@ -1,7 +1,7 @@
 /**
- * Purpose: Displays track actions and metadata, including multi-value artist and genre navigation.
+ * Purpose: Displays track actions and metadata, including clickable multi-value artist and genre navigation.
  * Caller: Track list and playlist screens opening track context actions.
- * Dependencies: HeroUI Native sheets, track queries, playlist/favorites services, split settings state, and router navigation.
+ * Dependencies: HeroUI Native sheets, shared artist picker, track queries, playlist/favorites services, split settings state, and router navigation.
  * Main Functions: TrackActionSheet()
  * Side Effects: Opens dialogs/sheets, queues playback actions, and navigates to artist/album/genre routes.
  */
@@ -16,6 +16,11 @@ import { useEffect, useState } from "react"
 import { Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import { DeleteTrackDialog } from "@/components/blocks/delete-track-dialog"
+import {
+  ArtistPickerSheet,
+  type ArtistPickerSheetItem,
+} from "@/components/blocks/artist-picker-sheet"
+import { buildArtistPickerItems } from "@/components/blocks/artist-picker.utils"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
 import { ValueNavigationSheet } from "@/components/blocks/value-navigation-sheet"
 import LocalAddIcon from "@/components/icons/local/add"
@@ -93,10 +98,12 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   const splitMultipleValueConfig = useSettingsStore(
     (state) => state.splitMultipleValueConfig
   )
-  const [artistSelectionValues, setArtistSelectionValues] = useState<string[]>(
+  const [artistSelectionItems, setArtistSelectionItems] = useState<
+    ArtistPickerSheetItem[]
+  >([])
+  const [genreSelectionValues, setGenreSelectionValues] = useState<string[]>(
     []
   )
-  const [genreSelectionValues, setGenreSelectionValues] = useState<string[]>([])
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
   const [isGenreSelectionOpen, setIsGenreSelectionOpen] = useState(false)
 
@@ -201,11 +208,12 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       return
     }
 
-    onClose()
+    setIsArtistSelectionOpen(false)
     router.push({
       pathname: "/artist/[name]",
       params: { name: normalizedArtistName },
     })
+    onClose()
   }
 
   const handleOpenAlbum = (albumName: string) => {
@@ -214,7 +222,6 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       return
     }
 
-    onClose()
     router.push({
       pathname: "/album/[name]",
       params: {
@@ -225,6 +232,21 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         }),
       },
     })
+    onClose()
+  }
+
+  const handleOpenGenre = (genreName: string) => {
+    const normalizedGenreName = genreName.trim()
+    if (!normalizedGenreName) {
+      return
+    }
+
+    setIsGenreSelectionOpen(false)
+    router.push({
+      pathname: "/genre/[name]",
+      params: { name: normalizedGenreName },
+    })
+    onClose()
   }
 
   const handleOpenArtistSelection = (values: string[]) => {
@@ -240,7 +262,22 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       return
     }
 
-    setArtistSelectionValues(normalized)
+    const richArtistItems = buildArtistPickerItems(
+      {
+        artwork: fullTrackData?.artwork,
+        albumArtwork: fullTrackData?.album?.artwork,
+        artist: fullTrackData?.artist,
+        featuredArtists: fullTrackData?.featuredArtists,
+      },
+      normalized,
+      (count) => t("library.count.track", { count })
+    )
+
+    setArtistSelectionItems(
+      richArtistItems.length > 0
+        ? richArtistItems
+        : normalized.map((value) => ({ value }))
+    )
     setIsArtistSelectionOpen(true)
   }
 
@@ -253,11 +290,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     }
 
     if (normalized.length === 1) {
-      onClose()
-      router.push({
-        pathname: "/(main)/(search)/genre/[name]",
-        params: { name: normalized[0] || "" },
-      })
+      handleOpenGenre(normalized[0] || "")
       return
     }
 
@@ -491,7 +524,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         genreNames.length > 0
           ? genreNames.map((genreName) => ({
               value: genreName,
-              onPress: () => handleOpenGenreSelection(genreNames),
+                      onPress: () => handleOpenGenreSelection(genreNames),
             }))
           : [{ value: unknownValue }],
       fullWidth:
@@ -849,6 +882,22 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         onSelectPlaylist={(playlist) => {
           void handleSelectPlaylist(playlist)
         }}
+      />
+
+      <ArtistPickerSheet
+        isOpen={isArtistSelectionOpen}
+        title={t("track.metadata.artist")}
+        items={artistSelectionItems}
+        onOpenChange={setIsArtistSelectionOpen}
+        onSelectValue={handleOpenArtist}
+      />
+
+      <ValueNavigationSheet
+        isOpen={isGenreSelectionOpen}
+        title={t("track.metadata.genre")}
+        values={genreSelectionValues}
+        onOpenChange={setIsGenreSelectionOpen}
+        onSelectValue={handleOpenGenre}
       />
     </>
   )

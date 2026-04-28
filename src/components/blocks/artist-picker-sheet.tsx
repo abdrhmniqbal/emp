@@ -1,42 +1,36 @@
 /**
- * Purpose: Shows a bottom sheet list for navigating to one value from multiple artists/genres.
- * Caller: Track action sheet and player route UI actions.
- * Dependencies: HeroUI Native BottomSheet, expo-image, and pressable components.
- * Main Functions: ValueNavigationSheet()
- * Side Effects: Triggers navigation callbacks for selected values.
+ * Purpose: Shows a reusable bottom sheet for choosing one artist from multiple resolved artist values.
+ * Caller: Track action sheet and player route.
+ * Dependencies: HeroUI Native BottomSheet, expo-image, and shared artist picker item types.
+ * Main Functions: ArtistPickerSheet()
+ * Side Effects: Triggers artist navigation callbacks for selected values.
  */
 
 import { Image } from "expo-image"
 import { BottomSheet, PressableFeedback } from "heroui-native"
-import { Text } from "react-native"
-import { View } from "react-native"
+import { Text, View } from "react-native"
 
-interface ValueNavigationSheetItem {
+export interface ArtistPickerSheetItem {
   value: string
   subtitle?: string
   image?: string
 }
 
-interface ValueNavigationSheetProps {
+interface ArtistPickerSheetProps {
   isOpen: boolean
   title: string
-  values: string[]
-  items?: ValueNavigationSheetItem[]
+  items: ArtistPickerSheetItem[]
   onOpenChange: (open: boolean) => void
   onSelectValue: (value: string) => void
 }
 
-export function ValueNavigationSheet({
+export function ArtistPickerSheet({
   isOpen,
   title,
-  values,
   items,
   onOpenChange,
   onSelectValue,
-}: ValueNavigationSheetProps) {
-  const sheetItems =
-    items ?? values.map((value) => ({ value } satisfies ValueNavigationSheetItem))
-
+}: ArtistPickerSheetProps) {
   return (
     <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
       <BottomSheet.Portal>
@@ -48,7 +42,7 @@ export function ValueNavigationSheet({
           <Text className="px-1 pb-2 text-base font-semibold text-foreground">
             {title}
           </Text>
-          {sheetItems.map((item) => (
+          {items.map((item) => (
             <PressableFeedback
               key={item.value}
               className="flex-row items-center gap-3 rounded-xl px-1 py-2 active:opacity-60"

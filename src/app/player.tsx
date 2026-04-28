@@ -1,7 +1,7 @@
 /**
  * Purpose: Hosts the player route, expanded view state, and route-level action sheets.
  * Caller: Expo Router player route.
- * Dependencies: Player selectors, UI store, split settings parser, and player action sheet components.
+ * Dependencies: Player selectors, UI store, shared artist picker, split settings parser, and player action sheet components.
  * Main Functions: PlayerRoute()
  * Side Effects: Navigates to artist route and toggles player sheets.
  */
@@ -10,9 +10,13 @@ import { Redirect, useLocalSearchParams } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { useEffect, useMemo, useState } from "react"
 
+import {
+  ArtistPickerSheet,
+  type ArtistPickerSheetItem,
+} from "@/components/blocks/artist-picker-sheet"
+import { buildArtistPickerItems } from "@/components/blocks/artist-picker.utils"
 import { FullPlayerContent } from "@/components/blocks/player/full-player-content"
 import { PlayerActionSheet } from "@/components/blocks/player/player-action-sheet"
-import { ValueNavigationSheet } from "@/components/blocks/value-navigation-sheet"
 import {
   useCurrentTrack,
   useIsPlaying,
@@ -80,6 +84,21 @@ export default function PlayerRoute() {
     splitMultipleValueConfig,
   ])
 
+  const artistPickerItems = useMemo<ArtistPickerSheetItem[]>(
+    () =>
+      buildArtistPickerItems(
+        {
+          artwork: fullTrackData?.artwork,
+          albumArtwork: fullTrackData?.album?.artwork,
+          artist: fullTrackData?.artist,
+          featuredArtists: fullTrackData?.featuredArtists,
+        },
+        artistNames,
+        (count) => t("library.count.track", { count })
+      ),
+    [artistNames, fullTrackData, t]
+  )
+
   if (!currentTrack) {
     return <Redirect href="/(main)/(home)" />
   }
@@ -104,7 +123,7 @@ export default function PlayerRoute() {
     }
 
     handleNavigateAway()
-    router.replace({
+    router.dismissTo({
       pathname: "/artist/[name]",
       params: { name: normalizedArtistName },
     })
@@ -138,11 +157,11 @@ export default function PlayerRoute() {
         onNavigate={handleNavigateAway}
       />
 
-      <ValueNavigationSheet
+      <ArtistPickerSheet
         isOpen={isArtistSelectionOpen}
         onOpenChange={setIsArtistSelectionOpen}
         title={t("player.selectArtistTitle")}
-        values={artistNames}
+        items={artistPickerItems}
         onSelectValue={(value) => {
           navigateToArtist(value)
         }}
