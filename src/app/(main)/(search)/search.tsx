@@ -1,9 +1,9 @@
 /**
- * Purpose: Renders interactive search with sequenced route transition, search input focus, recent searches, and result tabs.
+ * Purpose: Renders interactive search with sequenced route transition, search input focus, recent searches, result tabs, and search-context playback.
  * Caller: Search tab route.
- * Dependencies: search queries/mutations, react-i18next, recent-search cache, router navigation, InteractionManager, reanimated entry transitions, theme colors.
+ * Dependencies: search queries/mutations, react-i18next, recent-search cache, player service, router navigation, InteractionManager, reanimated entry transitions, theme colors.
  * Main Functions: SearchInteractionScreen()
- * Side Effects: Updates recent-search storage/cache and navigates to media detail routes.
+ * Side Effects: Updates recent-search storage/cache for navigation results, starts playback from search-result queues, and navigates to media detail routes.
  */
 
 import { useLocalSearchParams, useNavigation } from "expo-router"
@@ -54,6 +54,7 @@ import {
 import { useThemeColors } from "@/modules/ui/theme"
 import { useRecentSearches, useSearch } from "@/modules/library/library.queries"
 import type { Track } from "@/modules/player/player.types"
+import { playTrack } from "@/modules/player/player.service"
 
 interface HeaderSearchInputProps {
   theme: ReturnType<typeof useThemeColors>
@@ -392,13 +393,7 @@ export default function SearchInteractionScreen() {
 
   function handleTrackPress(track: Track) {
     dismissKeyboard()
-    const title = track.title || t("library.unknownTrack")
-    pushRecentSearch({
-      query: title,
-      title,
-      subtitle: track.artist || t("library.favoriteType.track"),
-      type: "track",
-    })
+    playTrack(track, tracks)
   }
 
   function handleArtistPress(artist: SearchArtistResult) {

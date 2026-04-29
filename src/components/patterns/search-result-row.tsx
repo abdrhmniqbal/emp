@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders one search result row for artists, albums, playlists, or tracks.
+ * Caller: SearchResults list renderer.
+ * Dependencies: Media item UI, transition IDs, playlist artwork, theme colors, localization.
+ * Main Functions: SearchResultRow(), MemoizedSearchResultRow
+ * Side Effects: Calls parent press handlers for navigation, recent-search updates, or playback.
+ */
+
 import type {
   SearchAlbumResult,
   SearchArtistResult,
@@ -31,7 +39,6 @@ import {
   resolveArtistTransitionId,
   resolvePlaylistTransitionId,
 } from "@/modules/artists/artist-transition"
-import { playTrack } from "@/modules/player/player.service"
 import { useThemeColors } from "@/modules/ui/theme"
 
 export type SearchResultEntityItem =
@@ -171,7 +178,6 @@ function SearchResultRow({
     <Item
       onPress={() => {
         onTrackPress?.(item.track)
-        playTrack(item.track)
       }}
     >
       <ItemImage

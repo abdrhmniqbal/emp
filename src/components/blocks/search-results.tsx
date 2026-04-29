@@ -1,3 +1,11 @@
+/**
+ * Purpose: Builds and renders tabbed search result sections for tracks, artists, albums, and playlists.
+ * Caller: Search interaction route.
+ * Dependencies: LegendList, search result row, HeroUI chips, localization, library/player result types.
+ * Main Functions: SearchResults()
+ * Side Effects: Dismisses keyboard during list/tab scrolling and delegates result presses to parent handlers.
+ */
+
 import type {
   SearchAlbumResult,
   SearchArtistResult,
