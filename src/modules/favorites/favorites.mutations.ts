@@ -1,3 +1,11 @@
+/**
+ * Purpose: Provides optimistic favorite add, remove, and toggle mutations.
+ * Caller: favorite buttons, favorites list rows, player info, action sheets, and media detail screens.
+ * Dependencies: TanStack Query cache, favorite repository, favorite query keys, logging service.
+ * Main Functions: useAddFavorite(), useRemoveFavorite(), useToggleFavorite()
+ * Side Effects: Writes favorite flags through repository, updates favorites cache optimistically, invalidates favorite/library queries.
+ */
+
 import { useMutation } from "@tanstack/react-query"
 
 import { queryClient } from "@/lib/tanstack-query"
@@ -8,7 +16,51 @@ import {
   addFavorite,
   removeFavorite,
 } from "./favorites.repository"
-import type { FavoriteType } from "./favorites.types"
+import type { FavoriteEntry, FavoriteType } from "./favorites.types"
+
+function sortFavoriteEntries(entries: FavoriteEntry[]) {
+  return [...entries].sort((a, b) => b.dateAdded - a.dateAdded)
+}
+
+function upsertFavoriteEntry(entry: FavoriteEntry) {
+  queryClient
+    .getQueriesData<FavoriteEntry[]>({ queryKey: [FAVORITES_KEY] })
+    .forEach(([queryKey, currentEntries]) => {
+      if (!Array.isArray(currentEntries)) {
+        return
+      }
+
+      const queriedType = queryKey[1] as FavoriteType | undefined
+      if (queriedType && queriedType !== entry.type) {
+        return
+      }
+
+      const nextEntries = currentEntries.filter(
+        (item) => !(item.type === entry.type && item.id === entry.id)
+      )
+      queryClient.setQueryData(
+        queryKey,
+        sortFavoriteEntries([entry, ...nextEntries])
+      )
+    })
+}
+
+function removeFavoriteEntry(type: FavoriteType, itemId: string) {
+  queryClient
+    .getQueriesData<FavoriteEntry[]>({ queryKey: [FAVORITES_KEY] })
+    .forEach(([queryKey, currentEntries]) => {
+      if (!Array.isArray(currentEntries)) {
+        return
+      }
+
+      queryClient.setQueryData(
+        queryKey,
+        currentEntries.filter(
+          (item) => !(item.type === type && item.id === itemId)
+        )
+      )
+    })
+}
 
 export function useAddFavorite() {
   return useMutation(
@@ -38,6 +90,17 @@ export function useAddFavorite() {
         })
 
         return { type, itemId, favoritedAt: now }
+      },
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: [FAVORITES_KEY] })
+        upsertFavoriteEntry({
+          id: variables.itemId,
+          type: variables.type,
+          name: variables.name,
+          subtitle: variables.subtitle,
+          image: variables.image,
+          dateAdded: Date.now(),
+        })
       },
       onSuccess: async (_result, variables) => {
         logInfo("Added favorite", {
@@ -71,6 +134,10 @@ export function useRemoveFavorite() {
         await removeFavorite(itemId, type)
 
         return { type, itemId }
+      },
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: [FAVORITES_KEY] })
+        removeFavoriteEntry(variables.type, variables.itemId)
       },
       onSuccess: async (_result, variables) => {
         logInfo("Removed favorite", {
@@ -129,21 +196,40 @@ export function useToggleFavorite() {
         return !isCurrentlyFavorite
       },
       onMutate: async (variables) => {
-        await queryClient.cancelQueries({
-          queryKey: [FAVORITES_KEY, variables.type, variables.itemId],
-        })
+        await Promise.all([
+          queryClient.cancelQueries({
+            queryKey: [FAVORITES_KEY, variables.type, variables.itemId],
+          }),
+          queryClient.cancelQueries({ queryKey: [FAVORITES_KEY] }),
+        ])
         const previousValue = queryClient.getQueryData<boolean>([
           FAVORITES_KEY,
           variables.type,
           variables.itemId,
         ])
+        const previousFavoriteLists = queryClient.getQueriesData<FavoriteEntry[]>({
+          queryKey: [FAVORITES_KEY],
+        })
 
         queryClient.setQueryData(
           [FAVORITES_KEY, variables.type, variables.itemId],
           !variables.isCurrentlyFavorite
         )
 
-        return { previousValue }
+        if (variables.isCurrentlyFavorite) {
+          removeFavoriteEntry(variables.type, variables.itemId)
+        } else {
+          upsertFavoriteEntry({
+            id: variables.itemId,
+            type: variables.type,
+            name: variables.name,
+            subtitle: variables.subtitle,
+            image: variables.image,
+            dateAdded: Date.now(),
+          })
+        }
+
+        return { previousValue, previousFavoriteLists }
       },
       onError: (error, variables, context) => {
         logError("Failed to toggle favorite", error, {
@@ -155,6 +241,9 @@ export function useToggleFavorite() {
           [FAVORITES_KEY, variables.type, variables.itemId],
           context?.previousValue
         )
+        context?.previousFavoriteLists?.forEach(([queryKey, value]) => {
+          queryClient.setQueryData(queryKey, value)
+        })
       },
       onSuccess: (isFavorite, variables) => {
         logInfo("Toggled favorite", {

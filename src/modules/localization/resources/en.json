@@ -108,8 +108,10 @@
       "playCount": "Play Count",
       "dateAdded": "Date Added",
       "addedToPlaylist": "Added to Playlist",
+      "addedToFavorites": "Added to Favorites",
       "filename": "Filename",
       "name": "Name",
+      "type": "Type",
       "numberOfTracks": "Number of Tracks",
       "numberOfFiles": "Number of Files"
     },

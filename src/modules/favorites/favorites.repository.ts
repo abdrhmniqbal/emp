@@ -115,12 +115,16 @@ export async function getFavorites(
       const favoriteTracks = await db.query.tracks.findMany({
         where: and(eq(tracks.isFavorite, 1), eq(tracks.isDeleted, 0)),
         orderBy: [desc(tracks.favoritedAt)],
+        with: {
+          artist: true,
+        },
       })
       favorites.push(
         ...favoriteTracks.map((track) => ({
           id: track.id,
           type: "track" as const,
-          subtitle: undefined,
+          name: track.title,
+          subtitle: track.artist?.name || i18n.t("library.unknownArtist"),
           image: track.artwork || undefined,
           dateAdded: track.favoritedAt || Date.now(),
         }))
@@ -161,7 +165,9 @@ export async function getFavorites(
           id: album.id,
           type: "album" as const,
           name: album.title,
-          subtitle: album.year?.toString() || undefined,
+          subtitle: i18n.t("library.count.track", {
+            count: album.trackCount || 0,
+          }),
           image: album.artwork || undefined,
           dateAdded: album.favoritedAt || Date.now(),
         }))

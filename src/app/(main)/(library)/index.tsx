@@ -1,12 +1,16 @@
 /**
- * Purpose: Renders the Library hub with tabbed views for tracks, albums, artists, genres, playlists, folders, and favorites.
+ * Purpose: Renders the Library hub with tabbed views for tracks, albums, artists, genres, playlists, folders, and filtered favorites playback.
  * Caller: Library tab route.
  * Dependencies: library queries and sorts, indexer refresh flow, themed refresh control, theme colors.
  * Main Functions: LibraryScreen()
- * Side Effects: Starts indexing on refresh and updates local folder state.
+ * Side Effects: Starts indexing on refresh, updates local folder/filter state, and starts context-aware playback.
  */
 
 import type { Playlist } from "@/components/blocks/playlist-list"
+import type {
+  FavoriteEntry,
+  FavoriteType,
+} from "@/modules/favorites/favorites.types"
 import type { GenreCategory } from "@/modules/genres/genres.types"
 import type { SortField } from "@/modules/library/library-sort.types"
 import type { Track } from "@/modules/player/player.store"
@@ -52,6 +56,7 @@ import {
 import {
   ALBUM_SORT_OPTIONS,
   ARTIST_SORT_OPTIONS,
+  FAVORITE_SORT_OPTIONS,
   FOLDER_SORT_OPTIONS,
   PLAYLIST_SORT_OPTIONS,
   TRACK_SORT_OPTIONS,
@@ -71,6 +76,7 @@ import {
 } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
+import { getPlaylistTrackIdsByPlaylistIds } from "@/modules/playlist/playlist.repository"
 import { useGenres } from "@/modules/genres/genres.queries"
 import { mapGenresToCategories } from "@/modules/genres/genres.utils"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -139,7 +145,7 @@ const LIBRARY_SORT_OPTIONS: Record<LibraryTab, LibrarySortOption[]> = {
   Genres: [{ label: "library.sortOption.name", field: "name" }],
   Playlists: PLAYLIST_SORT_OPTIONS,
   Folders: FOLDER_SORT_OPTIONS,
-  Favorites: [],
+  Favorites: FAVORITE_SORT_OPTIONS,
 }
 
 export default function LibraryScreen() {
@@ -154,6 +160,9 @@ export default function LibraryScreen() {
   const libraryListBottomPadding =
     tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 200
   const [activeTab, setActiveTab] = React.useState<LibraryTab>("Tracks")
+  const [favoriteTypeFilters, setFavoriteTypeFilters] = React.useState<
+    FavoriteType[]
+  >([])
   const [currentFolderPath, setCurrentFolderPath] = React.useState("")
   const [sortModalVisible, setSortModalVisible] = React.useState(false)
   const [isPullRefreshing, setIsPullRefreshing] = React.useState(false)
@@ -167,6 +176,19 @@ export default function LibraryScreen() {
   const { data: favorites = [] } = useFavorites(undefined, {
     enabled: shouldLoadFavorites,
   })
+  const filteredFavorites = React.useMemo(
+    () => {
+      const visibleFavorites =
+        favoriteTypeFilters.length === 0
+          ? favorites
+          : favorites.filter((favorite) =>
+              favoriteTypeFilters.includes(favorite.type)
+            )
+
+      return sortGeneric(visibleFavorites, allSortConfigs.Favorites)
+    },
+    [allSortConfigs.Favorites, favoriteTypeFilters, favorites]
+  )
 
   const albumOrderByField = getAlbumOrderByField(allSortConfigs.Albums.field)
   const artistOrderByField = getArtistOrderByField(
@@ -345,7 +367,90 @@ export default function LibraryScreen() {
     playTrack(track)
   }
 
-  function playAll() {
+  function appendUniqueTrack(
+    queue: Track[],
+    seenTrackIds: Set<string>,
+    track: Track | undefined
+  ) {
+    if (!track || seenTrackIds.has(track.id)) {
+      return
+    }
+
+    seenTrackIds.add(track.id)
+    queue.push(track)
+  }
+
+  async function buildFavoritesPlaybackQueue(
+    favoriteEntries: FavoriteEntry[]
+  ): Promise<Track[]> {
+    const queue: Track[] = []
+    const seenTrackIds = new Set<string>()
+    const trackById = new Map(tracks.map((track) => [track.id, track]))
+    const playlistFavorites = favoriteEntries.filter(
+      (favorite) => favorite.type === "playlist"
+    )
+    const playlistRows = await getPlaylistTrackIdsByPlaylistIds(
+      playlistFavorites.map((favorite) => favorite.id)
+    )
+    const playlistTrackIds = new Map<string, string[]>()
+
+    for (const row of playlistRows) {
+      const currentIds = playlistTrackIds.get(row.playlistId) ?? []
+      currentIds.push(row.trackId)
+      playlistTrackIds.set(row.playlistId, currentIds)
+    }
+
+    for (const favorite of favoriteEntries) {
+      switch (favorite.type) {
+        case "track":
+          appendUniqueTrack(queue, seenTrackIds, trackById.get(favorite.id))
+          break
+        case "album":
+          for (const track of tracks) {
+            if (track.albumId === favorite.id) {
+              appendUniqueTrack(queue, seenTrackIds, track)
+            }
+          }
+          break
+        case "artist":
+          for (const track of tracks) {
+            const artistNames = (track.artist || "")
+              .split(",")
+              .map((name) => name.trim().toLowerCase())
+            if (
+              track.artistId === favorite.id ||
+              artistNames.includes(favorite.name.trim().toLowerCase())
+            ) {
+              appendUniqueTrack(queue, seenTrackIds, track)
+            }
+          }
+          break
+        case "playlist":
+          for (const trackId of playlistTrackIds.get(favorite.id) ?? []) {
+            appendUniqueTrack(queue, seenTrackIds, trackById.get(trackId))
+          }
+          break
+      }
+    }
+
+    return queue
+  }
+
+  async function playFavoriteTrack(trackId: string) {
+    const queue = await buildFavoritesPlaybackQueue(filteredFavorites)
+    const track = queue.find((item) => item.id === trackId)
+    if (track) {
+      playTrack(track, queue)
+      return
+    }
+
+    const fallbackTrack = tracks.find((item) => item.id === trackId)
+    if (fallbackTrack) {
+      playTrack(fallbackTrack, queue.length > 0 ? queue : tracks)
+    }
+  }
+
+  async function playAll() {
     if (activeTab === "Tracks") {
       const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
       if (sortedTracksQueue.length > 0) {
@@ -355,12 +460,9 @@ export default function LibraryScreen() {
     }
 
     if (activeTab === "Favorites") {
-      const firstTrack = favorites.find((favorite) => favorite.type === "track")
-      if (firstTrack) {
-        const track = tracks.find((candidate) => candidate.id === firstTrack.id)
-        if (track) {
-          playTrack(track)
-        }
+      const queue = await buildFavoritesPlaybackQueue(filteredFavorites)
+      if (queue.length > 0) {
+        playTrack(queue[0], queue)
       }
       return
     }
@@ -370,7 +472,7 @@ export default function LibraryScreen() {
     }
   }
 
-  function shuffle() {
+  async function shuffle() {
     if (activeTab === "Tracks") {
       const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
       if (sortedTracksQueue.length > 0) {
@@ -381,17 +483,10 @@ export default function LibraryScreen() {
     }
 
     if (activeTab === "Favorites") {
-      const trackFavorites = favorites.filter(
-        (favorite) => favorite.type === "track"
-      )
-      if (trackFavorites.length > 0) {
-        const randomIndex = Math.floor(Math.random() * trackFavorites.length)
-        const track = tracks.find(
-          (candidate) => candidate.id === trackFavorites[randomIndex].id
-        )
-        if (track) {
-          playTrack(track)
-        }
+      const queue = await buildFavoritesPlaybackQueue(filteredFavorites)
+      if (queue.length > 0) {
+        const randomIndex = Math.floor(Math.random() * queue.length)
+        playTrack(queue[randomIndex], queue)
       }
       return
     }
@@ -427,7 +522,7 @@ export default function LibraryScreen() {
       case "Genres":
         return sortedGenres.length
       case "Favorites":
-        return favorites.length
+        return filteredFavorites.length
       case "Playlists":
         return playlists.length
       case "Folders":
@@ -439,7 +534,7 @@ export default function LibraryScreen() {
     activeTab,
     albumsData.length,
     artistsData.length,
-    favorites.length,
+    filteredFavorites.length,
     folderTracks.length,
     folders.length,
     sortedGenres.length,
@@ -578,8 +673,14 @@ export default function LibraryScreen() {
       case "Favorites":
         return (
           <FavoritesList
-            data={favorites}
+            data={filteredFavorites}
+            selectedTypes={favoriteTypeFilters}
+            onSelectedTypesChange={setFavoriteTypeFilters}
+            onTrackPress={(trackId) => {
+              void playFavoriteTrack(trackId)
+            }}
             contentContainerStyle={listContentContainerStyle}
+            resetScrollKey={listResetScrollKey}
             refreshControl={refreshControl}
             {...sharedListEvents}
           />

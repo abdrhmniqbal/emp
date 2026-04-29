@@ -1,4 +1,16 @@
-import type { SortConfig, SortOrder } from "@/modules/library/library-sort.types"
+/**
+ * Purpose: Sorts library entities by shared sort config fields.
+ * Caller: Library screens, tab lists, and query-driven sort flows.
+ * Dependencies: Sort config types, track model.
+ * Main Functions: sortTracks(), sortAlbums(), sortArtists(), sortGeneric(), sortGenres().
+ * Side Effects: None.
+ */
+
+import type {
+  SortConfig,
+  SortField,
+  SortOrder,
+} from "@/modules/library/library-sort.types"
 
 import type { Track } from "@/modules/player/player.types"
 
@@ -18,7 +30,7 @@ interface ArtistSortable {
   trackCount?: number | null
 }
 
-type GenericSortable = Record<string, unknown>
+type GenericSortable = object
 
 function compareValues(a: ComparableValue, b: ComparableValue, order: SortOrder) {
   if (a === b) return 0
@@ -61,7 +73,7 @@ function getGenericSortValue(
   item: GenericSortable,
   field: SortConfig["field"]
 ): ComparableValue {
-  const value = item[field]
+  const value = (item as Record<SortField, ComparableValue | undefined>)[field]
 
   if (
     typeof value === "string" ||
@@ -176,7 +188,7 @@ export function sortArtists<T extends ArtistSortable>(
   })
 }
 
-export function sortGeneric<T extends GenericSortable>(
+export function sortGeneric<T extends object>(
   items: T[],
   config: SortConfig
 ): T[] {

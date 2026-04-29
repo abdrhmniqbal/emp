@@ -17,6 +17,7 @@ export type AlbumSortField =
 export type ArtistSortField = "name" | "dateAdded" | "trackCount"
 export type PlaylistSortField = "name" | "dateAdded" | "trackCount"
 export type FolderSortField = "name" | "dateAdded" | "trackCount"
+export type FavoriteSortField = "name" | "type" | "dateAdded"
 
 export type SortField =
   | AlbumTrackSortField
@@ -24,6 +25,7 @@ export type SortField =
   | ArtistSortField
   | PlaylistSortField
   | FolderSortField
+  | FavoriteSortField
 
 export type SortOrder = "asc" | "desc"
 export type TabName =

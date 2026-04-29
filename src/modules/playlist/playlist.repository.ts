@@ -1,8 +1,8 @@
 /**
- * Purpose: Provides playlist persistence, membership queries, ordering, and playlist track hydration.
+ * Purpose: Provides playlist persistence, membership queries, ordering, playlist track ids, and playlist track hydration.
  * Caller: Playlist queries, mutations, picker sheets, and playlist detail screens.
  * Dependencies: Drizzle database client, playlist tables, track relations, and logging service.
- * Main Functions: listPlaylists(), getPlaylistById(), createPlaylist(), addTrackToPlaylist(), removeTrackFromPlaylist(), reorderPlaylistTracks().
+ * Main Functions: listPlaylists(), getPlaylistById(), getPlaylistTrackIdsByPlaylistIds(), createPlaylist(), addTrackToPlaylist(), removeTrackFromPlaylist(), reorderPlaylistTracks().
  * Side Effects: Reads and writes playlist rows and playlist track membership rows.
  */
 
@@ -207,6 +207,22 @@ export async function getPlaylistById(id: string) {
   })
 
   return result ?? null
+}
+
+export async function getPlaylistTrackIdsByPlaylistIds(playlistIds: string[]) {
+  if (playlistIds.length === 0) {
+    return []
+  }
+
+  return await db
+    .select({
+      playlistId: playlistTracks.playlistId,
+      trackId: playlistTracks.trackId,
+      position: playlistTracks.position,
+    })
+    .from(playlistTracks)
+    .where(inArray(playlistTracks.playlistId, playlistIds))
+    .orderBy(asc(playlistTracks.playlistId), asc(playlistTracks.position))
 }
 
 export async function createPlaylist(

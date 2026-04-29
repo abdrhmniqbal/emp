@@ -2,6 +2,7 @@ import type {
   AlbumSortField,
   AlbumTrackSortField,
   ArtistSortField,
+  FavoriteSortField,
   FolderSortField,
   PlaylistSortField,
   SortConfig,
@@ -75,6 +76,15 @@ export const FOLDER_SORT_OPTIONS: { label: string; field: FolderSortField }[] =
     { label: "library.sortOption.dateAdded", field: "dateAdded" },
     { label: "library.sortOption.numberOfFiles", field: "trackCount" },
   ]
+
+export const FAVORITE_SORT_OPTIONS: {
+  label: string
+  field: FavoriteSortField
+}[] = [
+  { label: "library.sortOption.name", field: "name" },
+  { label: "library.sortOption.type", field: "type" },
+  { label: "library.sortOption.addedToFavorites", field: "dateAdded" },
+]
 
 export const GENRE_SORT_OPTIONS: { label: string; field: ArtistSortField }[] = [
   { label: "library.sortOption.name", field: "name" },

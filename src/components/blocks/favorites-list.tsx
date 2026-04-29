@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders favorite media rows with type filters that reorder selected chips, sort reset support, and favorite removal actions.
+ * Caller: Library favorites tab.
+ * Dependencies: LegendList, media item UI, favorite mutations, router, playback service, player store, filter chips, localization, scroll reset behavior.
+ * Main Functions: FavoritesList()
+ * Side Effects: Navigates to favorite media routes, starts favorite track playback, and toggles favorite flags.
+ */
+
 import type {
   FavoriteEntry,
   FavoriteType,
@@ -6,6 +14,7 @@ import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { Image } from "expo-image"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Chip, PressableFeedback } from "heroui-native"
+import type { TFunction } from "i18next"
 import * as React from "react"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
@@ -20,6 +29,7 @@ import {
   type ViewStyle,
 } from "react-native"
 import { LEGEND_LIST_ROW_CONFIG } from "@/components/blocks/legend-list-config"
+import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behavior"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
@@ -52,6 +62,10 @@ interface FavoritesListProps {
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
   refreshControl?: React.ReactElement<RefreshControlProps> | null
+  resetScrollKey?: string
+  selectedTypes?: FavoriteType[]
+  onSelectedTypesChange?: (types: FavoriteType[]) => void
+  onTrackPress?: (trackId: string) => void
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -201,11 +215,35 @@ function FavoriteRow({ favorite, onPress, onRemove }: FavoriteRowProps) {
 
 const MemoizedFavoriteRow = React.memo(FavoriteRow)
 
+const FAVORITE_TYPE_FILTERS: FavoriteType[] = [
+  "track",
+  "album",
+  "artist",
+  "playlist",
+]
+
+function getFavoriteTypeLabel(type: FavoriteType, t: TFunction) {
+  switch (type) {
+    case "track":
+      return t("library.favoriteType.track")
+    case "artist":
+      return t("library.favoriteType.artist")
+    case "album":
+      return t("library.favoriteType.album")
+    case "playlist":
+      return t("library.favoriteType.playlist")
+  }
+}
+
 export const FavoritesList: React.FC<FavoritesListProps> = ({
   data,
   scrollEnabled = true,
   contentContainerStyle,
   refreshControl,
+  resetScrollKey,
+  selectedTypes = [],
+  onSelectedTypesChange,
+  onTrackPress,
   onScroll,
   onScrollBeginDrag,
   onScrollEndDrag,
@@ -215,17 +253,36 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   const { t } = useTranslation()
   const toggleFavoriteMutation = useToggleFavorite()
   const router = useRouter()
+  const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
+  const orderedFavoriteTypes = [
+    ...selectedTypes.filter((type) => FAVORITE_TYPE_FILTERS.includes(type)),
+    ...FAVORITE_TYPE_FILTERS.filter((type) => !selectedTypes.includes(type)),
+  ]
   const listContentContainerStyle = StyleSheet.flatten([
     { gap: 8 },
     contentContainerStyle,
   ])
 
+  const toggleTypeFilter = useCallback(
+    (type: FavoriteType) => {
+      const nextTypes = selectedTypes.includes(type)
+        ? selectedTypes.filter((item) => item !== type)
+        : [...selectedTypes, type]
+      onSelectedTypesChange?.(nextTypes)
+    },
+    [onSelectedTypesChange, selectedTypes]
+  )
+
   const handlePress = useCallback((favorite: FavoriteEntry) => {
     switch (favorite.type) {
       case "track": {
+        if (onTrackPress) {
+          onTrackPress(favorite.id)
+          break
+        }
         const track = tracks.find((item) => item.id === favorite.id)
         if (track) {
-          playTrack(track)
+          playTrack(track, tracks)
         }
         break
       }
@@ -263,7 +320,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         break
       }
     }
-  }, [router, tracks])
+  }, [onTrackPress, router, tracks])
 
   const handleRemoveFavorite = useCallback((favorite: FavoriteEntry) => {
     void toggleFavoriteMutation.mutateAsync({
@@ -289,10 +346,29 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
 
   return (
     <View style={{ flex: 1, minHeight: 1 }}>
+      <View className="mb-3 flex-row flex-wrap gap-2">
+        {orderedFavoriteTypes.map((type) => {
+          const isSelected = selectedTypes.includes(type)
+
+          return (
+            <Chip
+              key={type}
+              size="lg"
+              variant={isSelected ? "primary" : "soft"}
+              color={isSelected ? "accent" : "default"}
+              onPress={() => toggleTypeFilter(type)}
+            >
+              <Chip.Label>{getFavoriteTypeLabel(type, t)}</Chip.Label>
+            </Chip>
+          )
+        })}
+      </View>
       <LegendList
+        ref={listRef}
+        {...listBehaviorProps}
         data={data}
         renderItem={renderFavoriteItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => `${item.type}-${item.id}`}
         getItemType={(item) => item.type}
         scrollEnabled={scrollEnabled}
         contentContainerStyle={listContentContainerStyle}
