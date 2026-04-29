@@ -58,6 +58,7 @@ import {
   ARTIST_SORT_OPTIONS,
   FAVORITE_SORT_OPTIONS,
   FOLDER_SORT_OPTIONS,
+  GENRE_SORT_OPTIONS,
   PLAYLIST_SORT_OPTIONS,
   TRACK_SORT_OPTIONS,
 } from "@/modules/library/library-sort.constants"
@@ -142,7 +143,7 @@ const LIBRARY_SORT_OPTIONS: Record<LibraryTab, LibrarySortOption[]> = {
   Tracks: TRACK_SORT_OPTIONS,
   Albums: ALBUM_SORT_OPTIONS,
   Artists: ARTIST_SORT_OPTIONS,
-  Genres: [{ label: "library.sortOption.name", field: "name" }],
+  Genres: GENRE_SORT_OPTIONS,
   Playlists: PLAYLIST_SORT_OPTIONS,
   Folders: FOLDER_SORT_OPTIONS,
   Favorites: FAVORITE_SORT_OPTIONS,
@@ -218,9 +219,24 @@ export default function LibraryScreen() {
   )
 
   const sortedGenres = React.useMemo<GenreCategory[]>(() => {
-    const order = allSortConfigs.Genres.order
+    const { field, order } = allSortConfigs.Genres
 
     return [...genres].sort((a, b) => {
+      if (field === "trackCount") {
+        const leftCount = a.trackCount ?? 0
+        const rightCount = b.trackCount ?? 0
+
+        if (leftCount !== rightCount) {
+          return order === "asc"
+            ? leftCount - rightCount
+            : rightCount - leftCount
+        }
+
+        return a.title.localeCompare(b.title, undefined, {
+          sensitivity: "base",
+        })
+      }
+
       const leftTitle = a.title ?? ""
       const rightTitle = b.title ?? ""
 
@@ -234,7 +250,7 @@ export default function LibraryScreen() {
         sensitivity: "base",
       })
     })
-  }, [allSortConfigs.Genres.order, genres])
+  }, [allSortConfigs.Genres, genres])
 
   const playlists = React.useMemo<Playlist[]>(
     () => sortGeneric(playlistsData, allSortConfigs.Playlists),
@@ -273,9 +289,7 @@ export default function LibraryScreen() {
     }
   }
   const currentSortOptions =
-    activeTab === "Genres"
-      ? [{ label: t("library.name"), field: "name" as const }]
-      : LIBRARY_SORT_OPTIONS[activeTab]
+    activeTab === "Genres" ? GENRE_SORT_OPTIONS : LIBRARY_SORT_OPTIONS[activeTab]
   const handleListScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     handleScroll(event.nativeEvent.contentOffset.y)
   }
