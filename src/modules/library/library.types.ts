@@ -1,3 +1,11 @@
+/**
+ * Purpose: Declares library search and recent-search result shapes.
+ * Caller: Library repository, search UI, and recent-search persistence.
+ * Dependencies: Player track model.
+ * Main Functions: SearchArtistResult, SearchAlbumResult, SearchPlaylistResult, SearchResults, RecentSearchEntry, AddRecentSearchInput.
+ * Side Effects: None.
+ */
+
 import type { Track } from "@/modules/player/player.types"
 
 export interface SearchArtistResult {
@@ -6,6 +14,7 @@ export interface SearchArtistResult {
   type: string
   followerCount: number
   isVerified: boolean
+  trackCount: number
   image?: string
 }
 
@@ -40,6 +49,7 @@ export interface RecentSearchEntry {
   type?: "track" | "album" | "artist" | "playlist"
   targetId?: string
   image?: string
+  images?: string[]
   createdAt: number
 }
 
@@ -50,4 +60,5 @@ export interface AddRecentSearchInput {
   type?: "track" | "album" | "artist" | "playlist"
   targetId?: string
   image?: string
+  images?: string[]
 }

@@ -3,7 +3,7 @@
  * Caller: Search screens, artist/album detail routes, recent-search mutations, and library query hooks.
  * Dependencies: Drizzle DB client, artist/album/track tables, recent-search settings storage, and track transformers.
  * Main Functions: listArtists(), listAlbums(), getArtistByName(), getTracksByArtistName(), getTracksByAlbumName(), searchLibrary(), addRecentSearch(), getRecentSearches()
- * Side Effects: Reads/writes SQLite rows and app-settings JSON stored in SQLite, updates recent-search persistence, and stores artist artwork on the artist row during indexing.
+ * Side Effects: Reads/writes SQLite rows and app-settings JSON stored in SQLite, updates recent-search persistence, and stores artist artwork and track counts on search result rows.
  */
 
 import type { Track } from "@/modules/player/player.types"
@@ -96,6 +96,11 @@ function normalizeRecentSearchEntry(
   const id = normalizeRecentSearchQuery(entry.id) || createRecentSearchId()
   const targetId = normalizeRecentSearchQuery(entry.targetId) || undefined
   const image = normalizeRecentSearchQuery(entry.image) || undefined
+  const images = Array.isArray(entry.images)
+    ? entry.images
+        .map((candidate) => normalizeRecentSearchQuery(candidate))
+        .filter((candidate): candidate is string => Boolean(candidate))
+    : undefined
   const createdAt =
     typeof entry.createdAt === "number" && Number.isFinite(entry.createdAt)
       ? entry.createdAt
@@ -109,6 +114,7 @@ function normalizeRecentSearchEntry(
     type: isRecentSearchType(entry.type) ? entry.type : undefined,
     targetId,
     image,
+    images,
     createdAt,
   }
 }
@@ -191,6 +197,7 @@ function areRecentSearchItemsEqual(
     left.type === right.type &&
     left.targetId === right.targetId &&
     left.image === right.image &&
+    JSON.stringify(left.images || []) === JSON.stringify(right.images || []) &&
     left.createdAt === right.createdAt
   )
 }
@@ -326,17 +333,34 @@ async function hydrateRecentSearchEntry(
       return item
     }
 
-    const fallbackArtwork =
-      playlist.tracks[0]?.track?.artwork ||
-      playlist.tracks[0]?.track?.album?.artwork ||
-      undefined
+    const nextImages = new Set<string>(item.images || [])
+
+    if (playlist.artwork) {
+      nextImages.add(playlist.artwork)
+    }
+
+    for (const playlistTrack of playlist.tracks) {
+      const artwork =
+        playlistTrack.track?.artwork || playlistTrack.track?.album?.artwork
+
+      if (!artwork) {
+        continue
+      }
+
+      nextImages.add(artwork)
+
+      if (nextImages.size >= 4) {
+        break
+      }
+    }
 
     return {
       ...item,
       query: playlist.name || item.query,
       title: playlist.name || item.title,
       targetId: playlist.id,
-      image: item.image || playlist.artwork || fallbackArtwork,
+      image: item.image || playlist.artwork || undefined,
+      images: Array.from(nextImages).slice(0, 4),
     }
   }
 
@@ -871,6 +895,7 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
             id: true,
             name: true,
             artwork: true,
+            trackCount: true,
           },
           orderBy: [asc(sql`lower(coalesce(${artists.name}, ''))`)],
           limit: 10,
@@ -1009,6 +1034,7 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
         type: "Artist",
         followerCount: 0,
         isVerified: false,
+          trackCount: artist.trackCount ?? 0,
         image: artist.artwork || undefined,
       })),
       albums: albumResults.map((album) => ({
@@ -1083,6 +1109,11 @@ export async function addRecentSearch(
   const subtitle = normalizeRecentSearchQuery(input.subtitle) || "Search"
   const targetId = normalizeRecentSearchQuery(input.targetId) || undefined
   const image = normalizeRecentSearchQuery(input.image) || undefined
+  const images = Array.isArray(input.images)
+    ? input.images
+        .map((candidate) => normalizeRecentSearchQuery(candidate))
+        .filter((candidate): candidate is string => Boolean(candidate))
+    : undefined
   const existing = await readRecentSearches()
   const dedupeKey = getRecentSearchDedupeKey({
     type: input.type,
@@ -1101,6 +1132,7 @@ export async function addRecentSearch(
     type: input.type,
     targetId,
     image,
+    images,
     createdAt: now,
   }
 

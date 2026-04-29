@@ -3,7 +3,7 @@
  * Caller: Search tab route.
  * Dependencies: search queries/mutations, react-i18next, recent-search cache, player service, router navigation, InteractionManager, reanimated entry transitions, theme colors.
  * Main Functions: SearchInteractionScreen()
- * Side Effects: Updates recent-search storage/cache for navigation results, starts playback from search-result queues, and navigates to media detail routes.
+ * Side Effects: Updates recent-search storage/cache for navigation results with consistent subtitles and playlist artwork grids, starts playback from search-result queues, and navigates to media detail routes.
  */
 
 import { useLocalSearchParams, useNavigation } from "expo-router"
@@ -307,6 +307,7 @@ export default function SearchInteractionScreen() {
     type?: RecentSearchItem["type"]
     targetId?: string
     image?: string
+    images?: string[]
   }) {
     if (!item.query.trim()) {
       return
@@ -383,6 +384,7 @@ export default function SearchInteractionScreen() {
       type: item.type,
       targetId: item.targetId,
       image: item.image,
+      images: item.images,
     })
   }
 
@@ -401,7 +403,7 @@ export default function SearchInteractionScreen() {
     pushRecentSearch({
       query: artist.name,
       title: artist.name,
-      subtitle: t("library.favoriteType.artist"),
+      subtitle: t("library.count.track", { count: artist.trackCount }),
       type: "artist",
       targetId: artist.id,
       image: artist.image,
@@ -447,10 +449,11 @@ export default function SearchInteractionScreen() {
     pushRecentSearch({
       query: playlist.title,
       title: playlist.title,
-      subtitle: t("library.favoriteType.playlist"),
+      subtitle: t("library.count.track", { count: playlist.trackCount }),
       type: "playlist",
       targetId: playlist.id,
       image: playlist.image || playlist.images?.[0],
+      images: playlist.images,
     })
 
     router.push({

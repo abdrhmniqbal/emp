@@ -159,15 +159,16 @@ export async function getFavorites(
       const favoriteAlbums = await db.query.albums.findMany({
         where: and(eq(albums.isFavorite, 1), gt(albums.trackCount, 0)),
         orderBy: [desc(albums.favoritedAt)],
+        with: {
+          artist: true,
+        },
       })
       favorites.push(
         ...favoriteAlbums.map((album) => ({
           id: album.id,
           type: "album" as const,
           name: album.title,
-          subtitle: i18n.t("library.count.track", {
-            count: album.trackCount || 0,
-          }),
+          subtitle: album.artist?.name || i18n.t("library.unknownArtist"),
           image: album.artwork || undefined,
           dateAdded: album.favoritedAt || Date.now(),
         }))
