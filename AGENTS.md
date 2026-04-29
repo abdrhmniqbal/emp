@@ -2,7 +2,7 @@
 Purpose: Root navigation guide for AI/code-agent sessions on Startune Music.
 Caller: Agents and contributors starting work in this repository.
 Dependencies: README.md, package.json, app.json, drizzle.config.ts, src/db/schema.ts, optional SYSTEM_MAP.md.
-Main Functions: Session protocol, architecture reference, command guide, testing and style rules.
+Main Functions: Session protocol, architecture reference, command policy, verification guidance, and style rules.
 Side Effects: None.
 -->
 
@@ -24,7 +24,9 @@ Read only the minimum needed context before editing:
 4. `src/db/schema.ts` — SQLite schema, relations, indexes, persisted app state.
 5. `SYSTEM_MAP.md` if present — architecture map and flow references.
 
-If `SYSTEM_MAP.md` is missing and the task changes architecture, data flow, module boundaries, or integrations, create or update it briefly in the same change. Do not perform broad blind scans when a map or existing file header can point to the target module.
+Use existing maps, file headers, and direct file reads before broader exploration. Do not perform broad blind scans when a map or existing file header can point to the target module.
+
+Use MCP tools, external skills, or `.agents/skills/**` only when they are clearly required for the task or when the user explicitly asks for them. Prefer direct repository context and the smallest useful read set to reduce token usage.
 
 Before editing, write a short trace note in the work summary:
 
@@ -32,9 +34,15 @@ Before editing, write a short trace note in the work summary:
 Trace: <target file> -> <function/flow>; impact: <related modules/state/db/ui>.
 ```
 
-## Quick Start Commands
+## Command Policy
 
-Use Bun.
+Do not run project commands from the agent environment. This includes Bun, npm, pnpm, yarn, Expo, linter, formatter, typecheck, tests, build scripts, codegen, migration scripts, and package-management commands.
+
+Reason: agent environments may not have the required tools installed or may resolve them incorrectly, which can cause wasted loops and noisy output.
+
+After completing code changes, tell the user which commands or manual checks they should run locally. Do not execute them yourself.
+
+Suggested local commands for the user, when relevant:
 
 ```bash
 bun install
@@ -47,7 +55,7 @@ bun run format
 bun run knip
 ```
 
-Do not run `bun run build`; this project currently treats that as a prohibited command.
+Never run `bun run build` unless the project policy changes explicitly.
 
 ## Architecture Quick Reference
 
@@ -78,20 +86,17 @@ Map unfamiliar terms by responsibility, not by name. A `hook`, `runtime`, `manag
 
 ## Testing and Verification
 
-Prefer the smallest verification that proves the change:
+Do not run linter, formatter, test, typecheck, build, package install, or migration commands from the agent environment.
 
-```bash
-bun run lint
-bun run knip
-```
+For verification, do these instead:
 
-For UI or native behavior, document manual verification instead of inventing unavailable tests:
+- Inspect edited files directly.
+- Check imports, exports, types, route names, schema names, and call sites by reading relevant files.
+- Reason through affected flows and document assumptions.
+- For UI or native behavior, provide manual verification steps for the user.
+- For database changes, verify the query/design statically before finalizing.
 
-```text
-Verified: opened <screen>, performed <action>, observed <result>.
-```
-
-For database changes, verify at the query/design level before finalizing:
+For database changes, evaluate:
 
 - Fetch only needed columns and rows.
 - Avoid N+1 reads; batch or join where appropriate.
@@ -100,6 +105,15 @@ For database changes, verify at the query/design level before finalizing:
 - Prefer atomic upserts/updates over read-then-write races.
 - Consider behavior at 10k+ tracks.
 
+End the work summary with local checks the user should run manually, for example:
+
+```text
+Manual checks for user:
+- bun run lint
+- bun run knip
+- Open <screen>, perform <action>, confirm <expected result>
+```
+
 ## Documentation Navigation
 
 | Need | Read / Update |
@@ -107,16 +121,18 @@ For database changes, verify at the query/design level before finalizing:
 | Product overview and development basics | `README.md` |
 | Release notes | `CHANGELOG.md` |
 | Agent operating rules | `AGENTS.md` |
-| Architecture map | `SYSTEM_MAP.md` if present; create/update when architecture changes |
-| Stack and commands | `package.json` |
+| Architecture map | `SYSTEM_MAP.md` if present; create/update after implementation when architecture changes |
+| Stack and available local scripts | `package.json` |
 | Native permissions/plugins | `app.json` |
 | Database schema and relations | `src/db/schema.ts` and `src/db/migrations` |
-| External agent skill docs | `.agents/skills/**` only when the task needs that specific skill |
+| External agent skill docs | `.agents/skills/**` only when directly needed or explicitly requested |
 
-When modifying business logic, keep documentation synchronized:
+When modifying business logic, synchronize documentation once after the implementation is complete, not repeatedly after each small edit:
 
-- Update the file header block if purpose, caller, dependencies, main exports, or side effects change.
-- Update `SYSTEM_MAP.md` when adding/removing files, renaming exports, changing critical data flow, adding integrations, or changing schema responsibility.
+- First finish the requested code changes.
+- Then update affected file headers if purpose, caller, dependencies, main exports, or side effects changed.
+- Then update `SYSTEM_MAP.md` if files were added/removed, exports renamed, critical data flow changed, integrations were added, or schema responsibility changed.
+- Avoid editing the same header or map repeatedly during intermediate steps.
 - Do not expand scope silently; separate unrelated improvements from the requested change.
 
 ## Code Style Guidelines
@@ -145,4 +161,4 @@ Every created or significantly modified source file must start with a concise he
  */
 ```
 
-Keep headers accurate after edits. Do not modify logic while leaving stale purpose, dependency, or side-effect documentation behind.
+Update headers after implementation is complete, in a final documentation pass. Keep headers accurate, but avoid repeated header churn while code is still changing.
