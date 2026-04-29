@@ -1,3 +1,11 @@
+/**
+ * Purpose: Coordinates app bootstrap readiness, logging initialization, and foreground auto-scan execution.
+ * Caller: root layout, app lifecycle listeners, and external playback handoff.
+ * Dependencies: media-library permissions, bootstrap utilities, settings preloaders, indexer runtime/service, logging service.
+ * Main Functions: ensureLoggingInitialized(), completeBootstrap(), waitForBootstrapComplete(), handleBootstrapDatabaseReady(), runAutoScan()
+ * Side Effects: Initializes logging/bootstrap workflow, updates in-memory readiness state, may start media indexing.
+ */
+
 import { getMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
@@ -19,6 +27,22 @@ let bootstrapPromise: Promise<void> | null = null
 let databaseStatus: DatabaseStatus = "pending"
 let isBootstrapped = false
 let lastAutoScanAt = 0
+let bootstrapWaiters: Array<{
+  resolve: () => void
+  reject: (error: Error) => void
+}> = []
+
+function resolveBootstrapWaiters() {
+  const waiters = bootstrapWaiters
+  bootstrapWaiters = []
+  waiters.forEach((waiter) => waiter.resolve())
+}
+
+function rejectBootstrapWaiters(error: Error) {
+  const waiters = bootstrapWaiters
+  bootstrapWaiters = []
+  waiters.forEach((waiter) => waiter.reject(error))
+}
 
 export function ensureLoggingInitialized() {
   if (loggingInitializationPromise) {
@@ -57,11 +81,22 @@ export async function completeBootstrap() {
       logError("App bootstrap failed", error)
     } finally {
       isBootstrapped = true
+      resolveBootstrapWaiters()
       bootstrapPromise = null
     }
   })()
 
   await bootstrapPromise
+}
+
+export function waitForBootstrapComplete() {
+  if (isBootstrapped) {
+    return Promise.resolve()
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    bootstrapWaiters.push({ resolve, reject })
+  })
 }
 
 export async function handleBootstrapDatabaseReady() {
@@ -80,6 +115,7 @@ export function handleBootstrapDatabaseError() {
   }
 
   databaseStatus = "error"
+  rejectBootstrapWaiters(new Error("Database failed before bootstrap completed"))
   logWarn("Database failed before bootstrap completed")
 }
 

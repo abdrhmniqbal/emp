@@ -1,9 +1,9 @@
 /**
  * Purpose: Registers native TrackPlayer event listeners, synchronizes playback runtime state, and applies playback transitions.
  * Caller: TrackPlayer background service bootstrap.
- * Dependencies: TrackPlayer events, player controls/session/runtime modules, crossfade transition service, playback activity guard service.
+ * Dependencies: TrackPlayer events, player controls/session/runtime modules, crossfade transition service, playback activity guard service, player domain types.
  * Main Functions: PlaybackService()
- * Side Effects: Updates player store/session state, updates native player volume, and records qualified play activity.
+ * Side Effects: Updates player store/session state for indexed tracks, updates native player volume, and records qualified play activity.
  */
 
 import { logError, logWarn } from "@/modules/logging/logging.service"
@@ -27,6 +27,7 @@ import {
   persistPlaybackSession,
   syncCurrentTrackFromPlayer,
 } from "@/modules/player/player-session.service"
+import { EXTERNAL_TRACK_ID_PREFIX } from "@/modules/player/player.types"
 import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
 
 import { handleTrackActivated, handleTrackProgress } from "./player-activity.service"
@@ -35,6 +36,14 @@ import {
   getRepeatModeState,
   setIsPlayingState,
 } from "./player.store"
+
+function isExternalCurrentTrack() {
+  const currentTrack = getCurrentTrackState()
+  return (
+    currentTrack?.isExternal === true ||
+    currentTrack?.id.startsWith(EXTERNAL_TRACK_ID_PREFIX) === true
+  )
+}
 
 export async function PlaybackService() {
   TrackPlayer.addEventListener(Event.RemotePlay, () => {
@@ -84,7 +93,9 @@ export async function PlaybackService() {
 
     setIsPlayingState(isPlaying)
     void handleCrossfadePlaybackState(event.state)
-    void persistPlaybackSession({ cursorOnly: true })
+    if (!isExternalCurrentTrack()) {
+      void persistPlaybackSession({ cursorOnly: true })
+    }
   })
 
   TrackPlayer.addEventListener(Event.PlaybackQueueEnded, () => {
@@ -109,18 +120,20 @@ export async function PlaybackService() {
       }
 
       void handleCrossfadeTrackActivated()
-      void persistPlaybackSession({
-        force: true,
-        cursorOnly: true,
-        consumeImmediateQueue: true,
-        cursor: {
-          currentTrackId: currentTrack.id,
-          activeIndex: event.index ?? null,
-          currentTrack,
-          positionSeconds: 0,
-        },
-      })
-      handleTrackActivated(currentTrack)
+      if (!isExternalCurrentTrack()) {
+        void persistPlaybackSession({
+          force: true,
+          cursorOnly: true,
+          consumeImmediateQueue: true,
+          cursor: {
+            currentTrackId: currentTrack.id,
+            activeIndex: event.index ?? null,
+            currentTrack,
+            positionSeconds: 0,
+          },
+        })
+        handleTrackActivated(currentTrack)
+      }
     } catch (error) {
       logError("Failed to handle playback track change", error)
     }
@@ -130,11 +143,13 @@ export async function PlaybackService() {
     setPlaybackProgress(event.position, event.duration)
     void handleCrossfadeProgress(event.position, event.duration)
     handleTrackProgress(event.position, event.duration)
-    void persistPlaybackSession({
-      cursorOnly: true,
-      cursor: {
-        positionSeconds: event.position,
-      },
-    })
+    if (!isExternalCurrentTrack()) {
+      void persistPlaybackSession({
+        cursorOnly: true,
+        cursor: {
+          positionSeconds: event.position,
+        },
+      })
+    }
   })
 }

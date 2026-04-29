@@ -1,9 +1,9 @@
 /**
- * Purpose: Hosts the player route, expanded view state, and route-level action sheets.
+ * Purpose: Hosts the player route, expanded view state, route-level action sheets, and external audio intent playback.
  * Caller: Expo Router player route.
- * Dependencies: Player selectors, UI store, shared artist picker, split settings parser, and player action sheet components.
+ * Dependencies: Player selectors/service, bootstrap runtime, UI store, shared artist picker, split settings parser, and player action sheet components.
  * Main Functions: PlayerRoute()
- * Side Effects: Navigates to artist route and toggles player sheets.
+ * Side Effects: Navigates to artist route, toggles player sheets, and starts playback for external file-manager audio URIs.
  */
 
 import { Redirect, useLocalSearchParams } from "expo-router"
@@ -17,10 +17,12 @@ import {
 import { buildArtistPickerItems } from "@/components/blocks/artist-picker.utils"
 import { FullPlayerContent } from "@/components/blocks/player/full-player-content"
 import { PlayerActionSheet } from "@/components/blocks/player/player-action-sheet"
+import { waitForBootstrapComplete } from "@/modules/bootstrap/bootstrap.runtime"
 import {
   useCurrentTrack,
   useIsPlaying,
 } from "@/modules/player/player-selectors"
+import { playExternalFileUri } from "@/modules/player/player.service"
 import { useTrack } from "@/modules/tracks/tracks.queries"
 import { splitArtistsValue } from "@/modules/settings/split-multiple-values"
 import { useSettingsStore } from "@/modules/settings/settings.store"
@@ -38,7 +40,10 @@ function isPlayerExpandedView(value: string): value is PlayerExpandedView {
 export default function PlayerRoute() {
   const router = useRouter()
   const { t } = useTranslation()
-  const { initialView } = useLocalSearchParams<{ initialView?: string }>()
+  const { initialView, externalUri } = useLocalSearchParams<{
+    initialView?: string
+    externalUri?: string
+  }>()
   const currentTrack = useCurrentTrack()
   const isPlaying = useIsPlaying()
   const splitMultipleValueConfig = useSettingsStore(
@@ -48,12 +53,49 @@ export default function PlayerRoute() {
   const { data: fullTrackData } = useTrack(currentTrack?.id ?? "")
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false)
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
+  const [handledExternalUri, setHandledExternalUri] = useState<string | null>(null)
+
+  const externalUriValue =
+    typeof externalUri === "string" && externalUri.length > 0
+      ? externalUri
+      : null
 
   useEffect(() => {
     if (typeof initialView === "string" && isPlayerExpandedView(initialView)) {
       setPlayerExpandedView(initialView)
     }
   }, [initialView])
+
+  useEffect(() => {
+    if (!externalUriValue || handledExternalUri === externalUriValue) {
+      return
+    }
+
+    let isCancelled = false
+    setHandledExternalUri(externalUriValue)
+
+    void (async () => {
+      try {
+        await waitForBootstrapComplete()
+        if (isCancelled) {
+          return
+        }
+
+        const didStartPlayback = await playExternalFileUri(externalUriValue)
+        if (!isCancelled && didStartPlayback) {
+          router.replace("/player")
+        }
+      } catch {
+        if (!isCancelled) {
+          router.replace("/(main)/(home)")
+        }
+      }
+    })()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [externalUriValue, handledExternalUri, router])
 
   const artistNames = useMemo(() => {
     const relationNames = [
@@ -98,6 +140,10 @@ export default function PlayerRoute() {
       ),
     [artistNames, fullTrackData, t]
   )
+
+  if (!currentTrack && externalUriValue) {
+    return null
+  }
 
   if (!currentTrack) {
     return <Redirect href="/(main)/(home)" />

@@ -3,10 +3,11 @@
  * Caller: Expo Router native intent bridge during app launch and runtime URL events.
  * Dependencies: URL parsing from runtime globals.
  * Main Functions: redirectSystemPath()
- * Side Effects: Redirects unknown or external file-manager URLs to a stable in-app route.
+ * Side Effects: Redirects external audio file-manager URLs to the player route with the source URI preserved.
  */
 
 const FALLBACK_ROUTE = "/(main)/(home)"
+const EXTERNAL_AUDIO_ROUTE = "/player"
 
 const ROUTE_PREFIXES = new Set([
   "",
@@ -26,11 +27,15 @@ function decodePathRecursively(value: string) {
   let decodedValue = value
 
   for (let iteration = 0; iteration < 3; iteration += 1) {
-    const nextValue = decodeURIComponent(decodedValue)
-    if (nextValue === decodedValue) {
+    try {
+      const nextValue = decodeURIComponent(decodedValue)
+      if (nextValue === decodedValue) {
+        break
+      }
+      decodedValue = nextValue
+    } catch {
       break
     }
-    decodedValue = nextValue
   }
 
   return decodedValue
@@ -60,12 +65,20 @@ function safeParsePath(path: string) {
   }
 }
 
+function buildExternalAudioRoute(uri: string) {
+  return `${EXTERNAL_AUDIO_ROUTE}?externalUri=${encodeURIComponent(uri)}`
+}
+
 export function redirectSystemPath({
   path,
 }: {
   path: string
   initial: boolean
 }) {
+  if (isLikelyExternalFileIntent(path)) {
+    return buildExternalAudioRoute(decodePathRecursively(path))
+  }
+
   const parsedUrl = safeParsePath(path)
   if (!parsedUrl) {
     return FALLBACK_ROUTE
@@ -80,8 +93,8 @@ export function redirectSystemPath({
 
   const reconstructedPath = `${parsedUrl.host}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`
 
-  if (isLikelyExternalFileIntent(path) || isLikelyExternalFileIntent(reconstructedPath)) {
-    return FALLBACK_ROUTE
+  if (isLikelyExternalFileIntent(reconstructedPath)) {
+    return buildExternalAudioRoute(decodePathRecursively(reconstructedPath))
   }
 
   return `${decodedPathname}${parsedUrl.search}${parsedUrl.hash}`

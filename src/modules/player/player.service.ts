@@ -1,12 +1,10 @@
 /**
  * Purpose: Sets up native audio playback and replaces the active TrackPlayer queue when playback starts.
- * Caller: track rows, player controls, queue recovery flows, bootstrap playback setup.
- * Dependencies: TrackPlayer native module, notification icon asset, player store, playback session service, player activity service, crossfade transition service, logging service.
- * Main Functions: setupPlayer(), playTrack()
+ * Caller: track rows, player controls, queue recovery flows, bootstrap playback setup, external audio intent handler.
+ * Dependencies: TrackPlayer native module, notification icon asset, player store, playback session service, player activity service, crossfade transition service, file URI utilities, logging service.
+ * Main Functions: setupPlayer(), playTrack(), playExternalFileUri()
  * Side Effects: Initializes native playback, updates notification options, resets native queue and volume transitions, starts playback, persists session state.
  */
-
-import type { Track } from "@/modules/player/player.types"
 
 import { processColor } from "react-native"
 import notificationIcon from "@/assets/notification-icon.png"
@@ -16,6 +14,10 @@ import {
   mapRepeatMode,
   mapTrackToTrackPlayerInput,
 } from "@/modules/player/player-adapter"
+import {
+  EXTERNAL_TRACK_ID_PREFIX,
+  type Track,
+} from "@/modules/player/player.types"
 import { resetCrossfadeVolume } from "@/modules/player/player-crossfade.service"
 import { setActiveTrack, setPlaybackProgress } from "@/modules/player/player-runtime-state"
 import {
@@ -23,6 +25,7 @@ import {
   endPlayerQueueReplacement,
 } from "@/modules/player/player-runtime.service"
 import { persistPlaybackSession } from "@/modules/player/player-session.service"
+import { resolvePlayableFileUri } from "@/utils/file-path"
 
 import {
   AndroidAudioContentType,
@@ -46,6 +49,58 @@ import {
 } from "./player.store"
 
 let isPlayerReady = false
+
+function decodeUriRecursively(value: string) {
+  let decodedValue = value
+
+  for (let iteration = 0; iteration < 3; iteration += 1) {
+    try {
+      const nextValue = decodeURIComponent(decodedValue)
+      if (nextValue === decodedValue) {
+        break
+      }
+      decodedValue = nextValue
+    } catch {
+      break
+    }
+  }
+
+  return decodedValue
+}
+
+function normalizeUriForComparison(uri: string) {
+  return decodeUriRecursively(uri).replace(/\/+$/, "")
+}
+
+function getExternalTrackTitle(uri: string) {
+  const normalizedUri = decodeUriRecursively(uri)
+  const pathWithoutQuery = normalizedUri.split(/[?#]/)[0] ?? normalizedUri
+  const filename = pathWithoutQuery.split("/").filter(Boolean).at(-1) ?? ""
+  const title = filename.replace(/\.[^.]+$/, "").trim()
+
+  return title || normalizedUri
+}
+
+function findIndexedTrackForUri(uri: string, resolvedUri: string) {
+  const candidates = new Set([
+    normalizeUriForComparison(uri),
+    normalizeUriForComparison(resolvedUri),
+  ])
+
+  return getTracksState().find((track) =>
+    candidates.has(normalizeUriForComparison(track.uri))
+  )
+}
+
+function buildExternalTrack(uri: string, resolvedUri: string): Track {
+  return {
+    id: `${EXTERNAL_TRACK_ID_PREFIX}${Date.now()}:${resolvedUri}`,
+    title: getExternalTrackTitle(resolvedUri || uri),
+    duration: 0,
+    uri: resolvedUri || uri,
+    isExternal: true,
+  }
+}
 
 function buildPlaybackQueue(tracks: Track[], selectedTrackId: string) {
   const selectedTrackIndex = tracks.findIndex((track) => track.id === selectedTrackId)
@@ -167,11 +222,43 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     await TrackPlayer.setRepeatMode(mapRepeatMode(getRepeatModeState()))
 
     await TrackPlayer.play()
-    await handleTrackActivated(track)
-    await persistPlaybackSession({ force: true })
+    if (!track.isExternal) {
+      await handleTrackActivated(track)
+      await persistPlaybackSession({ force: true })
+    }
   } catch (error) {
     logError("Failed to play track", error, { trackId: track.id })
   } finally {
     endPlayerQueueReplacement()
   }
+}
+
+export async function playExternalFileUri(uri: string) {
+  const decodedUri = decodeUriRecursively(uri).trim()
+  if (!decodedUri) {
+    return false
+  }
+
+  if (!isPlayerReady) {
+    await setupPlayer()
+  }
+
+  if (!isPlayerReady) {
+    logWarn("Ignored external file playback because player is not ready", {
+      uri: decodedUri,
+    })
+    return false
+  }
+
+  const resolvedUri = await resolvePlayableFileUri(decodedUri)
+  const indexedTrack = findIndexedTrackForUri(decodedUri, resolvedUri)
+
+  if (indexedTrack) {
+    await playTrack(indexedTrack)
+    return true
+  }
+
+  const externalTrack = buildExternalTrack(decodedUri, resolvedUri)
+  await playTrack(externalTrack, [externalTrack])
+  return true
 }

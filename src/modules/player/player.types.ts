@@ -1,3 +1,13 @@
+/**
+ * Purpose: Defines shared playback domain types for tracks, albums, artists, lyrics, and repeat state.
+ * Caller: player services, stores, selectors, adapters, UI blocks, and track/library modules.
+ * Dependencies: none.
+ * Main Functions: Track, Album, Artist, LyricLine, RepeatModeType
+ * Side Effects: None.
+ */
+
+export const EXTERNAL_TRACK_ID_PREFIX = "external:"
+
 export interface LyricLine {
   time: number
   text: string
@@ -34,6 +44,7 @@ export interface Track {
   discNumber?: number
   trackNumber?: number
   genre?: string
+  isExternal?: boolean
 }
 
 export interface Album {

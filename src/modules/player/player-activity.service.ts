@@ -3,11 +3,14 @@
  * Caller: player-events.service activation/progress handlers.
  * Dependencies: history cache service, history repository writes, player store current-track state.
  * Main Functions: handleTrackActivated(), handleTrackProgress()
- * Side Effects: Writes to play history and play count after threshold playback; invalidates history-related queries.
+ * Side Effects: Writes indexed tracks to play history and play count after threshold playback; invalidates history-related queries.
  */
 
 import { queryClient } from "@/lib/tanstack-query"
-import type { Track } from "@/modules/player/player.types"
+import {
+  EXTERNAL_TRACK_ID_PREFIX,
+  type Track,
+} from "@/modules/player/player.types"
 import {
   invalidateHistoryAfterPlayback,
   optimisticallyUpdateRecentlyPlayedHistory,
@@ -27,6 +30,10 @@ let hasRecordedPendingTrack = false
 
 function bumpPlaybackRefreshVersion() {
   setPlaybackRefreshVersionState(getPlaybackRefreshVersionState() + 1)
+}
+
+function isExternalTrack(track: Track) {
+  return track.isExternal === true || track.id.startsWith(EXTERNAL_TRACK_ID_PREFIX)
 }
 
 async function recordQualifiedTrackPlayback(track: Track) {
@@ -51,6 +58,11 @@ export function handleTrackProgress(positionSeconds: number, durationSeconds: nu
 
   const currentTrack = getCurrentTrackState()
   if (!currentTrack || currentTrack.id !== pendingTrackId) {
+    return
+  }
+
+  if (isExternalTrack(currentTrack)) {
+    hasRecordedPendingTrack = true
     return
   }
 
