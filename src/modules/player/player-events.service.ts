@@ -1,7 +1,7 @@
 /**
  * Purpose: Registers native TrackPlayer event listeners, synchronizes playback runtime state, and applies playback transitions.
  * Caller: TrackPlayer background service bootstrap.
- * Dependencies: TrackPlayer events, player controls/session/runtime modules, crossfade transition service, playback activity guard service, player domain types.
+ * Dependencies: TrackPlayer events, player controls/session/runtime modules, crossfade transition service, audio playback settings, playback activity guard service, player domain types.
  * Main Functions: PlaybackService()
  * Side Effects: Updates player store/session state for indexed tracks, updates native player volume, and records qualified play activity.
  */
@@ -19,7 +19,9 @@ import {
   handleCrossfadePlaybackStopped,
   handleCrossfadeProgress,
   handleCrossfadeTrackActivated,
+  duckPlaybackVolume,
   resetCrossfadeVolume,
+  restorePlaybackVolume,
 } from "@/modules/player/player-crossfade.service"
 import { setPlaybackProgress } from "@/modules/player/player-runtime-state"
 import { isPlayerQueueReplacementInFlight } from "@/modules/player/player-runtime.service"
@@ -29,13 +31,18 @@ import {
 } from "@/modules/player/player-session.service"
 import { EXTERNAL_TRACK_ID_PREFIX } from "@/modules/player/player.types"
 import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
+import { ensureAudioPlaybackConfigLoaded } from "@/modules/settings/audio-playback"
 
 import { handleTrackActivated, handleTrackProgress } from "./player-activity.service"
 import {
   getCurrentTrackState,
+  getIsPlayingState,
   getRepeatModeState,
   setIsPlayingState,
 } from "./player.store"
+
+let shouldResumeAfterFocusGain = false
+let didDuckForFocusLoss = false
 
 function isExternalCurrentTrack() {
   const currentTrack = getCurrentTrackState()
@@ -69,9 +76,63 @@ export async function PlaybackService() {
   })
 
   TrackPlayer.addEventListener(Event.RemoteDuck, (event) => {
-    logWarn("Playback interruption event received", {
-      paused: event.paused,
-      permanent: event.permanent,
+    void (async () => {
+      const audioPlaybackConfig = await ensureAudioPlaybackConfigLoaded()
+
+      logWarn("Playback interruption event received", {
+        paused: event.paused,
+        permanent: event.permanent,
+      })
+
+      if (event.paused === false) {
+        if (didDuckForFocusLoss) {
+          await restorePlaybackVolume()
+        }
+
+        if (
+          shouldResumeAfterFocusGain &&
+          audioPlaybackConfig.resumeOnFocusGain
+        ) {
+          await resumeTrack()
+        }
+
+        shouldResumeAfterFocusGain = false
+        didDuckForFocusLoss = false
+        return
+      }
+
+      if (event.permanent) {
+        if (didDuckForFocusLoss) {
+          await restorePlaybackVolume()
+        }
+        shouldResumeAfterFocusGain = false
+        didDuckForFocusLoss = false
+        if (audioPlaybackConfig.permanentAudioFocusChange) {
+          await pauseTrack()
+        }
+        return
+      }
+
+      const shouldPauseForCall =
+        audioPlaybackConfig.pauseInCall && event.paused === true
+      const shouldPauseForShortFocus =
+        audioPlaybackConfig.shortAudioFocusChange && event.paused === true
+
+      if (shouldPauseForCall || shouldPauseForShortFocus) {
+        shouldResumeAfterFocusGain =
+          getIsPlayingState() &&
+          audioPlaybackConfig.resumeOnFocusGain &&
+          (shouldPauseForShortFocus || audioPlaybackConfig.resumeAfterCall)
+        await pauseTrack()
+        return
+      }
+
+      if (audioPlaybackConfig.duckVolume) {
+        didDuckForFocusLoss = true
+        await duckPlaybackVolume()
+      }
+    })().catch((error) => {
+      logError("Failed to handle playback interruption event", error)
     })
   })
 

@@ -2,7 +2,7 @@
  * Purpose: Defines settings route names and local settings configuration shapes.
  * Caller: Settings routes, settings screens, settings store, localization, and settings persistence modules.
  * Dependencies: Localization language types.
- * Main Functions: SettingsRouteName, SettingsRouteDefinition, CrossfadeConfig.
+ * Main Functions: SettingsRouteName, SettingsRouteDefinition, CrossfadeConfig, AudioPlaybackConfig.
  * Side Effects: None.
  */
 
@@ -58,6 +58,19 @@ export interface TrackDurationFilterConfig {
 export interface CrossfadeConfig {
   isEnabled: boolean
   durationSeconds: number
+}
+
+export interface AudioPlaybackConfig {
+  fadePlayPauseStop: boolean
+  fadeOnSeek: boolean
+  resumeAfterCall: boolean
+  resumeOnStart: boolean
+  resumeOnReopen: boolean
+  shortAudioFocusChange: boolean
+  pauseInCall: boolean
+  resumeOnFocusGain: boolean
+  duckVolume: boolean
+  permanentAudioFocusChange: boolean
 }
 
 export type ArtistSplitMode = "original" | "split"

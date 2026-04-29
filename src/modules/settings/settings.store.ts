@@ -9,6 +9,7 @@
 import { create } from "zustand"
 
 import type {
+  AudioPlaybackConfig,
   CrossfadeConfig,
   FolderFilterConfig,
   LanguageCode,
@@ -23,6 +24,18 @@ const DEFAULT_INDEXER_NOTIFICATIONS_ENABLED = true
 const DEFAULT_CROSSFADE_CONFIG: CrossfadeConfig = {
   isEnabled: false,
   durationSeconds: 5,
+}
+const DEFAULT_AUDIO_PLAYBACK_CONFIG: AudioPlaybackConfig = {
+  fadePlayPauseStop: true,
+  fadeOnSeek: false,
+  resumeAfterCall: true,
+  resumeOnStart: false,
+  resumeOnReopen: false,
+  shortAudioFocusChange: false,
+  pauseInCall: true,
+  resumeOnFocusGain: true,
+  duckVolume: true,
+  permanentAudioFocusChange: true,
 }
 const DEFAULT_FOLDER_FILTER_CONFIG: FolderFilterConfig = {
   whitelist: [],
@@ -48,6 +61,7 @@ interface SettingsState {
   autoScanEnabled: boolean
   indexerNotificationsEnabled: boolean
   crossfadeConfig: CrossfadeConfig
+  audioPlaybackConfig: AudioPlaybackConfig
   folderFilterConfig: FolderFilterConfig
   loggingConfig: LoggingConfig
   trackDurationFilterConfig: TrackDurationFilterConfig
@@ -59,6 +73,7 @@ export const useSettingsStore = create<SettingsState>(() => ({
   autoScanEnabled: DEFAULT_AUTO_SCAN_ENABLED,
   indexerNotificationsEnabled: DEFAULT_INDEXER_NOTIFICATIONS_ENABLED,
   crossfadeConfig: DEFAULT_CROSSFADE_CONFIG,
+  audioPlaybackConfig: DEFAULT_AUDIO_PLAYBACK_CONFIG,
   folderFilterConfig: DEFAULT_FOLDER_FILTER_CONFIG,
   loggingConfig: DEFAULT_LOGGING_CONFIG,
   trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
@@ -83,6 +98,10 @@ export function getDefaultIndexerNotificationsEnabled() {
 
 export function getDefaultCrossfadeConfig() {
   return DEFAULT_CROSSFADE_CONFIG
+}
+
+export function getDefaultAudioPlaybackConfig() {
+  return DEFAULT_AUDIO_PLAYBACK_CONFIG
 }
 
 export function getDefaultFolderFilterConfig() {

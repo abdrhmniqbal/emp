@@ -1,9 +1,9 @@
 /**
- * Purpose: Bootstraps playback, settings, media permissions, and startup indexing.
+ * Purpose: Bootstraps playback, settings, media permissions, startup resume behavior, and startup indexing.
  * Caller: App root providers during launch.
- * Dependencies: Track player service, media library service, Drizzle database, settings preloaders, indexer service, logging, playback session service.
+ * Dependencies: Track player service, media library service, Drizzle database, settings preloaders, indexer service, logging, playback controls, playback session service.
  * Main Functions: bootstrapApp()
- * Side Effects: Initializes native playback, reads local settings, requests media permissions, queries track count, and may start indexing.
+ * Side Effects: Initializes native playback, reads local settings, may resume playback, requests media permissions, queries track count, and may start indexing.
  */
 
 import { count } from "drizzle-orm"
@@ -18,6 +18,12 @@ import {
 } from "@/core/storage/media-library.service"
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
+import { resumeTrack } from "@/modules/player/player-controls.service"
+import {
+  getCurrentTrackState,
+  getIsPlayingState,
+} from "@/modules/player/player.store"
+import { ensureAudioPlaybackConfigLoaded } from "@/modules/settings/audio-playback"
 import { ensureCrossfadeConfigLoaded } from "@/modules/settings/audio-crossfade"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { ensureFolderFilterConfigLoaded } from "@/modules/settings/folder-filters"
@@ -33,6 +39,7 @@ async function preloadLocalSettings() {
   logInfo("Preloading local settings")
   await Promise.all([
     ensureAutoScanConfigLoaded(),
+    ensureAudioPlaybackConfigLoaded(),
     ensureCrossfadeConfigLoaded(),
     ensureFolderFilterConfigLoaded(),
     ensureIndexerNotificationsConfigLoaded(),
@@ -52,11 +59,20 @@ export async function bootstrapApp(): Promise<void> {
     await initializeTrackPlayer()
     logInfo("Track player initialized")
 
+    await preloadLocalSettings()
+
     logInfo("Restoring playback session")
     await restorePlaybackSession()
     logInfo("Playback session restored")
 
-    await preloadLocalSettings()
+    const audioPlaybackConfig = await ensureAudioPlaybackConfigLoaded()
+    if (
+      audioPlaybackConfig.resumeOnStart &&
+      getCurrentTrackState() &&
+      !getIsPlayingState()
+    ) {
+      await resumeTrack()
+    }
 
     logInfo("Resolving media library permission during bootstrap")
     const permission = await getMediaLibraryPermission()
@@ -88,8 +104,6 @@ export async function bootstrapApp(): Promise<void> {
       isFreshDatabase,
     })
 
-    // Only show startup index progress on the very first full scan.
-    // Incremental bootstrap scans should stay silent.
     void startIndexing(isFreshDatabase, isFreshDatabase)
   } catch (error) {
     logError("Bootstrap app workflow failed", error)

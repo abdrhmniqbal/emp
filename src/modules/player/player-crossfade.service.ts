@@ -1,8 +1,8 @@
 /**
- * Purpose: Applies saved audio crossfade preferences to native playback volume transitions.
- * Caller: Player event service progress, active-track, playback-state, and queue-ended handlers.
+ * Purpose: Applies saved audio crossfade and short playback volume transition preferences to native playback volume.
+ * Caller: Player event service progress, active-track, playback-state, queue-ended handlers, and player controls.
  * Dependencies: TrackPlayer native module, settings crossfade config loader, settings store, player queue state, logging service.
- * Main Functions: handleCrossfadeProgress(), handleCrossfadeTrackActivated(), handleCrossfadePlaybackState(), handleCrossfadePlaybackStopped(), resetCrossfadeVolume()
+ * Main Functions: handleCrossfadeProgress(), handleCrossfadeTrackActivated(), handleCrossfadePlaybackState(), handleCrossfadePlaybackStopped(), resetCrossfadeVolume(), fadePlaybackVolumeIn(), fadePlaybackVolumeOut(), duckPlaybackVolume(), restorePlaybackVolume()
  * Side Effects: Reads local settings and updates native TrackPlayer volume.
  */
 
@@ -19,11 +19,14 @@ import {
 
 const FULL_VOLUME = 1
 const SILENT_VOLUME = 0
+const DUCKED_VOLUME = 0.25
 const MIN_FADE_SECONDS = 0.5
+const SHORT_FADE_SECONDS = 0.2
 const FADE_STEP_MS = 100
 
 let volumeRampTimer: ReturnType<typeof setInterval> | null = null
 let activeRampId = 0
+let activeRampResolve: (() => void) | null = null
 let fadingOutTrackId: string | null = null
 let shouldFadeInNextTrack = false
 
@@ -42,6 +45,9 @@ function clearVolumeRamp() {
     clearInterval(volumeRampTimer)
     volumeRampTimer = null
   }
+
+  activeRampResolve?.()
+  activeRampResolve = null
 }
 
 async function setPlayerVolume(value: number) {
@@ -62,19 +68,22 @@ async function startVolumeRamp(toVolume: number, durationSeconds: number) {
     return
   }
 
-  volumeRampTimer = setInterval(() => {
-    const progress = Math.min(1, (Date.now() - startedAt) / durationMs)
-    const nextVolume = fromVolume + (targetVolume - fromVolume) * progress
+  return new Promise<void>((resolve) => {
+    activeRampResolve = resolve
+    volumeRampTimer = setInterval(() => {
+      const progress = Math.min(1, (Date.now() - startedAt) / durationMs)
+      const nextVolume = fromVolume + (targetVolume - fromVolume) * progress
 
-    void setPlayerVolume(nextVolume).catch((error) => {
-      clearVolumeRamp()
-      logError("Failed to update crossfade volume", error)
-    })
+      void setPlayerVolume(nextVolume).catch((error) => {
+        clearVolumeRamp()
+        logError("Failed to update crossfade volume", error)
+      })
 
-    if (progress >= 1 && rampId === activeRampId) {
-      clearVolumeRamp()
-    }
-  }, FADE_STEP_MS)
+      if (progress >= 1 && rampId === activeRampId) {
+        clearVolumeRamp()
+      }
+    }, FADE_STEP_MS)
+  })
 }
 
 function getFadeDurationSeconds(duration: number, requestedSeconds: number) {
@@ -116,6 +125,39 @@ export async function resetCrossfadeVolume() {
     await setPlayerVolume(FULL_VOLUME)
   } catch (error) {
     logError("Failed to reset crossfade volume", error)
+  }
+}
+
+export async function fadePlaybackVolumeIn(durationSeconds = SHORT_FADE_SECONDS) {
+  try {
+    await setPlayerVolume(SILENT_VOLUME)
+    await startVolumeRamp(FULL_VOLUME, durationSeconds)
+  } catch (error) {
+    logError("Failed to fade playback volume in", error)
+  }
+}
+
+export async function fadePlaybackVolumeOut(durationSeconds = SHORT_FADE_SECONDS) {
+  try {
+    await startVolumeRamp(SILENT_VOLUME, durationSeconds)
+  } catch (error) {
+    logError("Failed to fade playback volume out", error)
+  }
+}
+
+export async function duckPlaybackVolume() {
+  try {
+    await startVolumeRamp(DUCKED_VOLUME, SHORT_FADE_SECONDS)
+  } catch (error) {
+    logError("Failed to duck playback volume", error)
+  }
+}
+
+export async function restorePlaybackVolume() {
+  try {
+    await startVolumeRamp(FULL_VOLUME, SHORT_FADE_SECONDS)
+  } catch (error) {
+    logError("Failed to restore playback volume", error)
   }
 }
 

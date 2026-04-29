@@ -1,3 +1,11 @@
+/**
+ * Purpose: Registers foreground, media-library, playback-sync, and reopen-resume lifecycle listeners.
+ * Caller: Root providers during app shell initialization.
+ * Dependencies: Expo MediaLibrary, React Native AppState/InteractionManager, bootstrap runtime, logging, player controls/session/store, audio playback settings.
+ * Main Functions: shouldTriggerAutoScanOnMediaLibraryEvent(), registerBootstrapListeners()
+ * Side Effects: Registers native listeners, schedules auto-scans, synchronizes playback state, and may resume paused playback on reopen.
+ */
+
 import * as MediaLibrary from "expo-media-library"
 import {
   AppState,
@@ -8,9 +16,16 @@ import {
 import { runAutoScan } from "@/modules/bootstrap/bootstrap.runtime"
 import {
   isExtraLoggingEnabled,
+  logError,
   logInfo,
 } from "@/modules/logging/logging.service"
+import { resumeTrack } from "@/modules/player/player-controls.service"
 import { syncPlaybackStateAfterForeground } from "@/modules/player/player-session.service"
+import {
+  getCurrentTrackState,
+  getIsPlayingState,
+} from "@/modules/player/player.store"
+import { ensureAudioPlaybackConfigLoaded } from "@/modules/settings/audio-playback"
 
 const FOREGROUND_AUTO_SCAN_DELAY_MS = 1500
 const MEDIA_EVENT_AUTO_SCAN_DELAY_MS = 1500
@@ -126,7 +141,19 @@ export function registerBootstrapListeners() {
         timeInBackgroundMs,
         isLongBackgroundSession,
       })
-      void syncPlaybackStateAfterForeground()
+      void (async () => {
+        await syncPlaybackStateAfterForeground()
+        const audioPlaybackConfig = await ensureAudioPlaybackConfigLoaded()
+        if (
+          audioPlaybackConfig.resumeOnReopen &&
+          getCurrentTrackState() &&
+          !getIsPlayingState()
+        ) {
+          await resumeTrack()
+        }
+      })().catch((error) => {
+        logError("Failed to handle foreground playback resume", error)
+      })
     })
 
     if (pendingDeferredMediaAutoScan) {
