@@ -1,9 +1,9 @@
 /**
- * Purpose: Renders player quick actions and handles navigation to albums, artists, and playlists.
+ * Purpose: Renders player quick actions and handles navigation to albums, artists, and playlist workflows.
  * Caller: Player route.
- * Dependencies: HeroUI Native sheet components, router navigation, playlist picker flow, artist hydration, and reusable artist picker sheet.
+ * Dependencies: HeroUI Native sheet components, router navigation, player queue selector, playlist form draft store, playlist picker flow, artist hydration, and reusable artist picker sheet.
  * Main Functions: PlayerActionSheet()
- * Side Effects: Navigates to artist/album routes and opens playlist picker workflows.
+ * Side Effects: Navigates to artist/album routes, opens playlist picker workflows, and preloads queue tracks into playlist creation.
  */
 
 import type { Track } from "@/modules/player/player.types"
@@ -19,6 +19,8 @@ import { Text } from "react-native"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
 import { getArtistByName } from "@/modules/library/library.repository"
 import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
+import { usePlayerQueue } from "@/modules/player/player-selectors"
+import { setPlaylistFormDraft } from "@/modules/playlist/playlist-form-draft.store"
 import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
 
 interface ArtistPickerSourceArtist {
@@ -45,6 +47,7 @@ export function PlayerActionSheet({
   const { t } = useTranslation()
   const router = useRouter()
   const { toast } = useToast()
+  const queue = usePlayerQueue()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
   const normalizedArtistNames = useMemo(
@@ -199,6 +202,23 @@ export function PlayerActionSheet({
     router.push("/playlist/form")
   }
 
+  const handleSaveQueueToPlaylist = () => {
+    const queueTrackIds = Array.from(
+      new Set(
+        (queue.length > 0 ? queue : [track])
+          .filter((item): item is Track => Boolean(item) && !item.isExternal)
+          .map((item) => item.id)
+      )
+    )
+
+    onOpenChange(false)
+    setIsPlaylistPickerOpen(false)
+    setIsArtistSelectionOpen(false)
+    setPlaylistFormDraft(queueTrackIds, "queue")
+    onNavigate?.()
+    router.dismissTo("/(main)/(library)/playlist/form")
+  }
+
   const { isSelecting, handleSelectPlaylist } = usePlaylistPickerSelection({
     trackId: track?.id,
     onSelectionApplied: () => {
@@ -242,6 +262,14 @@ export function PlayerActionSheet({
             >
               <Text className="text-base font-medium text-foreground">
                 {t("track.addToPlaylist")}
+              </Text>
+            </PressableFeedback>
+            <PressableFeedback
+              className="h-14 flex-row items-center justify-between active:opacity-50"
+              onPress={handleSaveQueueToPlaylist}
+            >
+              <Text className="text-base font-medium text-foreground">
+                {t("playlist.saveQueueToPlaylist")}
               </Text>
             </PressableFeedback>
           </BottomSheet.Content>

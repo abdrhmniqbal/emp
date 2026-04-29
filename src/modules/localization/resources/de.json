@@ -168,6 +168,7 @@
     "newPlaylist": "Neue Playlist",
     "playlist": "Wiedergabeliste",
     "createPlaylist": "Playlist erstellen",
+    "saveQueueToPlaylist": "Warteschlange als Playlist speichern",
     "editPlaylist": "Playlist bearbeiten",
     "createNewPlaylist": "Neue Playlist erstellen",
     "name": "Name der Wiedergabeliste",

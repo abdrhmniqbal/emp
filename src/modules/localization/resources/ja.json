@@ -168,6 +168,7 @@
     "newPlaylist": "新しいプレイリスト",
     "playlist": "プレイリスト",
     "createPlaylist": "プレイリストの作成",
+    "saveQueueToPlaylist": "キューをプレイリストに保存",
     "editPlaylist": "プレイリストの編集",
     "createNewPlaylist": "新しいプレイリストを作成する",
     "name": "プレイリスト名",

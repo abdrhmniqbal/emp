@@ -170,6 +170,7 @@
     "newPlaylist": "New Playlist",
     "playlist": "Playlist",
     "createPlaylist": "Create Playlist",
+    "saveQueueToPlaylist": "Save Queue to Playlist",
     "editPlaylist": "Edit Playlist",
     "createNewPlaylist": "Create New Playlist",
     "name": "Playlist Name",

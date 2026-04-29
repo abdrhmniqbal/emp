@@ -168,6 +168,7 @@
     "newPlaylist": "Nueva lista de reproducción",
     "playlist": "Lista de reproducción",
     "createPlaylist": "Crear lista de reproducción",
+    "saveQueueToPlaylist": "Guardar cola en lista",
     "editPlaylist": "Editar lista de reproducción",
     "createNewPlaylist": "Crear nueva lista de reproducción",
     "name": "Nombre de la lista de reproducción",

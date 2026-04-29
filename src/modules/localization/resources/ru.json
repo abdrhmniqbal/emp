@@ -168,6 +168,7 @@
     "newPlaylist": "Новый плейлист",
     "playlist": "Плейлист",
     "createPlaylist": "Создать плейлист",
+    "saveQueueToPlaylist": "Сохранить очередь в плейлист",
     "editPlaylist": "Редактировать плейлист",
     "createNewPlaylist": "Создать новый плейлист",
     "name": "Название плейлиста",

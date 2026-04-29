@@ -168,6 +168,7 @@
     "newPlaylist": "新播放列表",
     "playlist": "播放列表",
     "createPlaylist": "创建播放列表",
+    "saveQueueToPlaylist": "将队列保存为播放列表",
     "editPlaylist": "编辑播放列表",
     "createNewPlaylist": "创建新的播放列表",
     "name": "播放列表名称",
