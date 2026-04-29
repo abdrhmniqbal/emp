@@ -1,9 +1,9 @@
 /**
- * Purpose: Renders the search landing screen with quick access to recent additions.
+ * Purpose: Renders the search landing screen with quick access to recent additions using full-context playback queues.
  * Caller: Expo Router search tab.
  * Dependencies: Tracks query, react-i18next, player playback helpers, search/library navigation, theme colors, scroll state helpers.
  * Main Functions: SearchScreen()
- * Side Effects: Updates scroll state, starts playback when a track card is pressed, and navigates to search/library detail routes.
+ * Side Effects: Updates scroll state, starts playback from full recent-addition queues, and navigates to search/library detail routes.
  */
 
 import type { Track } from "@/modules/player/player.store"
@@ -43,11 +43,14 @@ export default function SearchScreen() {
     sortOrder: "desc",
   })
 
-  const recentlyAddedTracks = useMemo(() => {
-    return (dbTracks as DBTrack[])
-      .map(transformDBTrackToTrack)
-      .slice(0, RECENTLY_ADDED_LIMIT)
-  }, [dbTracks])
+  const recentlyAddedTracks = useMemo(
+    () => (dbTracks as DBTrack[]).map(transformDBTrackToTrack),
+    [dbTracks]
+  )
+  const recentlyAddedPreviewTracks = recentlyAddedTracks.slice(
+    0,
+    RECENTLY_ADDED_LIMIT
+  )
 
   const renderRecentlyAddedItem = (item: Track) => (
     <TrackRow
@@ -104,7 +107,7 @@ export default function SearchScreen() {
 
       <ContentSection
         title={t("search.recentlyAdded")}
-        data={recentlyAddedTracks}
+        data={recentlyAddedPreviewTracks}
         onViewMore={() => router.push("/(main)/(search)/recently-added")}
         emptyState={{
           icon: (
@@ -124,6 +127,7 @@ export default function SearchScreen() {
             renderItem={renderRecentlyAddedItem}
             keyExtractor={(item, index) => `${item.id}-${index}`}
             gap={10}
+            dataVersionKey={currentTrackId ?? undefined}
           />
         )}
       />

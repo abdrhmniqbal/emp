@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { startIndexing } from "@/modules/indexer/indexer.service"
+import { useCurrentTrackId } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import { useTracks } from "@/modules/tracks/tracks.queries"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -33,6 +34,7 @@ const RECENTLY_ADDED_SCREEN_LIMIT = 50
 export default function RecentlyAddedScreen() {
   const theme = useThemeColors()
   const { t } = useTranslation()
+  const currentTrackId = useCurrentTrackId()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const { data: tracksData = [], isLoading, isFetching, refetch } = useTracks({
     sortBy: "dateAdded",
@@ -89,6 +91,7 @@ export default function RecentlyAddedScreen() {
         <TrackList
           data={tracks}
           contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
+          currentTrackId={currentTrackId ?? undefined}
           onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
           onScrollBeginDrag={handleScrollStart}
           onMomentumScrollEnd={handleScrollStop}

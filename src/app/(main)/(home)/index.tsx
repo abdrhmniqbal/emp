@@ -1,9 +1,9 @@
 /**
- * Purpose: Renders the Home landing screen with recently played and top tracks previews.
+ * Purpose: Renders the Home landing screen with recently played and top tracks previews using full-context playback queues.
  * Caller: Expo Router home tab.
  * Dependencies: history queries, react-i18next, track playback service, themed refresh control, theme colors.
  * Main Functions: HomeScreen()
- * Side Effects: Starts indexing on refresh and updates scroll state.
+ * Side Effects: Starts indexing on refresh, updates scroll state, and starts playback from full section queues.
  */
 
 import type { Track } from "@/modules/player/player.store"
@@ -37,8 +37,10 @@ import {
 } from "@/modules/ui/ui.store"
 
 const CHUNK_SIZE = 5
-const RECENTLY_PLAYED_LIMIT = 8
-const TOP_TRACKS_LIMIT = 25
+const RECENTLY_PLAYED_PREVIEW_LIMIT = 8
+const RECENTLY_PLAYED_QUEUE_LIMIT = 50
+const TOP_TRACKS_PREVIEW_LIMIT = 25
+const TOP_TRACKS_QUEUE_LIMIT = 50
 
 export default function HomeScreen() {
   const router = useRouter()
@@ -51,16 +53,21 @@ export default function HomeScreen() {
     isLoading: isRecentlyPlayedLoading,
     isFetching: isRecentlyPlayedFetching,
     refetch: refetchRecentlyPlayedTracks,
-  } = useRecentlyPlayedTracks(RECENTLY_PLAYED_LIMIT)
+  } = useRecentlyPlayedTracks(RECENTLY_PLAYED_QUEUE_LIMIT)
   const {
     data: topTracksData,
     isLoading: isTopTracksLoading,
     isFetching: isTopTracksFetching,
     refetch: refetchTopTracks,
-  } = useTopTracksByPeriod("all", TOP_TRACKS_LIMIT)
+  } = useTopTracksByPeriod("all", TOP_TRACKS_QUEUE_LIMIT)
 
   const recentlyPlayedTracks = recentlyPlayedTracksData ?? []
   const topTracks = topTracksData ?? []
+  const recentlyPlayedPreviewTracks = recentlyPlayedTracks.slice(
+    0,
+    RECENTLY_PLAYED_PREVIEW_LIMIT
+  )
+  const topPreviewTracks = topTracks.slice(0, TOP_TRACKS_PREVIEW_LIMIT)
   const isLoading =
     (isRecentlyPlayedLoading ||
       isRecentlyPlayedFetching ||
@@ -107,7 +114,7 @@ export default function HomeScreen() {
       <View style={{ paddingTop: SCREEN_SECTION_TOP_SPACING }}>
         <ContentSection
           title={t("home.recentlyPlayed")}
-          data={recentlyPlayedTracks}
+          data={recentlyPlayedPreviewTracks}
           onViewMore={() => router.push("/(main)/(home)/recently-played")}
           emptyState={{
             icon: (
@@ -127,13 +134,14 @@ export default function HomeScreen() {
               renderItem={renderRecentlyPlayedItem}
               keyExtractor={(item, index) => `${item.id}-${index}`}
               gap={10}
+              dataVersionKey={currentTrackId ?? undefined}
             />
           )}
         />
 
         <ContentSection
           title={t("home.topTracks")}
-          data={topTracks}
+          data={topPreviewTracks}
           onViewMore={() => router.push("/(main)/(home)/top-tracks")}
           emptyState={{
             icon: (
@@ -148,7 +156,11 @@ export default function HomeScreen() {
             message: t("home.empty.topTracksMessage"),
           }}
           renderContent={(data) => (
-            <RankedTrackCarousel data={data} chunkSize={CHUNK_SIZE} />
+            <RankedTrackCarousel
+              data={data}
+              chunkSize={CHUNK_SIZE}
+              onItemPress={(track) => playTrack(track, topTracks)}
+            />
           )}
         />
       </View>

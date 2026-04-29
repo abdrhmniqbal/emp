@@ -30,6 +30,7 @@ import { useLegendListBehavior } from "@/components/blocks/use-legend-list-behav
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { MemoizedTrackListItem } from "@/components/patterns/track-list-item"
 import { EmptyState } from "@/components/ui/empty-state"
+import { useCurrentTrackId } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -52,6 +53,7 @@ interface TrackListProps {
   onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   refreshControl?: React.ReactElement<RefreshControlProps> | null
   resetScrollKey?: string
+  currentTrackId?: string
   renderItemPrefix?: (
     track: Track,
     index: number,
@@ -78,13 +80,18 @@ export const TrackList: React.FC<TrackListProps> = ({
   onMomentumScrollEnd,
   refreshControl,
   resetScrollKey,
+  currentTrackId,
   renderItemPrefix,
 }) => {
   const theme = useThemeColors()
   const { t } = useTranslation()
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
+  const activeTrackId = currentTrackId ?? useCurrentTrackId() ?? undefined
+  const { listRef, listBehaviorProps } = useLegendListBehavior(
+    resetScrollKey,
+    activeTrackId
+  )
   const isCompactNumberedList = hideCover && showNumbers
   const estimatedItemSize = isCompactNumberedList ? 56 : 84
   const listContentContainerStyle = StyleSheet.flatten([

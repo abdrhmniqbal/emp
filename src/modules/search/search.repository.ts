@@ -1,9 +1,16 @@
+/**
+ * Purpose: Provides genre search and detail read models for library screens.
+ * Caller: search queries and genre detail routes.
+ * Dependencies: genres repository and player track types.
+ * Main Functions: getGenres(), getGenreDetails(), getGenreTopTracks(), getGenreAlbums()
+ * Side Effects: Reads genre, album, and track rows from SQLite through repository calls.
+ */
+
 import type { Track } from "@/modules/player/player.types"
 import {
   getAlbumsByGenre,
   getAllGenres,
   getAllTracksByGenre,
-  getTopTracksByGenre,
 } from "@/modules/genres/genres.repository"
 
 import type { GenreAlbumInfo } from "./search.types"
@@ -16,7 +23,7 @@ export async function getGenreDetails(
   genreName: string
 ): Promise<{ topTracks: Track[]; albums: GenreAlbumInfo[] }> {
   const [topTracks, albums] = await Promise.all([
-    getTopTracksByGenre(genreName, 25),
+    getAllTracksByGenre(genreName),
     getAlbumsByGenre(genreName),
   ])
 

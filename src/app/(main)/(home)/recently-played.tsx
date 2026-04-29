@@ -17,6 +17,7 @@ import { ThemedRefreshControl } from "@/components/ui/themed-refresh-control"
 import { useRecentlyPlayedTracks } from "@/modules/history/history.queries"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { useCurrentTrackId } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
@@ -30,6 +31,7 @@ const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 export default function RecentlyPlayedScreen() {
   const theme = useThemeColors()
   const { t } = useTranslation()
+  const currentTrackId = useCurrentTrackId()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const { data: historyData, isLoading, isFetching, refetch } =
     useRecentlyPlayedTracks(RECENTLY_PLAYED_SCREEN_LIMIT)
@@ -78,6 +80,7 @@ export default function RecentlyPlayedScreen() {
         <TrackList
           data={history}
           contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
+          currentTrackId={currentTrackId ?? undefined}
           onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
           onScrollBeginDrag={handleScrollStart}
           onMomentumScrollEnd={handleScrollStop}

@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders horizontal media carousels with virtualization fallback and remount control for playback state updates.
+ * Caller: Home and search content sections, ranked lists, and other horizontal previews.
+ * Dependencies: LegendList virtualization, ScrollView fallback, EmptyState, tailwind class merging.
+ * Main Functions: MediaCarousel()
+ * Side Effects: None.
+ */
+
 import type { ReactNode } from "react"
 import {
   LegendList,
@@ -24,6 +32,7 @@ interface MediaCarouselProps<T> {
   virtualizationThreshold?: number
   className?: string
   contentContainerStyle?: StyleProp<ViewStyle>
+  dataVersionKey?: string
 }
 
 export function MediaCarousel<T>({
@@ -36,6 +45,7 @@ export function MediaCarousel<T>({
   virtualizationThreshold = 8,
   className,
   contentContainerStyle,
+  dataVersionKey,
 }: MediaCarouselProps<T>) {
   const shouldVirtualize = data.length >= virtualizationThreshold
 
@@ -53,9 +63,11 @@ export function MediaCarousel<T>({
   if (shouldVirtualize) {
     return (
       <LegendList
+        key={dataVersionKey}
         horizontal
         data={data}
         maintainVisibleContentPosition={false}
+        dataVersion={dataVersionKey}
         keyExtractor={keyExtractor}
         renderItem={({ item, index }: LegendListRenderItemProps<T>) => (
           <View style={{ marginRight: index === data.length - 1 ? 0 : gap }}>
@@ -75,6 +87,7 @@ export function MediaCarousel<T>({
 
   return (
     <ScrollView
+      key={dataVersionKey}
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={[

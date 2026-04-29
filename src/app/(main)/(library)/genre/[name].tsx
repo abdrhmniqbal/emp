@@ -1,9 +1,9 @@
 /**
- * Purpose: Renders the Genre detail route with top tracks and recommended albums.
+ * Purpose: Renders the Genre detail route with top-track previews and recommended albums.
  * Caller: Genre detail sub-route in the Library stack.
- * Dependencies: genre detail query, album transition helper, themed refresh control, theme colors.
+ * Dependencies: genre detail query, player service, album transition helper, themed refresh control, theme colors.
  * Main Functions: GenreDetailsScreen()
- * Side Effects: Starts indexing on refresh and updates scroll state.
+ * Side Effects: Starts indexing on refresh, starts playback, and updates scroll state.
  */
 
 import type { GenreAlbumInfo } from "@/modules/search/search.types"
@@ -26,6 +26,7 @@ import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { logWarn } from "@/modules/logging/logging.service"
+import { playTrack } from "@/modules/player/player.service"
 import { useGenreDetails } from "@/modules/search/search.queries"
 import {
   getPreviewAlbums,
@@ -56,6 +57,7 @@ function getSafeRouteName(value: string | string[] | undefined) {
 }
 
 const CHUNK_SIZE = 5
+const TOP_TRACKS_PREVIEW_LIMIT = 25
 
 export default function GenreDetailsScreen() {
   const { t } = useTranslation()
@@ -86,6 +88,7 @@ export default function GenreDetailsScreen() {
   const { data, isLoading, isFetching, refetch } = useGenreDetails(genreName)
   const topTracks = data?.topTracks ?? []
   const albums = data?.albums ?? []
+  const previewTopTracks = topTracks.slice(0, TOP_TRACKS_PREVIEW_LIMIT)
   const previewAlbums = getPreviewAlbums(albums)
 
   async function refresh() {
@@ -155,7 +158,7 @@ export default function GenreDetailsScreen() {
         <Animated.View entering={screenEnterTransition()}>
           <ContentSection
             title={t("home.topTracks")}
-            data={topTracks}
+            data={previewTopTracks}
             onViewMore={() =>
               router.push({
                 pathname: "./top-tracks",
@@ -177,7 +180,11 @@ export default function GenreDetailsScreen() {
               }),
             }}
             renderContent={(data) => (
-              <RankedTrackCarousel data={data} chunkSize={CHUNK_SIZE} />
+              <RankedTrackCarousel
+                data={data}
+                chunkSize={CHUNK_SIZE}
+                onItemPress={(track) => playTrack(track, topTracks)}
+              />
             )}
           />
         </Animated.View>
