@@ -236,6 +236,10 @@
         "title": "Appearance",
         "description": "Theme, language, and visual preferences."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "Audio",
         "description": "Playback transitions and audio behavior."
@@ -278,6 +282,7 @@
     },
     "appearance": {
       "languageDescription": "Current language: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "Light",
         "dark": "Dark",
@@ -362,7 +367,8 @@
       "sections": {
         "transitions": "Transitions",
         "resume": "Resume",
-        "audioFocus": "Audio Focus"
+        "audioFocus": "Audio Focus",
+        "crossfade": "Crossfade"
       },
       "fadePlayPauseStop": "Fade Play/Pause/Stop",
       "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
@@ -425,6 +431,11 @@
       "extraDescription": "Everything, including diagnostics and recoverable warnings."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background"
+      },
       "logExtraDescription": "Extra: capture debug, info, warnings, and errors.",
       "logMinimalDescription": "Minimal: capture critical and error logs only.",
       "shareCrashLogs": "Share crash logs",

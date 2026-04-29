@@ -11,7 +11,7 @@ import Constants from "expo-constants"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Button, Dialog, ListGroup, Separator, Toast, useToast } from "heroui-native"
 import { useState } from "react"
-import { Linking, Platform, ScrollView, View } from "react-native"
+import { Linking, Platform, ScrollView, View, Text } from "react-native"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -143,6 +143,9 @@ export default function AdvancedSettingsScreen() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="gap-5 px-4 py-4">
+          <Text className="px-1 text-xs font-semibold uppercase text-muted">
+            {t("settings.advanced.sections.logs")}
+          </Text>
           <ListGroup >
             <ListGroup.Item onPress={() => router.push("/settings/log-level")}>
               <ListGroup.ItemContent>
@@ -175,6 +178,9 @@ export default function AdvancedSettingsScreen() {
             </ListGroup.Item>
           </ListGroup>
 
+          <Text className="px-1 text-xs font-semibold uppercase text-muted">
+            {t("settings.advanced.sections.history")}
+          </Text>
           <ListGroup >
             <ListGroup.Item
               onPress={() => setIsResetHistoryDialogOpen(true)}
@@ -191,6 +197,9 @@ export default function AdvancedSettingsScreen() {
             </ListGroup.Item>
           </ListGroup>
 
+          <Text className="px-1 text-xs font-semibold uppercase text-muted">
+            {t("settings.advanced.sections.background")}
+          </Text>
           <ListGroup >
             <ListGroup.Item
               onPress={() => {

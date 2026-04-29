@@ -1,6 +1,6 @@
 /**
  * Purpose: Defines settings category links and native stack titles for settings screens.
- * Caller: Settings index route and settings stack layout.
+ * Caller: Settings index route, appearance route, and settings stack layout.
  * Dependencies: Settings route type definitions.
  * Main Functions: SETTINGS_CATEGORY_ROUTES, SETTINGS_SCREEN_TITLE_KEYS.
  * Side Effects: None.
@@ -10,9 +10,9 @@ import type { SettingsRouteDefinition } from "./settings.types"
 
 export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
   {
-    name: "library",
-    titleKey: "settings.routes.library.title",
-    descriptionKey: "settings.routes.library.description",
+    name: "appearance",
+    titleKey: "settings.routes.appearance.title",
+    descriptionKey: "settings.routes.appearance.description",
   },
   {
     name: "audio",
@@ -20,19 +20,14 @@ export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
     descriptionKey: "settings.routes.audio.description",
   },
   {
+    name: "library",
+    titleKey: "settings.routes.library.title",
+    descriptionKey: "settings.routes.library.description",
+  },
+  {
     name: "notifications",
     titleKey: "settings.routes.notifications.title",
     descriptionKey: "settings.routes.notifications.description",
-  },
-  {
-    name: "appearance",
-    titleKey: "settings.routes.appearance.title",
-    descriptionKey: "settings.routes.appearance.description",
-  },
-  {
-    name: "language",
-    titleKey: "settings.routes.language.title",
-    descriptionKey: "settings.routes.language.description",
   },
   {
     name: "advanced",

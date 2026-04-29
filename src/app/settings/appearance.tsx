@@ -8,65 +8,50 @@
 
 import { ListGroup, Separator } from "heroui-native"
 import * as React from "react"
-import { ScrollView, View } from "react-native"
+import { ScrollView, View, Text } from "react-native"
 import { useTranslation } from "react-i18next"
-import { Uniwind, useUniwind } from "uniwind"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 
-import LocalTickIcon from "@/components/icons/local/tick"
-import { useThemeColors } from "@/modules/ui/theme"
-
-type ThemeValue = "light" | "dark" | "system"
-
-interface AppearanceOption {
-  labelKey: string
-  value: ThemeValue
-}
-
-const APPEARANCE_OPTIONS: AppearanceOption[] = [
-  { labelKey: "settings.appearance.options.light", value: "light" },
-  { labelKey: "settings.appearance.options.dark", value: "dark" },
-  { labelKey: "settings.appearance.options.system", value: "system" },
-]
+import { useSettingsStore } from "@/modules/settings/settings.store"
+import { getLanguageOptions } from "@/modules/localization/language-settings"
+import { getDeviceLanguageCode } from "@/modules/localization/i18n"
 
 export default function AppearanceSettingsScreen() {
-  const { theme: currentTheme, hasAdaptiveThemes } = useUniwind()
-  const theme = useThemeColors()
+  const router = useRouter()
   const { t } = useTranslation()
-
-  const currentMode: ThemeValue = hasAdaptiveThemes
-    ? "system"
-    : (currentTheme as ThemeValue)
-
-  function handleThemeChange(value: ThemeValue) {
-    Uniwind.setTheme(value)
-  }
+  const languageCode = useSettingsStore((state) => state.languageCode)
+  const languageOptions = getLanguageOptions()
+  const currentOption = languageOptions.find((o) => o.code === languageCode)
+  const deviceLanguage = getDeviceLanguageCode()
+  const languageLabel = currentOption ? t(currentOption.labelKey) : languageCode
+  const displayLanguage =
+    languageCode === deviceLanguage
+      ? `${languageLabel} ${t("settings.appearance.systemSuffix")}`
+      : languageLabel
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
       <View className="gap-5 px-4 py-4">
         <ListGroup>
-          {APPEARANCE_OPTIONS.map((option, index) => (
-            <React.Fragment key={option.value}>
-              {index > 0 && <Separator className="mx-4" />}
-              <ListGroup.Item
-                onPress={() => handleThemeChange(option.value)}
-              >
-                <ListGroup.ItemContent>
-                  <ListGroup.ItemTitle>{t(option.labelKey)}</ListGroup.ItemTitle>
-                </ListGroup.ItemContent>
-                {currentMode === option.value && (
-                  <ListGroup.ItemSuffix>
-                    <LocalTickIcon
-                      fill="none"
-                      width={24}
-                      height={24}
-                      color={theme.accent}
-                    />
-                  </ListGroup.ItemSuffix>
-                )}
-              </ListGroup.Item>
-            </React.Fragment>
-          ))}
+          <ListGroup.Item onPress={() => router.push("/settings/theme-mode")}>
+            <ListGroup.ItemContent>
+              <ListGroup.ItemTitle>{t("settings.routes.themeMode.title")}</ListGroup.ItemTitle>
+              <ListGroup.ItemDescription>
+                {t("settings.routes.themeMode.description")}
+              </ListGroup.ItemDescription>
+            </ListGroup.ItemContent>
+            <ListGroup.ItemSuffix />
+          </ListGroup.Item>
+          <Separator className="mx-4" />
+          <ListGroup.Item onPress={() => router.push("/settings/language")}>
+            <ListGroup.ItemContent>
+              <ListGroup.ItemTitle>{t("settings.routes.language.title")}</ListGroup.ItemTitle>
+              <ListGroup.ItemDescription>
+                {t("settings.appearance.languageDescription", { language: displayLanguage })}
+              </ListGroup.ItemDescription>
+            </ListGroup.ItemContent>
+            <ListGroup.ItemSuffix />
+          </ListGroup.Item>
         </ListGroup>
       </View>
     </ScrollView>

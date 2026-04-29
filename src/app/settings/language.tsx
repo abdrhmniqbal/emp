@@ -1,7 +1,7 @@
 /**
  * Purpose: Renders app language selection settings.
  * Caller: Settings language route.
- * Dependencies: HeroUI Native ListGroup, react-i18next, localization settings service, settings store, theme colors.
+ * Dependencies: HeroUI Native ListGroup, react-i18next, localization settings service, settings store, theme colors, device language detection.
  * Main Functions: LanguageSettingsScreen()
  * Side Effects: Persists the selected language and updates i18next language.
  */
@@ -16,6 +16,7 @@ import {
   getLanguageOptions,
   setLanguageCode,
 } from "@/modules/localization/language-settings"
+import { getDeviceLanguageCode } from "@/modules/localization/i18n"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -24,6 +25,15 @@ export default function LanguageSettingsScreen() {
   const { t } = useTranslation()
   const languageCode = useSettingsStore((state) => state.languageCode)
   const languageOptions = getLanguageOptions()
+  const deviceLanguageCode = getDeviceLanguageCode()
+
+  function getLanguageLabel(optionCode: string, labelKey: string) {
+    const label = t(labelKey)
+
+    return optionCode === deviceLanguageCode
+      ? `${label} ${t("settings.appearance.systemSuffix")}`
+      : label
+  }
 
   return (
     <ScrollView
@@ -41,7 +51,9 @@ export default function LanguageSettingsScreen() {
                 }}
               >
                 <ListGroup.ItemContent>
-                  <ListGroup.ItemTitle>{t(option.labelKey)}</ListGroup.ItemTitle>
+                  <ListGroup.ItemTitle>
+                    {getLanguageLabel(option.code, option.labelKey)}
+                  </ListGroup.ItemTitle>
                   <ListGroup.ItemDescription>
                     {t(option.nativeLabelKey)}
                   </ListGroup.ItemDescription>
