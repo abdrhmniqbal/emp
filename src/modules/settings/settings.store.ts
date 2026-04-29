@@ -12,6 +12,7 @@ import type {
   AudioPlaybackConfig,
   CrossfadeConfig,
   FolderFilterConfig,
+  IndexerScanConfig,
   LanguageCode,
   LoggingConfig,
   SplitMultipleValueConfig,
@@ -19,8 +20,12 @@ import type {
 } from "./settings.types"
 
 const DEFAULT_LANGUAGE_CODE: LanguageCode = "en"
-const DEFAULT_AUTO_SCAN_ENABLED = true
 const DEFAULT_INDEXER_NOTIFICATIONS_ENABLED = true
+const DEFAULT_INDEXER_SCAN_CONFIG: IndexerScanConfig = {
+  autoScanEnabled: true,
+  rescanImmediatelyEnabled: false,
+  initialScanEnabled: true,
+}
 const DEFAULT_CROSSFADE_CONFIG: CrossfadeConfig = {
   isEnabled: false,
   durationSeconds: 5,
@@ -58,7 +63,7 @@ const DEFAULT_SPLIT_MULTIPLE_VALUE_CONFIG: SplitMultipleValueConfig = {
 
 interface SettingsState {
   languageCode: LanguageCode
-  autoScanEnabled: boolean
+  indexerScanConfig: IndexerScanConfig
   indexerNotificationsEnabled: boolean
   crossfadeConfig: CrossfadeConfig
   audioPlaybackConfig: AudioPlaybackConfig
@@ -70,7 +75,7 @@ interface SettingsState {
 
 export const useSettingsStore = create<SettingsState>(() => ({
   languageCode: DEFAULT_LANGUAGE_CODE,
-  autoScanEnabled: DEFAULT_AUTO_SCAN_ENABLED,
+  indexerScanConfig: DEFAULT_INDEXER_SCAN_CONFIG,
   indexerNotificationsEnabled: DEFAULT_INDEXER_NOTIFICATIONS_ENABLED,
   crossfadeConfig: DEFAULT_CROSSFADE_CONFIG,
   audioPlaybackConfig: DEFAULT_AUDIO_PLAYBACK_CONFIG,
@@ -84,8 +89,8 @@ export function getDefaultLanguageCode() {
   return DEFAULT_LANGUAGE_CODE
 }
 
-export function getDefaultAutoScanEnabled() {
-  return DEFAULT_AUTO_SCAN_ENABLED
+export function getDefaultIndexerScanConfig() {
+  return DEFAULT_INDEXER_SCAN_CONFIG
 }
 
 export function getDefaultLoggingConfig() {

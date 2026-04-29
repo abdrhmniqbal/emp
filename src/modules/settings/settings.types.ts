@@ -2,7 +2,7 @@
  * Purpose: Defines settings route names and local settings configuration shapes.
  * Caller: Settings routes, settings screens, settings store, localization, and settings persistence modules.
  * Dependencies: Localization language types.
- * Main Functions: SettingsRouteName, SettingsRouteDefinition, CrossfadeConfig, AudioPlaybackConfig.
+ * Main Functions: SettingsRouteName, SettingsRouteDefinition, IndexerScanConfig, CrossfadeConfig, AudioPlaybackConfig.
  * Side Effects: None.
  */
 
@@ -34,6 +34,12 @@ export type AppLogLevel = "minimal" | "extra"
 
 export interface LoggingConfig {
   level: AppLogLevel
+}
+
+export interface IndexerScanConfig {
+  autoScanEnabled: boolean
+  rescanImmediatelyEnabled: boolean
+  initialScanEnabled: boolean
 }
 
 export type FolderFilterMode = "whitelist" | "blacklist"

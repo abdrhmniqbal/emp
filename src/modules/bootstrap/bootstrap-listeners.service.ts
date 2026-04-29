@@ -1,7 +1,7 @@
 /**
- * Purpose: Registers foreground, media-library, playback-sync, and reopen-resume lifecycle listeners.
+ * Purpose: Registers foreground, media-library immediate-rescan, playback-sync, and reopen-resume lifecycle listeners.
  * Caller: Root providers during app shell initialization.
- * Dependencies: Expo MediaLibrary, React Native AppState/InteractionManager, bootstrap runtime, logging, player controls/session/store, audio playback settings.
+ * Dependencies: Expo MediaLibrary, React Native AppState/InteractionManager, bootstrap runtime, logging, player controls/session/store, audio playback settings, indexer scan settings.
  * Main Functions: shouldTriggerAutoScanOnMediaLibraryEvent(), registerBootstrapListeners()
  * Side Effects: Registers native listeners, schedules auto-scans, synchronizes playback state, and may resume paused playback on reopen.
  */
@@ -26,6 +26,7 @@ import {
   getIsPlayingState,
 } from "@/modules/player/player.store"
 import { ensureAudioPlaybackConfigLoaded } from "@/modules/settings/audio-playback"
+import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 
 const FOREGROUND_AUTO_SCAN_DELAY_MS = 1500
 const MEDIA_EVENT_AUTO_SCAN_DELAY_MS = 1500
@@ -174,32 +175,44 @@ export function registerBootstrapListeners() {
     const bypassThrottle = shouldTriggerAutoScanOnMediaLibraryEvent(event)
     const appState = AppState.currentState
 
-    if (appState !== "active") {
-      pendingDeferredMediaAutoScan = true
-      pendingDeferredMediaAutoScanBypassThrottle =
-        pendingDeferredMediaAutoScanBypassThrottle || bypassThrottle
+    void (async () => {
+      const indexerScanConfig = await ensureAutoScanConfigLoaded()
+      if (
+        !indexerScanConfig.autoScanEnabled ||
+        !indexerScanConfig.rescanImmediatelyEnabled
+      ) {
+        return
+      }
+
+      if (appState !== "active") {
+        pendingDeferredMediaAutoScan = true
+        pendingDeferredMediaAutoScanBypassThrottle =
+          pendingDeferredMediaAutoScanBypassThrottle || bypassThrottle
+
+        if (isExtraLoggingEnabled()) {
+          logInfo("Media library changed while app not active, deferring auto scan", {
+            appState,
+            bypassThrottle,
+          })
+        }
+        return
+      }
 
       if (isExtraLoggingEnabled()) {
-        logInfo("Media library changed while app not active, deferring auto scan", {
-          appState,
+        logInfo("Media library changed, running auto scan", {
           bypassThrottle,
+          hasIncrementalChanges: event.hasIncrementalChanges,
+          deletedAssetsCount: event.deletedAssets?.length ?? 0,
+          insertedAssetsCount: event.insertedAssets?.length ?? 0,
         })
       }
-      return
-    }
-
-    if (isExtraLoggingEnabled()) {
-      logInfo("Media library changed, running auto scan", {
+      scheduleForegroundAutoScan({
+        delayMs: MEDIA_EVENT_AUTO_SCAN_DELAY_MS,
+        source: "media-library",
         bypassThrottle,
-        hasIncrementalChanges: event.hasIncrementalChanges,
-        deletedAssetsCount: event.deletedAssets?.length ?? 0,
-        insertedAssetsCount: event.insertedAssets?.length ?? 0,
       })
-    }
-    scheduleForegroundAutoScan({
-      delayMs: MEDIA_EVENT_AUTO_SCAN_DELAY_MS,
-      source: "media-library",
-      bypassThrottle,
+    })().catch((error) => {
+      logError("Failed to handle media-library auto scan event", error)
     })
   })
 

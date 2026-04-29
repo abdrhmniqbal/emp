@@ -1,31 +1,57 @@
+/**
+ * Purpose: Loads, sanitizes, and persists automatic indexer scan behavior settings.
+ * Caller: Library settings screen, bootstrap startup scan, and media/foreground scan listeners.
+ * Dependencies: Settings repository and settings store.
+ * Main Functions: ensureAutoScanConfigLoaded(), setAutoScanConfig()
+ * Side Effects: Reads and writes `indexer-auto-scan.json` in Expo document storage and mutates settings state.
+ */
+
+import type { IndexerScanConfig } from "@/modules/settings/settings.types"
 import {
   createSettingsConfigFile,
   loadSettingsConfig,
   saveSettingsConfig,
 } from "@/modules/settings/settings.repository"
 import {
-  getDefaultAutoScanEnabled,
+  getDefaultIndexerScanConfig,
   getSettingsState,
   updateSettingsState,
 } from "@/modules/settings/settings.store"
 
 const AUTO_SCAN_FILE = createSettingsConfigFile("indexer-auto-scan.json")
 
-let loadPromise: Promise<boolean> | null = null
+let loadPromise: Promise<IndexerScanConfig> | null = null
 let hasLoadedConfig = false
 
-function parseEnabled(value: unknown, fallback: boolean): boolean {
-  if (!value || typeof value !== "object") {
-    return fallback
-  }
-
-  const enabled = (value as Record<string, unknown>).enabled
-  return typeof enabled === "boolean" ? enabled : fallback
+function parseBoolean(
+  source: Record<string, unknown>,
+  key: keyof IndexerScanConfig,
+  legacyKey?: string
+) {
+  const defaultValue = getDefaultIndexerScanConfig()[key]
+  const value = source[key] ?? (legacyKey ? source[legacyKey] : undefined)
+  return typeof value === "boolean" ? value : defaultValue
 }
 
-export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
+function sanitizeConfig(config: unknown): IndexerScanConfig {
+  const source =
+    config && typeof config === "object"
+      ? (config as Record<string, unknown>)
+      : {}
+
+  return {
+    autoScanEnabled: parseBoolean(source, "autoScanEnabled", "enabled"),
+    rescanImmediatelyEnabled: parseBoolean(
+      source,
+      "rescanImmediatelyEnabled"
+    ),
+    initialScanEnabled: parseBoolean(source, "initialScanEnabled"),
+  }
+}
+
+export async function ensureAutoScanConfigLoaded(): Promise<IndexerScanConfig> {
   if (hasLoadedConfig) {
-    return getSettingsState().autoScanEnabled
+    return getSettingsState().indexerScanConfig
   }
 
   if (loadPromise) {
@@ -35,15 +61,13 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   loadPromise = (async () => {
     const config = await loadSettingsConfig(
       AUTO_SCAN_FILE,
-      { enabled: getDefaultAutoScanEnabled() },
-      (parsed) => ({
-        enabled: parseEnabled(parsed, getDefaultAutoScanEnabled()),
-      })
+      getDefaultIndexerScanConfig(),
+      sanitizeConfig
     )
 
-    updateSettingsState({ autoScanEnabled: config.enabled })
+    updateSettingsState({ indexerScanConfig: config })
     hasLoadedConfig = true
-    return config.enabled
+    return config
   })()
 
   const result = await loadPromise
@@ -51,10 +75,14 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   return result
 }
 
-export async function setAutoScanEnabled(enabled: boolean): Promise<boolean> {
+export async function setAutoScanConfig(
+  updates: Partial<IndexerScanConfig>
+): Promise<IndexerScanConfig> {
   await ensureAutoScanConfigLoaded()
-  updateSettingsState({ autoScanEnabled: enabled })
+  const current = getSettingsState().indexerScanConfig
+  const next = sanitizeConfig({ ...current, ...updates })
+  updateSettingsState({ indexerScanConfig: next })
   hasLoadedConfig = true
-  await saveSettingsConfig(AUTO_SCAN_FILE, { enabled })
-  return enabled
+  await saveSettingsConfig(AUTO_SCAN_FILE, next)
+  return next
 }

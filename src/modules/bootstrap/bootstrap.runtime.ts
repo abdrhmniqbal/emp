@@ -1,7 +1,7 @@
 /**
- * Purpose: Coordinates app bootstrap readiness, logging initialization, and foreground auto-scan execution.
+ * Purpose: Coordinates app bootstrap readiness, logging initialization, and automatic indexer scan execution.
  * Caller: root layout, app lifecycle listeners, and external playback handoff.
- * Dependencies: media-library permissions, bootstrap utilities, settings preloaders, indexer runtime/service, logging service.
+ * Dependencies: media-library permissions, bootstrap utilities, indexer scan settings, indexer runtime/service, logging service.
  * Main Functions: ensureLoggingInitialized(), completeBootstrap(), waitForBootstrapComplete(), handleBootstrapDatabaseReady(), runAutoScan()
  * Side Effects: Initializes logging/bootstrap workflow, updates in-memory readiness state, may start media indexing.
  */
@@ -136,8 +136,8 @@ export async function runAutoScan(options?: { bypassThrottle?: boolean }) {
   }
 
   try {
-    const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
-    if (!isAutoScanEnabled) {
+    const indexerScanConfig = await ensureAutoScanConfigLoaded()
+    if (!indexerScanConfig.autoScanEnabled) {
       return
     }
 

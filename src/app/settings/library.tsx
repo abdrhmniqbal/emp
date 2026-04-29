@@ -1,5 +1,5 @@
 /**
- * Purpose: Renders library settings for scanning behavior, split metadata preferences, folder and duration filters, and reindexing.
+ * Purpose: Renders library settings for indexer scan behavior, split metadata preferences, folder and duration filters, and reindexing.
  * Caller: Settings library route.
  * Dependencies: Expo Router, react-i18next, settings store, indexer services, HeroUI Native ListGroup, dialog and switch.
  * Main Functions: LibrarySettingsScreen()
@@ -14,7 +14,8 @@ import { useTranslation } from "react-i18next"
 
 import { forceReindexLibrary } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { setAutoScanEnabled } from "@/modules/settings/auto-scan"
+import { setAutoScanConfig } from "@/modules/settings/auto-scan"
+import type { IndexerScanConfig } from "@/modules/settings/settings.types"
 import { getTrackDurationFilterLabel } from "@/modules/settings/track-duration-filter"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 
@@ -22,7 +23,7 @@ export default function LibrarySettingsScreen() {
   const router = useRouter()
   const { t } = useTranslation()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
-  const autoScanEnabled = useSettingsStore((state) => state.autoScanEnabled)
+  const indexerScanConfig = useSettingsStore((state) => state.indexerScanConfig)
   const trackDurationFilterConfig = useSettingsStore(
     (state) => state.trackDurationFilterConfig
   )
@@ -55,6 +56,15 @@ export default function LibrarySettingsScreen() {
   function handleConfirmForceReindex() {
     setShowReindexDialog(false)
     void forceReindexLibrary(true)
+  }
+
+  function updateIndexerScanConfig(
+    key: keyof IndexerScanConfig,
+    value: boolean
+  ) {
+    void setAutoScanConfig({
+      [key]: value,
+    } as Partial<IndexerScanConfig>)
   }
 
   return (
@@ -107,16 +117,55 @@ export default function LibrarySettingsScreen() {
                   {t("settings.library.autoScan")}
                 </ListGroup.ItemTitle>
                 <ListGroup.ItemDescription>
-                  {autoScanEnabled
-                    ? t("settings.library.autoScanEnabled")
-                    : t("settings.library.autoScanDisabled")}
+                  {t("settings.library.autoScanDescription")}
                 </ListGroup.ItemDescription>
               </ListGroup.ItemContent>
               <ListGroup.ItemSuffix>
                 <Switch
-                  isSelected={autoScanEnabled}
+                  isSelected={indexerScanConfig.autoScanEnabled}
                   onSelectedChange={(isSelected) => {
-                    void setAutoScanEnabled(isSelected)
+                    updateIndexerScanConfig("autoScanEnabled", isSelected)
+                  }}
+                />
+              </ListGroup.ItemSuffix>
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.initialScan")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.library.initialScanDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix>
+                <Switch
+                  isSelected={indexerScanConfig.initialScanEnabled}
+                  onSelectedChange={(isSelected) => {
+                    updateIndexerScanConfig("initialScanEnabled", isSelected)
+                  }}
+                />
+              </ListGroup.ItemSuffix>
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.library.rescanImmediately")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {t("settings.library.rescanImmediatelyDescription")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix>
+                <Switch
+                  isSelected={indexerScanConfig.rescanImmediatelyEnabled}
+                  onSelectedChange={(isSelected) => {
+                    updateIndexerScanConfig(
+                      "rescanImmediatelyEnabled",
+                      isSelected
+                    )
                   }}
                 />
               </ListGroup.ItemSuffix>

@@ -1,5 +1,5 @@
 /**
- * Purpose: Bootstraps playback, settings, media permissions, startup resume behavior, and startup indexing.
+ * Purpose: Bootstraps playback, settings, media permissions, startup resume behavior, and configured initial indexing.
  * Caller: App root providers during launch.
  * Dependencies: Track player service, media library service, Drizzle database, settings preloaders, indexer service, logging, playback controls, playback session service.
  * Main Functions: bootstrapApp()
@@ -88,9 +88,14 @@ export async function bootstrapApp(): Promise<void> {
       return
     }
 
-    const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
-    if (!isAutoScanEnabled) {
-      logInfo("Auto scan disabled during bootstrap")
+    const indexerScanConfig = await ensureAutoScanConfigLoaded()
+    if (!indexerScanConfig.autoScanEnabled) {
+      logInfo("Initial scan skipped because auto-scan is disabled")
+      return
+    }
+
+    if (!indexerScanConfig.initialScanEnabled) {
+      logInfo("Initial scan disabled during bootstrap")
       return
     }
 
