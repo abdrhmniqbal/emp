@@ -3,7 +3,7 @@
  * Caller: Expo Router playlist detail route.
  * Dependencies: playlist queries and mutations, favorites mutations, playback service, sort sheet, track list, theme and navigation stores.
  * Main Functions: PlaylistDetailsScreen()
- * Side Effects: Plays tracks, toggles favorites, deletes playlists, opens action sheets, updates scroll UI state.
+ * Side Effects: Starts playlist-context playback, toggles favorites, deletes playlists, opens action sheets, updates scroll UI state.
  */
 
 import type { TrackSortField } from "@/modules/library/library-sort.types"
@@ -164,7 +164,10 @@ export default function PlaylistDetailsScreen() {
   function playFromPlaylist(trackId: string) {
     const selectedTrack = sortedTracks.find((track) => track.id === trackId)
     if (selectedTrack) {
-      playTrack(selectedTrack, sortedTracks)
+      playTrack(selectedTrack, sortedTracks, {
+        type: "playlist",
+        title: playlist?.name || t("library.playlists"),
+      })
     }
   }
 
@@ -173,7 +176,10 @@ export default function PlaylistDetailsScreen() {
       return
     }
 
-    playTrack(sortedTracks[0], sortedTracks)
+    playTrack(sortedTracks[0], sortedTracks, {
+      type: "playlist",
+      title: playlist?.name || t("library.playlists"),
+    })
   }
 
   function shuffle() {
@@ -182,7 +188,10 @@ export default function PlaylistDetailsScreen() {
     }
 
     const randomIndex = Math.floor(Math.random() * sortedTracks.length)
-    playTrack(sortedTracks[randomIndex], sortedTracks)
+    playTrack(sortedTracks[randomIndex], sortedTracks, {
+      type: "playlist",
+      title: playlist?.name || t("library.playlists"),
+    })
   }
 
   function handleSortSelect(

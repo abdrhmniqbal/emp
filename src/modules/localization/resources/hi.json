@@ -225,7 +225,19 @@
     "karaokeOn": "कराओके चालू",
     "karaokeOff": "कराओके बंद",
     "selectArtistTitle": "कलाकार चुनें",
-    "selectGenreTitle": "शैली चुनें"
+    "selectGenreTitle": "शैली चुनें",
+    "playingFrom": {
+      "default": "से चल रहा है",
+      "album": "एल्बम से चल रहा है",
+      "artist": "कलाकार से चल रहा है",
+      "playlist": "प्लेलिस्ट से चल रहा है",
+      "genre": "शैली से चल रहा है",
+      "search": "खोज से चल रहा है",
+      "favorites": "पसंदीदा से चल रहा है",
+      "folder": "फ़ोल्डर से चल रहा है",
+      "trackList": "ट्रैक से चल रहा है",
+      "external": "फ़ाइल से चल रहा है"
+    }
   },
   "settings": {
     "routes": {

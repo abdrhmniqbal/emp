@@ -86,7 +86,12 @@ export default function HomeScreen() {
       <TrackRow
         track={item}
         variant="grid"
-        onPress={() => playTrack(item, recentlyPlayedTracks)}
+        onPress={() =>
+          playTrack(item, recentlyPlayedTracks, {
+            type: "trackList",
+            title: t("home.recentlyPlayed"),
+          })
+        }
         titleClassName={
           currentTrackId === item.id ? "text-accent" : undefined
         }
@@ -159,7 +164,12 @@ export default function HomeScreen() {
             <RankedTrackCarousel
               data={data}
               chunkSize={CHUNK_SIZE}
-              onItemPress={(track) => playTrack(track, topTracks)}
+              onItemPress={(track) =>
+                playTrack(track, topTracks, {
+                  type: "trackList",
+                  title: t("home.topTracks"),
+                })
+              }
             />
           )}
         />

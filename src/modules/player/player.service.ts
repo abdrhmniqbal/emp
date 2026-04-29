@@ -1,9 +1,9 @@
 /**
- * Purpose: Sets up native audio playback and replaces the active TrackPlayer queue when playback starts.
+ * Purpose: Sets up native audio playback, replaces the active TrackPlayer queue, and stores queue source context when playback starts.
  * Caller: track rows, player controls, queue recovery flows, bootstrap playback setup, external audio intent handler.
  * Dependencies: TrackPlayer native module, notification icon asset, player store, playback session service, player activity service, crossfade transition service, file URI utilities, logging service.
  * Main Functions: setupPlayer(), playTrack(), playExternalFileUri()
- * Side Effects: Initializes native playback, updates notification options, resets native queue and volume transitions, starts playback, persists session state.
+ * Side Effects: Initializes native playback, updates notification options, resets native queue/context and volume transitions, starts playback, persists session state.
  */
 
 import { processColor } from "react-native"
@@ -16,6 +16,7 @@ import {
 } from "@/modules/player/player-adapter"
 import {
   EXTERNAL_TRACK_ID_PREFIX,
+  type PlayerQueueContext,
   type Track,
 } from "@/modules/player/player.types"
 import { resetCrossfadeVolume } from "@/modules/player/player-crossfade.service"
@@ -44,6 +45,7 @@ import {
   setIsShuffledState,
   setOriginalQueueState,
   setOriginalQueueTrackIdsState,
+  setQueueContextState,
   setQueueState,
   setQueueTrackIdsState,
 } from "./player.store"
@@ -115,6 +117,61 @@ function buildPlaybackQueue(tracks: Track[], selectedTrackId: string) {
   }
 }
 
+function allTracksShareValue(
+  tracks: Track[],
+  getValue: (track: Track) => string | undefined
+) {
+  const values = tracks
+    .map((track) => getValue(track)?.trim())
+    .filter((value): value is string => Boolean(value))
+
+  if (values.length !== tracks.length || values.length === 0) {
+    return false
+  }
+
+  const firstValue = values[0]
+  if (!firstValue) {
+    return false
+  }
+
+  return values.every(
+    (value) => value.toLowerCase() === firstValue.toLowerCase()
+  )
+}
+
+function inferQueueContext(
+  track: Track,
+  tracks: Track[],
+  providedContext?: PlayerQueueContext
+): PlayerQueueContext | null {
+  const providedTitle = providedContext?.title.trim()
+  if (providedContext && providedTitle) {
+    return { ...providedContext, title: providedTitle }
+  }
+
+  if (track.isExternal) {
+    return { type: "external", title: track.title }
+  }
+
+  if (
+    track.album?.trim() &&
+    (allTracksShareValue(tracks, (item) => item.albumId) ||
+      allTracksShareValue(tracks, (item) => item.album))
+  ) {
+    return { type: "album", title: track.album.trim() }
+  }
+
+  if (
+    track.artist?.trim() &&
+    (allTracksShareValue(tracks, (item) => item.artistId) ||
+      allTracksShareValue(tracks, (item) => item.artist))
+  ) {
+    return { type: "artist", title: track.artist.trim() }
+  }
+
+  return null
+}
+
 export async function setupPlayer() {
   try {
     if (isPlayerReady) {
@@ -171,7 +228,11 @@ export async function setupPlayer() {
   }
 }
 
-export async function playTrack(track: Track, playlistTracks?: Track[]) {
+export async function playTrack(
+  track: Track,
+  playlistTracks?: Track[],
+  queueContext?: PlayerQueueContext
+) {
   if (!isPlayerReady) {
     logWarn("Ignored playTrack call because player is not ready", {
       trackId: track.id,
@@ -189,6 +250,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
 
     const wasShuffled = getIsShuffledState()
     const tracks = playlistTracks || getTracksState()
+    const resolvedQueueContext = inferQueueContext(track, tracks, queueContext)
     const { queue: linearQueue, queueTrackIds: linearQueueTrackIds } =
       buildPlaybackQueue(tracks, track.id)
 
@@ -210,6 +272,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     setQueueTrackIdsState(effectiveQueueTrackIds)
     setOriginalQueueTrackIdsState(linearQueueTrackIds)
     setImmediateQueueTrackIdsState([])
+    setQueueContextState(resolvedQueueContext)
     setIsShuffledState(wasShuffled)
     setActiveTrack(track)
     setIsPlayingState(true)
@@ -254,11 +317,17 @@ export async function playExternalFileUri(uri: string) {
   const indexedTrack = findIndexedTrackForUri(decodedUri, resolvedUri)
 
   if (indexedTrack) {
-    await playTrack(indexedTrack)
+    await playTrack(indexedTrack, undefined, {
+      type: "external",
+      title: indexedTrack.title,
+    })
     return true
   }
 
   const externalTrack = buildExternalTrack(decodedUri, resolvedUri)
-  await playTrack(externalTrack, [externalTrack])
+  await playTrack(externalTrack, [externalTrack], {
+    type: "external",
+    title: externalTrack.title,
+  })
   return true
 }

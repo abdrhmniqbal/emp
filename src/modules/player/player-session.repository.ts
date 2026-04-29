@@ -1,10 +1,24 @@
-import type { RepeatModeType, Track } from "./player.types"
+/**
+ * Purpose: Persists and sanitizes playback queue and cursor snapshots for session restore.
+ * Caller: player-session service.
+ * Dependencies: Expo FileSystem document storage and player domain types.
+ * Main Functions: savePlaybackQueueSnapshot(), loadPlaybackQueueSnapshot(), savePlaybackCursorSnapshot(), loadPlaybackCursorSnapshot()
+ * Side Effects: Reads and writes playback snapshot JSON files in app document storage.
+ */
+
+import type {
+  PlayerQueueContext,
+  PlayerQueueContextType,
+  RepeatModeType,
+  Track,
+} from "./player.types"
 import { File, Paths } from "expo-file-system"
 
 export interface PersistedPlaybackQueueSnapshot {
   immediateQueueTrackIds: string[]
   isShuffled: boolean
   originalQueueTrackIds: string[]
+  queueContext: PlayerQueueContext | null
   queueTrackIds: string[]
   savedAt: number
   trackMap: Record<string, Track>
@@ -26,6 +40,17 @@ interface LegacyPersistedPlaybackSession
 const PLAYBACK_QUEUE_FILE = new File(Paths.document, "playback-queue.json")
 const PLAYBACK_CURSOR_FILE = new File(Paths.document, "playback-cursor.json")
 const LEGACY_PLAYBACK_SESSION_FILE = new File(Paths.document, "playback-session.json")
+const PLAYER_QUEUE_CONTEXT_TYPES = new Set<PlayerQueueContextType>([
+  "album",
+  "artist",
+  "playlist",
+  "genre",
+  "search",
+  "favorites",
+  "folder",
+  "trackList",
+  "external",
+])
 
 function asObject(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object") {
@@ -47,6 +72,29 @@ function asNumber(value: unknown): number | undefined {
 
 function asBoolean(value: unknown): boolean | undefined {
   return typeof value === "boolean" ? value : undefined
+}
+
+function sanitizeQueueContext(value: unknown): PlayerQueueContext | null {
+  const source = asObject(value)
+  if (!source) {
+    return null
+  }
+
+  const type = asString(source.type)
+  const title = asString(source.title)?.trim()
+
+  if (
+    !type ||
+    !PLAYER_QUEUE_CONTEXT_TYPES.has(type as PlayerQueueContextType) ||
+    !title
+  ) {
+    return null
+  }
+
+  return {
+    type: type as PlayerQueueContextType,
+    title,
+  }
 }
 
 function sanitizeTrack(track: unknown): Track | null {
@@ -171,6 +219,7 @@ function sanitizeLegacySession(payload: unknown): LegacyPersistedPlaybackSession
     originalQueueTrackIds,
     immediateQueueTrackIds,
     trackMap,
+    queueContext: sanitizeQueueContext(source.queueContext),
     currentTrackId,
     activeIndex:
       activeIndexValue !== undefined
@@ -235,6 +284,7 @@ function sanitizeQueueSnapshot(
     originalQueueTrackIds,
     immediateQueueTrackIds,
     trackMap,
+    queueContext: sanitizeQueueContext(source.queueContext),
     isShuffled: Boolean(source.isShuffled),
     savedAt: asNumber(source.savedAt) ?? Date.now(),
   }
@@ -321,6 +371,7 @@ export async function loadPlaybackQueueSnapshot(): Promise<PersistedPlaybackQueu
       originalQueueTrackIds: legacy.originalQueueTrackIds,
       immediateQueueTrackIds: legacy.immediateQueueTrackIds,
       trackMap: legacy.trackMap,
+      queueContext: legacy.queueContext,
       isShuffled: legacy.isShuffled,
       savedAt: legacy.savedAt,
     }

@@ -225,7 +225,19 @@
     "karaokeOn": "卡拉 OK 開啟",
     "karaokeOff": "卡拉 OK 關閉",
     "selectArtistTitle": "選擇藝術家",
-    "selectGenreTitle": "選擇類型"
+    "selectGenreTitle": "選擇類型",
+    "playingFrom": {
+      "default": "正在播放",
+      "album": "正在播放相簿",
+      "artist": "正在播放藝術家",
+      "playlist": "正在播放播放清單",
+      "genre": "正在播放類型",
+      "search": "正在播放搜尋結果",
+      "favorites": "正在播放收藏",
+      "folder": "正在播放資料夾",
+      "trackList": "正在播放歌曲",
+      "external": "正在播放檔案"
+    }
   },
   "settings": {
     "routes": {

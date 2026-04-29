@@ -3,7 +3,7 @@
  * Caller: Expo Router artist detail route.
  * Dependencies: artist metadata and track queries, split artist settings, playback service, favorites mutations, sort store, media transition helpers, theme and UI scroll stores.
  * Main Functions: ArtistDetailsScreen(), trackMatchesArtistName(), mergeArtistTracks()
- * Side Effects: Plays tracks, toggles artist favorites, navigates to album routes, updates scroll UI state.
+ * Side Effects: Starts context-aware playback, toggles artist favorites, navigates to album routes, updates scroll UI state.
  */
 
 import type { SortField } from "@/modules/library/library-sort.types"
@@ -371,7 +371,10 @@ export default function ArtistDetailsScreen() {
   }
 
   function playArtistTrack(track: Track) {
-    playTrack(track, sortedArtistTracks)
+    playTrack(track, sortedArtistTracks, {
+      type: "artist",
+      title: artistName,
+    })
   }
 
   function playAllTracks() {
@@ -379,7 +382,10 @@ export default function ArtistDetailsScreen() {
       return
     }
 
-    playTrack(sortedArtistTracks[0], sortedArtistTracks)
+    playTrack(sortedArtistTracks[0], sortedArtistTracks, {
+      type: "artist",
+      title: artistName,
+    })
   }
 
   function shuffleTracks() {
@@ -388,7 +394,10 @@ export default function ArtistDetailsScreen() {
     }
 
     const randomIndex = getRandomTrackIndex(sortedArtistTracks.length)
-    playTrack(sortedArtistTracks[randomIndex], sortedArtistTracks)
+    playTrack(sortedArtistTracks[randomIndex], sortedArtistTracks, {
+      type: "artist",
+      title: artistName,
+    })
   }
 
   function openAlbum(album: Album) {

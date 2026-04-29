@@ -183,7 +183,12 @@ export default function GenreDetailsScreen() {
               <RankedTrackCarousel
                 data={data}
                 chunkSize={CHUNK_SIZE}
-                onItemPress={(track) => playTrack(track, topTracks)}
+                onItemPress={(track) =>
+                  playTrack(track, topTracks, {
+                    type: "genre",
+                    title: genreName,
+                  })
+                }
               />
             )}
           />

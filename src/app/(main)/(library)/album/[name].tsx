@@ -188,18 +188,27 @@ export default function AlbumDetailsScreen() {
   }
 
   function playSelectedTrack(track: Track) {
-    playTrack(track, sortedTracks)
+    playTrack(track, sortedTracks, {
+      type: "album",
+      title: albumInfo.title,
+    })
   }
 
   function playAllTracks() {
     if (sortedTracks.length > 0) {
-      playTrack(sortedTracks[0], sortedTracks)
+      playTrack(sortedTracks[0], sortedTracks, {
+        type: "album",
+        title: albumInfo.title,
+      })
     }
   }
 
   function shuffleTracks() {
     if (sortedTracks.length > 0) {
-      playTrack(sortedTracks[getRandomIndex(sortedTracks.length)], sortedTracks)
+      playTrack(sortedTracks[getRandomIndex(sortedTracks.length)], sortedTracks, {
+        type: "album",
+        title: albumInfo.title,
+      })
     }
   }
 

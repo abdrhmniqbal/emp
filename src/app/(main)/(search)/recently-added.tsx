@@ -3,7 +3,7 @@
  * Caller: Search screen's View More action.
  * Dependencies: track query sorted by dateAdded, react-i18next, DB-to-playback track transform, playback actions, themed refresh control, theme colors.
  * Main Functions: RecentlyAddedScreen()
- * Side Effects: Starts indexing on refresh and updates scroll state.
+ * Side Effects: Starts indexing on refresh, updates scroll state, and starts context-aware playback.
  */
 
 import { useMemo } from "react"
@@ -59,7 +59,10 @@ export default function RecentlyAddedScreen() {
       return
     }
 
-    playTrack(tracks[0], tracks)
+    playTrack(tracks[0], tracks, {
+      type: "trackList",
+      title: t("search.recentlyAdded"),
+    })
   }
 
   function shuffle() {
@@ -68,7 +71,17 @@ export default function RecentlyAddedScreen() {
     }
 
     const randomIndex = Math.floor(Math.random() * tracks.length)
-    playTrack(tracks[randomIndex], tracks)
+    playTrack(tracks[randomIndex], tracks, {
+      type: "trackList",
+      title: t("search.recentlyAdded"),
+    })
+  }
+
+  function playRecentlyAddedTrack(track: (typeof tracks)[number]) {
+    playTrack(track, tracks, {
+      type: "trackList",
+      title: t("search.recentlyAdded"),
+    })
   }
 
   return (
@@ -90,6 +103,7 @@ export default function RecentlyAddedScreen() {
       ) : (
         <TrackList
           data={tracks}
+          onTrackPress={playRecentlyAddedTrack}
           contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
           currentTrackId={currentTrackId ?? undefined}
           onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}

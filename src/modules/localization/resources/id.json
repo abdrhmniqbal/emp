@@ -225,7 +225,19 @@
     "karaokeOn": "Karaoke Aktif",
     "karaokeOff": "Karaoke Nonaktif",
     "selectArtistTitle": "Pilih artis",
-    "selectGenreTitle": "Pilih genre"
+    "selectGenreTitle": "Pilih genre",
+    "playingFrom": {
+      "default": "Diputar dari",
+      "album": "Diputar dari Album",
+      "artist": "Diputar dari Artis",
+      "playlist": "Diputar dari Playlist",
+      "genre": "Diputar dari Genre",
+      "search": "Diputar dari Pencarian",
+      "favorites": "Diputar dari Favorit",
+      "folder": "Diputar dari Folder",
+      "trackList": "Diputar dari Lagu",
+      "external": "Diputar dari File"
+    }
   },
   "settings": {
     "routes": {

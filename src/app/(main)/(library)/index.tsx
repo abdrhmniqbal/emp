@@ -363,18 +363,29 @@ export default function LibraryScreen() {
   }
 
   function playFolderTrack(track: Track) {
-    playTrack(track, folderTracks)
+    playTrack(track, folderTracks, {
+      type: "folder",
+      title:
+        currentFolderPath.split("/").filter(Boolean).at(-1) ||
+        t("library.folders"),
+    })
   }
 
   function playSingleTrack(track: Track, queue?: Track[]) {
     if (queue && queue.length > 0) {
-      playTrack(track, queue)
+      playTrack(track, queue, {
+        type: "trackList",
+        title: getLibraryTabLabel(activeTab),
+      })
       return
     }
 
     const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
     if (sortedTracksQueue.length > 0) {
-      playTrack(track, sortedTracksQueue)
+      playTrack(track, sortedTracksQueue, {
+        type: "trackList",
+        title: t("library.tracks"),
+      })
       return
     }
 
@@ -454,13 +465,19 @@ export default function LibraryScreen() {
     const queue = await buildFavoritesPlaybackQueue(filteredFavorites)
     const track = queue.find((item) => item.id === trackId)
     if (track) {
-      playTrack(track, queue)
+      playTrack(track, queue, {
+        type: "favorites",
+        title: t("library.favorites"),
+      })
       return
     }
 
     const fallbackTrack = tracks.find((item) => item.id === trackId)
     if (fallbackTrack) {
-      playTrack(fallbackTrack, queue.length > 0 ? queue : tracks)
+      playTrack(fallbackTrack, queue.length > 0 ? queue : tracks, {
+        type: "favorites",
+        title: t("library.favorites"),
+      })
     }
   }
 
@@ -468,7 +485,10 @@ export default function LibraryScreen() {
     if (activeTab === "Tracks") {
       const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
       if (sortedTracksQueue.length > 0) {
-        playTrack(sortedTracksQueue[0], sortedTracksQueue)
+        playTrack(sortedTracksQueue[0], sortedTracksQueue, {
+          type: "trackList",
+          title: t("library.tracks"),
+        })
       }
       return
     }
@@ -476,7 +496,10 @@ export default function LibraryScreen() {
     if (activeTab === "Favorites") {
       const queue = await buildFavoritesPlaybackQueue(filteredFavorites)
       if (queue.length > 0) {
-        playTrack(queue[0], queue)
+        playTrack(queue[0], queue, {
+          type: "favorites",
+          title: t("library.favorites"),
+        })
       }
       return
     }
@@ -491,7 +514,10 @@ export default function LibraryScreen() {
       const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
       if (sortedTracksQueue.length > 0) {
         const randomIndex = Math.floor(Math.random() * sortedTracksQueue.length)
-        playTrack(sortedTracksQueue[randomIndex], sortedTracksQueue)
+        playTrack(sortedTracksQueue[randomIndex], sortedTracksQueue, {
+          type: "trackList",
+          title: t("library.tracks"),
+        })
       }
       return
     }
@@ -500,7 +526,10 @@ export default function LibraryScreen() {
       const queue = await buildFavoritesPlaybackQueue(filteredFavorites)
       if (queue.length > 0) {
         const randomIndex = Math.floor(Math.random() * queue.length)
-        playTrack(queue[randomIndex], queue)
+        playTrack(queue[randomIndex], queue, {
+          type: "favorites",
+          title: t("library.favorites"),
+        })
       }
       return
     }

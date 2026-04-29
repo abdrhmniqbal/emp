@@ -56,7 +56,12 @@ export default function SearchScreen() {
     <TrackRow
       track={item}
       variant="grid"
-      onPress={() => playTrack(item, recentlyAddedTracks)}
+      onPress={() =>
+        playTrack(item, recentlyAddedTracks, {
+          type: "trackList",
+          title: t("search.recentlyAdded"),
+        })
+      }
       titleClassName={currentTrackId === item.id ? "text-accent" : undefined}
       imageOverlay={
         currentTrackId === item.id ? <ScaleLoader size={16} /> : undefined

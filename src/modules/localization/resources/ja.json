@@ -225,7 +225,19 @@
     "karaokeOn": "カラオケオン",
     "karaokeOff": "カラオケオフ",
     "selectArtistTitle": "アーティストを選択",
-    "selectGenreTitle": "ジャンルを選ぶ"
+    "selectGenreTitle": "ジャンルを選ぶ",
+    "playingFrom": {
+      "default": "再生中",
+      "album": "アルバムから再生中",
+      "artist": "アーティストから再生中",
+      "playlist": "プレイリストから再生中",
+      "genre": "ジャンルから再生中",
+      "search": "検索から再生中",
+      "favorites": "お気に入りから再生中",
+      "folder": "フォルダーから再生中",
+      "trackList": "トラックから再生中",
+      "external": "ファイルから再生中"
+    }
   },
   "settings": {
     "routes": {

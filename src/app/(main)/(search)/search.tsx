@@ -395,7 +395,10 @@ export default function SearchInteractionScreen() {
 
   function handleTrackPress(track: Track) {
     dismissKeyboard()
-    playTrack(track, tracks)
+    playTrack(track, tracks, {
+      type: "search",
+      title: t("navigation.tabs.search"),
+    })
   }
 
   function handleArtistPress(artist: SearchArtistResult) {

@@ -1,4 +1,16 @@
-import type { RepeatModeType, Track } from "@/modules/player/player.types"
+/**
+ * Purpose: Persists, restores, and synchronizes playback queue, cursor, and source context state.
+ * Caller: bootstrap runtime, player service, playback controls, and foreground sync handlers.
+ * Dependencies: player session repository, TrackPlayer adapter, player store, runtime services, and player colors service.
+ * Main Functions: persistPlaybackSession(), restorePlaybackSession(), syncPlaybackSessionFromPlayer(), ensureNativePlaybackQueue()
+ * Side Effects: Reads/writes playback snapshot files, syncs native playback queue, and updates player Zustand state.
+ */
+
+import type {
+  PlayerQueueContext,
+  RepeatModeType,
+  Track,
+} from "@/modules/player/player.types"
 import type { RepeatMode } from "@/modules/player/player.utils"
 import { logError, logInfo } from "@/modules/logging/logging.service"
 import { updateColorsForImage } from "@/modules/player/player-colors.service"
@@ -30,6 +42,7 @@ import {
   getIsPlayingState,
   getIsShuffledState,
   getOriginalQueueTrackIdsState,
+  getQueueContextState,
   getQueueState,
   getQueueTrackIdsState,
   getRepeatModeState,
@@ -57,6 +70,7 @@ interface ResolvedPlaybackSession {
   originalQueue: Track[]
   positionSeconds: number
   queue: Track[]
+  queueContext: PlayerQueueContext | null
   repeatMode: RepeatModeType
 }
 
@@ -234,6 +248,13 @@ function applyResolvedPlaybackSession(session: ResolvedPlaybackSession) {
   }
 
   if (
+    previousState.queueContext?.type !== session.queueContext?.type ||
+    previousState.queueContext?.title !== session.queueContext?.title
+  ) {
+    updates.queueContext = session.queueContext
+  }
+
+  if (
     Math.abs(previousState.currentTime - session.positionSeconds) >=
     PLAYBACK_POSITION_EPSILON
   ) {
@@ -343,6 +364,7 @@ async function readNativePlaybackSession(): Promise<ResolvedPlaybackSession | nu
     repeatMode: mapTrackPlayerRepeatMode(repeatMode as RepeatMode),
     isPlaying: playbackState === State.Playing,
     isShuffled: false,
+    queueContext: null,
   }
 }
 
@@ -419,6 +441,7 @@ async function readStoredPlaybackSession(): Promise<ResolvedPlaybackSession | nu
     repeatMode: cursorSnapshot?.repeatMode ?? getRepeatModeState(),
     isPlaying: cursorSnapshot?.isPlaying ?? false,
     isShuffled: queueSnapshot.isShuffled,
+    queueContext: queueSnapshot.queueContext,
   }
 }
 
@@ -442,6 +465,7 @@ async function persistPlaybackQueueSnapshot(options?: {
     immediateQueueTrackIds: getImmediateQueueTrackIdsState(),
     trackMap: createPersistedTrackMap(queueTracks),
     isShuffled: getIsShuffledState(),
+    queueContext: getQueueContextState(),
     savedAt: Date.now(),
   }
   const previousSnapshot = await readStoredPlaybackQueueSnapshot()
@@ -457,7 +481,9 @@ async function persistPlaybackQueueSnapshot(options?: {
       previousSnapshot.immediateQueueTrackIds,
       nextSnapshot.immediateQueueTrackIds
     ) &&
-    previousSnapshot.isShuffled === nextSnapshot.isShuffled
+    previousSnapshot.isShuffled === nextSnapshot.isShuffled &&
+    previousSnapshot.queueContext?.type === nextSnapshot.queueContext?.type &&
+    previousSnapshot.queueContext?.title === nextSnapshot.queueContext?.title
   ) {
     return previousSnapshot
   }

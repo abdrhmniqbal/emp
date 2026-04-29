@@ -3,7 +3,7 @@
  * Caller: Home stack nested route.
  * Dependencies: top tracks query, react-i18next, track playback service, themed refresh control, theme colors.
  * Main Functions: TopTracksScreen()
- * Side Effects: Starts indexing on refresh and updates scroll state.
+ * Side Effects: Starts indexing on refresh, updates scroll state, and starts context-aware playback.
  */
 
 import type { HistoryTopTracksPeriod as TopTracksPeriod } from "@/modules/history/history.types"
@@ -81,7 +81,10 @@ export default function TopTracksScreen() {
       return
     }
 
-    playTrack(currentTracks[0], currentTracks)
+    playTrack(currentTracks[0], currentTracks, {
+      type: "trackList",
+      title: t("home.topTracks"),
+    })
   }
 
   function shuffle() {
@@ -90,7 +93,17 @@ export default function TopTracksScreen() {
     }
 
     const randomIndex = Math.floor(Math.random() * currentTracks.length)
-    playTrack(currentTracks[randomIndex], currentTracks)
+    playTrack(currentTracks[randomIndex], currentTracks, {
+      type: "trackList",
+      title: t("home.topTracks"),
+    })
+  }
+
+  function playTopTrack(track: (typeof currentTracks)[number]) {
+    playTrack(track, currentTracks, {
+      type: "trackList",
+      title: t("home.topTracks"),
+    })
   }
 
   return (
@@ -146,6 +159,7 @@ export default function TopTracksScreen() {
         >
           <TrackList
             data={currentTracks}
+            onTrackPress={playTopTrack}
             showNumbers
             contentContainerStyle={{
               paddingBottom: 200,

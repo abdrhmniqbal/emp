@@ -225,7 +225,19 @@
     "karaokeOn": "Karaoke an",
     "karaokeOff": "Karaoke aus",
     "selectArtistTitle": "Künstler auswählen",
-    "selectGenreTitle": "Wählen Sie ein Genre"
+    "selectGenreTitle": "Wählen Sie ein Genre",
+    "playingFrom": {
+      "default": "Wiedergabe aus",
+      "album": "Wiedergabe aus Album",
+      "artist": "Wiedergabe von Künstler",
+      "playlist": "Wiedergabe aus Playlist",
+      "genre": "Wiedergabe aus Genre",
+      "search": "Wiedergabe aus Suche",
+      "favorites": "Wiedergabe aus Favoriten",
+      "folder": "Wiedergabe aus Ordner",
+      "trackList": "Wiedergabe aus Titeln",
+      "external": "Wiedergabe aus Datei"
+    }
   },
   "settings": {
     "routes": {

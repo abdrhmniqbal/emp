@@ -227,7 +227,19 @@
     "karaokeOn": "Karaoke On",
     "karaokeOff": "Karaoke Off",
     "selectArtistTitle": "Choose artist",
-    "selectGenreTitle": "Choose genre"
+    "selectGenreTitle": "Choose genre",
+    "playingFrom": {
+      "default": "Playing from",
+      "album": "Playing from Album",
+      "artist": "Playing from Artist",
+      "playlist": "Playing from Playlist",
+      "genre": "Playing from Genre",
+      "search": "Playing from Search",
+      "favorites": "Playing from Favorites",
+      "folder": "Playing from Folder",
+      "trackList": "Playing from Tracks",
+      "external": "Playing from File"
+    }
   },
   "settings": {
     "routes": {

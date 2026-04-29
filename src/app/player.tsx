@@ -1,7 +1,7 @@
 /**
  * Purpose: Hosts the player route, expanded view state, route-level action sheets, and external audio intent playback.
  * Caller: Expo Router player route.
- * Dependencies: Player selectors/service, bootstrap runtime, UI store, shared artist picker, split settings parser, and player action sheet components.
+ * Dependencies: Player selectors/service, queue context selector, bootstrap runtime, UI store, shared artist picker, split settings parser, and player action sheet components.
  * Main Functions: PlayerRoute()
  * Side Effects: Navigates to artist route, toggles player sheets, and starts playback for external file-manager audio URIs.
  */
@@ -21,6 +21,7 @@ import { waitForBootstrapComplete } from "@/modules/bootstrap/bootstrap.runtime"
 import {
   useCurrentTrack,
   useIsPlaying,
+  usePlayerQueueContext,
 } from "@/modules/player/player-selectors"
 import { playExternalFileUri } from "@/modules/player/player.service"
 import { useTrack } from "@/modules/tracks/tracks.queries"
@@ -46,6 +47,7 @@ export default function PlayerRoute() {
   }>()
   const currentTrack = useCurrentTrack()
   const isPlaying = useIsPlaying()
+  const queueContext = usePlayerQueueContext()
   const splitMultipleValueConfig = useSettingsStore(
     (state) => state.splitMultipleValueConfig
   )
@@ -190,6 +192,7 @@ export default function PlayerRoute() {
         currentTrack={currentTrack}
         isPlaying={isPlaying}
         playerExpandedView={playerExpandedView}
+        queueContext={queueContext}
         onClose={dismissPlayer}
         onOpenMore={() => setIsActionSheetOpen(true)}
         onPressArtist={handleArtistPress}

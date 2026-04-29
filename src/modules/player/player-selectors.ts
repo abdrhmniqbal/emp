@@ -1,3 +1,11 @@
+/**
+ * Purpose: Exposes focused player store selectors for playback state, queue data, and queue context.
+ * Caller: player route, player controls, queue view, mini player, and playback UI blocks.
+ * Dependencies: player store and React memo utilities.
+ * Main Functions: useCurrentTrack(), usePlayerQueueInfo(), usePlayerQueueContext()
+ * Side Effects: None.
+ */
+
 import { useMemo } from "react"
 
 import {
@@ -54,6 +62,10 @@ export function usePlayerTracks(): Track[] {
 
 export function usePlayerQueue(): Track[] {
   return usePlayerStore((state) => state.queue)
+}
+
+export function usePlayerQueueContext() {
+  return usePlayerStore((state) => state.queueContext)
 }
 
 export function usePlayerQueueInfo() {

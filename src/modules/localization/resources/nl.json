@@ -225,7 +225,19 @@
     "karaokeOn": "Karaoke aan",
     "karaokeOff": "Karaoke uit",
     "selectArtistTitle": "Kies artiest",
-    "selectGenreTitle": "Kies genre"
+    "selectGenreTitle": "Kies genre",
+    "playingFrom": {
+      "default": "Afspelen vanaf",
+      "album": "Afspelen vanaf Album",
+      "artist": "Afspelen vanaf Artiest",
+      "playlist": "Afspelen vanaf Playlist",
+      "genre": "Afspelen vanaf Genre",
+      "search": "Afspelen vanaf Zoeken",
+      "favorites": "Afspelen vanaf Favorieten",
+      "folder": "Afspelen vanaf Map",
+      "trackList": "Afspelen vanaf Nummers",
+      "external": "Afspelen vanaf Bestand"
+    }
   },
   "settings": {
     "routes": {

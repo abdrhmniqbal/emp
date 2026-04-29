@@ -225,7 +225,19 @@
     "karaokeOn": "Karaoké activé",
     "karaokeOff": "Karaoké désactivé",
     "selectArtistTitle": "Choisir l'artiste",
-    "selectGenreTitle": "Choisissez le genre"
+    "selectGenreTitle": "Choisissez le genre",
+    "playingFrom": {
+      "default": "Lecture depuis",
+      "album": "Lecture depuis Album",
+      "artist": "Lecture depuis Artiste",
+      "playlist": "Lecture depuis Playlist",
+      "genre": "Lecture depuis Genre",
+      "search": "Lecture depuis Recherche",
+      "favorites": "Lecture depuis Favoris",
+      "folder": "Lecture depuis Dossier",
+      "trackList": "Lecture depuis Titres",
+      "external": "Lecture depuis Fichier"
+    }
   },
   "settings": {
     "routes": {

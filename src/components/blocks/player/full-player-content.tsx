@@ -1,4 +1,12 @@
-import type { Track } from "@/modules/player/player.types"
+/**
+ * Purpose: Renders the expanded player surface with source context, artwork, lyrics, queue, controls, and footer.
+ * Caller: Player route.
+ * Dependencies: player colors store, player header, artwork, lyrics, queue, progress, controls, and footer components.
+ * Main Functions: FullPlayerContent()
+ * Side Effects: Drives drag animation state for dismiss gestures.
+ */
+
+import type { PlayerQueueContext, Track } from "@/modules/player/player.types"
 import type { PlayerExpandedView } from "@/modules/ui/ui.store"
 
 import { LinearGradient } from "expo-linear-gradient"
@@ -22,6 +30,7 @@ interface FullPlayerContentProps {
   currentTrack: Track
   isPlaying: boolean
   playerExpandedView: PlayerExpandedView
+  queueContext: PlayerQueueContext | null
   onClose: () => void
   onOpenMore: () => void
   onPressArtist: () => void
@@ -31,6 +40,7 @@ export function FullPlayerContent({
   currentTrack,
   isPlaying,
   playerExpandedView,
+  queueContext,
   onClose,
   onOpenMore,
   onPressArtist,
@@ -61,7 +71,12 @@ export function FullPlayerContent({
       />
 
       <View className="flex-1 justify-between px-6 pt-12 pb-8">
-        <PlayerHeader onClose={onClose} onOpenMore={onOpenMore} dragY={dragY} />
+        <PlayerHeader
+          onClose={onClose}
+          onOpenMore={onOpenMore}
+          dragY={dragY}
+          queueContext={queueContext}
+        />
 
         {playerExpandedView === "queue" ? (
           <QueueView />

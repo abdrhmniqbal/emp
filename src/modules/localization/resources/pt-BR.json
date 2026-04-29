@@ -225,7 +225,19 @@
     "karaokeOn": "Karaokê ativado",
     "karaokeOff": "Karaokê desligado",
     "selectArtistTitle": "Escolha o artista",
-    "selectGenreTitle": "Escolha o gênero"
+    "selectGenreTitle": "Escolha o gênero",
+    "playingFrom": {
+      "default": "Tocando de",
+      "album": "Tocando de Álbum",
+      "artist": "Tocando de Artista",
+      "playlist": "Tocando de Playlist",
+      "genre": "Tocando de Gênero",
+      "search": "Tocando de Pesquisa",
+      "favorites": "Tocando de Favoritos",
+      "folder": "Tocando de Pasta",
+      "trackList": "Tocando de Faixas",
+      "external": "Tocando de Arquivo"
+    }
   },
   "settings": {
     "routes": {

@@ -1,7 +1,16 @@
+/**
+ * Purpose: Stores playback state, queue state, and queue source context for player UI and controls.
+ * Caller: player service, player selectors, player controls, and player UI blocks.
+ * Dependencies: Zustand and player domain types.
+ * Main Functions: usePlayerStore, setQueueContextState(), setQueueState(), setCurrentTrackState()
+ * Side Effects: Updates in-memory Zustand playback state.
+ */
+
 import type {
   Album,
   Artist,
   LyricLine,
+  PlayerQueueContext,
   RepeatModeType,
   Track,
 } from "./player.types"
@@ -23,6 +32,7 @@ export interface PlayerState {
   queue: Track[]
   originalQueue: Track[]
   isShuffled: boolean
+  queueContext: PlayerQueueContext | null
 }
 
 export const usePlayerStore = create<PlayerState>(() => ({
@@ -39,6 +49,7 @@ export const usePlayerStore = create<PlayerState>(() => ({
   queue: [],
   originalQueue: [],
   isShuffled: false,
+  queueContext: null,
 }))
 
 export function getTracksState() {
@@ -151,4 +162,12 @@ export function getIsShuffledState() {
 
 export function setIsShuffledState(value: boolean) {
   usePlayerStore.setState({ isShuffled: value })
+}
+
+export function getQueueContextState() {
+  return usePlayerStore.getState().queueContext
+}
+
+export function setQueueContextState(value: PlayerQueueContext | null) {
+  usePlayerStore.setState({ queueContext: value })
 }

@@ -3,7 +3,7 @@
  * Caller: Home stack nested route.
  * Dependencies: history query, react-i18next, track playback service, themed refresh control, theme colors.
  * Main Functions: RecentlyPlayedScreen()
- * Side Effects: Starts indexing on refresh and updates scroll state.
+ * Side Effects: Starts indexing on refresh, updates scroll state, and starts context-aware playback.
  */
 
 import { View } from "react-native"
@@ -48,7 +48,10 @@ export default function RecentlyPlayedScreen() {
       return
     }
 
-    playTrack(history[0], history)
+    playTrack(history[0], history, {
+      type: "trackList",
+      title: t("home.recentlyPlayed"),
+    })
   }
 
   function shuffle() {
@@ -57,7 +60,17 @@ export default function RecentlyPlayedScreen() {
     }
 
     const randomIndex = Math.floor(Math.random() * history.length)
-    playTrack(history[randomIndex], history)
+    playTrack(history[randomIndex], history, {
+      type: "trackList",
+      title: t("home.recentlyPlayed"),
+    })
+  }
+
+  function playHistoryTrack(track: (typeof history)[number]) {
+    playTrack(track, history, {
+      type: "trackList",
+      title: t("home.recentlyPlayed"),
+    })
   }
 
   return (
@@ -79,6 +92,7 @@ export default function RecentlyPlayedScreen() {
       ) : (
         <TrackList
           data={history}
+          onTrackPress={playHistoryTrack}
           contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
           currentTrackId={currentTrackId ?? undefined}
           onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}

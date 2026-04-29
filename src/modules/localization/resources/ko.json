@@ -225,7 +225,19 @@
     "karaokeOn": "가라오케온",
     "karaokeOff": "노래방 끄기",
     "selectArtistTitle": "아티스트 선택",
-    "selectGenreTitle": "장르를 선택하세요"
+    "selectGenreTitle": "장르를 선택하세요",
+    "playingFrom": {
+      "default": "재생 중",
+      "album": "앨범에서 재생 중",
+      "artist": "아티스트에서 재생 중",
+      "playlist": "플레이리스트에서 재생 중",
+      "genre": "장르에서 재생 중",
+      "search": "검색에서 재생 중",
+      "favorites": "즐겨찾기에서 재생 중",
+      "folder": "폴더에서 재생 중",
+      "trackList": "트랙에서 재생 중",
+      "external": "파일에서 재생 중"
+    }
   },
   "settings": {
     "routes": {

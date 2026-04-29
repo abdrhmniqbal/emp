@@ -225,7 +225,19 @@
     "karaokeOn": "Караоке включено",
     "karaokeOff": "Караоке выключено",
     "selectArtistTitle": "Выбрать исполнителя",
-    "selectGenreTitle": "Выберите жанр"
+    "selectGenreTitle": "Выберите жанр",
+    "playingFrom": {
+      "default": "Играет из",
+      "album": "Играет из альбома",
+      "artist": "Играет от исполнителя",
+      "playlist": "Играет из плейлиста",
+      "genre": "Играет из жанра",
+      "search": "Играет из поиска",
+      "favorites": "Играет из избранного",
+      "folder": "Играет из папки",
+      "trackList": "Играет из треков",
+      "external": "Играет из файла"
+    }
   },
   "settings": {
     "routes": {

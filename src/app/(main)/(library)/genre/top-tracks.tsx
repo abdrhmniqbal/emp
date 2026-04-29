@@ -3,7 +3,7 @@
  * Caller: Genre detail sub-route in the Library stack.
  * Dependencies: genre top-tracks query, track playback service, themed refresh control, theme colors.
  * Main Functions: GenreTopTracksScreen()
- * Side Effects: Starts indexing on refresh and updates scroll state.
+ * Side Effects: Starts indexing on refresh, updates scroll state, and starts context-aware playback.
  */
 
 import { useLocalSearchParams } from "expo-router"
@@ -91,7 +91,10 @@ export default function GenreTopTracksScreen() {
       return
     }
 
-    playTrack(tracks[0], tracks)
+    playTrack(tracks[0], tracks, {
+      type: "genre",
+      title: genreName,
+    })
   }
 
   function shuffle() {
@@ -100,7 +103,17 @@ export default function GenreTopTracksScreen() {
     }
 
     const randomIndex = Math.floor(Math.random() * tracks.length)
-    playTrack(tracks[randomIndex], tracks)
+    playTrack(tracks[randomIndex], tracks, {
+      type: "genre",
+      title: genreName,
+    })
+  }
+
+  function playGenreTrack(track: (typeof tracks)[number]) {
+    playTrack(track, tracks, {
+      type: "genre",
+      title: genreName,
+    })
   }
 
   return (
@@ -135,6 +148,7 @@ export default function GenreTopTracksScreen() {
       ) : (
         <TrackList
           data={tracks}
+          onTrackPress={playGenreTrack}
           showNumbers
           contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 16 }}
           onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}

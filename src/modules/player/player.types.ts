@@ -1,8 +1,8 @@
 /**
- * Purpose: Defines shared playback domain types for tracks, albums, artists, lyrics, and repeat state.
+ * Purpose: Defines shared playback domain types for tracks, queue context, albums, artists, lyrics, and repeat state.
  * Caller: player services, stores, selectors, adapters, UI blocks, and track/library modules.
  * Dependencies: none.
- * Main Functions: Track, Album, Artist, LyricLine, RepeatModeType
+ * Main Functions: Track, PlayerQueueContext, Album, Artist, LyricLine, RepeatModeType
  * Side Effects: None.
  */
 
@@ -14,6 +14,22 @@ export interface LyricLine {
 }
 
 export type RepeatModeType = "off" | "track" | "queue"
+
+export type PlayerQueueContextType =
+  | "album"
+  | "artist"
+  | "playlist"
+  | "genre"
+  | "search"
+  | "favorites"
+  | "folder"
+  | "trackList"
+  | "external"
+
+export interface PlayerQueueContext {
+  type: PlayerQueueContextType
+  title: string
+}
 
 export interface Track {
   id: string
