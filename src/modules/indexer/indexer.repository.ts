@@ -3,7 +3,7 @@
  * Caller: indexer.service startIndexing(), bootstrap auto-scan, manual library refresh actions.
  * Dependencies: Expo MediaLibrary/FileSystem, Drizzle DB schema, metadata repository, split settings config, folder/duration filters, indexer runtime.
  * Main Functions: scanMediaLibrary(), rebuildSplitMetadataRelations(), getLastIndexerRunSnapshot()
- * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, recomputes stored artist artwork from primary tracks during reindex, rebuilds split artist/genre relations, emits incremental commit notifications, marks missing tracks deleted.
+ * Side Effects: Reads media library/files, writes tracks/artists/albums/genres/track_artists/track_genres/indexer_state, recomputes stored artist artwork from primary tracks during reindex, rebuilds split artist/genre relations, emits incremental commit notifications, marks missing tracks deleted, and cleans unused artwork cache files.
  */
 
 import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
@@ -44,7 +44,11 @@ import {
   splitGenresValue,
   type SplitMultipleValueConfig,
 } from "@/modules/settings/split-multiple-values"
-import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
+import {
+  cleanupUnusedArtworkCache,
+  extractMetadata,
+  saveArtworkToCache,
+} from "./metadata.repository"
 
 const BATCH_SIZE = 24
 const BATCH_CONCURRENCY = 4
@@ -744,6 +748,8 @@ export async function scanMediaLibrary(
 
   if (signal?.aborted) return
   await hardDeleteSoftDeletedTracksInScopes(signal)
+  if (signal?.aborted) return
+  await cleanupUnusedArtworkCache()
 
   await saveIndexerRunSnapshot({
     startedAt,
@@ -1557,14 +1563,8 @@ function generateAssetHash(asset: MediaLibrary.Asset): string {
   const info = shouldReadFileInfo ? getFileInfo(asset.uri) : null
   const modificationTime =
     info?.modificationTime ?? asset.modificationTime ?? asset.creationTime ?? 0
-  const size = info?.size ?? asset.duration ?? 0
 
-  return generateFileHash(
-    asset.uri,
-    modificationTime,
-    size,
-    asset.filename || ""
-  )
+  return generateFileHash(asset.uri, modificationTime)
 }
 
 function getFileInfo(
@@ -1580,11 +1580,9 @@ function getFileInfo(
 
 function generateFileHash(
   uri: string,
-  modTime: number,
-  size: number,
-  filename: string
+  modTime: number
 ): string {
-  const fingerprint = `${uri}|${modTime}|${size}|${filename}`
+  const fingerprint = `${uri}|${modTime}`
   let hashA = 5381
   let hashB = 52711
 

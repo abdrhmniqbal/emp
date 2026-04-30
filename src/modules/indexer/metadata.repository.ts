@@ -2,8 +2,8 @@
  * Purpose: Extracts audio metadata/artwork/lyrics and normalizes split multi-value fields for indexing.
  * Caller: Indexer repository batch preparation.
  * Dependencies: Native metadata retriever, Expo file APIs, Drizzle artwork cache, and split settings parser.
- * Main Functions: extractMetadata(), saveArtworkToCache().
- * Side Effects: Reads audio files/artwork and writes artwork cache entries.
+ * Main Functions: extractMetadata(), saveArtworkToCache(), cleanupUnusedArtworkCache().
+ * Side Effects: Reads audio files/artwork, writes artwork cache entries, and deletes unreferenced cached artwork files.
  */
 
 import {
@@ -46,6 +46,7 @@ export interface ExtractedMetadata {
 }
 
 const ARTWORK_DIR_NAME = "artwork"
+const ARTWORK_FILE_EXTENSION = "jpg"
 
 // Define the fields we want to extract
 const metadataFields = [
@@ -483,8 +484,11 @@ export async function saveArtworkToCache(
       return artworkData
     }
 
-    // Generate hash from artwork data
-    const hash = generateArtworkHash(artworkData)
+    const normalizedArtwork = normalizeArtworkData(artworkData)
+    if (!normalizedArtwork) return undefined
+
+    const { base64Data, mimeType } = normalizedArtwork
+    const hash = generateArtworkHash(base64Data)
 
     // Check if already cached
     const existing = await db.query.artworkCache.findFirst({
@@ -504,31 +508,33 @@ export async function saveArtworkToCache(
       cacheDir.create({ intermediates: true, idempotent: true })
     }
 
-    const artworkFile = new File(cacheDir, `${hash}.jpg`)
+    const artworkFile = new File(cacheDir, `${hash}.${ARTWORK_FILE_EXTENSION}`)
     if (!artworkFile.exists) {
       artworkFile.create({ intermediates: true, overwrite: true })
     }
-
-    // Remove data URI prefix if present
-    let base64Data = artworkData
-    if (artworkData.startsWith("data:")) {
-      base64Data = artworkData.split(",")[1] || ""
-    }
-
-    if (!base64Data) return undefined
 
     artworkFile.write(base64Data, {
       encoding: "base64",
     })
 
     // Save to database
-    await db.insert(artworkCache).values({
-      hash,
-      path: artworkFile.uri,
-      mimeType: "image/jpeg",
-      source: "embedded",
-      createdAt: Date.now(),
-    })
+    await db
+      .insert(artworkCache)
+      .values({
+        hash,
+        path: artworkFile.uri,
+        mimeType,
+        source: "embedded",
+        createdAt: Date.now(),
+      })
+      .onConflictDoUpdate({
+        target: artworkCache.hash,
+        set: {
+          path: artworkFile.uri,
+          mimeType,
+          source: "embedded",
+        },
+      })
 
     return artworkFile.uri
   } catch {
@@ -536,16 +542,119 @@ export async function saveArtworkToCache(
   }
 }
 
+export async function cleanupUnusedArtworkCache(): Promise<void> {
+  const [cachedArtwork, trackRows, albumRows, artistRows, playlistRows] =
+    await Promise.all([
+      db.query.artworkCache.findMany({
+        columns: {
+          hash: true,
+          path: true,
+        },
+      }),
+      db.query.tracks.findMany({
+        columns: {
+          artwork: true,
+        },
+      }),
+      db.query.albums.findMany({
+        columns: {
+          artwork: true,
+        },
+      }),
+      db.query.artists.findMany({
+        columns: {
+          artwork: true,
+        },
+      }),
+      db.query.playlists.findMany({
+        columns: {
+          artwork: true,
+        },
+      }),
+    ])
+
+  const referencedArtworkPaths = new Set(
+    [...trackRows, ...albumRows, ...artistRows, ...playlistRows]
+      .map((row) => row.artwork)
+      .filter((path): path is string => Boolean(path))
+  )
+
+  for (const cached of cachedArtwork) {
+    if (referencedArtworkPaths.has(cached.path)) {
+      continue
+    }
+
+    try {
+      const file = new File(cached.path)
+      if (file.exists) {
+        file.delete()
+      }
+    } catch {
+    }
+
+    await db.delete(artworkCache).where(eq(artworkCache.hash, cached.hash))
+  }
+
+  try {
+    const cacheDir = new Directory(Paths.cache, ARTWORK_DIR_NAME)
+    if (!cacheDir.exists) {
+      return
+    }
+
+    const cachedFilePaths = new Set(cachedArtwork.map((cached) => cached.path))
+    for (const entry of cacheDir.list()) {
+      if (!(entry instanceof File)) {
+        continue
+      }
+
+      if (
+        referencedArtworkPaths.has(entry.uri) ||
+        cachedFilePaths.has(entry.uri)
+      ) {
+        continue
+      }
+
+      try {
+        entry.delete()
+      } catch {
+      }
+    }
+  } catch {
+  }
+}
+
 function cleanFilename(filename: string): string {
   return filename.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ")
 }
 
-function generateArtworkHash(data: string): string {
-  const sample = data.slice(0, 1024)
-  let hash = 0
-  for (let i = 0; i < sample.length; i++) {
-    hash = (hash << 5) - hash + data.charCodeAt(i)
-    hash |= 0
+function normalizeArtworkData(data: string) {
+  if (data.startsWith("data:")) {
+    const separatorIndex = data.indexOf(",")
+    if (separatorIndex < 0) {
+      return null
+    }
+
+    const metadata = data.slice(0, separatorIndex)
+    const mimeType = metadata.match(/^data:([^;]+)/)?.[1] || "image/jpeg"
+    const base64Data = data.slice(separatorIndex + 1).trim()
+    return base64Data ? { base64Data, mimeType } : null
   }
-  return `${Math.abs(hash).toString(16)}_${data.length}`
+
+  const base64Data = data.trim()
+  return base64Data ? { base64Data, mimeType: "image/jpeg" } : null
+}
+
+function generateArtworkHash(data: string): string {
+  let hashA = 5381
+  let hashB = 52711
+
+  for (let i = 0; i < data.length; i++) {
+    const char = data.charCodeAt(i)
+    hashA = ((hashA << 5) + hashA) ^ char
+    hashB = ((hashB << 5) + hashB) ^ (char + i)
+  }
+
+  const partA = (hashA >>> 0).toString(16).padStart(8, "0")
+  const partB = (hashB >>> 0).toString(16).padStart(8, "0")
+  return `${partA}${partB}_${data.length}`
 }
