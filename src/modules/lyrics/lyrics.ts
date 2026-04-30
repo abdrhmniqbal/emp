@@ -333,6 +333,30 @@ function readTimedMarkupEnd(tag: string, begin: number): number {
   return begin
 }
 
+function normalizeTimedMarkupWords(
+  words: TimedMarkupWord[],
+  fallbackLineEnd: number
+) {
+  return words.map((word, index) => {
+    if (word.end > word.begin) {
+      return word
+    }
+
+    const nextWord = words[index + 1]
+    const inferredEnd =
+      nextWord && nextWord.begin > word.begin
+        ? nextWord.begin
+        : fallbackLineEnd > word.begin
+          ? fallbackLineEnd
+          : word.begin
+
+    return {
+      ...word,
+      end: inferredEnd,
+    }
+  })
+}
+
 function isAngleTimedLyrics(raw: string): boolean {
   TIMED_ANGLE_TAG_REGEX.lastIndex = 0
   return TIMED_ANGLE_TAG_REGEX.test(raw)
@@ -464,11 +488,20 @@ export function parseTimedMarkupLines(
     }
 
     if (words.length > 0) {
+      const normalizedWords = normalizeTimedMarkupWords(words, pEnd)
+      const firstBegin = Math.min(...normalizedWords.map((word) => word.begin))
+      const lastEnd = Math.max(...normalizedWords.map((word) => word.end))
+      const lineBegin =
+        pBegin === 0 && Number.isFinite(firstBegin) && firstBegin > 0
+          ? firstBegin
+          : pBegin
+      const lineEnd =
+        pEnd > lineBegin && Number.isFinite(pEnd) ? pEnd : lastEnd
       lines.push({
         id: `timed-markup-${lineIndex}`,
-        begin: pBegin,
-        end: pEnd,
-        words,
+        begin: Number.isFinite(lineBegin) ? lineBegin : 0,
+        end: Number.isFinite(lineEnd) ? lineEnd : 0,
+        words: normalizedWords,
       })
       lineIndex++
     }
@@ -496,11 +529,12 @@ export function parseTimedMarkupLines(
     if (words.length > 0) {
       const firstBegin = Math.min(...words.map((word) => word.begin))
       const lastEnd = Math.max(...words.map((word) => word.end))
+      const normalizedWords = normalizeTimedMarkupWords(words, lastEnd)
       lines.push({
         id: "timed-markup-0",
         begin: Number.isFinite(firstBegin) ? firstBegin : 0,
         end: Number.isFinite(lastEnd) ? lastEnd : 0,
-        words,
+        words: normalizedWords,
       })
     }
   }

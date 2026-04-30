@@ -1,7 +1,7 @@
 /**
- * Purpose: Renders static, synced, and timed-markup lyrics with session-only karaoke and zoom controls.
+ * Purpose: Renders static, synced, and timed-markup lyrics with smooth karaoke progress, auto-scroll, and zoom controls.
  * Caller: FullPlayerContent when the player expanded view is lyrics.
- * Dependencies: lyrics parsers/source resolver, player controls/store, UI store, theme colors, React Query.
+ * Dependencies: lyrics parsers/source resolver, player controls/store, UI store, theme colors, React Query, Reanimated timing.
  * Main Functions: LyricsView()
  * Side Effects: Reads lyrics metadata/DB fallback, seeks playback, updates session-only lyrics preferences.
  */
@@ -20,12 +20,16 @@ import {
 } from "react-native"
 import { useTranslation } from "react-i18next"
 import Animated, {
+  cancelAnimation,
+  Easing,
   FadeIn,
   FadeOut,
   Layout,
   type SharedValue,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated"
 import LocalMicIcon from "@/components/icons/local/mic"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -55,23 +59,96 @@ interface LyricsViewProps {
 }
 
 const AUTO_SCROLL_RESUME_DELAY_MS = 100
+const KARAOKE_PROGRESS_TICK_SECONDS = 0.5
+const KARAOKE_PROGRESS_ANIMATION_MS = 520
 const FONT_SCALE_VALUES = [1, 1.2, 1.4] as const
 
+function findActiveIndexByTime<T>(
+  lines: T[],
+  time: number,
+  getTime: (line: T) => number
+) {
+  let low = 0
+  let high = lines.length - 1
+  let activeIndex = -1
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2)
+    const lineTime = getTime(lines[mid] as T)
+
+    if (time >= lineTime) {
+      activeIndex = mid
+      low = mid + 1
+    } else {
+      high = mid - 1
+    }
+  }
+
+  return activeIndex
+}
+
 function findTimedMarkupLineIndex(lines: TimedMarkupLine[], time: number) {
-  return lines.findIndex((line, index) => {
-    const nextLine = lines[index + 1]
-    return time >= line.begin && (!nextLine || time < nextLine.begin)
-  })
+  return findActiveIndexByTime(lines, time, (line) => line.begin)
+}
+
+function getTimedMarkupLineText(line: TimedMarkupLine) {
+  return line.words.map((word) => word.text).join("")
+}
+
+function hasWordLevelTiming(line: TimedMarkupLine) {
+  if (line.words.length < 2) {
+    return false
+  }
+
+  const distinctWordStarts = new Set(
+    line.words
+      .map((word) => word.begin)
+      .filter((time) => Number.isFinite(time))
+      .map((time) => Math.round(time * 1000))
+  )
+
+  return distinctWordStarts.size > 1
+}
+
+function getInterpolatedPlaybackTimeTarget({
+  duration,
+  isPlaying,
+  line,
+  nextLine,
+  time,
+}: {
+  duration: number
+  isPlaying: boolean
+  line: TimedMarkupLine | undefined
+  nextLine: TimedMarkupLine | undefined
+  time: number
+}) {
+  if (!isPlaying) {
+    return time
+  }
+
+  let targetTime = time + KARAOKE_PROGRESS_TICK_SECONDS
+
+  if (duration > 0) {
+    targetTime = Math.min(duration, targetTime)
+  }
+
+  if (line && line.end > line.begin && time < line.end) {
+    targetTime = Math.min(targetTime, line.end)
+  }
+
+  if (nextLine && nextLine.begin > time) {
+    targetTime = Math.min(targetTime, nextLine.begin)
+  }
+
+  return targetTime
 }
 
 function findSyncedLineIndex(
   lines: Array<{ time: number }>,
   time: number
 ) {
-  return lines.findIndex((line, index) => {
-    const nextLine = lines[index + 1]
-    return time >= line.time && (!nextLine || time < nextLine.time)
-  })
+  return findActiveIndexByTime(lines, time, (line) => line.time)
 }
 
 const TimedMarkupWordSpan: React.FC<{
@@ -98,19 +175,21 @@ const TimedMarkupWordSpan: React.FC<{
   const fontWeight = lineActive ? "700" : "600"
 
   const displayText = text.replace(/ /g, "\u00A0")
-  const foregroundStyle = useAnimatedStyle(() => {
+  const wordProgressSv = useDerivedValue(() => {
     const wordDuration = Math.max(end - begin, 0.001)
     const currentTime = currentTimeSv.value
-    const wordProgress = linePast
+    return linePast
       ? 1
       : lineActive
         ? Math.max(0, Math.min(1, (currentTime - begin) / wordDuration))
         : 0
+  }, [begin, end, lineActive, linePast])
 
+  const foregroundClipStyle = useAnimatedStyle(() => {
     return {
-      width: wordProgress * textWidth,
+      width: textWidth * wordProgressSv.value,
     }
-  }, [begin, end, lineActive, linePast, textWidth])
+  }, [textWidth])
 
   return (
     <View style={{ position: "relative", justifyContent: "center" }}>
@@ -121,7 +200,7 @@ const TimedMarkupWordSpan: React.FC<{
           fontSize,
           lineHeight,
           fontWeight,
-          letterSpacing: -0.4,
+          letterSpacing: 0,
           paddingHorizontal: 0,
           marginHorizontal: 0,
         }}
@@ -136,12 +215,13 @@ const TimedMarkupWordSpan: React.FC<{
               left: 0,
               top: 0,
               bottom: 0,
+              width: 0,
               overflow: "hidden",
             },
-            foregroundStyle,
+            foregroundClipStyle,
           ]}
         >
-          <View
+          <Animated.View
             style={{
               width: textWidth,
               position: "absolute",
@@ -150,21 +230,21 @@ const TimedMarkupWordSpan: React.FC<{
               left: 0,
             }}
           >
-            <Text
+            <Animated.Text
               style={{
                 color: activeColor,
                 fontSize,
                 lineHeight,
                 fontWeight,
-                letterSpacing: -0.4,
+                letterSpacing: 0,
                 paddingHorizontal: 0,
                 marginHorizontal: 0,
                 width: textWidth,
               }}
             >
               {displayText}
-            </Text>
-          </View>
+            </Animated.Text>
+          </Animated.View>
         </Animated.View>
       )}
     </View>
@@ -196,6 +276,16 @@ const TimedMarkupLineRow: React.FC<{
     (event: LayoutChangeEvent) => onLayoutLine(line.id, event.nativeEvent.layout.y),
     [line.id, onLayoutLine]
   )
+  const lineText = React.useMemo(() => getTimedMarkupLineText(line), [line])
+  const canRenderWordProgress = isActive && hasWordLevelTiming(line)
+  const textColor = isActive
+    ? "rgba(255,255,255,0.96)"
+    : isPast
+      ? "rgba(255,255,255,0.54)"
+      : "rgba(255,255,255,0.20)"
+  const fontSize = (isActive ? 24 : 18) * fontScale
+  const lineHeight = (isActive ? 36 : 28) * fontScale
+  const fontWeight = isActive ? "700" : "600"
 
   return (
     <PressableFeedback
@@ -203,20 +293,35 @@ const TimedMarkupLineRow: React.FC<{
       className="py-1 active:opacity-85"
       onLayout={handleLayout}
     >
-      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-        {line.words.map((word) => (
-          <TimedMarkupWordSpan
-            key={`${line.id}-${word.begin}-${word.end}-${word.text}`}
-            text={word.text}
-            begin={word.begin}
-            end={word.end}
-            currentTimeSv={currentTimeSv}
-            lineActive={isActive}
-            linePast={isPast}
-            fontScale={fontScale}
-          />
-        ))}
-      </View>
+      {canRenderWordProgress ? (
+        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+          {line.words.map((word) => (
+            <TimedMarkupWordSpan
+              key={`${line.id}-${word.begin}-${word.end}-${word.text}`}
+              text={word.text}
+              begin={word.begin}
+              end={word.end}
+              currentTimeSv={currentTimeSv}
+              lineActive={isActive}
+              linePast={isPast}
+              fontScale={fontScale}
+            />
+          ))}
+        </View>
+      ) : (
+        <Text
+          selectable={false}
+          style={{
+            color: textColor,
+            fontSize,
+            lineHeight,
+            fontWeight,
+            letterSpacing: 0,
+          }}
+        >
+          {lineText}
+        </Text>
+      )}
     </PressableFeedback>
   )
 }
@@ -358,12 +463,37 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       return -1
     }
 
-    const syncPlaybackTime = (time: number) => {
-      if (effectiveMode === "timedMarkup") {
-        currentTimeSv.value = time
-      }
-
+    const syncPlaybackTime = (
+      time: number,
+      isPlaying: boolean,
+      duration: number
+    ) => {
       const nextIndex = getActiveIndex(time)
+
+      if (effectiveMode === "timedMarkup") {
+        const currentAnimatedTime = currentTimeSv.value
+        const line = timedMarkupLines[nextIndex]
+        const nextLine = timedMarkupLines[nextIndex + 1]
+        const targetTime = getInterpolatedPlaybackTimeTarget({
+          duration,
+          isPlaying,
+          line,
+          nextLine,
+          time,
+        })
+        const canInterpolate =
+          isPlaying &&
+          targetTime >= currentAnimatedTime &&
+          Math.abs(time - currentAnimatedTime) < 1.25
+
+        cancelAnimation(currentTimeSv)
+        currentTimeSv.value = canInterpolate
+          ? withTiming(targetTime, {
+              duration: KARAOKE_PROGRESS_ANIMATION_MS,
+              easing: Easing.linear,
+            })
+          : time
+      }
 
       if (activeSyncedLineIndexRef.current !== nextIndex) {
         activeSyncedLineIndexRef.current = nextIndex
@@ -371,24 +501,38 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       }
     }
 
-    syncPlaybackTime(usePlayerStore.getState().currentTime)
+    const initialState = usePlayerStore.getState()
+    syncPlaybackTime(
+      initialState.currentTime,
+      initialState.isPlaying,
+      initialState.duration
+    )
 
     const unsubscribe = usePlayerStore.subscribe((state, previousState) => {
-      if (state.currentTime === previousState.currentTime) {
+      if (
+        state.currentTime === previousState.currentTime &&
+        state.isPlaying === previousState.isPlaying &&
+        state.duration === previousState.duration
+      ) {
         return
       }
 
-      syncPlaybackTime(state.currentTime)
+      syncPlaybackTime(state.currentTime, state.isPlaying, state.duration)
     })
 
-    return unsubscribe
+    return () => {
+      cancelAnimation(currentTimeSv)
+      unsubscribe()
+    }
   }, [currentTimeSv, effectiveMode, syncedLines, timedMarkupLines])
 
   React.useEffect(() => {
     syncedLineOffsetRef.current = {}
     activeSyncedLineIndexRef.current = -1
+    cancelAnimation(currentTimeSv)
+    currentTimeSv.value = usePlayerStore.getState().currentTime
     setActiveSyncedLineIndex(-1)
-  }, [track?.id, effectiveMode, fontScale])
+  }, [currentTimeSv, track?.id, effectiveMode, fontScale])
 
   React.useEffect(() => {
     isUserScrollingRef.current = false
@@ -584,7 +728,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
                         fontSize: 20 * fontScale,
                         lineHeight: 32 * fontScale,
                         fontWeight: "700",
-                        letterSpacing: -0.4,
+                        letterSpacing: 0,
                       }}
                     >
                       {line.text}
@@ -619,7 +763,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
                         fontSize: (isActive ? 22 : 18) * fontScale,
                         lineHeight: (isActive ? 34 : 28) * fontScale,
                         fontWeight: isActive ? "700" : "600",
-                        letterSpacing: -0.4,
+                        letterSpacing: 0,
                       }}
                     >
                       {line.text}
