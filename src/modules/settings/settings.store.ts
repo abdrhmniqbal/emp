@@ -67,7 +67,7 @@ const DEFAULT_SPLIT_MULTIPLE_VALUE_CONFIG: SplitMultipleValueConfig = {
   artistSplitSymbols: [";", "/", "&", ",", "ft.", "feat."],
   unsplitArtists: [],
   artistSplitMode: "split",
-  genreSplitSymbols: [";", "/", "&", ","],
+  genreSplitSymbols: [";", "/", ","],
 }
 
 interface SettingsState {

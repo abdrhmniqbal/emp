@@ -142,7 +142,9 @@ function TagEditorSheet({
         <BottomSheet.Overlay isCloseOnPress />
         <BottomSheet.Content
           backgroundClassName="bg-surface"
-          keyboardBehavior="extend"
+          keyboardBehavior="interactive"
+          keyboardBlurBehavior="restore"
+          enableBlurKeyboardOnGesture
         >
           <BottomSheet.Title className="mb-3 text-xl">{title}</BottomSheet.Title>
           <TagEditorSheetContent {...contentProps} />
