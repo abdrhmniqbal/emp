@@ -1,3 +1,14 @@
+// Node < 20 compatibility for deps using new array copy helpers.
+if (!Array.prototype.toReversed) {
+  Object.defineProperty(Array.prototype, "toReversed", {
+    value: function toReversed() {
+      return this.slice().reverse()
+    },
+    writable: true,
+    configurable: true,
+  })
+}
+
 const { getDefaultConfig } = require("expo/metro-config")
 const { withUniwindConfig } = require("uniwind/metro")
 const { withMonicon } = require("@monicon/metro")
