@@ -59,6 +59,7 @@ import { useThemeColors } from "@/modules/ui/theme"
 
 interface FavoritesListProps {
   data: FavoriteEntry[]
+  availableTypes?: FavoriteType[]
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
   refreshControl?: React.ReactElement<RefreshControlProps> | null
@@ -237,6 +238,7 @@ function getFavoriteTypeLabel(type: FavoriteType, t: TFunction) {
 
 export const FavoritesList: React.FC<FavoritesListProps> = ({
   data,
+  availableTypes = [],
   scrollEnabled = true,
   contentContainerStyle,
   refreshControl,
@@ -254,9 +256,12 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   const toggleFavoriteMutation = useToggleFavorite()
   const router = useRouter()
   const { listRef, listBehaviorProps } = useLegendListBehavior(resetScrollKey)
+  const visibleFavoriteTypes = FAVORITE_TYPE_FILTERS.filter((type) =>
+    availableTypes.includes(type)
+  )
   const orderedFavoriteTypes = [
-    ...selectedTypes.filter((type) => FAVORITE_TYPE_FILTERS.includes(type)),
-    ...FAVORITE_TYPE_FILTERS.filter((type) => !selectedTypes.includes(type)),
+    ...selectedTypes.filter((type) => visibleFavoriteTypes.includes(type)),
+    ...visibleFavoriteTypes.filter((type) => !selectedTypes.includes(type)),
   ]
   const listContentContainerStyle = StyleSheet.flatten([
     { gap: 8 },
@@ -346,23 +351,25 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
 
   return (
     <View style={{ flex: 1, minHeight: 1 }}>
-      <View className="mb-3 flex-row flex-wrap gap-2">
-        {orderedFavoriteTypes.map((type) => {
-          const isSelected = selectedTypes.includes(type)
+      {orderedFavoriteTypes.length > 0 ? (
+        <View className="mb-3 flex-row flex-wrap gap-2">
+          {orderedFavoriteTypes.map((type) => {
+            const isSelected = selectedTypes.includes(type)
 
-          return (
-            <Chip
-              key={type}
-              size="lg"
-              variant={isSelected ? "primary" : "soft"}
-              color={isSelected ? "accent" : "default"}
-              onPress={() => toggleTypeFilter(type)}
-            >
-              <Chip.Label>{getFavoriteTypeLabel(type, t)}</Chip.Label>
-            </Chip>
-          )
-        })}
-      </View>
+            return (
+              <Chip
+                key={type}
+                size="lg"
+                variant={isSelected ? "primary" : "soft"}
+                color={isSelected ? "accent" : "default"}
+                onPress={() => toggleTypeFilter(type)}
+              >
+                <Chip.Label>{getFavoriteTypeLabel(type, t)}</Chip.Label>
+              </Chip>
+            )
+          })}
+        </View>
+      ) : null}
       <LegendList
         ref={listRef}
         {...listBehaviorProps}

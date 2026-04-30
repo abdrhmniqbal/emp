@@ -177,18 +177,41 @@ export default function LibraryScreen() {
   const { data: favorites = [] } = useFavorites(undefined, {
     enabled: shouldLoadFavorites,
   })
+  const availableFavoriteTypes = React.useMemo<FavoriteType[]>(
+    () => [
+      ...new Set(
+        favorites.map((favorite) => favorite.type)
+      ),
+    ],
+    [favorites]
+  )
+  const activeFavoriteTypeFilters = React.useMemo(
+    () =>
+      favoriteTypeFilters.filter((type) =>
+        availableFavoriteTypes.includes(type)
+      ),
+    [availableFavoriteTypes, favoriteTypeFilters]
+  )
+  const handleFavoriteTypeFiltersChange = React.useCallback(
+    (types: FavoriteType[]) => {
+      setFavoriteTypeFilters(
+        types.filter((type) => availableFavoriteTypes.includes(type))
+      )
+    },
+    [availableFavoriteTypes]
+  )
   const filteredFavorites = React.useMemo(
     () => {
       const visibleFavorites =
-        favoriteTypeFilters.length === 0
+        activeFavoriteTypeFilters.length === 0
           ? favorites
           : favorites.filter((favorite) =>
-              favoriteTypeFilters.includes(favorite.type)
+              activeFavoriteTypeFilters.includes(favorite.type)
             )
 
       return sortGeneric(visibleFavorites, allSortConfigs.Favorites)
     },
-    [allSortConfigs.Favorites, favoriteTypeFilters, favorites]
+    [activeFavoriteTypeFilters, allSortConfigs.Favorites, favorites]
   )
 
   const albumOrderByField = getAlbumOrderByField(allSortConfigs.Albums.field)
@@ -717,8 +740,9 @@ export default function LibraryScreen() {
         return (
           <FavoritesList
             data={filteredFavorites}
-            selectedTypes={favoriteTypeFilters}
-            onSelectedTypesChange={setFavoriteTypeFilters}
+            availableTypes={availableFavoriteTypes}
+            selectedTypes={activeFavoriteTypeFilters}
+            onSelectedTypesChange={handleFavoriteTypeFiltersChange}
             onTrackPress={(trackId) => {
               void playFavoriteTrack(trackId)
             }}
