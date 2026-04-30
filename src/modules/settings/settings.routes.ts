@@ -55,4 +55,5 @@ export const SETTINGS_SCREEN_TITLE_KEYS: Record<string, string> = {
   "track-duration-filter": "settings.routes.trackDurationFilter.title",
   "log-level": "settings.routes.logLevel.title",
   "artist-split-mode": "settings.routes.artistSplitMode.title",
+  "open-source-licenses": "settings.routes.about.title",
 }

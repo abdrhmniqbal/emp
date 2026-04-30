@@ -9,6 +9,7 @@
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { Image } from "expo-image"
+import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { ListGroup } from "heroui-native"
 import { Linking, ScrollView, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
@@ -16,6 +17,7 @@ import { useTranslation } from "react-i18next"
 import appIcon from "@/assets/icon.png"
 
 export default function AboutSettingsScreen() {
+  const router = useRouter()
   const { t } = useTranslation()
   const appName = Constants.expoConfig?.name || "Startune Music"
   const version =
@@ -55,6 +57,25 @@ export default function AboutSettingsScreen() {
               </ListGroup.ItemTitle>
               <ListGroup.ItemDescription>
                 {t("settings.about.repositoryDescription")}
+              </ListGroup.ItemDescription>
+            </ListGroup.ItemContent>
+            <ListGroup.ItemSuffix />
+          </ListGroup.Item>
+          <ListGroup.Item
+            onPress={() => {
+              router.push("/settings/open-source-licenses")
+            }}
+          >
+            <ListGroup.ItemContent>
+              <ListGroup.ItemTitle>
+                {t("settings.about.openSourceLicenses", {
+                  defaultValue: "Open Source Licenses",
+                })}
+              </ListGroup.ItemTitle>
+              <ListGroup.ItemDescription>
+                {t("settings.about.openSourceLicensesDescription", {
+                  defaultValue: "Third-party packages and license texts.",
+                })}
               </ListGroup.ItemDescription>
             </ListGroup.ItemContent>
             <ListGroup.ItemSuffix />

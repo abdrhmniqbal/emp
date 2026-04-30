@@ -34,6 +34,7 @@ const DETAIL_SETTINGS_SCREENS = [
   "track-duration-filter",
   "log-level",
   "artist-split-mode",
+  "open-source-licenses",
 ] as const
 
 export default function SettingsLayout() {

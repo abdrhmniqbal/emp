@@ -480,7 +480,11 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "Project source code."
+      "repositoryDescription": "Project source code.",
+      "openSourceLicenses": "Open Source Licenses",
+      "openSourceLicensesDescription": "Third-party packages and license texts.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "License text unavailable."
     }
   }
 }
