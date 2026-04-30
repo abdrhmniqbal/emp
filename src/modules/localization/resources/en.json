@@ -47,6 +47,22 @@
       "paused": "Library indexing paused"
     }
   },
+  "updates": {
+    "sheetTitle": "Update available",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "What's new",
+    "downloadAndInstall": "Download & install",
+    "dontRemind": "Don't remind",
+    "later": "Later",
+    "previewRelease": "Preview release",
+    "noReleaseNotes": "No release notes provided.",
+    "notification": {
+      "channelName": "App Updates",
+      "channelDescription": "Notifications for new Startune Music releases.",
+      "title": "Update available",
+      "body": "{{currentVersion}} -> {{newVersion}}"
+    }
+  },
   "home": {
     "recentlyPlayed": "Recently Played",
     "topTracks": "Top Tracks",
@@ -275,6 +291,9 @@
         "title": "About",
         "description": "App information and build details."
       },
+      "whatsNew": {
+        "title": "What's New"
+      },
       "language": {
         "title": "Language",
         "description": "Choose the app display language."
@@ -415,9 +434,12 @@
       "durationHint": "Choose how long the next track overlaps with the current one."
     },
     "notifications": {
-      "indexerNotifications": "Indexer Notifications",
-      "indexerNotificationsEnabled": "Show system notifications while indexing.",
-      "indexerNotificationsDisabled": "Hide indexing notifications from your system tray."
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
+      "indexerNotifications": "Library indexing progress",
+      "indexerNotificationsEnabled": "Shows notification progress while indexing your music library.",
+      "indexerNotificationsDisabled": "Indexing progress notifications are disabled."
     },
     "trackDuration": {
       "noFilter": "No Filter",
@@ -452,7 +474,8 @@
       "sections": {
         "logs": "Logs",
         "history": "History",
-        "background": "Background"
+        "background": "Background",
+        "updates": "Updates"
       },
       "logExtraDescription": "Extra: capture debug, info, warnings, and errors.",
       "logMinimalDescription": "Minimal: capture critical and error logs only.",
@@ -465,6 +488,9 @@
       "openSystemSettings": "Open system settings.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "Open device-specific battery and background process guidance.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "Reset listening history?",
       "resetDialogDescription": "This will clear recently played and reset top-track stats. Your music files, playlists, and favorites will stay unchanged.",
       "logsReadyTitle": "Logs ready to share",
@@ -481,6 +507,18 @@
     "about": {
       "github": "GitHub",
       "repositoryDescription": "Project source code.",
+      "checkForUpdates": "Check for updates",
+      "checkForUpdatesDescription": "Look for a newer Startune Music release.",
+      "checkingForUpdates": "Checking for a new release...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "What's New",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
       "openSourceLicenses": "Open Source Licenses",
       "openSourceLicensesDescription": "Third-party packages and license texts.",
       "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",

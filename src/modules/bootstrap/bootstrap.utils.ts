@@ -24,6 +24,7 @@ import {
   getIsPlayingState,
 } from "@/modules/player/player.store"
 import { ensureAudioPlaybackConfigLoaded } from "@/modules/settings/audio-playback"
+import { ensureAppUpdateConfigLoaded } from "@/modules/settings/app-updates"
 import { ensureCrossfadeConfigLoaded } from "@/modules/settings/audio-crossfade"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { ensureFolderFilterConfigLoaded } from "@/modules/settings/folder-filters"
@@ -40,6 +41,7 @@ async function preloadLocalSettings() {
   await Promise.all([
     ensureAutoScanConfigLoaded(),
     ensureAudioPlaybackConfigLoaded(),
+    ensureAppUpdateConfigLoaded(),
     ensureCrossfadeConfigLoaded(),
     ensureFolderFilterConfigLoaded(),
     ensureIndexerNotificationsConfigLoaded(),

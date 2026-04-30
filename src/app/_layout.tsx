@@ -1,7 +1,7 @@
 /**
  * Purpose: Boots the app shell, sets navigation theme, handles notifications, and defines the root stack.
  * Caller: Expo Router root entry point.
- * Dependencies: RootProviders, bootstrap runtime, Expo Notifications, HeroUI Native, Expo Router stack options, player UI state.
+ * Dependencies: RootProviders, bootstrap runtime, update runtime, Expo Notifications, HeroUI Native, Expo Router stack options, player UI state.
  * Main Functions: Layout()
  * Side Effects: Registers notification listeners, drives splash-screen visibility, triggers bootstrap lifecycle, routes into player/settings screens.
  */
@@ -28,12 +28,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useUniwind } from "uniwind"
 
 import { RootProviders } from "@/components/providers/root-providers"
+import { AppUpdateSheet } from "@/components/blocks/app-update-sheet"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
 import { Stack } from "@/layouts/stack"
 import {
   handleBootstrapDatabaseError,
   handleBootstrapDatabaseReady,
 } from "@/modules/bootstrap/bootstrap.runtime"
+import { checkStartupAppUpdate } from "@/modules/updates/app-update.runtime"
 import {
   INDEXER_NOTIFICATION_ACTION_CANCEL,
   INDEXER_NOTIFICATION_ACTION_PAUSE,
@@ -183,6 +185,7 @@ export default function Layout() {
   }
   const notifyDatabaseReady = async () => {
     await handleBootstrapDatabaseReady()
+    void checkStartupAppUpdate()
     hideSplash()
   }
   const notifyDatabaseError = () => {
@@ -258,6 +261,7 @@ export default function Layout() {
                     }
                   />
                 </Stack>
+                <AppUpdateSheet />
               </View>
             </RootProviders>
           </HeroUINativeProvider>

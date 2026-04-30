@@ -1,15 +1,23 @@
 /**
- * Purpose: Renders advanced maintenance and device-behavior settings for logs, listening history, and background activity.
+ * Purpose: Renders advanced maintenance and device-behavior settings for logs, listening history, background activity, and preview releases.
  * Caller: Settings advanced route.
- * Dependencies: Expo application metadata, HeroUI Native ListGroup, dialog/toast, react-i18next, battery optimization helpers, logging service, history mutations.
+ * Dependencies: Expo application metadata, HeroUI Native ListGroup, dialog/toast, react-i18next, battery optimization helpers, logging service, history mutations, app update settings.
  * Main Functions: AdvancedSettingsScreen()
- * Side Effects: Opens system settings, shares logs, clears listening history, and launches external background-activity guidance.
+ * Side Effects: Opens system settings, shares logs, clears listening history, persists update preferences, and launches external background-activity guidance.
  */
 
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { Button, Dialog, ListGroup, Separator, Toast, useToast } from "heroui-native"
+import {
+  Button,
+  Dialog,
+  ListGroup,
+  Separator,
+  Switch,
+  Toast,
+  useToast,
+} from "heroui-native"
 import { useState } from "react"
 import { Linking, Platform, ScrollView, View, Text } from "react-native"
 import { useTranslation } from "react-i18next"
@@ -21,6 +29,7 @@ import {
 } from "@/modules/device/battery-optimization"
 import { useResetListeningHistory } from "@/modules/history/history.mutations"
 import { shareCrashLogs } from "@/modules/logging/logging.service"
+import { setAppUpdateConfig } from "@/modules/settings/app-updates"
 import { useSettingsStore } from "@/modules/settings/settings.store"
 
 export default function AdvancedSettingsScreen() {
@@ -28,6 +37,9 @@ export default function AdvancedSettingsScreen() {
   const { toast } = useToast()
   const { t } = useTranslation()
   const loggingLevel = useSettingsStore((state) => state.loggingConfig.level)
+  const includePrereleases = useSettingsStore(
+    (state) => state.appUpdateConfig.includePrereleases
+  )
   const resetListeningHistoryMutation = useResetListeningHistory()
   const [isResetHistoryDialogOpen, setIsResetHistoryDialogOpen] =
     useState(false)
@@ -233,6 +245,34 @@ export default function AdvancedSettingsScreen() {
                 </ListGroup.ItemDescription>
               </ListGroup.ItemContent>
               <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+          </ListGroup>
+
+          <Text className="px-1 text-xs font-semibold uppercase text-muted">
+            {t("settings.advanced.sections.updates")}
+          </Text>
+          <ListGroup>
+            <ListGroup.Item>
+              <ListGroup.ItemContent>
+                <ListGroup.ItemTitle>
+                  {t("settings.advanced.joinPreviewReleases")}
+                </ListGroup.ItemTitle>
+                <ListGroup.ItemDescription>
+                  {includePrereleases
+                    ? t("settings.advanced.joinPreviewReleasesEnabled")
+                    : t("settings.advanced.joinPreviewReleasesDisabled")}
+                </ListGroup.ItemDescription>
+              </ListGroup.ItemContent>
+              <ListGroup.ItemSuffix>
+                <Switch
+                  isSelected={includePrereleases}
+                  onSelectedChange={(isSelected) => {
+                    void setAppUpdateConfig({
+                      includePrereleases: isSelected,
+                    })
+                  }}
+                />
+              </ListGroup.ItemSuffix>
             </ListGroup.Item>
           </ListGroup>
         </View>

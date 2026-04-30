@@ -35,6 +35,7 @@ const DETAIL_SETTINGS_SCREENS = [
   "log-level",
   "artist-split-mode",
   "open-source-licenses",
+  "whats-new",
 ] as const
 
 export default function SettingsLayout() {

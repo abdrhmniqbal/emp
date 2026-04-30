@@ -1,15 +1,20 @@
 /**
  * Purpose: Stores local settings defaults and the app-wide settings state.
  * Caller: Settings screens, localization, settings persistence modules, bootstrap preload, and services reading preferences.
- * Dependencies: Zustand, settings type definitions.
+ * Dependencies: Zustand, settings type definitions, installed app version metadata.
  * Main Functions: useSettingsStore, getSettingsState(), updateSettingsState(), default config getters.
  * Side Effects: Mutates in-memory Zustand settings state.
  */
 
 import { create } from "zustand"
 
+import {
+  getCurrentAppVersion,
+  isPreviewReleaseVersion,
+} from "@/modules/updates/app-version"
 import type {
   AudioPlaybackConfig,
+  AppUpdateConfig,
   CrossfadeConfig,
   FolderFilterConfig,
   IndexerScanConfig,
@@ -21,6 +26,10 @@ import type {
 
 const DEFAULT_LANGUAGE_CODE: LanguageCode = "en"
 const DEFAULT_INDEXER_NOTIFICATIONS_ENABLED = true
+const DEFAULT_APP_UPDATE_CONFIG: AppUpdateConfig = {
+  notificationsEnabled: true,
+  includePrereleases: isPreviewReleaseVersion(getCurrentAppVersion()),
+}
 const DEFAULT_INDEXER_SCAN_CONFIG: IndexerScanConfig = {
   autoScanEnabled: true,
   rescanImmediatelyEnabled: false,
@@ -65,6 +74,7 @@ interface SettingsState {
   languageCode: LanguageCode
   indexerScanConfig: IndexerScanConfig
   indexerNotificationsEnabled: boolean
+  appUpdateConfig: AppUpdateConfig
   crossfadeConfig: CrossfadeConfig
   audioPlaybackConfig: AudioPlaybackConfig
   folderFilterConfig: FolderFilterConfig
@@ -77,6 +87,7 @@ export const useSettingsStore = create<SettingsState>(() => ({
   languageCode: DEFAULT_LANGUAGE_CODE,
   indexerScanConfig: DEFAULT_INDEXER_SCAN_CONFIG,
   indexerNotificationsEnabled: DEFAULT_INDEXER_NOTIFICATIONS_ENABLED,
+  appUpdateConfig: DEFAULT_APP_UPDATE_CONFIG,
   crossfadeConfig: DEFAULT_CROSSFADE_CONFIG,
   audioPlaybackConfig: DEFAULT_AUDIO_PLAYBACK_CONFIG,
   folderFilterConfig: DEFAULT_FOLDER_FILTER_CONFIG,
@@ -99,6 +110,10 @@ export function getDefaultLoggingConfig() {
 
 export function getDefaultIndexerNotificationsEnabled() {
   return DEFAULT_INDEXER_NOTIFICATIONS_ENABLED
+}
+
+export function getDefaultAppUpdateConfig() {
+  return DEFAULT_APP_UPDATE_CONFIG
 }
 
 export function getDefaultCrossfadeConfig() {

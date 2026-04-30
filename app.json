@@ -29,6 +29,7 @@
     "android": {
       "package": "com.startune.music",
       "permissions": [
+        "INTERNET",
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_AUDIO_PLAYBACK",
