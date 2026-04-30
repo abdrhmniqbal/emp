@@ -43,11 +43,20 @@ function decodePathRecursively(value: string) {
 
 function isLikelyExternalFileIntent(path: string) {
   const normalizedPath = decodePathRecursively(path).toLowerCase()
+  const pathWithoutLeadingSlashes = normalizedPath.replace(/^\/+/, "")
 
   return (
+    pathWithoutLeadingSlashes.startsWith("content://") ||
+    pathWithoutLeadingSlashes.startsWith("content:/") ||
+    pathWithoutLeadingSlashes.startsWith("file://") ||
+    pathWithoutLeadingSlashes.startsWith("file:/") ||
     normalizedPath.startsWith("content://") ||
+    normalizedPath.startsWith("content:/") ||
     normalizedPath.startsWith("file://") ||
+    normalizedPath.startsWith("file:/") ||
     normalizedPath.includes("com.mixplorer") ||
+    normalizedPath.includes("com.android.providers.media.documents") ||
+    normalizedPath.includes("content%3a%2f") ||
     normalizedPath.includes("/storage/") ||
     normalizedPath.includes(".mp3") ||
     normalizedPath.includes(".flac") ||
@@ -55,6 +64,38 @@ function isLikelyExternalFileIntent(path: string) {
     normalizedPath.includes(".m4a") ||
     normalizedPath.includes(".wav")
   )
+}
+
+function normalizeExternalIntentUri(path: string) {
+  const decodedPath = decodePathRecursively(path).replace(/^\/+(?=\w+:\/)/, "")
+  let parsedUrl: URL | null = null
+
+  try {
+    parsedUrl = new URL(decodedPath)
+  } catch {
+    parsedUrl = null
+  }
+
+  if (parsedUrl) {
+    const host = parsedUrl.host.toLowerCase()
+    if (
+      parsedUrl.protocol === "startune-music:" &&
+      (host.includes("com.mixplorer") ||
+        host.includes("com.android.providers.media.documents"))
+    ) {
+      return `content://${parsedUrl.host}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`
+    }
+  }
+
+  if (/^content:\/(?!\/)/i.test(decodedPath)) {
+    return decodedPath.replace(/^content:\//i, "content://")
+  }
+
+  if (/^file:\/(?!\/)/i.test(decodedPath)) {
+    return decodedPath.replace(/^file:\//i, "file:///")
+  }
+
+  return decodedPath
 }
 
 function safeParsePath(path: string) {
@@ -66,7 +107,9 @@ function safeParsePath(path: string) {
 }
 
 function buildExternalAudioRoute(uri: string) {
-  return `${EXTERNAL_AUDIO_ROUTE}?externalUri=${encodeURIComponent(uri)}`
+  return `${EXTERNAL_AUDIO_ROUTE}?externalUri=${encodeURIComponent(
+    normalizeExternalIntentUri(uri)
+  )}`
 }
 
 export function redirectSystemPath({

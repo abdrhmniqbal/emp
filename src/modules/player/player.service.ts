@@ -1,5 +1,5 @@
 /**
- * Purpose: Sets up native audio playback, replaces the active TrackPlayer queue, and stores queue source context when playback starts.
+ * Purpose: Sets up native audio playback, identifies external intent tracks, replaces the active TrackPlayer queue, and stores queue source context when playback starts.
  * Caller: track rows, player controls, queue recovery flows, bootstrap playback setup, external audio intent handler.
  * Dependencies: TrackPlayer native module, notification icon asset, player store, playback session service, player activity service, crossfade transition service, file URI utilities, logging service.
  * Main Functions: setupPlayer(), playTrack(), playExternalFileUri()
@@ -74,6 +74,29 @@ function normalizeUriForComparison(uri: string) {
   return decodeUriRecursively(uri).replace(/\/+$/, "")
 }
 
+function extractExternalUriTrackIds(uri: string) {
+  const decodedUri = decodeUriRecursively(uri)
+  const candidates = new Set<string>()
+  const documentIdMatch = decodedUri.match(
+    /(?:document|tree)\/audio:([^/?#]+)/i
+  )
+  const mediaStoreIdMatch = decodedUri.match(/\/audio\/media\/([^/?#]+)/i)
+  const genericMediaIdMatch = decodedUri.match(/\/media\/([^/?#]+)/i)
+
+  const addCandidate = (value?: string) => {
+    const decodedValue = value ? decodeUriRecursively(value).trim() : ""
+    if (decodedValue) {
+      candidates.add(decodedValue)
+    }
+  }
+
+  addCandidate(documentIdMatch?.[1])
+  addCandidate(mediaStoreIdMatch?.[1])
+  addCandidate(genericMediaIdMatch?.[1])
+
+  return candidates
+}
+
 function getExternalTrackTitle(uri: string) {
   const normalizedUri = decodeUriRecursively(uri)
   const pathWithoutQuery = normalizedUri.split(/[?#]/)[0] ?? normalizedUri
@@ -88,8 +111,13 @@ function findIndexedTrackForUri(uri: string, resolvedUri: string) {
     normalizeUriForComparison(uri),
     normalizeUriForComparison(resolvedUri),
   ])
+  const idCandidates = new Set([
+    ...extractExternalUriTrackIds(uri),
+    ...extractExternalUriTrackIds(resolvedUri),
+  ])
 
   return getTracksState().find((track) =>
+    idCandidates.has(track.id) ||
     candidates.has(normalizeUriForComparison(track.uri))
   )
 }
