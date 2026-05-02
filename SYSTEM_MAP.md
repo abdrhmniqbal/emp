@@ -418,6 +418,7 @@ src/
 │   │   ├── indexer.repository.ts             # scanMediaLibrary(), batch operations
 │   │   ├── indexer-file-identity.ts          # Asset fingerprints, IDs, sort names, stable hashes
 │   │   ├── indexer-normalization.ts          # Metadata text/title/genre normalization
+│   │   ├── indexer-run-snapshot.repository.ts # Last completed indexer run snapshot persistence
 │   │   ├── indexer.store.ts                  # Zustand: progress, status, runtime state
 │   │   ├── indexer.types.ts
 │   │   ├── indexer-runtime.ts                # isIndexerRunActive(), pause/resume/stop
