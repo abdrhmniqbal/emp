@@ -2,7 +2,7 @@
  * Purpose: Orchestrates database migration completion and initial DB state loading without component-owned effects.
  * Caller: Database provider.
  * Dependencies: Database startup loader and logging service.
- * Main Functions: syncDatabaseRuntime(), subscribeDatabaseRuntime(), getDatabaseRuntimeSnapshot()
+ * Main Functions: scheduleDatabaseRuntimeSync(), syncDatabaseRuntime(), subscribeDatabaseRuntime(), getDatabaseRuntimeSnapshot()
  * Side Effects: Loads cached DB state, emits runtime updates, and calls ready/error callbacks.
  */
 
@@ -36,7 +36,18 @@ let snapshot: DatabaseRuntimeSnapshot = {
 }
 let activeOnReady: (() => void) | undefined
 let activeOnError: (() => void) | undefined
+let pendingSyncOptions: SyncDatabaseRuntimeOptions | null = null
+let isSyncScheduled = false
 const listeners = new Set<DatabaseRuntimeListener>()
+
+function runAfterRender(task: () => void) {
+  if (typeof queueMicrotask === "function") {
+    queueMicrotask(task)
+    return
+  }
+
+  void Promise.resolve().then(task)
+}
 
 function emitChange() {
   listeners.forEach((listener) => listener())
@@ -119,4 +130,25 @@ export function syncDatabaseRuntime({
     .catch((loadTracksError) => {
       failDatabaseRuntime(loadTracksError as Error)
     })
+}
+
+export function scheduleDatabaseRuntimeSync(options: SyncDatabaseRuntimeOptions) {
+  pendingSyncOptions = options
+
+  if (isSyncScheduled) {
+    return
+  }
+
+  isSyncScheduled = true
+  runAfterRender(() => {
+    isSyncScheduled = false
+    const nextOptions = pendingSyncOptions
+    pendingSyncOptions = null
+
+    if (!nextOptions) {
+      return
+    }
+
+    syncDatabaseRuntime(nextOptions)
+  })
 }

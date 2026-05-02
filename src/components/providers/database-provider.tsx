@@ -15,8 +15,8 @@ import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
 import {
   getDatabaseRuntimeSnapshot,
+  scheduleDatabaseRuntimeSync,
   subscribeDatabaseRuntime,
-  syncDatabaseRuntime,
 } from "@/modules/bootstrap/database-runtime"
 
 export function DatabaseProvider({
@@ -36,7 +36,7 @@ export function DatabaseProvider({
     getDatabaseRuntimeSnapshot
   )
 
-  syncDatabaseRuntime({
+  scheduleDatabaseRuntimeSync({
     success,
     error: error ?? undefined,
     onReady,
