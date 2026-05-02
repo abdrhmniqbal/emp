@@ -20,15 +20,12 @@ import {
 } from "react-native"
 import { useTranslation } from "react-i18next"
 import Animated, {
-  cancelAnimation,
   Easing,
   FadeIn,
   FadeOut,
   Layout,
-  type SharedValue,
   useAnimatedStyle,
   useDerivedValue,
-  useSharedValue,
   withTiming,
 } from "react-native-reanimated"
 import LocalMicIcon from "@/components/icons/local/mic"
@@ -42,9 +39,14 @@ import {
   splitLyricsLines,
   type TimedMarkupLine,
 } from "@/modules/lyrics/lyrics"
+import { scheduleLyricsAutoScroll } from "@/modules/lyrics/lyrics-auto-scroll-runtime"
 import { resolveTrackLyricsSource } from "@/modules/lyrics/lyrics-source"
 import { seekTo } from "@/modules/player/player-controls.service"
-import { usePlayerStore } from "@/modules/player/player.store"
+import {
+  useIsPlaying,
+  usePlaybackCurrentTime,
+  usePlaybackDuration,
+} from "@/modules/player/player-selectors"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
   setPlayerLyricsFontScale,
@@ -53,6 +55,10 @@ import {
 } from "@/modules/ui/ui.store"
 
 type LyricsMode = "static" | "synced" | "timedMarkup"
+
+interface ReadableSharedValue<T> {
+  readonly value: T
+}
 
 interface LyricsViewProps {
   track: Track | null
@@ -155,7 +161,7 @@ const TimedMarkupWordSpan: React.FC<{
   text: string
   begin: number
   end: number
-  currentTimeSv: SharedValue<number>
+  currentTimeSv: ReadableSharedValue<number>
   lineActive: boolean
   linePast: boolean
   fontScale: number
@@ -258,7 +264,7 @@ const TimedMarkupLineRow: React.FC<{
   fontScale: number
   onSeek: (time: number) => void
   onLayoutLine: (id: string, y: number) => void
-  currentTimeSv: SharedValue<number>
+  currentTimeSv: ReadableSharedValue<number>
 }> = ({
   line,
   isActive,
@@ -410,12 +416,14 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   const scrollViewRef = React.useRef<ScrollView | null>(null)
   const syncedLineOffsetRef = React.useRef<Record<string, number>>({})
   const isUserScrollingRef = React.useRef(false)
-  const activeSyncedLineIndexRef = React.useRef(-1)
   const autoScrollResumeTimeoutRef = React.useRef<ReturnType<
     typeof setTimeout
   > | null>(null)
+  const layoutCacheKeyRef = React.useRef("")
   const [viewportHeight, setViewportHeight] = React.useState(0)
-  const currentTimeSv = useSharedValue(usePlayerStore.getState().currentTime)
+  const playbackTime = usePlaybackCurrentTime()
+  const isPlaying = useIsPlaying()
+  const playbackDuration = usePlaybackDuration()
 
   const handleToggleKaraoke = React.useCallback(() => {
     if (!hasSyncedLyrics) {
@@ -437,8 +445,6 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     return `×${level}`
   }, [fontScale])
 
-  const [activeSyncedLineIndex, setActiveSyncedLineIndex] = React.useState(-1)
-
   const handleSeek = React.useCallback(
     (time: number) => {
       void seekTo(time)
@@ -446,114 +452,47 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     []
   )
 
-  React.useEffect(() => {
-    if (effectiveMode === "static") {
-      return
+  const activeSyncedLineIndex = React.useMemo(() => {
+    if (effectiveMode === "timedMarkup") {
+      return findTimedMarkupLineIndex(timedMarkupLines, playbackTime)
     }
 
-    const getActiveIndex = (time: number) => {
-      if (effectiveMode === "timedMarkup") {
-        return findTimedMarkupLineIndex(timedMarkupLines, time)
-      }
-
-      if (effectiveMode === "synced") {
-        return findSyncedLineIndex(syncedLines, time)
-      }
-
-      return -1
+    if (effectiveMode === "synced") {
+      return findSyncedLineIndex(syncedLines, playbackTime)
     }
 
-    const syncPlaybackTime = (
-      time: number,
-      isPlaying: boolean,
-      duration: number
-    ) => {
-      const nextIndex = getActiveIndex(time)
+    return -1
+  }, [effectiveMode, playbackTime, syncedLines, timedMarkupLines])
 
-      if (effectiveMode === "timedMarkup") {
-        const currentAnimatedTime = currentTimeSv.value
-        const line = timedMarkupLines[nextIndex]
-        const nextLine = timedMarkupLines[nextIndex + 1]
-        const targetTime = getInterpolatedPlaybackTimeTarget({
-          duration,
-          isPlaying,
-          line,
-          nextLine,
-          time,
+  const currentTimeSv = useDerivedValue(() => {
+    if (effectiveMode !== "timedMarkup") {
+      return playbackTime
+    }
+
+    const line = timedMarkupLines[activeSyncedLineIndex]
+    const nextLine = timedMarkupLines[activeSyncedLineIndex + 1]
+    const targetTime = getInterpolatedPlaybackTimeTarget({
+      duration: playbackDuration,
+      isPlaying,
+      line,
+      nextLine,
+      time: playbackTime,
+    })
+
+    return isPlaying
+      ? withTiming(targetTime, {
+          duration: KARAOKE_PROGRESS_ANIMATION_MS,
+          easing: Easing.linear,
         })
-        const canInterpolate =
-          isPlaying &&
-          targetTime >= currentAnimatedTime &&
-          Math.abs(time - currentAnimatedTime) < 1.25
+      : playbackTime
+  })
 
-        cancelAnimation(currentTimeSv)
-        currentTimeSv.value = canInterpolate
-          ? withTiming(targetTime, {
-              duration: KARAOKE_PROGRESS_ANIMATION_MS,
-              easing: Easing.linear,
-            })
-          : time
-      }
-
-      if (activeSyncedLineIndexRef.current !== nextIndex) {
-        activeSyncedLineIndexRef.current = nextIndex
-        setActiveSyncedLineIndex(nextIndex)
-      }
-    }
-
-    const initialState = usePlayerStore.getState()
-    syncPlaybackTime(
-      initialState.currentTime,
-      initialState.isPlaying,
-      initialState.duration
-    )
-
-    const unsubscribe = usePlayerStore.subscribe((state, previousState) => {
-      if (
-        state.currentTime === previousState.currentTime &&
-        state.isPlaying === previousState.isPlaying &&
-        state.duration === previousState.duration
-      ) {
-        return
-      }
-
-      syncPlaybackTime(state.currentTime, state.isPlaying, state.duration)
-    })
-
-    return () => {
-      cancelAnimation(currentTimeSv)
-      unsubscribe()
-    }
-  }, [currentTimeSv, effectiveMode, syncedLines, timedMarkupLines])
-
-  React.useEffect(() => {
+  const layoutCacheKey = `${track?.id ?? ""}:${effectiveMode}:${fontScale}`
+  if (layoutCacheKeyRef.current !== layoutCacheKey) {
+    layoutCacheKeyRef.current = layoutCacheKey
     syncedLineOffsetRef.current = {}
-    activeSyncedLineIndexRef.current = -1
-    cancelAnimation(currentTimeSv)
-    currentTimeSv.value = usePlayerStore.getState().currentTime
-    setActiveSyncedLineIndex(-1)
-  }, [currentTimeSv, track?.id, effectiveMode, fontScale])
-
-  React.useEffect(() => {
     isUserScrollingRef.current = false
-    if (!track?.id) {
-      return
-    }
-
-    let frameB: number | null = null
-    const frameA = requestAnimationFrame(() => {
-      frameB = requestAnimationFrame(() => {
-        scrollViewRef.current?.scrollTo({ y: 0, animated: true })
-      })
-    })
-
-    return () => {
-      cancelAnimationFrame(frameA)
-      if (frameB !== null) {
-        cancelAnimationFrame(frameB)
-      }
-    }
-  }, [track?.id])
+  }
 
   const setSyncedLineOffset = React.useCallback((lineId: string, y: number) => {
     const current = syncedLineOffsetRef.current[lineId]
@@ -586,46 +525,26 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     scheduleAutoScrollResume()
   }, [scheduleAutoScrollResume])
 
-  React.useEffect(() => {
-    return () => {
-      clearAutoScrollResumeTimeout()
-    }
-  }, [clearAutoScrollResumeTimeout])
+  const isSyncedMode =
+    effectiveMode === "synced" || effectiveMode === "timedMarkup"
+  const activeLines =
+    effectiveMode === "timedMarkup" ? timedMarkupLines : syncedLines
+  const activeLine = activeLines[activeSyncedLineIndex]
 
-  React.useEffect(() => {
-    const isSyncedMode =
-      effectiveMode === "synced" || effectiveMode === "timedMarkup"
-    if (
-      !isSyncedMode ||
-      activeSyncedLineIndex < 0 ||
-      isUserScrollingRef.current
-    ) {
-      return
-    }
-
-    const activeLines =
-      effectiveMode === "timedMarkup" ? timedMarkupLines : syncedLines
-    const activeLine = activeLines[activeSyncedLineIndex]
-    if (!activeLine) {
-      return
-    }
-
-    const measuredY = syncedLineOffsetRef.current[activeLine.id]
-    const fallbackY = activeSyncedLineIndex * 52 * fontScale
-    const anchorY = Math.max(28, viewportHeight * 0.42)
-
-    scrollViewRef.current?.scrollTo({
-      y: Math.max(0, (measuredY ?? fallbackY) - anchorY),
-      animated: true,
-    })
-  }, [
-    activeSyncedLineIndex,
-    effectiveMode,
-    syncedLines,
-    timedMarkupLines,
+  scheduleLyricsAutoScroll({
+    key: `${layoutCacheKey}:${activeLine?.id ?? "none"}:${viewportHeight}`,
+    enabled:
+      isSyncedMode &&
+      activeSyncedLineIndex >= 0 &&
+      viewportHeight > 0 &&
+      !isUserScrollingRef.current,
+    scrollView: scrollViewRef.current,
+    measuredY: activeLine
+      ? syncedLineOffsetRef.current[activeLine.id]
+      : undefined,
+    fallbackY: activeSyncedLineIndex * 52 * fontScale,
     viewportHeight,
-    fontScale,
-  ])
+  })
 
   if (!track) {
     return null
@@ -676,6 +595,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       className="-mx-2 my-3 flex-1 overflow-hidden"
     >
       <ScrollView
+        key={layoutCacheKey}
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"

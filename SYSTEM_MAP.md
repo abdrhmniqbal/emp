@@ -441,6 +441,7 @@ src/
 │   │   └── …
 │   │
 │   ├── lyrics/
+│   │   ├── lyrics-auto-scroll-runtime.ts     # After-render synced lyric auto-scroll scheduler
 │   │   ├── lyrics-source.ts                  # Embedded lyrics, sidecar files (.ttml, .lrc, .xml)
 │   │   └── lyrics.ts
 │   │
