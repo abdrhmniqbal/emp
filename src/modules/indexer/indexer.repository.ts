@@ -58,6 +58,11 @@ import {
   normalizeText,
 } from "./indexer-normalization"
 import { saveIndexerRunSnapshot } from "./indexer-run-snapshot.repository"
+import {
+  isAllowedAssetUri,
+  isSupportedAssetByExtension,
+} from "./indexer-scan-filter"
+import { chunkArray, wait, yieldToEventLoop } from "./indexer-batch-utils"
 
 export { getLastIndexerRunSnapshot } from "./indexer-run-snapshot.repository"
 
@@ -69,17 +74,6 @@ const COMMIT_SCOPE_MAX_ATTEMPTS = 3
 const COMMIT_SCOPE_RETRY_DELAY_MS = 160
 const METADATA_EXTRACTION_MAX_ATTEMPTS = 2
 const METADATA_EXTRACTION_RETRY_DELAY_MS = 120
-const SUPPORTED_EXTENSIONS = new Set([
-  "mp3",
-  "flac",
-  "aac",
-  "ogg",
-  "m4a",
-  "opus",
-  "wav",
-])
-const EXCLUDED_URI_SEGMENTS = ["/android/", "/android/data/", "/android/obb/"]
-
 type ExtractedMetadata = Awaited<ReturnType<typeof extractMetadata>>
 
 interface PreparedAssetForIndex {
@@ -125,30 +119,6 @@ export interface SplitRelationRebuildResult {
 interface PreparedBatchResult {
   preparedAssets: PreparedAssetForIndex[]
   failedCount: number
-}
-
-function yieldToEventLoop() {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, 0)
-  })
-}
-
-function wait(ms: number) {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
-function chunkArray<T>(items: T[], size: number): T[][] {
-  if (size <= 0) {
-    return [items]
-  }
-
-  const chunks: T[][] = []
-  for (let index = 0; index < items.length; index += size) {
-    chunks.push(items.slice(index, index + size))
-  }
-  return chunks
 }
 
 function createEmptyGenreVisualLookup(): GenreVisualLookup {
@@ -255,31 +225,6 @@ async function preloadIndexingLookupCache(): Promise<IndexingLookupCache> {
     genreIdsByName,
     genreVisuals,
   }
-}
-
-function isSupportedAssetByExtension(asset: MediaLibrary.Asset): boolean {
-  const filename = (asset.filename || "").toLowerCase()
-  const extension = filename.split(".").pop()
-
-  if (!extension) {
-    return false
-  }
-
-  return SUPPORTED_EXTENSIONS.has(extension)
-}
-
-function isAllowedAssetUri(uri: string): boolean {
-  const normalizedUri = uri.toLowerCase()
-
-  if (
-    EXCLUDED_URI_SEGMENTS.some((segment) => normalizedUri.includes(segment))
-  ) {
-    return false
-  }
-
-  const pathWithoutScheme = normalizedUri.replace(/^file:\/\//, "")
-  const segments = pathWithoutScheme.split("/").filter(Boolean)
-  return !segments.some((segment) => segment.startsWith("."))
 }
 
 async function runWithScopeCommit(work: () => Promise<void>): Promise<void> {
