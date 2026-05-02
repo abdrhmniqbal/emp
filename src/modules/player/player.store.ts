@@ -12,6 +12,7 @@ import type {
   LyricLine,
   PlayerQueueContext,
   RepeatModeType,
+  SleepTimerState,
   Track,
 } from "./player.types"
 import { create } from "zustand"
@@ -33,6 +34,18 @@ export interface PlayerState {
   originalQueue: Track[]
   isShuffled: boolean
   queueContext: PlayerQueueContext | null
+  sleepTimer: SleepTimerState
+}
+
+const DEFAULT_SLEEP_TIMER_STATE: SleepTimerState = {
+  mode: "off",
+  minutes: 0,
+  playCount: 0,
+  targetTrackId: null,
+  targetTimestamp: null,
+  clockHour: null,
+  clockMinute: null,
+  lastCompletedTrackId: null,
 }
 
 export const usePlayerStore = create<PlayerState>(() => ({
@@ -50,6 +63,7 @@ export const usePlayerStore = create<PlayerState>(() => ({
   originalQueue: [],
   isShuffled: false,
   queueContext: null,
+  sleepTimer: DEFAULT_SLEEP_TIMER_STATE,
 }))
 
 export function getTracksState() {
@@ -170,4 +184,16 @@ export function getQueueContextState() {
 
 export function setQueueContextState(value: PlayerQueueContext | null) {
   usePlayerStore.setState({ queueContext: value })
+}
+
+export function getSleepTimerState() {
+  return usePlayerStore.getState().sleepTimer
+}
+
+export function setSleepTimerState(value: SleepTimerState) {
+  usePlayerStore.setState({ sleepTimer: value })
+}
+
+export function getDefaultSleepTimerState() {
+  return DEFAULT_SLEEP_TIMER_STATE
 }

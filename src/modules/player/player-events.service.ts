@@ -32,6 +32,10 @@ import {
 import { EXTERNAL_TRACK_ID_PREFIX } from "@/modules/player/player.types"
 import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
 import { ensureAudioPlaybackConfigLoaded } from "@/modules/settings/audio-playback"
+import {
+  evaluateSleepTimerOnProgress,
+  handleSleepTimerTrackChanged,
+} from "@/modules/player/sleep-timer.service"
 
 import { handleTrackActivated, handleTrackProgress } from "./player-activity.service"
 import {
@@ -195,6 +199,7 @@ export async function PlaybackService() {
         })
         handleTrackActivated(currentTrack)
       }
+      handleSleepTimerTrackChanged(previousTrackId, currentTrack.id)
     } catch (error) {
       logError("Failed to handle playback track change", error)
     }
@@ -204,6 +209,7 @@ export async function PlaybackService() {
     setPlaybackProgress(event.position, event.duration)
     void handleCrossfadeProgress(event.position, event.duration)
     handleTrackProgress(event.position, event.duration)
+    evaluateSleepTimerOnProgress(event.position, event.duration)
     if (!isExternalCurrentTrack()) {
       void persistPlaybackSession({
         cursorOnly: true,

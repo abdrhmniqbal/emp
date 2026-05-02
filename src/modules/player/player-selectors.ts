@@ -68,6 +68,10 @@ export function usePlayerQueueContext() {
   return usePlayerStore((state) => state.queueContext)
 }
 
+export function useSleepTimerState() {
+  return usePlayerStore((state) => state.sleepTimer)
+}
+
 export function usePlayerQueueInfo() {
   const queue = usePlayerQueue()
   const currentTrackId = useCurrentTrackId()
