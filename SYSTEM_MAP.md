@@ -416,6 +416,8 @@ src/
 │   ├── indexer/
 │   │   ├── indexer.service.ts                # startIndexing() → core orchestrator
 │   │   ├── indexer.repository.ts             # scanMediaLibrary(), batch operations
+│   │   ├── indexer-file-identity.ts          # Asset fingerprints, IDs, sort names, stable hashes
+│   │   ├── indexer-normalization.ts          # Metadata text/title/genre normalization
 │   │   ├── indexer.store.ts                  # Zustand: progress, status, runtime state
 │   │   ├── indexer.types.ts
 │   │   ├── indexer-runtime.ts                # isIndexerRunActive(), pause/resume/stop

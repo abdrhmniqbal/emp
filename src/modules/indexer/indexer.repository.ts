@@ -9,7 +9,6 @@
 import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
 import { and, eq, inArray, sql } from "drizzle-orm"
 
-import { File } from "expo-file-system"
 import * as MediaLibrary from "expo-media-library"
 import { db } from "@/db/client"
 import {
@@ -49,6 +48,16 @@ import {
   extractMetadata,
   saveArtworkToCache,
 } from "./metadata.repository"
+import {
+  generateAssetHash,
+  generateId,
+  generateSortName,
+  hashString,
+} from "./indexer-file-identity"
+import {
+  normalizeMetadata,
+  normalizeText,
+} from "./indexer-normalization"
 
 const BATCH_SIZE = 24
 const BATCH_CONCURRENCY = 4
@@ -141,92 +150,6 @@ function chunkArray<T>(items: T[], size: number): T[][] {
     chunks.push(items.slice(index, index + size))
   }
   return chunks
-}
-
-function normalizeText(value?: string | null): string | undefined {
-  if (!value) {
-    return undefined
-  }
-
-  const trimmed = value.trim()
-  return trimmed.length > 0 ? trimmed : undefined
-}
-
-function stripFileExtension(filename: string): string {
-  const lastDotIndex = filename.lastIndexOf(".")
-  if (lastDotIndex <= 0) {
-    return filename
-  }
-
-  return filename.slice(0, lastDotIndex)
-}
-
-function extractFallbackTitle(filename: string): string {
-  const fromFilename = stripFileExtension(filename).trim()
-  if (fromFilename.length > 0) {
-    return fromFilename
-  }
-
-  return "Unknown Title"
-}
-
-function normalizeGenres(genres: string[]): string[] {
-  const seen = new Set<string>()
-  const normalized: string[] = []
-
-  for (const genre of genres) {
-    const normalizedGenre = normalizeText(genre)
-    if (!normalizedGenre) {
-      continue
-    }
-
-    const key = normalizedGenre.toLowerCase()
-    if (seen.has(key)) {
-      continue
-    }
-
-    seen.add(key)
-    normalized.push(normalizedGenre)
-  }
-
-  return normalized
-}
-
-function normalizeMetadata(
-  metadata: ExtractedMetadata,
-  filename: string
-): ExtractedMetadata {
-  const normalizedTitle =
-    normalizeText(metadata.title) || extractFallbackTitle(filename)
-  const normalizedArtist = normalizeText(metadata.artist)
-  const normalizedGenres = normalizeGenres(metadata.genres)
-  const normalizedArtists = Array.from(
-    new Set(
-      metadata.artists
-        .map((artist) => normalizeText(artist))
-        .filter((artist): artist is string => Boolean(artist))
-    )
-  )
-
-  if (normalizedArtists.length === 0 && normalizedArtist) {
-    normalizedArtists.push(normalizedArtist)
-  }
-
-  return {
-    ...metadata,
-    title: normalizedTitle,
-    artist: normalizedArtist,
-    artists: normalizedArtists,
-    album: normalizeText(metadata.album),
-    albumArtist: normalizeText(metadata.albumArtist),
-    genres: normalizedGenres,
-    rawArtist: normalizeText(metadata.rawArtist),
-    rawAlbumArtist: normalizeText(metadata.rawAlbumArtist),
-    rawGenre: normalizeText(metadata.rawGenre),
-    composer: normalizeText(metadata.composer),
-    comment: normalizeText(metadata.comment),
-    lyrics: normalizeText(metadata.lyrics),
-  }
 }
 
 function createEmptyGenreVisualLookup(): GenreVisualLookup {
@@ -1555,66 +1478,4 @@ async function updateGenreCounts(): Promise<void> {
       WHERE tg.genre_id = genres.id AND t.is_deleted = 0
     )
   `)
-}
-
-function generateAssetHash(asset: MediaLibrary.Asset): string {
-  const shouldReadFileInfo =
-    asset.modificationTime === undefined || asset.modificationTime === null
-  const info = shouldReadFileInfo ? getFileInfo(asset.uri) : null
-  const modificationTime =
-    info?.modificationTime ?? asset.modificationTime ?? asset.creationTime ?? 0
-
-  return generateFileHash(asset.uri, modificationTime)
-}
-
-function getFileInfo(
-  uri: string
-): { size?: number; modificationTime?: number | null } | null {
-  try {
-    const file = new File(uri)
-    return file.info()
-  } catch {
-    return null
-  }
-}
-
-function generateFileHash(
-  uri: string,
-  modTime: number
-): string {
-  const fingerprint = `${uri}|${modTime}`
-  let hashA = 5381
-  let hashB = 52711
-
-  for (let i = 0; i < fingerprint.length; i++) {
-    const char = fingerprint.charCodeAt(i)
-    hashA = ((hashA << 5) + hashA) ^ char
-    hashB = ((hashB << 5) + hashB) ^ char
-  }
-
-  const partA = (hashA >>> 0).toString(16).padStart(8, "0")
-  const partB = (hashB >>> 0).toString(16).padStart(8, "0")
-  return `${partA}${partB}`
-}
-
-function generateSortName(name: string): string {
-  const articles = ["The", "A", "An"]
-  for (const article of articles) {
-    if (name.startsWith(`${article} `)) {
-      return `${name.slice(article.length + 1)}, ${article}`
-    }
-  }
-  return name
-}
-
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-}
-
-function hashString(value: string): number {
-  let hash = 0
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) >>> 0
-  }
-  return hash
 }
