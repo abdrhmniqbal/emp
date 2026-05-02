@@ -161,7 +161,6 @@ export const QueueView: React.FC = () => {
       </View>
       <View className="flex-1">
         <ReorderableList
-          key={currentTrack.id}
           ref={listRef}
           data={queue}
           keyExtractor={(item) => item.id}

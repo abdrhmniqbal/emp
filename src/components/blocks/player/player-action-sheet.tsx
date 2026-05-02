@@ -28,6 +28,7 @@ import { useTranslation } from "react-i18next"
 import { ArtistPickerSheet } from "@/components/blocks/artist-picker-sheet"
 import { buildArtistPickerItems } from "@/components/blocks/artist-picker.utils"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
+import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { getArtistByName } from "@/modules/library/library.repository"
 import {
@@ -168,27 +169,47 @@ function SleepTimerOption({
   title,
   description,
   disabled,
+  onPress,
+  suffix,
   children,
 }: {
   title: string
   description: string
   disabled: boolean
+  onPress?: () => void
+  suffix?: React.ReactNode
   children?: React.ReactNode
 }) {
+  const header = (
+    <View className="flex-row items-center justify-between gap-4">
+      <View className="flex-1 gap-1">
+        <Text className="text-base font-semibold text-foreground">
+          {title}
+        </Text>
+        <Text className="text-sm text-muted">
+          {description}
+        </Text>
+      </View>
+      {suffix ? <View className="shrink-0">{suffix}</View> : null}
+    </View>
+  )
+
   return (
     <View
       className={disabled ? "opacity-45" : ""}
       pointerEvents={disabled ? "none" : "auto"}
     >
       <View className="gap-2 rounded-lg px-1 py-2">
-        <View className="gap-1">
-          <Text className="text-base font-semibold text-foreground">
-            {title}
-          </Text>
-          <Text className="text-sm text-muted">
-            {description}
-          </Text>
-        </View>
+        {onPress ? (
+          <PressableFeedback
+            onPress={onPress}
+            className="active:opacity-50"
+          >
+            {header}
+          </PressableFeedback>
+        ) : (
+          header
+        )}
         {children}
       </View>
     </View>
@@ -358,6 +379,21 @@ export function PlayerActionSheet({
     setIsSleepTimerOpen(true)
   }
 
+  const handleOpenCustomTimePicker = () => {
+    setSleepTimerDraft((draft) => ({
+      ...draft,
+      timerMinutes: 0,
+      playCount: 0,
+      endOfCurrentTrack: false,
+      customTimeEnabled: true,
+      showCustomTimePicker: true,
+    }))
+
+    if (Platform.OS === "ios") {
+      setSleepTimerClock(customHour, customMinute)
+    }
+  }
+
   const handleCustomTimePickerChange = (
     event: DateTimePickerEvent,
     selectedDate?: Date
@@ -456,7 +492,9 @@ export function PlayerActionSheet({
     const queueTrackIds = Array.from(
       new Set(
         (queue.length > 0 ? queue : [track])
-          .filter((item): item is Track => Boolean(item) && !item.isExternal)
+          .filter(
+            (item): item is Track => item !== null && item.isExternal !== true
+          )
           .map((item) => item.id)
       )
     )
@@ -653,13 +691,7 @@ export function PlayerActionSheet({
               title={t("player.sleepTimer.endOfCurrentTrack")}
               description={t("player.sleepTimer.endOfCurrentTrackDescription")}
               disabled={lockedMode !== null && lockedMode !== "trackEnd"}
-            >
-              <View className="flex-row items-center justify-between gap-3">
-                <Text className="text-sm text-muted">
-                  {endOfCurrentTrack
-                    ? t("player.sleepTimer.enabled")
-                    : t("player.sleepTimer.off")}
-                </Text>
+              suffix={
                 <Switch
                   isSelected={endOfCurrentTrack}
                   onSelectedChange={(isSelected) => {
@@ -683,90 +715,37 @@ export function PlayerActionSheet({
                     setSleepTimerTrackEnd()
                   }}
                 />
-              </View>
-            </SleepTimerOption>
+              }
+            />
 
             <SleepTimerOption
               title={t("player.sleepTimer.customTime")}
               description={t("player.sleepTimer.customTimeDescription")}
               disabled={lockedMode !== null && lockedMode !== "clock"}
+              onPress={handleOpenCustomTimePicker}
+              suffix={
+                <LocalChevronRightIcon
+                  fill="none"
+                  width={18}
+                  height={18}
+                  color="white"
+                />
+              }
             >
-              <View className="gap-3">
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-sm font-medium text-foreground">
-                    {t("player.sleepTimer.customTimeValueLabel")}
-                  </Text>
-                  <Text className="text-sm text-muted">
-                    {customTimeEnabled
-                      ? t("player.sleepTimer.customTimeValue", {
-                          value: `${padTimeUnit(customHour)}:${padTimeUnit(customMinute)}`,
-                        })
-                      : t("player.sleepTimer.off")}
-                  </Text>
+              {showCustomTimePicker ? (
+                <View className="mt-3">
+                  <DateTimePicker
+                    value={customTimeDate}
+                    mode="time"
+                    is24Hour
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={handleCustomTimePickerChange}
+                  />
                 </View>
-
-                {!customTimeEnabled ? (
-                  <Button
-                    variant="secondary"
-                    onPress={() => {
-                      setSleepTimerDraft((draft) => ({
-                        ...draft,
-                        timerMinutes: 0,
-                        playCount: 0,
-                        endOfCurrentTrack: false,
-                        customTimeEnabled: true,
-                        showCustomTimePicker: true,
-                      }))
-                      if (Platform.OS === "ios") {
-                        setSleepTimerClock(customHour, customMinute)
-                      }
-                    }}
-                  >
-                    {t("player.sleepTimer.setCustomTime")}
-                  </Button>
-                ) : (
-                  <View className="gap-3">
-                    <Button
-                      variant="ghost"
-                      onPress={() => {
-                        setSleepTimerDraft((draft) => ({
-                          ...draft,
-                          showCustomTimePicker: true,
-                        }))
-                      }}
-                    >
-                      {t("player.sleepTimer.setCustomTime")}
-                    </Button>
-
-                    {showCustomTimePicker ? (
-                      <DateTimePicker
-                        value={customTimeDate}
-                        mode="time"
-                        is24Hour
-                        display={Platform.OS === "ios" ? "spinner" : "default"}
-                        onChange={handleCustomTimePickerChange}
-                      />
-                    ) : null}
-
-                    <Button
-                      variant="danger"
-                      onPress={() => {
-                        setSleepTimerDraft((draft) => ({
-                          ...draft,
-                          customTimeEnabled: false,
-                          showCustomTimePicker: false,
-                        }))
-                        clearSleepTimer()
-                      }}
-                    >
-                      {t("player.sleepTimer.clearCustomTime")}
-                    </Button>
-                  </View>
-                )}
-              </View>
+              ) : null}
             </SleepTimerOption>
 
-            <View className="flex-row gap-3">
+            <View className="flex-row gap-3 mb-2 mt-3">
               <Button
                 variant="danger"
                 className="flex-1"

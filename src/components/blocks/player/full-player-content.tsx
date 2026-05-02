@@ -12,6 +12,7 @@ import type { PlayerExpandedView } from "@/modules/ui/ui.store"
 import { LinearGradient } from "expo-linear-gradient"
 import { StyleSheet, View } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { usePlayerColorsStore } from "@/modules/player/player-colors.store"
 
@@ -46,8 +47,10 @@ export function FullPlayerContent({
   onPressArtist,
 }: FullPlayerContentProps) {
   const colors = usePlayerColorsStore((state) => state.currentColors)
+  const insets = useSafeAreaInsets()
   const isCompactLayout = playerExpandedView !== "artwork"
   const dragY = useSharedValue(0)
+  const playerBottomPadding = insets.bottom + 32
 
   const containerStyle = useAnimatedStyle(() => {
     return {
@@ -70,7 +73,10 @@ export function FullPlayerContent({
         ]}
       />
 
-      <View className="flex-1 justify-between px-6 pt-12 pb-8">
+      <View
+        className="flex-1 justify-between px-6 pt-12"
+        style={{ paddingBottom: playerBottomPadding }}
+      >
         <PlayerHeader
           onClose={onClose}
           onOpenMore={onOpenMore}

@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders the expanded player footer actions for lyrics and queue views.
+ * Caller: FullPlayerContent.
+ * Dependencies: player expanded-view state, theme colors, footer action icons.
+ * Main Functions: PlayerFooter().
+ * Side Effects: Toggles expanded player view state.
+ */
+
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { View } from "react-native"
@@ -16,7 +24,7 @@ export const PlayerFooter: React.FC = () => {
   const theme = useThemeColors()
 
   return (
-    <View className="flex-row items-center justify-between">
+    <View className="flex-row items-center justify-between py-2">
       <PressableFeedback
         onPress={() => togglePlayerExpandedView("lyrics")}
         className={cn(playerExpandedView !== "lyrics" && "opacity-60")}
