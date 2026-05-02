@@ -1,13 +1,21 @@
+/**
+ * Purpose: Renders determinate, indeterminate, and pulsing progress bars.
+ * Caller: Shared UI and indexing/progress surfaces.
+ * Dependencies: Expo LinearGradient, Reanimated animations, and theme colors.
+ * Main Functions: AnimatedProgressBar()
+ * Side Effects: Runs native-thread progress animations and optional completion callback.
+ */
+
 import type { AnimatedProgressBarProps } from "./animated-progress-bar.types"
 import { LinearGradient } from "expo-linear-gradient"
 import * as React from "react"
-import { useEffect } from "react"
 import { Text, useWindowDimensions, View } from "react-native"
 
 import Animated, {
   Easing,
+  runOnJS,
   useAnimatedStyle,
-  useSharedValue,
+  useDerivedValue,
   withRepeat,
   withSequence,
   withTiming,
@@ -69,10 +77,6 @@ export const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
 
   const validProgress = Math.min(Math.max(progress, 0), 1)
 
-  const progressValue = useSharedValue(0)
-  const indeterminateValue = useSharedValue(0)
-  const pulseValue = useSharedValue(1)
-
   const { width: screenWidth } = useWindowDimensions()
 
   const containerWidth =
@@ -82,51 +86,42 @@ export const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
         : Number.parseFloat(width) || screenWidth
       : typeof width === "number"
         ? width
-        : screenWidth
+      : screenWidth
 
-  useEffect(() => {
-    if (!indeterminate) {
-      progressValue.value = withTiming(
-        validProgress,
-        {
-          duration: animationDuration,
-          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-        },
-        (isFinished) => {
-          if (isFinished && onAnimationComplete) {
-            onAnimationComplete()
-          }
-        }
-      )
-    }
-  }, [
-    validProgress,
-    animationDuration,
-    onAnimationComplete,
-    indeterminate,
-    progressValue,
-  ])
-
-  useEffect(() => {
+  const progressValue = useDerivedValue(() => {
     if (indeterminate) {
-      indeterminateValue.value = 0
-      indeterminateValue.value = withRepeat(
-        withTiming(1, { duration: 1500, easing: Easing.linear }),
-        -1,
-        false
-      )
-    } else {
-      indeterminateValue.value = 0
+      return 0
     }
 
-    return () => {
-      indeterminateValue.value = 0
-    }
-  }, [indeterminate, indeterminateValue])
+    return withTiming(
+      validProgress,
+      {
+        duration: animationDuration,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      },
+      (isFinished) => {
+        if (isFinished && onAnimationComplete) {
+          runOnJS(onAnimationComplete)()
+        }
+      }
+    )
+  })
 
-  useEffect(() => {
+  const indeterminateValue = useDerivedValue(() => {
+    if (!indeterminate) {
+      return 0
+    }
+
+    return withRepeat(
+      withTiming(1, { duration: 1500, easing: Easing.linear }),
+      -1,
+      false
+    )
+  })
+
+  const pulseValue = useDerivedValue(() => {
     if (pulsate && !indeterminate && validProgress > 0) {
-      pulseValue.value = withRepeat(
+      return withRepeat(
         withSequence(
           withTiming(1.1, { duration: 500, easing: Easing.ease }),
           withTiming(1, { duration: 500, easing: Easing.ease })
@@ -134,14 +129,10 @@ export const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
         -1,
         true
       )
-    } else {
-      pulseValue.value = 1
     }
 
-    return () => {
-      pulseValue.value = 1
-    }
-  }, [pulsate, indeterminate, validProgress, pulseValue])
+    return 1
+  })
 
   const progressBarStyle = useAnimatedStyle(() => {
     if (indeterminate) {

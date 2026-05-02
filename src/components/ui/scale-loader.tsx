@@ -1,8 +1,15 @@
-import { useEffect } from "react"
+/**
+ * Purpose: Renders a compact animated loading indicator.
+ * Caller: UI blocks that need inline loading overlays.
+ * Dependencies: Reanimated shared values and app theme colors.
+ * Main Functions: ScaleLoader()
+ * Side Effects: Runs native-thread loading animations.
+ */
+
 import { View } from "react-native"
 import Animated, {
+  useDerivedValue,
   useAnimatedStyle,
-  useSharedValue,
   withDelay,
   withRepeat,
   withTiming,
@@ -20,21 +27,15 @@ interface ScaleLoaderProps {
 
 function Bar({ delay, maxHeight }: { delay: number; maxHeight: number }) {
   const theme = useThemeColors()
-  const scale = useSharedValue(0.3)
-
-  useEffect(() => {
-    // Start at initial scale
-    scale.value = 0.3
-
-    // Animate to 1 and ping-pong back to 0.3 smoothly
-    scale.value = withDelay(
+  const scale = useDerivedValue(() =>
+    withDelay(
       delay,
       withRepeat(withTiming(1, { duration: 400 }), -1, true)
     )
-  }, [delay, scale])
+  )
 
   const animatedStyle = useAnimatedStyle(() => ({
-    height: scale.value * maxHeight,
+    height: Math.max(0.3, scale.value) * maxHeight,
   }))
 
   return (

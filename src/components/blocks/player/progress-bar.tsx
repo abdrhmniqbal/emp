@@ -1,5 +1,12 @@
+/**
+ * Purpose: Renders and controls the player seek bar.
+ * Caller: Full player content and compact player surfaces.
+ * Dependencies: Player/cast playback controls, player progress selectors, Google Cast, and Reanimated gestures.
+ * Main Functions: ProgressBar()
+ * Side Effects: Seeks local or cast playback from user gestures.
+ */
+
 import * as React from "react"
-import { useEffect } from "react"
 import { Text, TextInput, type TextInputProps, View } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useCastState, useMediaStatus, useRemoteMediaClient, useStreamPosition } from "react-native-google-cast"
@@ -8,6 +15,7 @@ import Animated, {
   runOnJS,
   useAnimatedProps,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated"
@@ -38,11 +46,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const remoteMediaClient = useRemoteMediaClient()
   const mediaStatus = useMediaStatus()
   const castStreamPosition = useStreamPosition()
-  const progress = useSharedValue(0)
+  const seekProgress = useSharedValue(0)
   const isSeeking = useSharedValue(false)
   const barWidth = useSharedValue(0)
   const pressed = useSharedValue(false)
-  const durationSv = useSharedValue(0)
   const isCasting = isCastConnected(castState, remoteMediaClient)
   const castDuration = Number(mediaStatus?.mediaInfo?.streamDuration ?? 0)
   const effectiveCurrentTime = Number(
@@ -50,15 +57,19 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   )
   const effectiveDuration = Number(isCasting ? castDuration : duration ?? 0)
 
-  useEffect(() => {
-    durationSv.value = effectiveDuration
-  }, [effectiveDuration, durationSv])
-
-  useEffect(() => {
-    if (effectiveDuration > 0) {
-      progress.value = effectiveCurrentTime / effectiveDuration
+  const liveProgress = useDerivedValue(() => {
+    if (effectiveDuration <= 0) {
+      return 0
     }
-  }, [effectiveCurrentTime, effectiveDuration, progress])
+
+    return withTiming(effectiveCurrentTime / effectiveDuration, {
+      duration: 120,
+    })
+  })
+  const durationSv = useDerivedValue(() => effectiveDuration)
+  const displayProgress = useDerivedValue(() =>
+    isSeeking.value ? seekProgress.value : liveProgress.value
+  )
 
   const seekPlayback = async (seekTime: number) => {
     if (isCasting) {
@@ -77,7 +88,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   const animatedTextProps = useAnimatedProps<Partial<AnimatedTimeInputProps>>(
     () => {
-      const seconds = progress.value * durationSv.value
+      const seconds = displayProgress.value * durationSv.value
       const mins = Math.floor(seconds / 60)
       const secs = Math.floor(seconds % 60)
       const text = `${mins}:${secs < 10 ? "0" : ""}${secs}`
@@ -92,16 +103,16 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       isSeeking.value = true
       pressed.value = true
       if (barWidth.value > 0) {
-        progress.value = Math.max(0, Math.min(1, e.x / barWidth.value))
+        seekProgress.value = Math.max(0, Math.min(1, e.x / barWidth.value))
       }
     })
     .onUpdate((e) => {
       if (barWidth.value > 0) {
-        progress.value = Math.max(0, Math.min(1, e.x / barWidth.value))
+        seekProgress.value = Math.max(0, Math.min(1, e.x / barWidth.value))
       }
     })
     .onEnd(() => {
-      const seekTime = progress.value * effectiveDuration
+      const seekTime = displayProgress.value * effectiveDuration
       runOnJS(seekPlayback)(seekTime)
       isSeeking.value = false
       pressed.value = false
@@ -112,18 +123,18 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       isSeeking.value = true
       pressed.value = true
       if (barWidth.value > 0) {
-        progress.value = Math.max(0, Math.min(1, e.x / barWidth.value))
+        seekProgress.value = Math.max(0, Math.min(1, e.x / barWidth.value))
       }
     })
     .onEnd(() => {
-      const seekTime = progress.value * effectiveDuration
+      const seekTime = displayProgress.value * effectiveDuration
       runOnJS(seekPlayback)(seekTime)
       isSeeking.value = false
       pressed.value = false
     })
 
   const progressStyle = useAnimatedStyle(() => ({
-    width: `${progress.value * 100}%`,
+    width: `${displayProgress.value * 100}%`,
   }))
 
   const barContainerStyle = useAnimatedStyle(() => ({
