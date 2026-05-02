@@ -8,10 +8,11 @@
 
 import { View } from "react-native"
 import Animated, {
-  useDerivedValue,
   useAnimatedStyle,
+  useDerivedValue,
   withDelay,
   withRepeat,
+  withSequence,
   withTiming,
 } from "react-native-reanimated"
 
@@ -30,12 +31,19 @@ function Bar({ delay, maxHeight }: { delay: number; maxHeight: number }) {
   const scale = useDerivedValue(() =>
     withDelay(
       delay,
-      withRepeat(withTiming(1, { duration: 400 }), -1, true)
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 360 }),
+          withTiming(0.35, { duration: 360 })
+        ),
+        -1,
+        false
+      )
     )
   )
 
   const animatedStyle = useAnimatedStyle(() => ({
-    height: Math.max(0.3, scale.value) * maxHeight,
+    height: scale.value * maxHeight,
   }))
 
   return (
