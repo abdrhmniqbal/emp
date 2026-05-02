@@ -8,7 +8,7 @@
 
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useRef } from "react"
 import { type FlatList, Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import ReorderableList, {
@@ -145,27 +145,6 @@ export const QueueView: React.FC = () => {
     ),
     [currentIndex, handlePlayFromQueue, handleRemove]
   )
-  const scrollToCurrentTrack = useCallback(() => {
-    if (currentIndex < 0) {
-      return
-    }
-
-    listRef.current?.scrollToIndex({
-      index: currentIndex,
-      animated: false,
-      viewPosition: 0,
-    })
-  }, [currentIndex])
-
-  useEffect(() => {
-    if (currentIndex >= 0 && queue.length > 0) {
-      const timer = setTimeout(() => {
-        scrollToCurrentTrack()
-      }, 50)
-      return () => clearTimeout(timer)
-    }
-  }, [currentIndex, queue.length, scrollToCurrentTrack])
-
   if (!currentTrack || queue.length === 0) return null
 
   return (
@@ -182,9 +161,11 @@ export const QueueView: React.FC = () => {
       </View>
       <View className="flex-1">
         <ReorderableList
+          key={currentTrack.id}
           ref={listRef}
           data={queue}
           keyExtractor={(item) => item.id}
+          initialScrollIndex={currentIndex >= 0 ? currentIndex : undefined}
           onReorder={handleReorder}
           renderItem={renderItem}
           getItemLayout={(_, index) => ({
