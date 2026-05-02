@@ -419,6 +419,7 @@ src/
 │   │   ├── indexer.store.ts                  # Zustand: progress, status, runtime state
 │   │   ├── indexer.types.ts
 │   │   ├── indexer-runtime.ts                # isIndexerRunActive(), pause/resume/stop
+│   │   ├── indexing-progress-toast-runtime.ts # Progress toast visibility and completion timeout
 │   │   ├── indexer-progress.service.ts       # Progress notifications UI
 │   │   ├── indexer-notification.service.ts   # Native notification handling
 │   │   ├── indexer-refresh.service.ts        # QueryClient invalidation after index
