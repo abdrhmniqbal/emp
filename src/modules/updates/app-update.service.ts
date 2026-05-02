@@ -64,7 +64,7 @@ interface GitHubRelease {
 }
 
 function normalizeVersion(value: string) {
-  return value.trim().replace(/^v/i, "")
+  return value.trim().replace(/^[^0-9]+/, "")
 }
 
 function parseVersion(value: string) {
@@ -165,6 +165,34 @@ function asString(value: unknown) {
   return typeof value === "string" ? value : ""
 }
 
+function getReleaseVersion(release: GitHubRelease) {
+  return asString(release.tag_name)
+}
+
+function compareGitHubReleases(left: GitHubRelease, right: GitHubRelease) {
+  const versionComparison = compareVersions(
+    asString(right.tag_name),
+    asString(left.tag_name)
+  )
+
+  if (versionComparison !== 0) {
+    return versionComparison
+  }
+
+  const leftPublishedAt = Date.parse(asString(left.published_at))
+  const rightPublishedAt = Date.parse(asString(right.published_at))
+
+  if (Number.isFinite(leftPublishedAt) && Number.isFinite(rightPublishedAt)) {
+    return rightPublishedAt - leftPublishedAt
+  }
+
+  return asString(right.name).localeCompare(asString(left.name))
+}
+
+function getSortedGitHubReleases(releases: GitHubRelease[]) {
+  return [...releases].sort(compareGitHubReleases)
+}
+
 function resolveReleaseDownloadUrl(release: GitHubRelease) {
   const assets = Array.isArray(release.assets)
     ? (release.assets as GitHubReleaseAsset[])
@@ -248,8 +276,8 @@ export async function checkForAppUpdate({
   }
 
   try {
-    const releases = await fetchGitHubReleases()
-    const release = releases.find((candidate) => {
+    const releases = getSortedGitHubReleases(await fetchGitHubReleases())
+    const eligibleReleases = releases.filter((candidate) => {
       if (candidate.draft === true) {
         return false
       }
@@ -258,8 +286,24 @@ export async function checkForAppUpdate({
         return false
       }
 
-      return isNewerVersion(asString(candidate.tag_name), currentVersion)
+      return isNewerVersion(getReleaseVersion(candidate), currentVersion)
     })
+
+    const release = eligibleReleases.reduce<GitHubRelease | null>(
+      (latestRelease, candidateRelease) => {
+        if (latestRelease === null) {
+          return candidateRelease
+        }
+
+        return compareVersions(
+          getReleaseVersion(candidateRelease),
+          getReleaseVersion(latestRelease)
+        ) > 0
+          ? candidateRelease
+          : latestRelease
+      },
+      null
+    )
 
     return release ? toUpdateInfo(release, currentVersion) : null
   } catch (error) {
@@ -273,7 +317,6 @@ export async function checkForAppUpdate({
 
 export async function listReleaseNotesUntilCurrent({
   currentVersion,
-  includePrereleases,
 }: {
   currentVersion: string
   includePrereleases: boolean
@@ -283,17 +326,11 @@ export async function listReleaseNotesUntilCurrent({
   }
 
   try {
-    const releases = await fetchGitHubReleases()
-    const shouldIncludePrereleases =
-      includePrereleases || isPreviewReleaseVersion(currentVersion)
+    const releases = getSortedGitHubReleases(await fetchGitHubReleases())
 
     return releases
       .filter((release) => {
         if (release.draft === true) {
-          return false
-        }
-
-        if (release.prerelease === true && !shouldIncludePrereleases) {
           return false
         }
 
