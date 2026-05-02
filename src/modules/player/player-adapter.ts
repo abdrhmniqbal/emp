@@ -1,4 +1,16 @@
-import type { RepeatModeType, Track } from "@/modules/player/player.types"
+/**
+ * Purpose: Maps between Startune playback tracks and native TrackPlayer queue items.
+ * Caller: player service, queue service, controls, session restore, and playback event sync.
+ * Dependencies: player domain types and TrackPlayer repeat mode constants.
+ * Main Functions: mapTrackPlayerTrackToTrack(), mapTrackToTrackPlayerInput(), mapTrackPlayerRepeatMode(), mapRepeatMode()
+ * Side Effects: None.
+ */
+
+import {
+  EXTERNAL_TRACK_ID_PREFIX,
+  type RepeatModeType,
+  type Track,
+} from "@/modules/player/player.types"
 import { RepeatMode } from "@/modules/player/player.utils"
 
 interface TrackPlayerTrackLike {
@@ -35,6 +47,9 @@ export function mapTrackPlayerTrackToTrack(
     uri: typeof track.url === "string" ? track.url : matchedTrack?.uri ?? "",
     image:
       typeof track.artwork === "string" ? track.artwork : matchedTrack?.image,
+    isExternal:
+      matchedTrack?.isExternal === true ||
+      trackId?.startsWith(EXTERNAL_TRACK_ID_PREFIX) === true,
   }
 }
 

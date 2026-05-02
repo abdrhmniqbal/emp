@@ -1,3 +1,11 @@
+/**
+ * Purpose: Renders current track title, artist text, and library favorite toggle on the full player.
+ * Caller: FullPlayerContent.
+ * Dependencies: favorite query/mutation hooks, localization, marquee text, local favorite icons, player track type.
+ * Main Functions: TrackInfo()
+ * Side Effects: Toggles favorite state for indexed library tracks.
+ */
+
 import type { Track } from "@/modules/player/player.store"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -26,9 +34,10 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
   onPressArtist,
 }) => {
   const { t } = useTranslation()
+  const canFavoriteTrack = track.isExternal !== true
   const { data: isFavoriteQuery = track.isFavorite ?? false } = useIsFavorite(
     "track",
-    track.id
+    canFavoriteTrack ? track.id : ""
   )
   const toggleFavoriteMutation = useToggleFavorite()
   const isFavorite = Boolean(isFavoriteQuery)
@@ -55,34 +64,36 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
           <MarqueeText text={artistName} className={artistClassName} />
         )}
       </View>
-      <PressableFeedback
-        onPress={() => {
-          void toggleFavoriteMutation.mutateAsync({
-            type: "track",
-            itemId: track.id,
-            isCurrentlyFavorite: isFavorite,
-            name: track.title,
-            subtitle: track.artist,
-            image: track.image,
-          })
-        }}
-      >
-        {isFavorite ? (
-          <LocalFavouriteSolidIcon
-            fill="none"
-            width={24}
-            height={24}
-            color="#ef4444"
-          />
-        ) : (
-          <LocalFavouriteIcon
-            fill="none"
-            width={24}
-            height={24}
-            color="white"
-          />
-        )}
-      </PressableFeedback>
+      {canFavoriteTrack ? (
+        <PressableFeedback
+          onPress={() => {
+            void toggleFavoriteMutation.mutateAsync({
+              type: "track",
+              itemId: track.id,
+              isCurrentlyFavorite: isFavorite,
+              name: track.title,
+              subtitle: track.artist,
+              image: track.image,
+            })
+          }}
+        >
+          {isFavorite ? (
+            <LocalFavouriteSolidIcon
+              fill="none"
+              width={24}
+              height={24}
+              color="#ef4444"
+            />
+          ) : (
+            <LocalFavouriteIcon
+              fill="none"
+              width={24}
+              height={24}
+              color="white"
+            />
+          )}
+        </PressableFeedback>
+      ) : null}
     </Animated.View>
   )
 }

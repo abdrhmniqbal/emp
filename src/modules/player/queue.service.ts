@@ -1,3 +1,11 @@
+/**
+ * Purpose: Mutates the active playback queue for add-next, remove, clear, reorder, and shuffle actions.
+ * Caller: track action sheets, queue view, player controls, and queue recovery flows.
+ * Dependencies: TrackPlayer native module, player store/session state, queue adapters, logging service.
+ * Main Functions: addToQueue(), queueTrackNext(), removeFromQueue(), clearQueue(), moveInQueue(), toggleShuffle()
+ * Side Effects: Mutates native playback queue, in-memory player queue state, and persisted playback session snapshots.
+ */
+
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
 import { TrackPlayer } from "@/modules/player/player.utils"

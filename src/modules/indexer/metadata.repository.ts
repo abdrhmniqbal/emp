@@ -1,6 +1,6 @@
 /**
  * Purpose: Extracts audio metadata/artwork/lyrics and normalizes split multi-value fields for indexing.
- * Caller: Indexer repository batch preparation.
+ * Caller: Indexer repository batch preparation and transient external file playback metadata hydration.
  * Dependencies: Native metadata retriever, Expo file APIs, Drizzle artwork cache, and split settings parser.
  * Main Functions: extractMetadata(), saveArtworkToCache(), cleanupUnusedArtworkCache().
  * Side Effects: Reads audio files/artwork, writes artwork cache entries, and deletes unreferenced cached artwork files.

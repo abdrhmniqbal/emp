@@ -1,5 +1,5 @@
 /**
- * Purpose: Renders player quick actions and handles navigation to albums, artists, and playlist workflows.
+ * Purpose: Renders indexed-track player quick actions and handles navigation to albums, artists, and playlist workflows.
  * Caller: Player route.
  * Dependencies: HeroUI Native sheet components, router navigation, player queue selector, playlist form draft store, playlist picker flow, artist hydration, and reusable artist picker sheet.
  * Main Functions: PlayerActionSheet()
@@ -10,18 +10,18 @@ import type { Track } from "@/modules/player/player.types"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
 import { useMemo, useState } from "react"
+import { Text } from "react-native"
 import { useTranslation } from "react-i18next"
 import { useQueries } from "@tanstack/react-query"
 
 import { ArtistPickerSheet } from "@/components/blocks/artist-picker-sheet"
 import { buildArtistPickerItems } from "@/components/blocks/artist-picker.utils"
-import { Text } from "react-native"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
-import { getArtistByName } from "@/modules/library/library.repository"
 import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
+import { getArtistByName } from "@/modules/library/library.repository"
 import { usePlayerQueue } from "@/modules/player/player-selectors"
-import { setPlaylistFormDraft } from "@/modules/playlist/playlist-form-draft.store"
 import { usePlaylistPickerSelection } from "@/modules/playlist/playlist-picker-selection.hook"
+import { setPlaylistFormDraft } from "@/modules/playlist/playlist-form-draft.store"
 
 interface ArtistPickerSourceArtist {
   name: string
@@ -48,22 +48,27 @@ export function PlayerActionSheet({
   const router = useRouter()
   const { toast } = useToast()
   const queue = usePlayerQueue()
+  const canUseLibraryActions = Boolean(track && track.isExternal !== true)
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
   const normalizedArtistNames = useMemo(
     () =>
-      Array.from(
-        new Set(
-          artistNames.map((name) => name.trim()).filter((name) => name.length > 0)
-        )
-      ),
-    [artistNames]
+      canUseLibraryActions
+        ? Array.from(
+            new Set(
+              artistNames
+                .map((name) => name.trim())
+                .filter((name) => name.length > 0)
+            )
+          )
+        : [],
+    [artistNames, canUseLibraryActions]
   )
 
   const resolvedArtistQueries = useQueries({
     queries: normalizedArtistNames.map((name) => ({
       queryKey: ["artists", "name", name.toLowerCase()] as const,
-      enabled: name.length > 0,
+      enabled: canUseLibraryActions && name.length > 0,
       queryFn: async () => await getArtistByName(name),
     })),
   })
@@ -220,14 +225,14 @@ export function PlayerActionSheet({
   }
 
   const { isSelecting, handleSelectPlaylist } = usePlaylistPickerSelection({
-    trackId: track?.id,
+    trackId: canUseLibraryActions ? track?.id : undefined,
     onSelectionApplied: () => {
       setIsPlaylistPickerOpen(false)
     },
     showPlaylistToast,
   })
 
-  if (!track) {
+  if (!track || !canUseLibraryActions) {
     return null
   }
 

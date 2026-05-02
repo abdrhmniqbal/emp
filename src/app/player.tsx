@@ -8,7 +8,7 @@
 
 import { Redirect, useLocalSearchParams } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import {
   ArtistPickerSheet,
@@ -52,10 +52,13 @@ export default function PlayerRoute() {
     (state) => state.splitMultipleValueConfig
   )
   const playerExpandedView = useUIStore((state) => state.playerExpandedView)
-  const { data: fullTrackData } = useTrack(currentTrack?.id ?? "")
+  const { data: fullTrackData } = useTrack(
+    currentTrack?.isExternal ? "" : currentTrack?.id ?? ""
+  )
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false)
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
-  const [handledExternalUri, setHandledExternalUri] = useState<string | null>(null)
+  const [isHandlingExternalUri, setIsHandlingExternalUri] = useState(false)
+  const routerRef = useRef(router)
 
   const externalUriValue =
     typeof externalUri === "string" && externalUri.length > 0
@@ -69,12 +72,23 @@ export default function PlayerRoute() {
   }, [initialView])
 
   useEffect(() => {
-    if (!externalUriValue || handledExternalUri === externalUriValue) {
+    routerRef.current = router
+  }, [router])
+
+  useEffect(() => {
+    if (currentTrack?.isExternal) {
+      setIsActionSheetOpen(false)
+      setIsArtistSelectionOpen(false)
+    }
+  }, [currentTrack?.isExternal])
+
+  useEffect(() => {
+    if (!externalUriValue) {
       return
     }
 
     let isCancelled = false
-    setHandledExternalUri(externalUriValue)
+    setIsHandlingExternalUri(true)
 
     void (async () => {
       try {
@@ -84,12 +98,18 @@ export default function PlayerRoute() {
         }
 
         const didStartPlayback = await playExternalFileUri(externalUriValue)
-        if (!isCancelled && didStartPlayback) {
-          router.replace("/player")
+        if (!isCancelled) {
+          routerRef.current.replace(
+            didStartPlayback ? "/player" : "/(main)/(home)"
+          )
         }
       } catch {
         if (!isCancelled) {
-          router.replace("/(main)/(home)")
+          routerRef.current.replace("/(main)/(home)")
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsHandlingExternalUri(false)
         }
       }
     })()
@@ -97,7 +117,7 @@ export default function PlayerRoute() {
     return () => {
       isCancelled = true
     }
-  }, [externalUriValue, handledExternalUri, router])
+  }, [externalUriValue])
 
   const artistNames = useMemo(() => {
     const relationNames = [
@@ -143,7 +163,7 @@ export default function PlayerRoute() {
     [artistNames, fullTrackData, t]
   )
 
-  if (!currentTrack && externalUriValue) {
+  if (externalUriValue && (isHandlingExternalUri || !currentTrack)) {
     return null
   }
 
@@ -194,8 +214,10 @@ export default function PlayerRoute() {
         playerExpandedView={playerExpandedView}
         queueContext={queueContext}
         onClose={dismissPlayer}
-        onOpenMore={() => setIsActionSheetOpen(true)}
-        onPressArtist={handleArtistPress}
+        onOpenMore={
+          currentTrack.isExternal ? undefined : () => setIsActionSheetOpen(true)
+        }
+        onPressArtist={currentTrack.isExternal ? undefined : handleArtistPress}
       />
 
       <PlayerActionSheet

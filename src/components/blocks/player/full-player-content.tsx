@@ -32,8 +32,8 @@ interface FullPlayerContentProps {
   playerExpandedView: PlayerExpandedView
   queueContext: PlayerQueueContext | null
   onClose: () => void
-  onOpenMore: () => void
-  onPressArtist: () => void
+  onOpenMore?: () => void
+  onPressArtist?: () => void
 }
 
 export function FullPlayerContent({

@@ -3,7 +3,7 @@
  * Caller: FullPlayerContent.
  * Dependencies: gesture handler, Reanimated, Google Cast button, localization, and player queue context type.
  * Main Functions: PlayerHeader()
- * Side Effects: Runs close gesture callbacks and opens player action controls.
+ * Side Effects: Runs close gesture callbacks and opens player action controls when available.
  */
 
 import type { PlayerQueueContext } from "@/modules/player/player.types"
@@ -21,7 +21,6 @@ import Animated, {
 } from "react-native-reanimated"
 import type { SharedValue } from "react-native-reanimated"
 
-import { useComingSoonToast } from "@/components/blocks/player/use-coming-soon-toast"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 
 const PLAYER_QUEUE_CONTEXT_LABEL_KEYS: Record<
@@ -67,7 +66,6 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   dragY,
   queueContext,
 }) => {
-  const { showComingSoon } = useComingSoonToast()
   const { t } = useTranslation()
   const queueContextLabel = queueContext
     ? t(PLAYER_QUEUE_CONTEXT_LABEL_KEYS[queueContext.type])
@@ -131,23 +129,19 @@ export const PlayerHeader: React.FC<PlayerHeaderProps> = ({
         </Animated.View>
       </GestureDetector>
 
-      <PressableFeedback
-        onPress={() => {
-          if (onOpenMore) {
-            onOpenMore()
-            return
-          }
-          showComingSoon(t("player.castFeatures"))
-        }}
-        className="absolute right-0 z-20 p-1"
-      >
-        <LocalMoreHorizontalCircleSolidIcon
-          fill="none"
-          width={24}
-          height={24}
-          color="white"
-        />
-      </PressableFeedback>
+      {onOpenMore ? (
+        <PressableFeedback
+          onPress={onOpenMore}
+          className="absolute right-0 z-20 p-1"
+        >
+          <LocalMoreHorizontalCircleSolidIcon
+            fill="none"
+            width={24}
+            height={24}
+            color="white"
+          />
+        </PressableFeedback>
+      ) : null}
 
       {queueContext ? (
         <View className="mx-10 items-center px-2 pt-5">
