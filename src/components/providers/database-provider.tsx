@@ -1,12 +1,23 @@
+/**
+ * Purpose: Renders database error fallback UI and drives DB startup through external runtime state.
+ * Caller: Root providers.
+ * Dependencies: Drizzle migration hook, database runtime, and localization.
+ * Main Functions: DatabaseProvider()
+ * Side Effects: Starts DB runtime synchronization after migrations complete.
+ */
+
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator"
-import { useEffect, useRef, useState } from "react"
+import { useSyncExternalStore } from "react"
 import { Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
-import { loadInitialDatabaseState } from "@/modules/bootstrap/database-startup.service"
-import { logError, logInfo } from "@/modules/logging/logging.service"
+import {
+  getDatabaseRuntimeSnapshot,
+  subscribeDatabaseRuntime,
+  syncDatabaseRuntime,
+} from "@/modules/bootstrap/database-runtime"
 
 export function DatabaseProvider({
   children,
@@ -18,70 +29,22 @@ export function DatabaseProvider({
   onError?: () => void
 }) {
   const { t } = useTranslation()
-  const [databaseError, setDatabaseError] = useState<Error | null>(null)
-  const lifecycleRef = useRef<"idle" | "loading" | "ready" | "error">("idle")
   const { success, error } = useMigrations(db, migrations)
+  const runtimeSnapshot = useSyncExternalStore(
+    subscribeDatabaseRuntime,
+    getDatabaseRuntimeSnapshot,
+    getDatabaseRuntimeSnapshot
+  )
 
-  useEffect(() => {
-    if (lifecycleRef.current === "idle") {
-      logInfo("Database provider waiting for migrations")
-    }
+  syncDatabaseRuntime({
+    success,
+    error: error ?? undefined,
+    onReady,
+    onError,
+  })
 
-    if (error) {
-      if (lifecycleRef.current === "error") {
-        return
-      }
-
-      lifecycleRef.current = "error"
-      setDatabaseError(error)
-      logError("Database provider failed", error)
-      onError?.()
-      return
-    }
-
-    if (
-      !success ||
-      lifecycleRef.current === "loading" ||
-      lifecycleRef.current === "ready"
-    ) {
-      return
-    }
-
-    lifecycleRef.current = "loading"
-    logInfo("Database migrations completed, loading initial database state")
-    let isCancelled = false
-
-    void (async () => {
-      try {
-        await loadInitialDatabaseState()
-        if (isCancelled) {
-          return
-        }
-
-        lifecycleRef.current = "ready"
-        logInfo("Database provider ready")
-        onReady?.()
-      } catch (loadTracksError) {
-        if (isCancelled) {
-          return
-        }
-
-        const resolvedLoadError = loadTracksError as Error
-        lifecycleRef.current = "error"
-        setDatabaseError(resolvedLoadError)
-        logError("Database data loading failed", resolvedLoadError)
-        onError?.()
-      }
-    })()
-
-    return () => {
-      isCancelled = true
-      logInfo("Database provider load cancelled")
-    }
-  }, [error, onError, onReady, success])
-
-  if (databaseError) {
-    const message = databaseError.message || ""
+  if (runtimeSnapshot.error) {
+    const message = runtimeSnapshot.error.message || ""
     const isLegacySchemaConflict =
       message.includes("CREATE TABLE") || message.includes("already exists")
 

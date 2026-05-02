@@ -1,9 +1,9 @@
 /**
  * Purpose: Boots the app shell, sets navigation theme, handles notifications, and defines the root stack.
  * Caller: Expo Router root entry point.
- * Dependencies: RootProviders, bootstrap runtime, update runtime, Expo Notifications, HeroUI Native, Expo Router stack options, player UI state.
+ * Dependencies: RootProviders, bootstrap runtime, notification runtime, update runtime, HeroUI Native, Expo Router stack options, player UI state.
  * Main Functions: Layout()
- * Side Effects: Registers notification listeners, drives splash-screen visibility, triggers bootstrap lifecycle, routes into player/settings screens.
+ * Side Effects: Starts notification runtime, drives splash-screen visibility, triggers bootstrap lifecycle, routes into player/settings screens.
  */
 
 import {
@@ -11,12 +11,11 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native"
-import * as Notifications from "expo-notifications"
 import { useSegments } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
-import { type ReactNode, useEffect, useRef } from "react"
+import { type ReactNode, useRef } from "react"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import Animated, {
@@ -37,19 +36,13 @@ import {
 } from "@/modules/bootstrap/bootstrap.runtime"
 import { checkStartupAppUpdate } from "@/modules/updates/app-update.runtime"
 import {
-  INDEXER_NOTIFICATION_ACTION_CANCEL,
-  INDEXER_NOTIFICATION_ACTION_PAUSE,
-  INDEXER_NOTIFICATION_ACTION_RESUME,
-} from "@/modules/indexer/indexer-notification.service"
-import {
-  cancelIndexing,
-  pauseIndexing,
-  resumeIndexing,
-} from "@/modules/indexer/indexer.service"
-import {
   ROOT_MODAL_SCREEN_OPTIONS,
   getHiddenPlayerScreenOptions,
 } from "@/modules/navigation/stack"
+import {
+  ensureNotificationRuntimeStarted,
+  setNotificationRouteHandler,
+} from "@/modules/notifications/notification-runtime"
 import { useHasCurrentTrack } from "@/modules/player/player-selectors"
 import { useThemeColors } from "@/modules/ui/theme"
 import { useUIStore } from "@/modules/ui/ui.store"
@@ -108,70 +101,10 @@ export default function Layout() {
   const barsVisible = useUIStore((state) => state.barsVisible)
   const hasMiniPlayer = useHasCurrentTrack()
   const hasHiddenSplashRef = useRef(false)
-  const handledNotificationResponseRef = useRef<string | null>(null)
-
-  useEffect(() => {
-    const handleNotificationResponse = (
-      response: Notifications.NotificationResponse | null
-    ) => {
-      if (!response) {
-        return
-      }
-
-      const responseTitle = response.notification.request.content.title ?? ""
-      const responseBody = response.notification.request.content.body ?? ""
-      const responseKey = [
-        response.notification.request.identifier,
-        response.actionIdentifier,
-        response.notification.date,
-        responseTitle,
-        responseBody,
-      ].join(":")
-      if (handledNotificationResponseRef.current === responseKey) {
-        return
-      }
-
-      handledNotificationResponseRef.current = responseKey
-
-      const source = response.notification.request.content.data?.source
-      if (
-        source === "indexer-progress" &&
-        response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER
-      ) {
-        switch (response.actionIdentifier) {
-          case INDEXER_NOTIFICATION_ACTION_PAUSE:
-            pauseIndexing()
-            return
-          case INDEXER_NOTIFICATION_ACTION_RESUME:
-            resumeIndexing()
-            return
-          case INDEXER_NOTIFICATION_ACTION_CANCEL:
-            cancelIndexing()
-            return
-          default:
-            return
-        }
-      }
-
-      const route = response.notification.request.content.data?.route
-      if (typeof route !== "string" || route.length === 0) {
-        return
-      }
-      router.push(route as never)
-    }
-
-    void Notifications.getLastNotificationResponseAsync().then(
-      handleNotificationResponse
-    )
-
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      handleNotificationResponse
-    )
-
-    return () => {
-      subscription.remove()
-    }
-  }, [router])
+  setNotificationRouteHandler((route) => {
+    router.push(route as never)
+  })
+  ensureNotificationRuntimeStarted()
 
   const hideSplash = () => {
     if (hasHiddenSplashRef.current) {

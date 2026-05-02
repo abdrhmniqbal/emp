@@ -35,11 +35,13 @@ Startune Music is an offline-first local music player for Android/iOS built with
 ### 1. **App Launch Flow**
 ```
 App Start
+  → Root layout injects notification route handler and starts notification runtime once
   → RootProviders initialized (LocalizationProvider, QueryClientProvider, DatabaseProvider)
-  → LocalizationProvider: ensureLanguageConfigLoaded() reads selected language and initializes i18next
-  → DatabaseProvider: useMigrations() → migrations applied from /src/db/migrations
-  → loadInitialDatabaseState() → loadTracks() from DB
-  → registerBootstrapListeners() → monitor database & indexer lifecycle
+  → LocalizationProvider starts localization runtime → ensureLanguageConfigLoaded() reads selected language and initializes i18next
+  → DatabaseProvider syncs database runtime from migration status
+      → useMigrations() applies migrations from /src/db/migrations
+      → loadInitialDatabaseState() → loadTracks() from DB
+  → RootProviders starts bootstrap listeners runtime once
   → Display Root Layout (/src/app/_layout.tsx)
   → Screen navigation uses useGuardedRouter() to ignore duplicate same-target push/replace taps during transitions
 ```

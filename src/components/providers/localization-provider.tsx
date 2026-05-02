@@ -1,33 +1,28 @@
 /**
  * Purpose: Hydrates persisted language settings before rendering localized app content.
  * Caller: RootProviders.
- * Dependencies: React, react-i18next provider, i18next instance, language settings service.
+ * Dependencies: React, react-i18next provider, i18next instance, and localization runtime state.
  * Main Functions: LocalizationProvider()
- * Side Effects: Reads language settings JSON and updates i18next language.
+ * Side Effects: Starts localization runtime initialization.
  */
 
-import { type ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useSyncExternalStore } from "react"
 import { I18nextProvider } from "react-i18next"
 
 import { i18n } from "@/modules/localization/i18n"
-import { ensureLanguageConfigLoaded } from "@/modules/localization/language-settings"
+import {
+  ensureLocalizationInitialized,
+  getLocalizationReadySnapshot,
+  subscribeLocalizationReady,
+} from "@/modules/localization/localization-runtime"
 
 export function LocalizationProvider({ children }: { children: ReactNode }) {
-  const [isReady, setIsReady] = useState(false)
-
-  useEffect(() => {
-    let isMounted = true
-
-    void ensureLanguageConfigLoaded().finally(() => {
-      if (isMounted) {
-        setIsReady(true)
-      }
-    })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  void ensureLocalizationInitialized()
+  const isReady = useSyncExternalStore(
+    subscribeLocalizationReady,
+    getLocalizationReadySnapshot,
+    getLocalizationReadySnapshot
+  )
 
   if (!isReady) {
     return null
