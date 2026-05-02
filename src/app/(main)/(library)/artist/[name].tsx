@@ -91,7 +91,7 @@ import {
   handleScrollStart,
   handleScrollStop,
 } from "@/modules/ui/ui.store"
-import { logWarn } from "@/modules/logging/logging.service"
+import { scheduleRouteWarning } from "@/modules/navigation/route-warning-runtime"
 import { playTrack } from "@/modules/player/player.service"
 import { cn } from "@/utils/common"
 
@@ -178,25 +178,21 @@ export default function ArtistDetailsScreen() {
   const artistName =
     parsedArtistRouteName.value.trim() || t("library.unknownArtist")
 
-  React.useEffect(() => {
-    if (!parsedArtistRouteName.value.trim()) {
-      logWarn("Artist details route missing name param", {
-        route: "/artist/[name]",
-      })
-      return
-    }
-
-    if (parsedArtistRouteName.decodeFailed) {
-      logWarn("Artist details route name decode failed", {
-        route: "/artist/[name]",
-        rawName: parsedArtistRouteName.raw,
-      })
-    }
-  }, [
-    parsedArtistRouteName.decodeFailed,
-    parsedArtistRouteName.raw,
-    parsedArtistRouteName.value,
-  ])
+  scheduleRouteWarning({
+    key: "artist-details:missing-name",
+    message: "Artist details route missing name param",
+    metadata: { route: "/artist/[name]" },
+    enabled: !parsedArtistRouteName.value.trim(),
+  })
+  scheduleRouteWarning({
+    key: `artist-details:decode-failed:${parsedArtistRouteName.raw}`,
+    message: "Artist details route name decode failed",
+    metadata: {
+      route: "/artist/[name]",
+      rawName: parsedArtistRouteName.raw,
+    },
+    enabled: parsedArtistRouteName.decodeFailed,
+  })
 
   const normalizedArtistName = artistName.toLowerCase()
   const {

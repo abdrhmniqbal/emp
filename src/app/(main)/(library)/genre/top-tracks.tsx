@@ -7,7 +7,7 @@
  */
 
 import { useLocalSearchParams } from "expo-router"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import { View } from "react-native"
 import { useTranslation } from "react-i18next"
 import Animated from "react-native-reanimated"
@@ -24,7 +24,7 @@ import {
 import { Stack } from "@/layouts/stack"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { logWarn } from "@/modules/logging/logging.service"
+import { scheduleRouteWarning } from "@/modules/navigation/route-warning-runtime"
 import { playTrack } from "@/modules/player/player.service"
 import { useGenreTopTracks } from "@/modules/search/search.queries"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -61,21 +61,21 @@ export default function GenreTopTracksScreen() {
   const genreName = parsedGenreRouteName.value
   const normalizedGenreName = genreName.trim()
 
-  useEffect(() => {
-    if (!normalizedGenreName) {
-      logWarn("Genre top-tracks route missing name param", {
-        route: "/genre/top-tracks",
-      })
-      return
-    }
-
-    if (parsedGenreRouteName.decodeFailed) {
-      logWarn("Genre top-tracks route name decode failed", {
-        route: "/genre/top-tracks",
-        rawName: parsedGenreRouteName.raw,
-      })
-    }
-  }, [normalizedGenreName, parsedGenreRouteName.decodeFailed, parsedGenreRouteName.raw])
+  scheduleRouteWarning({
+    key: "genre-top-tracks:missing-name",
+    message: "Genre top-tracks route missing name param",
+    metadata: { route: "/genre/top-tracks" },
+    enabled: !normalizedGenreName,
+  })
+  scheduleRouteWarning({
+    key: `genre-top-tracks:decode-failed:${parsedGenreRouteName.raw}`,
+    message: "Genre top-tracks route name decode failed",
+    metadata: {
+      route: "/genre/top-tracks",
+      rawName: parsedGenreRouteName.raw,
+    },
+    enabled: parsedGenreRouteName.decodeFailed,
+  })
 
   const { data, isLoading, isFetching, refetch } =
     useGenreTopTracks(normalizedGenreName)

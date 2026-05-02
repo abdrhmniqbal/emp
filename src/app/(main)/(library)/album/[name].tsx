@@ -38,7 +38,7 @@ import {
 } from "@/modules/library/library-sort.store"
 import { sortTracks } from "@/modules/library/library-sort.utils"
 import { useTracksByAlbumName } from "@/modules/library/library.queries"
-import { logWarn } from "@/modules/logging/logging.service"
+import { scheduleRouteWarning } from "@/modules/navigation/route-warning-runtime"
 import { usePlayerTracks } from "@/modules/player/player-selectors"
 import { playTrack } from "@/modules/player/player.service"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -88,21 +88,21 @@ export default function AlbumDetailsScreen() {
   const parsedAlbumRouteName = React.useMemo(() => getSafeRouteName(name), [name])
   const albumName = parsedAlbumRouteName.value
 
-  React.useEffect(() => {
-    if (!albumName.trim()) {
-      logWarn("Album details route missing name param", {
-        route: "/album/[name]",
-      })
-      return
-    }
-
-    if (parsedAlbumRouteName.decodeFailed) {
-      logWarn("Album details route name decode failed", {
-        route: "/album/[name]",
-        rawName: parsedAlbumRouteName.raw,
-      })
-    }
-  }, [albumName, parsedAlbumRouteName.decodeFailed, parsedAlbumRouteName.raw])
+  scheduleRouteWarning({
+    key: "album-details:missing-name",
+    message: "Album details route missing name param",
+    metadata: { route: "/album/[name]" },
+    enabled: !albumName.trim(),
+  })
+  scheduleRouteWarning({
+    key: `album-details:decode-failed:${parsedAlbumRouteName.raw}`,
+    message: "Album details route name decode failed",
+    metadata: {
+      route: "/album/[name]",
+      rawName: parsedAlbumRouteName.raw,
+    },
+    enabled: parsedAlbumRouteName.decodeFailed,
+  })
 
   const normalizedAlbumName = albumName.trim().toLowerCase()
   const {

@@ -43,7 +43,7 @@ import {
 } from "@/modules/favorites/favorites.queries"
 import { TRACK_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
 import { sortTracks } from "@/modules/library/library-sort.utils"
-import { logWarn } from "@/modules/logging/logging.service"
+import { scheduleRouteWarning } from "@/modules/navigation/route-warning-runtime"
 import { playTrack } from "@/modules/player/player.service"
 import { useDeletePlaylist } from "@/modules/playlist/playlist.mutations"
 import { usePlaylist } from "@/modules/playlist/playlist.queries"
@@ -113,13 +113,12 @@ export default function PlaylistDetailsScreen() {
   }>()
   const playlistId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "")
 
-  React.useEffect(() => {
-    if (!playlistId.trim()) {
-      logWarn("Playlist details route missing id param", {
-        route: "/playlist/[id]",
-      })
-    }
-  }, [playlistId])
+  scheduleRouteWarning({
+    key: "playlist-details:missing-id",
+    message: "Playlist details route missing id param",
+    metadata: { route: "/playlist/[id]" },
+    enabled: !playlistId.trim(),
+  })
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
   const [showActionSheet, setShowActionSheet] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)

@@ -12,7 +12,7 @@ import type {
 } from "@/modules/library/library-sort.types"
 import { useLocalSearchParams } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
@@ -32,7 +32,7 @@ import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
 import { sortAlbums } from "@/modules/library/library-sort.utils"
-import { logWarn } from "@/modules/logging/logging.service"
+import { scheduleRouteWarning } from "@/modules/navigation/route-warning-runtime"
 import { useGenreAlbums } from "@/modules/search/search.queries"
 import {
   mapAlbumsToGridData,
@@ -80,21 +80,21 @@ export default function GenreAlbumsScreen() {
   const genreName = parsedGenreRouteName.value
   const normalizedGenreName = genreName.trim()
 
-  useEffect(() => {
-    if (!normalizedGenreName) {
-      logWarn("Genre albums route missing name param", {
-        route: "/genre/albums",
-      })
-      return
-    }
-
-    if (parsedGenreRouteName.decodeFailed) {
-      logWarn("Genre albums route name decode failed", {
-        route: "/genre/albums",
-        rawName: parsedGenreRouteName.raw,
-      })
-    }
-  }, [normalizedGenreName, parsedGenreRouteName.decodeFailed, parsedGenreRouteName.raw])
+  scheduleRouteWarning({
+    key: "genre-albums:missing-name",
+    message: "Genre albums route missing name param",
+    metadata: { route: "/genre/albums" },
+    enabled: !normalizedGenreName,
+  })
+  scheduleRouteWarning({
+    key: `genre-albums:decode-failed:${parsedGenreRouteName.raw}`,
+    message: "Genre albums route name decode failed",
+    metadata: {
+      route: "/genre/albums",
+      rawName: parsedGenreRouteName.raw,
+    },
+    enabled: parsedGenreRouteName.decodeFailed,
+  })
 
   const { data, isLoading, isFetching, refetch } =
     useGenreAlbums(normalizedGenreName)

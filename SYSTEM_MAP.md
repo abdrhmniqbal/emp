@@ -451,6 +451,7 @@ src/
 │   │
 │   ├── navigation/
 │   │   ├── stack.tsx                         # Root stack navigation config + shared route transition helpers
+│   │   ├── route-warning-runtime.ts          # After-render route parameter warning scheduler
 │   │   └── …
 │   │
 │   ├── player/

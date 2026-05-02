@@ -9,7 +9,7 @@
 import type { GenreAlbumInfo } from "@/modules/search/search.types"
 import { useLocalSearchParams } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 
 import { ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next"
@@ -25,7 +25,7 @@ import { Stack } from "@/layouts/stack"
 import { resolveAlbumTransitionId } from "@/modules/artists/artist-transition"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { logWarn } from "@/modules/logging/logging.service"
+import { scheduleRouteWarning } from "@/modules/navigation/route-warning-runtime"
 import { playTrack } from "@/modules/player/player.service"
 import { useGenreDetails } from "@/modules/search/search.queries"
 import {
@@ -69,21 +69,21 @@ export default function GenreDetailsScreen() {
   const parsedGenreRouteName = useMemo(() => getSafeRouteName(name), [name])
   const genreName = parsedGenreRouteName.value
 
-  useEffect(() => {
-    if (!genreName.trim()) {
-      logWarn("Genre details route missing name param", {
-        route: "/genre/[name]",
-      })
-      return
-    }
-
-    if (parsedGenreRouteName.decodeFailed) {
-      logWarn("Genre details route name decode failed", {
-        route: "/genre/[name]",
-        rawName: parsedGenreRouteName.raw,
-      })
-    }
-  }, [genreName, parsedGenreRouteName.decodeFailed, parsedGenreRouteName.raw])
+  scheduleRouteWarning({
+    key: "genre-details:missing-name",
+    message: "Genre details route missing name param",
+    metadata: { route: "/genre/[name]" },
+    enabled: !genreName.trim(),
+  })
+  scheduleRouteWarning({
+    key: `genre-details:decode-failed:${parsedGenreRouteName.raw}`,
+    message: "Genre details route name decode failed",
+    metadata: {
+      route: "/genre/[name]",
+      rawName: parsedGenreRouteName.raw,
+    },
+    enabled: parsedGenreRouteName.decodeFailed,
+  })
 
   const { data, isLoading, isFetching, refetch } = useGenreDetails(genreName)
   const topTracks = data?.topTracks ?? []
