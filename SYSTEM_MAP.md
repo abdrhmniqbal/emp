@@ -433,6 +433,7 @@ src/
 │   │
 │   ├── library/
 │   │   ├── library.queries.ts                # useArtists(), useAlbums(), useTracks(), useSearch()
+│   │   ├── library-artwork.repository.ts     # Dominant album artwork selection and hydration
 │   │   ├── library.repository.ts             # listArtists(), listAlbums(), searchLibrary()
 │   │   ├── library.keys.ts                   # React Query key factory
 │   │   ├── library-sort.store.ts             # Sort order persistence
