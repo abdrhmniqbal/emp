@@ -35,22 +35,25 @@ import { ensureSplitMultipleValueConfigLoaded } from "@/modules/settings/split-m
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { ensureLoggingConfigLoaded } from "@/modules/logging/logging.store"
 import { logError, logInfo } from "@/modules/logging/logging.service"
+import { measurePerfTrace } from "@/modules/logging/perf-trace"
 import { restorePlaybackSession } from "@/modules/player/player-session.service"
 
 async function preloadLocalSettings() {
   logInfo("Preloading local settings")
-  await Promise.all([
-    ensureAutoScanConfigLoaded(),
-    ensureAudioPlaybackConfigLoaded(),
-    ensureAppUpdateConfigLoaded(),
-    ensureCrossfadeConfigLoaded(),
-    ensureCountAsPlayedConfigLoaded(),
-    ensureFolderFilterConfigLoaded(),
-    ensureIndexerNotificationsConfigLoaded(),
-    ensureTrackDurationFilterConfigLoaded(),
-    ensureSplitMultipleValueConfigLoaded(),
-    ensureLoggingConfigLoaded(),
-  ])
+  await measurePerfTrace("bootstrap.preloadLocalSettings", async () => {
+    await Promise.all([
+      ensureAutoScanConfigLoaded(),
+      ensureAudioPlaybackConfigLoaded(),
+      ensureAppUpdateConfigLoaded(),
+      ensureCrossfadeConfigLoaded(),
+      ensureCountAsPlayedConfigLoaded(),
+      ensureFolderFilterConfigLoaded(),
+      ensureIndexerNotificationsConfigLoaded(),
+      ensureTrackDurationFilterConfigLoaded(),
+      ensureSplitMultipleValueConfigLoaded(),
+      ensureLoggingConfigLoaded(),
+    ])
+  })
 }
 
 export async function bootstrapApp(): Promise<void> {
@@ -60,13 +63,17 @@ export async function bootstrapApp(): Promise<void> {
     logInfo("Playback service registered")
 
     logInfo("Initializing track player")
-    await initializeTrackPlayer()
+    await measurePerfTrace("bootstrap.initializeTrackPlayer", async () => {
+      await initializeTrackPlayer()
+    })
     logInfo("Track player initialized")
 
     await preloadLocalSettings()
 
     logInfo("Restoring playback session")
-    await restorePlaybackSession()
+    await measurePerfTrace("bootstrap.restorePlaybackSession", async () => {
+      await restorePlaybackSession()
+    })
     logInfo("Playback session restored")
 
     const audioPlaybackConfig = await ensureAudioPlaybackConfigLoaded()

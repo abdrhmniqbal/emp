@@ -13,6 +13,7 @@ import type {
 } from "@/modules/player/player.types"
 import type { RepeatMode } from "@/modules/player/player.utils"
 import { logError, logInfo } from "@/modules/logging/logging.service"
+import { measurePerfTrace } from "@/modules/logging/perf-trace"
 import { updateColorsForImage } from "@/modules/player/player-colors.service"
 import {
   loadPlaybackCursorSnapshot,
@@ -591,10 +592,14 @@ export async function persistPlaybackSession(
 
 export async function restorePlaybackSession(): Promise<void> {
   try {
-    const [nativeStatus, storedSession] = await Promise.all([
-      readNativePlaybackStatus(),
-      readStoredPlaybackSession(),
-    ])
+    const [nativeStatus, storedSession] = await measurePerfTrace(
+      "player.restorePlaybackSession.readSnapshots",
+      async () =>
+        await Promise.all([
+          readNativePlaybackStatus(),
+          readStoredPlaybackSession(),
+        ])
+    )
 
     if (
       storedSession &&
@@ -620,7 +625,10 @@ export async function restorePlaybackSession(): Promise<void> {
       return
     }
 
-    const nativeSession = await readNativePlaybackSession()
+    const nativeSession = await measurePerfTrace(
+      "player.restorePlaybackSession.readNativeSession",
+      async () => await readNativePlaybackSession()
+    )
     if (nativeSession) {
       logInfo("Restoring playback session from native queue", {
         queueLength: nativeSession.queue.length,

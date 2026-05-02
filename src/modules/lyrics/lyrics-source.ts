@@ -7,6 +7,7 @@
  */
 
 import { File } from "expo-file-system"
+import { measurePerfTrace } from "@/modules/logging/perf-trace"
 
 interface TrackLyricsSourceInput {
   fileHash?: string
@@ -155,18 +156,28 @@ export async function resolveTrackLyricsSource(
   }
 
   const uri = track.uri?.trim()
-  if (uri) {
-    const sidecarCandidates = getSidecarCandidates(uri)
-    for (const candidate of sidecarCandidates) {
-      const lyricsFromFile = await readSidecarLyrics(candidate)
-      if (lyricsFromFile) {
-        resolvedLyricsSourceCache.set(cacheKey, lyricsFromFile)
-        return lyricsFromFile
+  return await measurePerfTrace(
+    "lyrics.resolveTrackLyricsSource",
+    async () => {
+      if (uri) {
+        const sidecarCandidates = getSidecarCandidates(uri)
+        for (const candidate of sidecarCandidates) {
+          const lyricsFromFile = await readSidecarLyrics(candidate)
+          if (lyricsFromFile) {
+            resolvedLyricsSourceCache.set(cacheKey, lyricsFromFile)
+            return lyricsFromFile
+          }
+        }
       }
-    }
-  }
 
-  const embeddedLyrics = normalizeLyricsText(track.lyrics)
-  resolvedLyricsSourceCache.set(cacheKey, embeddedLyrics)
-  return embeddedLyrics
+      const embeddedLyrics = normalizeLyricsText(track.lyrics)
+      resolvedLyricsSourceCache.set(cacheKey, embeddedLyrics)
+      return embeddedLyrics
+    },
+    {
+      trackId: track.id,
+      hasEmbeddedLyrics: Boolean(track.lyrics),
+      hasUri: Boolean(uri),
+    }
+  )
 }

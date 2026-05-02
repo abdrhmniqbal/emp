@@ -36,6 +36,7 @@ import {
   updateIndexerProgress,
 } from "@/modules/indexer/indexer-progress.service"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
+import { measurePerfTrace } from "@/modules/logging/perf-trace"
 import type { SplitMultipleValueConfig } from "@/modules/settings/split-multiple-values"
 
 const INCREMENTAL_REFRESH_INTERVAL_MS = 1500
@@ -60,40 +61,48 @@ export async function startIndexing(
   let lastIncrementalRefreshAt = 0
 
   try {
-    await scanMediaLibrary(
-      (progress) => {
-        if (isIndexerRunStale(controller, currentRunToken)) {
-          return
-        }
-
-        updateIndexerProgress(progress)
-      },
-      forceFullScan,
-      controller.signal,
+    await measurePerfTrace(
+      "indexer.scanMediaLibrary",
       async () => {
-        if (isIndexerRunStale(controller, currentRunToken)) {
-          return
-        }
+        await scanMediaLibrary(
+          (progress) => {
+            if (isIndexerRunStale(controller, currentRunToken)) {
+              return
+            }
 
-        const now = Date.now()
-        if (now - lastIncrementalRefreshAt < INCREMENTAL_REFRESH_INTERVAL_MS) {
-          return
-        }
+            updateIndexerProgress(progress)
+          },
+          forceFullScan,
+          controller.signal,
+          async () => {
+            if (isIndexerRunStale(controller, currentRunToken)) {
+              return
+            }
 
-        lastIncrementalRefreshAt = now
-        try {
-          await refreshIndexedMediaState()
-        } catch (error) {
-          logError("Incremental indexed media refresh failed", error)
-        }
-      }
+            const now = Date.now()
+            if (now - lastIncrementalRefreshAt < INCREMENTAL_REFRESH_INTERVAL_MS) {
+              return
+            }
+
+            lastIncrementalRefreshAt = now
+            try {
+              await refreshIndexedMediaState()
+            } catch (error) {
+              logError("Incremental indexed media refresh failed", error)
+            }
+          }
+        )
+      },
+      { forceFullScan }
     )
 
     if (isIndexerRunStale(controller, currentRunToken)) {
       return
     }
 
-    await refreshIndexedMediaState()
+    await measurePerfTrace("indexer.refreshIndexedMediaState", async () => {
+      await refreshIndexedMediaState()
+    })
 
     completeIndexerProgress()
     const progressSnapshot = getIndexerProgressSnapshot()
@@ -136,8 +145,13 @@ export async function forceReindexLibrary(showProgress = true) {
 export async function rebuildSplitRelationsForConfig(
   config: SplitMultipleValueConfig
 ) {
-  const result = await rebuildSplitMetadataRelations(config)
-  await refreshIndexedMediaState()
+  const result = await measurePerfTrace(
+    "indexer.rebuildSplitMetadataRelations",
+    async () => await rebuildSplitMetadataRelations(config)
+  )
+  await measurePerfTrace("indexer.refreshAfterSplitRebuild", async () => {
+    await refreshIndexedMediaState()
+  })
   return result
 }
 
