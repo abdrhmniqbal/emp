@@ -18,7 +18,7 @@ import {
   type TextInput,
   View,
 } from "react-native"
-import Animated, { FadeInUp } from "react-native-reanimated"
+import Animated, { FadeInUp, runOnJS } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 
@@ -142,6 +142,7 @@ export default function SearchInteractionScreen() {
   const [searchQuery, setSearchQuery] = useState(initialValue)
   const [activeSearchTab, setActiveSearchTab] = useState<SearchTab>("All")
   const [headerInputKey, setHeaderInputKey] = useState(0)
+  const [canAutoFocusInput, setCanAutoFocusInput] = useState(false)
 
   const { data: searchResults, isLoading, isFetching } = useSearch(searchQuery)
   const { data: recentSearches = [] } = useRecentSearches()
@@ -376,20 +377,24 @@ export default function SearchInteractionScreen() {
         }}
       />
       <Animated.View
-        entering={FadeInUp.duration(220)}
+        entering={FadeInUp.duration(220).withCallback((finished) => {
+          if (finished) {
+            runOnJS(setCanAutoFocusInput)(true)
+          }
+        })}
         style={{
           paddingTop: insets.top + 8,
           paddingHorizontal: 16,
         }}
       >
         <HeaderSearchInput
-          key={headerInputKey}
+          key={`${headerInputKey}-${canAutoFocusInput ? "ready" : "pending"}`}
           theme={theme}
           initialValue={searchQuery}
           onChangeText={setSearchQuery}
           onSubmit={handleSubmitSearch}
           onBack={handleBackNavigation}
-          focusWhenReady
+          focusWhenReady={canAutoFocusInput}
         />
       </Animated.View>
       {isSearching ? (
