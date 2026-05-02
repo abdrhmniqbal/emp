@@ -357,6 +357,37 @@ function normalizeTimedMarkupWords(
   })
 }
 
+function normalizeTimedMarkupWordText(raw: string) {
+  return raw.replace(/\s+/g, " ").trim()
+}
+
+function normalizeTimedMarkupWordSequence(words: TimedMarkupWord[]) {
+  const normalizedWords: TimedMarkupWord[] = []
+  let previousHadTrailingWhitespace = false
+
+  for (const word of words) {
+    const hadLeadingWhitespace = /^\s/.test(word.text)
+    const hadTrailingWhitespace = /\s$/.test(word.text)
+    const normalizedText = normalizeTimedMarkupWordText(word.text)
+
+    if (!normalizedText) {
+      continue
+    }
+
+    const shouldPrefixSpace =
+      normalizedWords.length > 0 &&
+      (hadLeadingWhitespace || previousHadTrailingWhitespace)
+
+    normalizedWords.push({
+      ...word,
+      text: shouldPrefixSpace ? ` ${normalizedText}` : normalizedText,
+    })
+    previousHadTrailingWhitespace = hadTrailingWhitespace
+  }
+
+  return normalizedWords
+}
+
 function isAngleTimedLyrics(raw: string): boolean {
   TIMED_ANGLE_TAG_REGEX.lastIndex = 0
   return TIMED_ANGLE_TAG_REGEX.test(raw)
@@ -394,15 +425,17 @@ function parseAngleTimedLine(rawLine: string, lineIndex: number) {
     })
   }
 
-  if (words.length === 0) {
+  const normalizedWords = normalizeTimedMarkupWordSequence(words)
+
+  if (normalizedWords.length === 0) {
     return null
   }
 
   return {
     id: `timed-angle-${lineIndex}`,
-    begin: words[0]?.begin ?? 0,
-    end: words[words.length - 1]?.end ?? 0,
-    words,
+    begin: normalizedWords[0]?.begin ?? 0,
+    end: normalizedWords[normalizedWords.length - 1]?.end ?? 0,
+    words: normalizedWords,
   }
 }
 
@@ -479,18 +512,20 @@ export function parseTimedMarkupLines(
       }
     }
 
-    if (words.length === 0) {
-      const plainText = decodeMarkupText(innerContent).trim()
+    const normalizedWords = normalizeTimedMarkupWordSequence(words)
+
+    if (normalizedWords.length === 0) {
+      const plainText = normalizeTimedMarkupWordText(decodeMarkupText(innerContent))
 
       if (plainText) {
-        words.push({ text: plainText, begin: pBegin, end: pEnd })
+        normalizedWords.push({ text: plainText, begin: pBegin, end: pEnd })
       }
     }
 
-    if (words.length > 0) {
-      const normalizedWords = normalizeTimedMarkupWords(words, pEnd)
-      const firstBegin = Math.min(...normalizedWords.map((word) => word.begin))
-      const lastEnd = Math.max(...normalizedWords.map((word) => word.end))
+    if (normalizedWords.length > 0) {
+      const finalizedWords = normalizeTimedMarkupWords(normalizedWords, pEnd)
+      const firstBegin = Math.min(...finalizedWords.map((word) => word.begin))
+      const lastEnd = Math.max(...finalizedWords.map((word) => word.end))
       const lineBegin =
         pBegin === 0 && Number.isFinite(firstBegin) && firstBegin > 0
           ? firstBegin
@@ -501,7 +536,7 @@ export function parseTimedMarkupLines(
         id: `timed-markup-${lineIndex}`,
         begin: Number.isFinite(lineBegin) ? lineBegin : 0,
         end: Number.isFinite(lineEnd) ? lineEnd : 0,
-        words: normalizedWords,
+        words: finalizedWords,
       })
       lineIndex++
     }
@@ -526,15 +561,17 @@ export function parseTimedMarkupLines(
       }
     }
 
-    if (words.length > 0) {
-      const firstBegin = Math.min(...words.map((word) => word.begin))
-      const lastEnd = Math.max(...words.map((word) => word.end))
-      const normalizedWords = normalizeTimedMarkupWords(words, lastEnd)
+    const normalizedWords = normalizeTimedMarkupWordSequence(words)
+
+    if (normalizedWords.length > 0) {
+      const firstBegin = Math.min(...normalizedWords.map((word) => word.begin))
+      const lastEnd = Math.max(...normalizedWords.map((word) => word.end))
+      const finalizedWords = normalizeTimedMarkupWords(normalizedWords, lastEnd)
       lines.push({
         id: "timed-markup-0",
         begin: Number.isFinite(firstBegin) ? firstBegin : 0,
         end: Number.isFinite(lastEnd) ? lastEnd : 0,
-        words: normalizedWords,
+        words: finalizedWords,
       })
     }
   }
