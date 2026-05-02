@@ -1,15 +1,13 @@
 /**
- * Purpose: Centralizes LegendList behavior flags for scroll reset and item recycling updates.
+ * Purpose: Centralizes LegendList behavior flags for item recycling updates.
  * Caller: Virtualized list blocks (track/album/artist/favorites/folder/playlist).
- * Dependencies: @legendapp/list refs and reset-scroll hook.
+ * Dependencies: @legendapp/list refs.
  * Main Functions: useLegendListBehavior()
- * Side Effects: Resets list scroll when reset key changes.
+ * Side Effects: None.
  */
 
 import type { LegendListRef } from "@legendapp/list"
 import { useMemo, useRef } from "react"
-
-import { useResetScrollOnKey } from "./use-reset-scroll-on-key"
 
 interface LegendListBehaviorProps {
   maintainVisibleContentPosition: false
@@ -21,8 +19,6 @@ export function useLegendListBehavior(
   dataVersionKey?: string
 ) {
   const listRef = useRef<LegendListRef | null>(null)
-
-  useResetScrollOnKey(listRef, resetScrollKey)
 
   const dataVersion =
     resetScrollKey && dataVersionKey
