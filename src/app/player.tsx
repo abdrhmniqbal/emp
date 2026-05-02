@@ -1,14 +1,14 @@
 /**
  * Purpose: Hosts the player route, expanded view state, route-level action sheets, and external audio intent playback.
  * Caller: Expo Router player route.
- * Dependencies: Player selectors/service, queue context selector, bootstrap runtime, UI store, shared artist picker, split settings parser, and player action sheet components.
+ * Dependencies: Player selectors, player intent runtime, queue context selector, UI store, shared artist picker, split settings parser, and player action sheet components.
  * Main Functions: PlayerRoute()
- * Side Effects: Navigates to artist route, toggles player sheets, and starts playback for external file-manager audio URIs.
+ * Side Effects: Navigates to artist route, toggles player sheets, and schedules player route intents.
  */
 
 import { Redirect, useLocalSearchParams } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useState, useSyncExternalStore } from "react"
 
 import {
   ArtistPickerSheet,
@@ -17,13 +17,16 @@ import {
 import { buildArtistPickerItems } from "@/components/blocks/artist-picker.utils"
 import { FullPlayerContent } from "@/components/blocks/player/full-player-content"
 import { PlayerActionSheet } from "@/components/blocks/player/player-action-sheet"
-import { waitForBootstrapComplete } from "@/modules/bootstrap/bootstrap.runtime"
 import {
   useCurrentTrack,
   useIsPlaying,
   usePlayerQueueContext,
 } from "@/modules/player/player-selectors"
-import { playExternalFileUri } from "@/modules/player/player.service"
+import {
+  getPlayerIntentRuntimeSnapshot,
+  schedulePlayerIntentRuntimeSync,
+  subscribePlayerIntentRuntime,
+} from "@/modules/player/player-intent-runtime"
 import { useTrack } from "@/modules/tracks/tracks.queries"
 import { splitArtistsValue } from "@/modules/settings/split-multiple-values"
 import { useSettingsStore } from "@/modules/settings/settings.store"
@@ -57,67 +60,28 @@ export default function PlayerRoute() {
   )
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false)
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
-  const [isHandlingExternalUri, setIsHandlingExternalUri] = useState(false)
-  const routerRef = useRef(router)
+  const intentSnapshot = useSyncExternalStore(
+    subscribePlayerIntentRuntime,
+    getPlayerIntentRuntimeSnapshot,
+    getPlayerIntentRuntimeSnapshot
+  )
 
   const externalUriValue =
     typeof externalUri === "string" && externalUri.length > 0
       ? externalUri
       : null
+  const initialViewValue =
+    typeof initialView === "string" && isPlayerExpandedView(initialView)
+      ? initialView
+      : null
 
-  useEffect(() => {
-    if (typeof initialView === "string" && isPlayerExpandedView(initialView)) {
-      setPlayerExpandedView(initialView)
-    }
-  }, [initialView])
-
-  useEffect(() => {
-    routerRef.current = router
-  }, [router])
-
-  useEffect(() => {
-    if (currentTrack?.isExternal) {
-      setIsActionSheetOpen(false)
-      setIsArtistSelectionOpen(false)
-    }
-  }, [currentTrack?.isExternal])
-
-  useEffect(() => {
-    if (!externalUriValue) {
-      return
-    }
-
-    let isCancelled = false
-    setIsHandlingExternalUri(true)
-
-    void (async () => {
-      try {
-        await waitForBootstrapComplete()
-        if (isCancelled) {
-          return
-        }
-
-        const didStartPlayback = await playExternalFileUri(externalUriValue)
-        if (!isCancelled) {
-          routerRef.current.replace(
-            didStartPlayback ? "/player" : "/(main)/(home)"
-          )
-        }
-      } catch {
-        if (!isCancelled) {
-          routerRef.current.replace("/(main)/(home)")
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsHandlingExternalUri(false)
-        }
-      }
-    })()
-
-    return () => {
-      isCancelled = true
-    }
-  }, [externalUriValue])
+  schedulePlayerIntentRuntimeSync({
+    initialView: initialViewValue,
+    externalUri: externalUriValue,
+    replaceRoute: (route) => {
+      router.replace(route)
+    },
+  })
 
   const artistNames = useMemo(() => {
     const relationNames = [
@@ -163,7 +127,10 @@ export default function PlayerRoute() {
     [artistNames, fullTrackData, t]
   )
 
-  if (externalUriValue && (isHandlingExternalUri || !currentTrack)) {
+  if (
+    externalUriValue &&
+    (intentSnapshot.isHandlingExternalUri || !currentTrack)
+  ) {
     return null
   }
 
@@ -221,7 +188,7 @@ export default function PlayerRoute() {
       />
 
       <PlayerActionSheet
-        visible={isActionSheetOpen}
+        visible={currentTrack.isExternal ? false : isActionSheetOpen}
         onOpenChange={setIsActionSheetOpen}
         track={currentTrack}
         artistNames={artistNames}
@@ -229,7 +196,7 @@ export default function PlayerRoute() {
       />
 
       <ArtistPickerSheet
-        isOpen={isArtistSelectionOpen}
+        isOpen={currentTrack.isExternal ? false : isArtistSelectionOpen}
         onOpenChange={setIsArtistSelectionOpen}
         title={t("player.selectArtistTitle")}
         items={artistPickerItems}

@@ -82,8 +82,8 @@ Android file manager sends ACTION_VIEW audio URI
   → app.json / AndroidManifest intent filter accepts content:// and file:// audio/*
   → src/app/+native-intent.tsx redirectSystemPath() detects external audio path, including Android content:/, encoded content://, MiXplorer app-scheme wrappers, and document-provider variants
   → Redirects to /player?externalUri=...
-  → PlayerRoute suppresses restored player UI while the external handoff is pending
-  → PlayerRoute waits for waitForBootstrapComplete()
+  → PlayerRoute schedules player-intent-runtime and reads its pending handoff snapshot
+  → player-intent-runtime waits for waitForBootstrapComplete()
   → playExternalFileUri()
       → resolvePlayableFileUri() resolves content:// to file:// when possible, or copies unresolved shared content into cache
       → If the URI/path or Android media/document id matches an indexed library row from player state or SQLite, plays that indexed Track as a one-item queue so favorites, playlists, history, and library actions work normally
@@ -455,6 +455,7 @@ src/
 │   │
 │   ├── player/
 │   │   ├── player.service.ts                 # setupPlayer(), playTrack(), core player control
+│   │   ├── player-intent-runtime.ts          # Player route initial view and external URI handoff runtime
 │   │   ├── player.store.ts                   # Zustand: current track, queue, repeat, shuffle, playback state
 │   │   ├── player.repository.ts              # Low-level library track reads
 │   │   ├── player.types.ts                   # Track, RepeatMode, etc.
@@ -628,7 +629,7 @@ src/
 | **Expo Audio** | [src/modules/player/player.utils.ts](src/modules/player/player.utils.ts) | Native audio playback engine (Android/iOS) | Owns a singleton `createAudioPlayer()` instance, manages queue, seek, repeat, lock-screen metadata, and volume through `expo-audio`; configured by the `expo-audio` app plugin in [app.json](app.json) |
 | **Expo Notifications** | Bootstrap, Indexer | Show indexing progress, notifications | Handled via `expo-notifications`; custom actions (pause, resume, cancel) |
 | **Expo Linking** | Navigation | Deep-link handling (notification clicks, external URLs) | Notification click handler at [src/app/notification/click.tsx](src/app/notification/click.tsx) |
-| **Android Audio Open Intents** | [app.json](app.json), [android/app/src/main/AndroidManifest.xml](android/app/src/main/AndroidManifest.xml), [src/app/+native-intent.tsx](src/app/+native-intent.tsx), [src/app/player.tsx](src/app/player.tsx), [src/modules/player/player.service.ts](src/modules/player/player.service.ts) | Register Startune Music in Android file-manager "Open with" sheets and play the selected audio file | `ACTION_VIEW` filters accept `audio/*` over `content://` and `file://` URIs; `redirectSystemPath()` preserves the URI as `externalUri`, then `PlayerRoute` waits for bootstrap and calls `playExternalFileUri()` |
+| **Android Audio Open Intents** | [app.json](app.json), [android/app/src/main/AndroidManifest.xml](android/app/src/main/AndroidManifest.xml), [src/app/+native-intent.tsx](src/app/+native-intent.tsx), [src/app/player.tsx](src/app/player.tsx), [src/modules/player/player-intent-runtime.ts](src/modules/player/player-intent-runtime.ts), [src/modules/player/player.service.ts](src/modules/player/player.service.ts) | Register Startune Music in Android file-manager "Open with" sheets and play the selected audio file | `ACTION_VIEW` filters accept `audio/*` over `content://` and `file://` URIs; `redirectSystemPath()` preserves the URI as `externalUri`, then the player intent runtime waits for bootstrap and calls `playExternalFileUri()` |
 | **GitHub Releases** | [.github/workflows/release-apk.yml](.github/workflows/release-apk.yml), [.github/workflows/release-notes.yml](.github/workflows/release-notes.yml), [android/app/build.gradle](android/app/build.gradle) | Build signed APKs and attach generated release notes to draft releases | APK workflow creates draft releases from one Gradle ABI-split release build, then release-notes generates categorized notes and patches the matching release ID through the GitHub API |
 | **JSMediaTags Library** | [src/modules/indexer/metadata.repository.ts](src/modules/indexer/metadata.repository.ts) | Extract ID3/metadata from audio files | Synchronous metadata reading; also supports sidecar extraction |
 
