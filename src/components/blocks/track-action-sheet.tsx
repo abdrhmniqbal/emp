@@ -11,7 +11,8 @@ import { Image } from "expo-image"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { BottomSheet, Button, Card, Chip, Toast, useToast } from "heroui-native"
 import * as React from "react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 
 import { Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
@@ -93,7 +94,12 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   const isFavorite = track
     ? (favoriteOverrides[track.id] ?? Boolean(isFavoriteData))
     : false
-  const [resolvedFileUri, setResolvedFileUri] = useState<string | null>(null)
+  const trackUri = track?.uri ?? ""
+  const { data: resolvedFileUri = null } = useQuery({
+    queryKey: ["tracks", "resolved-file-uri", track?.id, trackUri] as const,
+    enabled: trackUri.length > 0,
+    queryFn: async () => await resolvePlayableFileUri(trackUri),
+  })
   const { data: fullTrackData } = useTrack(track?.id ?? "")
   const splitMultipleValueConfig = useSettingsStore(
     (state) => state.splitMultipleValueConfig
@@ -311,28 +317,6 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
       onClose()
     }
   }
-
-  useEffect(() => {
-    let cancelled = false
-
-    const resolvePath = async () => {
-      if (!track?.uri) {
-        setResolvedFileUri(null)
-        return
-      }
-
-      const resolvedUri = await resolvePlayableFileUri(track.uri)
-      if (!cancelled) {
-        setResolvedFileUri(resolvedUri)
-      }
-    }
-
-    void resolvePath()
-
-    return () => {
-      cancelled = true
-    }
-  }, [track?.id, track?.uri])
 
   if (!track) {
     return (
