@@ -22,6 +22,10 @@ export { getCurrentAppVersion, isPreviewReleaseVersion }
 
 const GITHUB_RELEASES_URL =
   "https://api.github.com/repos/abdrhmniqbal/startune-music/releases"
+const CHANGELOG_RAW_URL =
+  "https://raw.githubusercontent.com/abdrhmniqbal/startune-music/master/CHANGELOG.md"
+const CHANGELOG_WEB_URL =
+  "https://github.com/abdrhmniqbal/startune-music/blob/master/CHANGELOG.md"
 const UPDATE_NOTIFICATION_CHANNEL_ID = "app-updates"
 const UPDATE_NOTIFICATION_ID = "app-update-available"
 const APK_ASSET_PATTERN = /\.apk$/i
@@ -226,22 +230,6 @@ function toUpdateInfo(
   }
 }
 
-function toReleaseNote(release: GitHubRelease): AppReleaseNote | null {
-  const tagName = asString(release.tag_name)
-  if (!tagName) {
-    return null
-  }
-
-  return {
-    version: tagName,
-    releaseName: asString(release.name) || tagName,
-    body: asString(release.body),
-    htmlUrl: asString(release.html_url),
-    prerelease: release.prerelease === true,
-    publishedAt: asString(release.published_at),
-  }
-}
-
 async function fetchGitHubReleases(): Promise<GitHubRelease[]> {
   const response = await fetch(GITHUB_RELEASES_URL, {
     headers: {
@@ -255,6 +243,65 @@ async function fetchGitHubReleases(): Promise<GitHubRelease[]> {
 
   const parsed = (await response.json()) as unknown
   return Array.isArray(parsed) ? (parsed as GitHubRelease[]) : []
+}
+
+async function fetchRepositoryChangelog(): Promise<string> {
+  const response = await fetch(CHANGELOG_RAW_URL, {
+    headers: {
+      Accept: "text/plain",
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Repository changelog request failed: ${response.status}`)
+  }
+
+  return await response.text()
+}
+
+function parseChangelogReleaseNotes(markdown: string, currentVersion: string) {
+  const headingPattern = /^##\s+\[([^\]]+)\](?:\s+-\s+([^\n]+))?\s*$/gm
+  const matches: Array<{
+    headingStart: number
+    headingLength: number
+    version: string
+    publishedAt: string
+  }> = []
+
+  let match: RegExpExecArray | null
+  while ((match = headingPattern.exec(markdown)) !== null) {
+    matches.push({
+      headingStart: match.index,
+      headingLength: match[0]?.length ?? 0,
+      version: (match[1] ?? "").trim(),
+      publishedAt: (match[2] ?? "").trim(),
+    })
+  }
+
+  return matches
+    .map((entry, index) => {
+      const bodyStart = entry.headingStart + entry.headingLength
+      const bodyEnd =
+        index < matches.length - 1
+          ? (matches[index + 1]?.headingStart ?? markdown.length)
+          : markdown.length
+      const body = markdown.slice(bodyStart, bodyEnd).trim()
+      const version = entry.version
+
+      if (version.length === 0 || compareVersions(version, currentVersion) > 0) {
+        return null
+      }
+
+      return {
+        version,
+        releaseName: version,
+        body,
+        htmlUrl: CHANGELOG_WEB_URL,
+        prerelease: normalizeVersion(version).includes("-"),
+        publishedAt: entry.publishedAt,
+      } satisfies AppReleaseNote
+    })
+    .filter((release): release is AppReleaseNote => release !== null)
 }
 
 export async function checkForAppUpdate({
@@ -326,19 +373,8 @@ export async function listReleaseNotesUntilCurrent({
   }
 
   try {
-    const releases = getSortedGitHubReleases(await fetchGitHubReleases())
-
-    return releases
-      .filter((release) => {
-        if (release.draft === true) {
-          return false
-        }
-
-        const tagName = asString(release.tag_name)
-        return tagName.length > 0 && compareVersions(tagName, currentVersion) <= 0
-      })
-      .map(toReleaseNote)
-      .filter((release): release is AppReleaseNote => release !== null)
+    const changelogMarkdown = await fetchRepositoryChangelog()
+    return parseChangelogReleaseNotes(changelogMarkdown, currentVersion)
   } catch (error) {
     logError("Failed to load release notes", error)
     return []
