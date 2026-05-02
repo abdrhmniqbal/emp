@@ -31,6 +31,11 @@ import {
   mapTrackPlayerTrackToTrack,
   mapTrackToTrackPlayerInput,
 } from "./player-adapter"
+import {
+  areStringArraysEqual,
+  areTracksPresentationEqual,
+  dedupeTrackIds,
+} from "./player-session-comparison"
 import { setActiveTrack } from "./player-runtime-state"
 import {
   beginPlayerQueueReplacement,
@@ -100,44 +105,6 @@ interface PersistPlaybackSessionOptions {
 }
 
 let lastPlaybackCursorSavedAt = 0
-
-function dedupeTrackIds(trackIds: string[]) {
-  return trackIds.filter((trackId, index) => trackIds.indexOf(trackId) === index)
-}
-
-function areStringArraysEqual(left: string[], right: string[]) {
-  if (left.length !== right.length) {
-    return false
-  }
-
-  for (let index = 0; index < left.length; index += 1) {
-    if (left[index] !== right[index]) {
-      return false
-    }
-  }
-
-  return true
-}
-
-function areTracksPresentationEqual(left: Track | null, right: Track | null) {
-  if (left === right) {
-    return true
-  }
-
-  if (!left || !right) {
-    return left === right
-  }
-
-  return (
-    left.id === right.id &&
-    left.uri === right.uri &&
-    left.duration === right.duration &&
-    left.image === right.image &&
-    left.title === right.title &&
-    left.artist === right.artist &&
-    left.album === right.album
-  )
-}
 
 function mapNativeQueueToTracks(nativeQueue: NativeQueue) {
   return nativeQueue

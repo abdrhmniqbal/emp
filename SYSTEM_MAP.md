@@ -477,6 +477,7 @@ src/
 │   │   ├── player-runtime.service.ts         # Queue operations, shuffle toggling
 │   │   ├── player-runtime-state.ts           # setActiveTrack(), setPlaybackProgress()
 │   │   ├── player-session.service.ts         # persistPlaybackSession() (current track, position)
+│   │   ├── player-session-comparison.ts      # Pure queue/session equality and dedupe helpers
 │   │   ├── player-session.repository.ts
 │   │   ├── player-favorites.service.ts
 │   │   ├── player-library.service.ts         # loadTracks() on app init
