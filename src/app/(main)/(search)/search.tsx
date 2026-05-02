@@ -1,7 +1,7 @@
 /**
- * Purpose: Renders interactive search with sequenced route transition, search input focus, recent searches, result tabs, and search-context playback.
+ * Purpose: Renders interactive search with input focus, recent searches, result tabs, and search-context playback.
  * Caller: Search tab route.
- * Dependencies: search queries/mutations, react-i18next, recent-search cache, player service, router navigation, InteractionManager, reanimated entry transitions, theme colors.
+ * Dependencies: search queries/mutations, react-i18next, recent-search cache, player service, router navigation, reanimated entry transitions, theme colors.
  * Main Functions: SearchInteractionScreen()
  * Side Effects: Updates recent-search storage/cache for navigation results with consistent subtitles and playlist artwork grids, starts playback from search-result queues, and navigates to media detail routes.
  */
@@ -10,18 +10,15 @@ import { useLocalSearchParams, useNavigation } from "expo-router"
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import {
-  BackHandler,
-  InteractionManager,
   Keyboard,
-  Platform,
   ScrollView,
   type TextInput,
   View,
 } from "react-native"
-import Animated, { FadeInUp, runOnJS } from "react-native-reanimated"
+import Animated, { FadeInUp } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 
@@ -76,22 +73,6 @@ function HeaderSearchInput({
   const { t } = useTranslation()
   const [inputValue, setInputValue] = useState(initialValue)
   const inputRef = useRef<TextInput>(null)
-  const shouldFocus = focusWhenReady && initialValue.trim().length === 0
-
-  useEffect(() => {
-    if (!shouldFocus) {
-      return
-    }
-
-    const interaction = InteractionManager.runAfterInteractions(() => {
-      inputRef.current?.focus()
-    })
-
-    return () => {
-      interaction.cancel()
-    }
-  }, [shouldFocus])
-
   function handleChangeText(text: string) {
     setInputValue(text)
     onChangeText(text)
@@ -129,6 +110,7 @@ function HeaderSearchInput({
           className="pl-12 pr-10"
           selectionColor={theme.accent}
           returnKeyType="search"
+          autoFocus={focusWhenReady && initialValue.trim().length === 0}
         />
         {inputValue.length > 0 && (
           <PressableFeedback
@@ -160,16 +142,6 @@ export default function SearchInteractionScreen() {
   const [searchQuery, setSearchQuery] = useState(initialValue)
   const [activeSearchTab, setActiveSearchTab] = useState<SearchTab>("All")
   const [headerInputKey, setHeaderInputKey] = useState(0)
-  const [isRouteTransitionComplete, setIsRouteTransitionComplete] =
-    useState(false)
-  const [isHeaderEntryComplete, setIsHeaderEntryComplete] = useState(false)
-  const searchQueryRef = useRef(searchQuery)
-  const routeTransitionTaskRef = useRef<ReturnType<
-    typeof InteractionManager.runAfterInteractions
-  > | null>(null)
-  const routeTransitionFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  )
 
   const { data: searchResults, isLoading, isFetching } = useSearch(searchQuery)
   const { data: recentSearches = [] } = useRecentSearches()
@@ -210,14 +182,6 @@ export default function SearchInteractionScreen() {
 
   const isSearching = searchQuery.trim().length > 0
 
-  useEffect(() => {
-    searchQueryRef.current = searchQuery
-  }, [searchQuery])
-
-  function markHeaderEntryComplete() {
-    setIsHeaderEntryComplete(true)
-  }
-
   function dismissKeyboard() {
     Keyboard.dismiss()
   }
@@ -232,73 +196,6 @@ export default function SearchInteractionScreen() {
     router.replace("/(main)/(search)")
     return true
   }, [navigation, router])
-
-  useEffect(() => {
-    if (Platform.OS !== "android") {
-      return
-    }
-
-    const subscription = BackHandler.addEventListener(
-      "hardwareBackPress",
-      handleBackNavigation
-    )
-
-    return () => {
-      subscription.remove()
-    }
-  }, [handleBackNavigation])
-
-  useEffect(() => {
-    function clearRouteTransitionSchedule() {
-      routeTransitionTaskRef.current?.cancel()
-      routeTransitionTaskRef.current = null
-
-      if (routeTransitionFallbackRef.current) {
-        clearTimeout(routeTransitionFallbackRef.current)
-        routeTransitionFallbackRef.current = null
-      }
-    }
-
-    function completeRouteTransition() {
-      clearRouteTransitionSchedule()
-      setIsRouteTransitionComplete(true)
-    }
-
-    function scheduleSearchEntrySequence() {
-      clearRouteTransitionSchedule()
-      setHeaderInputKey((prev) => prev + 1)
-      setIsRouteTransitionComplete(false)
-      setIsHeaderEntryComplete(false)
-
-      routeTransitionTaskRef.current = InteractionManager.runAfterInteractions(
-        completeRouteTransition
-      )
-      routeTransitionFallbackRef.current = setTimeout(
-        completeRouteTransition,
-        420
-      )
-    }
-
-    const unsubscribeFocus = navigation.addListener(
-      "focus",
-      scheduleSearchEntrySequence
-    )
-    const unsubscribeBlur = navigation.addListener("blur", () => {
-      clearRouteTransitionSchedule()
-      setIsRouteTransitionComplete(false)
-      setIsHeaderEntryComplete(false)
-    })
-
-    if (navigation.isFocused()) {
-      scheduleSearchEntrySequence()
-    }
-
-    return () => {
-      clearRouteTransitionSchedule()
-      unsubscribeFocus()
-      unsubscribeBlur()
-    }
-  }, [navigation])
 
   function pushRecentSearch(item: {
     query: string
@@ -478,39 +375,23 @@ export default function SearchInteractionScreen() {
           headerShown: false,
         }}
       />
-      {isRouteTransitionComplete ? (
-        <Animated.View
-          entering={FadeInUp.duration(220).withCallback((finished) => {
-            "worklet"
-
-            if (finished) {
-              runOnJS(markHeaderEntryComplete)()
-            }
-          })}
-          style={{
-            paddingTop: insets.top + 8,
-            paddingHorizontal: 16,
-          }}
-        >
-          <HeaderSearchInput
-            key={headerInputKey}
-            theme={theme}
-            initialValue={searchQueryRef.current}
-            onChangeText={setSearchQuery}
-            onSubmit={handleSubmitSearch}
-            onBack={handleBackNavigation}
-            focusWhenReady={isHeaderEntryComplete}
-          />
-        </Animated.View>
-      ) : (
-        <View
-          style={{
-            paddingTop: insets.top + 8,
-            paddingHorizontal: 16,
-            minHeight: insets.top + 52,
-          }}
+      <Animated.View
+        entering={FadeInUp.duration(220)}
+        style={{
+          paddingTop: insets.top + 8,
+          paddingHorizontal: 16,
+        }}
+      >
+        <HeaderSearchInput
+          key={headerInputKey}
+          theme={theme}
+          initialValue={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmit={handleSubmitSearch}
+          onBack={handleBackNavigation}
+          focusWhenReady
         />
-      )}
+      </Animated.View>
       {isSearching ? (
         <SearchResults
           tracks={tracks}
