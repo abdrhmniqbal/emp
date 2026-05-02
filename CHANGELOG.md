@@ -2,20 +2,45 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.3.0-rc.5] - 2026-05-02
+
+### ✨ New Features
+
+- Sleep timer settings to customize auto-stop behavior. (@abdrhmniqbal)
+- Ability to customize "count as played" threshold value. (@abdrhmniqbal)
+
+### ⚙️ Changes
+
+- Improved player layout with refined controls and better spacing. (@abdrhmniqbal)
+- Enhanced timed markup word normalization in lyrics processing for better karaoke handling. (@abdrhmniqbal)
+- Refined sleep timer option layout by aligning right-side controls within option blocks and improving spacing near destructive actions. (@abdrhmniqbal)
+- Updated app changelog sourcing to use repository `CHANGELOG.md` as the primary release-note feed. (@abdrhmniqbal)
+- Removed unnecessary lyrics view, search route, and timer scroll reset effects. (@abdrhmniqbal)
+- Deferred database runtime sync outside render phase for better performance. (@abdrhmniqbal)
+
+### 🧩 Fixes
+
+- Queue view no longer remounts on track change, preventing previous tracks from disappearing in the queue panel. (@abdrhmniqbal)
+- Changelog filtering now limits visible notes to versions at or below the installed app version. (@abdrhmniqbal)
+- Lyrics screen crash when lyrics weren't available. (@abdrhmniqbal)
+- Scale loader animation sometimes not animated. (@abdrhmniqbal)
+- Update checker logic not properly detecting available versions. (@abdrhmniqbal)
+- External player integration not working correctly. (@abdrhmniqbal)
+
 ## [v0.3.0-rc.4] - 2026-04-30
 
-### Added
+### ✨ New Features
 
 - App update checker feature. (@abdrhmniqbal)
 - Open source license screen. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Improved realtime lyrics performance. (@abdrhmniqbal)
 - Improved artwork caching. (@abdrhmniqbal)
 - Filter chip display on favorites list to only show when items are not empty. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Split multiple values not recognizing keyboard input. (@abdrhmniqbal)
 - External audio intent handling. (@abdrhmniqbal)
@@ -23,21 +48,21 @@ All notable changes to this project are documented in this file.
 
 ## [v0.3.0-rc.3] - 2026-04-29
 
-### Added
+### ✨ New Features
 
 - Save queue to playlist feature. (@abdrhmniqbal)
 - Playing from indicator on player. (@abdrhmniqbal)
 - Number of tracks sort on genres list. (@abdrhmniqbal)
 - Play queue based on search result. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Redesign favorites list. (@abdrhmniqbal)
 - Improved search screen consistency with other screens. (@abdrhmniqbal)
 - Improve settings categorization. (@abdrhmniqbal)
 - Enhanced audio playback settings with transitions and resume behavior. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Not all songs added to queue in list with view more state. (@abdrhmniqbal)
 - Implement more robust indexer scan configuration. (@abdrhmniqbal)
@@ -45,20 +70,20 @@ All notable changes to this project are documented in this file.
 
 ## [v0.3.0-rc.2] - 2026-04-28
 
-### Added
+### ✨ New Features
 
 - Configurable multi-value splitting for artists and genres. (@abdrhmniqbal)
 - More language options. (@abdrhmniqbal)
 - Incremental indexer updates support. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Improved split multiple values settings. (@abdrhmniqbal)
 - Enhanced split metadata handling. (@abdrhmniqbal)
 - Improved settings page layout. (@abdrhmniqbal)
 - Preserve shuffle state and apply randomization to playback queue on track selection. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Multiple artists are not shown on UI. (@abdrhmniqbal)
 - Navigation issue on multiple value picker. (@abdrhmniqbal)
@@ -71,15 +96,22 @@ All notable changes to this project are documented in this file.
 
 ## [v0.3.0-rc.1] - 2026-04-27
 
-### Added
+### ✨ New Features
 
 - i18n internationalization support for multiple languages. (@abdrhmniqbal)
+- Audio crossfade configuration. (@abdrhmniqbal)
+- Advanced setting to reset listening history with confirmation before clearing history and play counts. (@abdrhmniqbal)
+- Session-only player lyric preferences for karaoke mode and lyric zoom level. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
-- None
+- Apply crossfade setting to playback. (@abdrhmniqbal)
+- Refactor audio playback to use react-native-audio-api. (@abdrhmniqbal)
+- Improved indexer throughput by reducing repeated database relation lookups and genre visual scans during batch processing. (@abdrhmniqbal)
+- Logging verbosity now respects minimal and extra settings more consistently across runtime flows. (@abdrhmniqbal)
+- Player and app notification icons now use visible white notification assets. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Attach generated release notes to CI. (@abdrhmniqbal)
 - Add audio open intents support. (@abdrhmniqbal)
@@ -92,60 +124,16 @@ All notable changes to this project are documented in this file.
 - Sort playlist detail tracks properly. (@abdrhmniqbal)
 - Align indexer notification icon. (@abdrhmniqbal)
 - Notification icon uniformity. (@abdrhmniqbal)
-
-## [v0.2.3-rc.2] - 2026-04-26
-
-### Added
-
-- Audio crossfade configuration. (@abdrhmniqbal)
-
-### Changed
-
-- Apply crossfade setting to playback. (@abdrhmniqbal)
-- Refactor audio playback to use react-native-audio-api. (@abdrhmniqbal)
-
-### Fixed
-
-- None
-
-## [v0.2.3-rc.1] - 2026-04-26
-
-### Added
-
-- Advanced setting to reset listening history with confirmation before clearing history and play counts. (@abdrhmniqbal)
-- Session-only player lyric preferences for karaoke mode and lyric zoom level. (@abdrhmniqbal)
-
-### Changed
-
-- Improved indexer throughput by reducing repeated database relation lookups and genre visual scans during batch processing. (@abdrhmniqbal)
-- Logging verbosity now respects minimal and extra settings more consistently across runtime flows. (@abdrhmniqbal)
-- Player and app notification icons now use visible white notification assets. (@abdrhmniqbal)
-
-### Fixed
-
 - Missing track detail queries now return `null` instead of undefined so React Query remains stable after local file deletion. (@abdrhmniqbal)
 - Search focus and input transition timing now runs in sequence to avoid intermittent input overlap with the back button. (@abdrhmniqbal)
 - Player drag-to-close now only responds from the drag handle instead of the whole interface. (@abdrhmniqbal)
 - Duplicate rapid taps to the same navigation target are ignored during route transitions. (@abdrhmniqbal)
 - Decorative playlist and folder row chevrons no longer block row navigation taps. (@abdrhmniqbal)
-
-## [v0.2.3] - 2026-04-26
-
-### Added
-
-- None
-
-### Changed
-
-- None
-
-### Fixed
-
 - Back button on details screen requiring two taps (reverted screen transitions). (@abdrhmniqbal)
 
 ## [v0.2.2] - 2026-04-25
 
-### Added
+### ✨ New Features
 
 - Dedicated full player route with zoom-style presentation and updated player header behavior. (@abdrhmniqbal)
 - Recently Added search destination for browsing newly indexed tracks from the Search area. (@abdrhmniqbal)
@@ -153,7 +141,7 @@ All notable changes to this project are documented in this file.
 - Track counts on genre cards for quicker library scanning. (@abdrhmniqbal)
 - Shared themed refresh control adopted across major screens for more consistent pull-to-refresh behavior. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Refined album, artist, playlist, and player transitions with shared zoom presentation, cleaner stack presets, and follow-up visual polish. (@abdrhmniqbal)
 - Reworked search screen composition, keyboard handling, and embedded back-button behavior to better support focused queries and detail navigation. (@abdrhmniqbal)
@@ -162,7 +150,7 @@ All notable changes to this project are documented in this file.
 - Enhanced playback activity tracking so play counts and listening history are recorded more reliably. (@abdrhmniqbal)
 - Upgraded `heroui-native` and aligned transition-related dependencies with the new navigation setup. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Fixed detail-screen back navigation requiring two taps in some transition flows. (@abdrhmniqbal)
 - Fixed intermittent overlap between the search back button and typed query text during focus and transition timing. (@abdrhmniqbal)
@@ -175,26 +163,26 @@ All notable changes to this project are documented in this file.
 
 ## [v0.2.1] - 2026-04-16
 
-### Added
+### ✨ New Features
 
 - Shared LegendList behavior hook for unified scroll-reset and list ref wiring across core list/grid blocks. (@abdrhmniqbal)
 - Shared query invalidation helper to standardize multi-key invalidation fan-out. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Extracted playlist form orchestration into a dedicated domain hook and simplified route-level composition. (@abdrhmniqbal)
 - Unified playlist picker selection handling for player and track action sheets through a shared module hook. (@abdrhmniqbal)
 - Consolidated track mapping paths so history and playlist track mapping reuse the shared DB-to-domain transformer. (@abdrhmniqbal)
 - Refactored query invalidation in favorites, history, indexer, playlist, and tracks modules to use one invalidation utility path. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Removed duplicate navigation/tab bars on search detail screens (album, artist, playlist) by hiding parent search-stack headers for nested detail route groups. (@abdrhmniqbal)
 - Prevented duplicate bars on search details. (@abdrhmniqbal)
 
 ## [v0.2.0] - 2026-04-10
 
-### Added
+### ✨ New Features
 
 - Recently added tracks on the Search home screen. (@abdrhmniqbal)
 - Recent search history with richer search targets for albums, artists, and playlists. (@abdrhmniqbal)
@@ -202,7 +190,7 @@ All notable changes to this project are documented in this file.
 - Genre browsing as a first-class Library tab. (@abdrhmniqbal)
 - Indexer run snapshots, retry/backoff handling, scoped commit retries, and manual completion timing. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Completed a major internal rewrite of the player, bootstrap, indexer, routes, and shared module boundaries. (@abdrhmniqbal)
 - Simplified player session restore and foreground sync behavior for better long-background recovery. (@abdrhmniqbal)
@@ -212,7 +200,7 @@ All notable changes to this project are documented in this file.
 - Enhanced layout and performance of grid and list components. (@abdrhmniqbal)
 - Improved playback session restoration. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Shuffle and queue updates no longer interrupt active playback. (@abdrhmniqbal)
 - Playback state transitions are more stable when switching tracks from lists. (@abdrhmniqbal)
@@ -228,20 +216,20 @@ All notable changes to this project are documented in this file.
 
 ## [v0.2.0-rc.2] - 2026-04-02
 
-### Added
+### ✨ New Features
 
 - System notification controls for indexing progress with pause, resume, cancel, and open-library actions. (@abdrhmniqbal)
 - Google Cast controls in the full player. (@abdrhmniqbal)
 - Expanded runtime and route diagnostics for bootstrap, player queue, and media permission flows. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Improved navigation transitions and shared stack configuration for media detail routes. (@abdrhmniqbal)
 - Reduced hot-screen store subscriptions and unnecessary playback/list rerenders. (@abdrhmniqbal)
 - Continued the rewrite by separating bootstrap listener registration, playback helpers, indexer orchestration, and shared UI list wiring. (@abdrhmniqbal)
 - Parallelize metadata extraction and artwork caching for faster indexing. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Background playback and foreground autoscan freeze issues. (@abdrhmniqbal)
 - Player state resync issues after shuffle and skip flows. (@abdrhmniqbal)
@@ -253,41 +241,27 @@ All notable changes to this project are documented in this file.
 
 ## [v0.2.0-rc.1] - 2026-03-28
 
-### Added
+### ✨ New Features
 
 - Basic synchronized lyrics support for embedded lyrics, `.lrc`, and TTML lyrics. (@abdrhmniqbal)
 - Structured logging across runtime workflows. (@abdrhmniqbal)
 - Rewrite planning and module-boundary documentation. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Large-scale refactor of player, indexer, settings, bootstrap, and shared repositories/services. (@abdrhmniqbal)
 - Settings and local preferences were consolidated into clearer module ownership. (@abdrhmniqbal)
 - Player session persistence, queue/runtime control, and theme/file helpers were separated into dedicated modules. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Repeated media permission prompts during autoscan. (@abdrhmniqbal)
 - Home history refresh after playback activity. (@abdrhmniqbal)
 - Duplicate player/indexer adapters and several compatibility-layer leftovers. (@abdrhmniqbal)
 
-## [v0.2.0-rc.3] - 2026-03-23
-
-### Added
-
-- None
-
-### Changed
-
-- None
-
-### Fixed
-
-- None
-
 ## [v0.1.0] - 2026-03-12
 
-### Added
+### ✨ New Features
 
 - Offline local music playback with queue, repeat, shuffle, seeking, and background playback. (@abdrhmniqbal)
 - Library browsing for tracks, albums, artists, genres, favorites, folders, and playlists. (@abdrhmniqbal)
@@ -296,27 +270,23 @@ All notable changes to this project are documented in this file.
 - Folder filters, track-duration filters, force reindex, autoscan settings, battery optimization settings, and logging controls. (@abdrhmniqbal)
 - Track metadata inspection improvements, removable local files, and richer artwork-based player visuals. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Major UI redesign across home, library, search, album, artist, playlist, player, mini player, settings, and indexing progress. (@abdrhmniqbal)
 - Adoption of Expo Router, bottom-sheet based full player flows, and improved HeroUI-based controls. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Search route handling, navigation history, queue sorting, playback resume, indexing updates, and list padding/touch issues. (@abdrhmniqbal)
 - Artist image fallback behavior and genre metadata handling. (@abdrhmniqbal)
 
 ## [v0.1.0-rc.3] - 2026-03-02
 
-### Added
+### ✨ New Features
 
 - About screen. (@abdrhmniqbal)
 
-### Changed
-
-- None
-
-### Fixed
+### 🧩 Fixes
 
 - History not recorded on track repeat. (@abdrhmniqbal)
 - Track action sheet not shown at first long press on track list. (@abdrhmniqbal)
@@ -329,7 +299,7 @@ All notable changes to this project are documented in this file.
 
 ## [v0.1.0-rc.2] - 2026-02-28
 
-### Added
+### ✨ New Features
 
 - Player action sheet. (@abdrhmniqbal)
 - Full player bottom sheet. (@abdrhmniqbal)
@@ -338,7 +308,7 @@ All notable changes to this project are documented in this file.
 - Queue list reordering. (@abdrhmniqbal)
 - Battery optimization settings. (@abdrhmniqbal)
 
-### Changed
+### ⚙️ Changes
 
 - Restructured settings page. (@abdrhmniqbal)
 - Improvements to full player UI. (@abdrhmniqbal)
@@ -346,7 +316,7 @@ All notable changes to this project are documented in this file.
 - Improved user experience on playlist form. (@abdrhmniqbal)
 - Upgraded HeroUI sliders. (@abdrhmniqbal)
 
-### Fixed
+### 🧩 Fixes
 
 - Inconsistent interface elements. (@abdrhmniqbal)
 - Notification click not matched route. (@abdrhmniqbal)
@@ -364,16 +334,8 @@ All notable changes to this project are documented in this file.
 
 ## [v0.1.0-rc.1] - 2026-02-19
 
-### Added
+### ✨ New Features
 
 - Initial project setup and basic UI scaffolding. (@abdrhmniqbal)
 - Local library indexing and playback foundations. (@abdrhmniqbal)
 - Early iterations of queueing, sorting, and favorites. (@abdrhmniqbal)
-
-### Changed
-
-- None
-
-### Fixed
-
-- None
