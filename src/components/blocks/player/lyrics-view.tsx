@@ -129,6 +129,8 @@ function getInterpolatedPlaybackTimeTarget({
   nextLine: TimedMarkupLine | undefined
   time: number
 }) {
+  "worklet"
+
   if (!isPlaying) {
     return time
   }
