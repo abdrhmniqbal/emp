@@ -21,7 +21,7 @@ import {
   useToast,
 } from "heroui-native"
 import { useQueries } from "@tanstack/react-query"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { Platform, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
@@ -60,6 +60,16 @@ interface PlayerActionSheetProps {
 
 const TIMER_MINUTES_MAX = 180
 const PLAY_COUNT_MAX = 15
+
+interface SleepTimerDraft {
+  timerMinutes: number
+  playCount: number
+  endOfCurrentTrack: boolean
+  customTimeEnabled: boolean
+  customHour: number
+  customMinute: number
+  showCustomTimePicker: boolean
+}
 
 function getSliderNumericValue(value: number | number[]) {
   return Array.isArray(value) ? (value[0] ?? 0) : value
@@ -132,6 +142,28 @@ function getLockedMode({
   return null
 }
 
+function createSleepTimerDraft(
+  sleepTimer: ReturnType<typeof useSleepTimerState>
+): SleepTimerDraft {
+  const now = new Date()
+
+  return {
+    timerMinutes: sleepTimer.mode === "minutes" ? sleepTimer.minutes : 0,
+    playCount: sleepTimer.mode === "playCount" ? sleepTimer.playCount : 0,
+    endOfCurrentTrack: sleepTimer.mode === "trackEnd",
+    customTimeEnabled: sleepTimer.mode === "clock",
+    customHour:
+      sleepTimer.mode === "clock" && sleepTimer.clockHour !== null
+        ? sleepTimer.clockHour
+        : now.getHours(),
+    customMinute:
+      sleepTimer.mode === "clock" && sleepTimer.clockMinute !== null
+        ? sleepTimer.clockMinute
+        : now.getMinutes(),
+    showCustomTimePicker: sleepTimer.mode === "clock" && Platform.OS === "ios",
+  }
+}
+
 function SleepTimerOption({
   title,
   description,
@@ -179,34 +211,18 @@ export function PlayerActionSheet({
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
   const [isArtistSelectionOpen, setIsArtistSelectionOpen] = useState(false)
   const [isSleepTimerOpen, setIsSleepTimerOpen] = useState(false)
-  const [timerMinutes, setTimerMinutes] = useState(0)
-  const [playCount, setPlayCount] = useState(0)
-  const [endOfCurrentTrack, setEndOfCurrentTrack] = useState(false)
-  const [customTimeEnabled, setCustomTimeEnabled] = useState(false)
-  const [customHour, setCustomHour] = useState(new Date().getHours())
-  const [customMinute, setCustomMinute] = useState(new Date().getMinutes())
-  const [showCustomTimePicker, setShowCustomTimePicker] = useState(false)
-
-  useEffect(() => {
-    const now = new Date()
-    setTimerMinutes(sleepTimer.mode === "minutes" ? sleepTimer.minutes : 0)
-    setPlayCount(sleepTimer.mode === "playCount" ? sleepTimer.playCount : 0)
-    setEndOfCurrentTrack(sleepTimer.mode === "trackEnd")
-    setCustomTimeEnabled(sleepTimer.mode === "clock")
-    setCustomHour(
-      sleepTimer.mode === "clock" && sleepTimer.clockHour !== null
-        ? sleepTimer.clockHour
-        : now.getHours()
-    )
-    setCustomMinute(
-      sleepTimer.mode === "clock" && sleepTimer.clockMinute !== null
-        ? sleepTimer.clockMinute
-        : now.getMinutes()
-    )
-    setShowCustomTimePicker(
-      sleepTimer.mode === "clock" && Platform.OS === "ios"
-    )
-  }, [sleepTimer])
+  const [sleepTimerDraft, setSleepTimerDraft] = useState(() =>
+    createSleepTimerDraft(sleepTimer)
+  )
+  const {
+    timerMinutes,
+    playCount,
+    endOfCurrentTrack,
+    customTimeEnabled,
+    customHour,
+    customMinute,
+    showCustomTimePicker,
+  } = sleepTimerDraft
 
   const customTimeDate = useMemo(() => {
     const date = new Date()
@@ -337,6 +353,7 @@ export function PlayerActionSheet({
   }
 
   const handleOpenSleepTimerSheet = () => {
+    setSleepTimerDraft(createSleepTimerDraft(sleepTimer))
     onOpenChange(false)
     setIsSleepTimerOpen(true)
   }
@@ -346,7 +363,10 @@ export function PlayerActionSheet({
     selectedDate?: Date
   ) => {
     if (Platform.OS === "android") {
-      setShowCustomTimePicker(false)
+      setSleepTimerDraft((draft) => ({
+        ...draft,
+        showCustomTimePicker: false,
+      }))
     }
 
     if (event.type === "dismissed" || !selectedDate) {
@@ -356,12 +376,15 @@ export function PlayerActionSheet({
     const nextHour = selectedDate.getHours()
     const nextMinute = selectedDate.getMinutes()
 
-    setCustomHour(nextHour)
-    setCustomMinute(nextMinute)
-    setCustomTimeEnabled(true)
-    setTimerMinutes(0)
-    setPlayCount(0)
-    setEndOfCurrentTrack(false)
+    setSleepTimerDraft((draft) => ({
+      ...draft,
+      timerMinutes: 0,
+      playCount: 0,
+      endOfCurrentTrack: false,
+      customTimeEnabled: true,
+      customHour: nextHour,
+      customMinute: nextMinute,
+    }))
     setSleepTimerClock(nextHour, nextMinute)
   }
 
@@ -550,15 +573,21 @@ export function PlayerActionSheet({
                   step={1}
                   value={timerMinutes}
                   onChange={(value) => {
-                    setTimerMinutes(getSliderNumericValue(value))
+                    setSleepTimerDraft((draft) => ({
+                      ...draft,
+                      timerMinutes: getSliderNumericValue(value),
+                    }))
                   }}
                   onChangeEnd={(value) => {
                     const nextMinutes = getSliderNumericValue(value)
-                    setTimerMinutes(nextMinutes)
-                    setPlayCount(0)
-                    setEndOfCurrentTrack(false)
-                    setCustomTimeEnabled(false)
-                    setShowCustomTimePicker(false)
+                    setSleepTimerDraft((draft) => ({
+                      ...draft,
+                      timerMinutes: nextMinutes,
+                      playCount: 0,
+                      endOfCurrentTrack: false,
+                      customTimeEnabled: false,
+                      showCustomTimePicker: false,
+                    }))
                     setSleepTimerMinutes(nextMinutes)
                   }}
                 >
@@ -594,15 +623,21 @@ export function PlayerActionSheet({
                   step={1}
                   value={playCount}
                   onChange={(value) => {
-                    setPlayCount(getSliderNumericValue(value))
+                    setSleepTimerDraft((draft) => ({
+                      ...draft,
+                      playCount: getSliderNumericValue(value),
+                    }))
                   }}
                   onChangeEnd={(value) => {
                     const nextPlayCount = getSliderNumericValue(value)
-                    setTimerMinutes(0)
-                    setPlayCount(nextPlayCount)
-                    setEndOfCurrentTrack(false)
-                    setCustomTimeEnabled(false)
-                    setShowCustomTimePicker(false)
+                    setSleepTimerDraft((draft) => ({
+                      ...draft,
+                      timerMinutes: 0,
+                      playCount: nextPlayCount,
+                      endOfCurrentTrack: false,
+                      customTimeEnabled: false,
+                      showCustomTimePicker: false,
+                    }))
                     setSleepTimerPlayCount(nextPlayCount)
                   }}
                 >
@@ -629,16 +664,22 @@ export function PlayerActionSheet({
                   isSelected={endOfCurrentTrack}
                   onSelectedChange={(isSelected) => {
                     if (!isSelected) {
-                      setEndOfCurrentTrack(false)
+                      setSleepTimerDraft((draft) => ({
+                        ...draft,
+                        endOfCurrentTrack: false,
+                      }))
                       clearSleepTimer()
                       return
                     }
 
-                    setTimerMinutes(0)
-                    setPlayCount(0)
-                    setEndOfCurrentTrack(true)
-                    setCustomTimeEnabled(false)
-                    setShowCustomTimePicker(false)
+                    setSleepTimerDraft((draft) => ({
+                      ...draft,
+                      timerMinutes: 0,
+                      playCount: 0,
+                      endOfCurrentTrack: true,
+                      customTimeEnabled: false,
+                      showCustomTimePicker: false,
+                    }))
                     setSleepTimerTrackEnd()
                   }}
                 />
@@ -668,17 +709,17 @@ export function PlayerActionSheet({
                   <Button
                     variant="secondary"
                     onPress={() => {
-                      setTimerMinutes(0)
-                      setPlayCount(0)
-                      setEndOfCurrentTrack(false)
-                      setCustomTimeEnabled(true)
+                      setSleepTimerDraft((draft) => ({
+                        ...draft,
+                        timerMinutes: 0,
+                        playCount: 0,
+                        endOfCurrentTrack: false,
+                        customTimeEnabled: true,
+                        showCustomTimePicker: true,
+                      }))
                       if (Platform.OS === "ios") {
-                        setShowCustomTimePicker(true)
                         setSleepTimerClock(customHour, customMinute)
-                        return
                       }
-
-                      setShowCustomTimePicker(true)
                     }}
                   >
                     {t("player.sleepTimer.setCustomTime")}
@@ -688,7 +729,10 @@ export function PlayerActionSheet({
                     <Button
                       variant="ghost"
                       onPress={() => {
-                        setShowCustomTimePicker(true)
+                        setSleepTimerDraft((draft) => ({
+                          ...draft,
+                          showCustomTimePicker: true,
+                        }))
                       }}
                     >
                       {t("player.sleepTimer.setCustomTime")}
@@ -707,8 +751,11 @@ export function PlayerActionSheet({
                     <Button
                       variant="danger"
                       onPress={() => {
-                        setCustomTimeEnabled(false)
-                        setShowCustomTimePicker(false)
+                        setSleepTimerDraft((draft) => ({
+                          ...draft,
+                          customTimeEnabled: false,
+                          showCustomTimePicker: false,
+                        }))
                         clearSleepTimer()
                       }}
                     >
