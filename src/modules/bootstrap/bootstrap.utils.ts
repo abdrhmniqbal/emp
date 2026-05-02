@@ -27,6 +27,7 @@ import { ensureAudioPlaybackConfigLoaded } from "@/modules/settings/audio-playba
 import { ensureAppUpdateConfigLoaded } from "@/modules/settings/app-updates"
 import { ensureCrossfadeConfigLoaded } from "@/modules/settings/audio-crossfade"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
+import { ensureCountAsPlayedConfigLoaded } from "@/modules/settings/count-as-played"
 import { ensureFolderFilterConfigLoaded } from "@/modules/settings/folder-filters"
 import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/indexer-notifications"
 import { ensureTrackDurationFilterConfigLoaded } from "@/modules/settings/track-duration-filter"
@@ -43,6 +44,7 @@ async function preloadLocalSettings() {
     ensureAudioPlaybackConfigLoaded(),
     ensureAppUpdateConfigLoaded(),
     ensureCrossfadeConfigLoaded(),
+    ensureCountAsPlayedConfigLoaded(),
     ensureFolderFilterConfigLoaded(),
     ensureIndexerNotificationsConfigLoaded(),
     ensureTrackDurationFilterConfigLoaded(),

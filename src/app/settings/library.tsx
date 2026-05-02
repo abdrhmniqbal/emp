@@ -1,29 +1,35 @@
 /**
- * Purpose: Renders library settings for indexer scan behavior, split metadata preferences, folder and duration filters, and reindexing.
+ * Purpose: Renders library settings for indexer scan behavior, playback counting preferences, split metadata preferences, folder and duration filters, and reindexing.
  * Caller: Settings library route.
- * Dependencies: Expo Router, react-i18next, settings store, indexer services, HeroUI Native ListGroup, dialog and switch.
+ * Dependencies: Expo Router, react-i18next, settings store, indexer services, HeroUI Native ListGroup, dialog, slider, and switch.
  * Main Functions: LibrarySettingsScreen()
  * Side Effects: Persists library settings, shows a manual reindex dialog, and can trigger a full library reindex.
  */
 
 import { useGuardedRouter as useRouter } from "@/modules/navigation/use-guarded-router"
-import { Button, Dialog, ListGroup, Separator, Switch } from "heroui-native"
+import { Button, Dialog, ListGroup, Separator, Slider, Switch } from "heroui-native"
 import * as React from "react"
-import { ScrollView, View } from "react-native"
+import { ScrollView, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 
 import { forceReindexLibrary } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { setAutoScanConfig } from "@/modules/settings/auto-scan"
+import { setCountAsPlayedConfig } from "@/modules/settings/count-as-played"
 import type { IndexerScanConfig } from "@/modules/settings/settings.types"
 import { getTrackDurationFilterLabel } from "@/modules/settings/track-duration-filter"
 import { useSettingsStore } from "@/modules/settings/settings.store"
+
+function getSliderNumericValue(value: number | number[]): number {
+  return Array.isArray(value) ? (value[0] ?? 0) : value
+}
 
 export default function LibrarySettingsScreen() {
   const router = useRouter()
   const { t } = useTranslation()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const indexerScanConfig = useSettingsStore((state) => state.indexerScanConfig)
+  const countAsPlayedConfig = useSettingsStore((state) => state.countAsPlayedConfig)
   const trackDurationFilterConfig = useSettingsStore(
     (state) => state.trackDurationFilterConfig
   )
@@ -31,6 +37,11 @@ export default function LibrarySettingsScreen() {
     (state) => state.splitMultipleValueConfig
   )
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
+  const [countAsPlayedSliderValue, setCountAsPlayedSliderValue] = React.useState<
+    number | null
+  >(null)
+  const resolvedCountAsPlayedPercent =
+    countAsPlayedSliderValue ?? countAsPlayedConfig.minimumPlayedPercent
 
   function getSplitMultipleValuesSummary() {
     const modeLabel =
@@ -65,6 +76,13 @@ export default function LibrarySettingsScreen() {
     void setAutoScanConfig({
       [key]: value,
     } as Partial<IndexerScanConfig>)
+  }
+
+  async function handleCountAsPlayedChangeEnd(value: number) {
+    await setCountAsPlayedConfig({
+      minimumPlayedPercent: value,
+    })
+    setCountAsPlayedSliderValue(null)
   }
 
   return (
@@ -109,6 +127,41 @@ export default function LibrarySettingsScreen() {
                 </ListGroup.ItemDescription>
               </ListGroup.ItemContent>
               <ListGroup.ItemSuffix />
+            </ListGroup.Item>
+            <Separator className="mx-4" />
+            <ListGroup.Item>
+              <ListGroup.ItemContent>
+                <View className="mb-3 flex-row items-center justify-between">
+                  <ListGroup.ItemTitle>
+                    {t("settings.library.countAsPlayed")}
+                  </ListGroup.ItemTitle>
+                  <Text className="text-sm font-medium text-foreground">
+                    {t("settings.library.countAsPlayedValue", {
+                      value: resolvedCountAsPlayedPercent,
+                    })}
+                  </Text>
+                </View>
+                <Slider
+                  minValue={1}
+                  maxValue={100}
+                  step={1}
+                  value={resolvedCountAsPlayedPercent}
+                  onChange={(value) => {
+                    setCountAsPlayedSliderValue(getSliderNumericValue(value))
+                  }}
+                  onChangeEnd={(value) => {
+                    void handleCountAsPlayedChangeEnd(getSliderNumericValue(value))
+                  }}
+                >
+                  <Slider.Track className="h-2 rounded-full bg-border">
+                    <Slider.Fill className="rounded-full bg-accent" />
+                    <Slider.Thumb />
+                  </Slider.Track>
+                </Slider>
+                <Text className="mt-2 text-xs text-muted">
+                  {t("settings.library.countAsPlayedDescription")}
+                </Text>
+              </ListGroup.ItemContent>
             </ListGroup.Item>
             <Separator className="mx-4" />
             <ListGroup.Item>

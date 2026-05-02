@@ -3,7 +3,7 @@
  * Caller: player-events.service activation/progress handlers.
  * Dependencies: history cache service, history repository writes, player store current-track state.
  * Main Functions: handleTrackActivated(), handleTrackProgress()
- * Side Effects: Writes indexed tracks to play history and play count after threshold playback; invalidates history-related queries.
+ * Side Effects: Writes indexed tracks to play history and play count after the configured threshold playback; invalidates history-related queries.
  */
 
 import { queryClient } from "@/lib/tanstack-query"
@@ -16,14 +16,13 @@ import {
   optimisticallyUpdateRecentlyPlayedHistory,
 } from "@/modules/history/history-cache.service"
 import { addTrackToHistory, incrementTrackPlayCount } from "@/modules/history/history.repository"
+import { getSettingsState } from "@/modules/settings/settings.store"
 
 import {
   getCurrentTrackState,
   getPlaybackRefreshVersionState,
   setPlaybackRefreshVersionState,
 } from "./player.store"
-
-const MINIMUM_PLAYED_RATIO_FOR_COUNT = 0.05
 
 let pendingTrackId: string | null = null
 let hasRecordedPendingTrack = false
@@ -71,7 +70,9 @@ export function handleTrackProgress(positionSeconds: number, durationSeconds: nu
     return
   }
 
-  const minimumPlayedSeconds = resolvedDuration * MINIMUM_PLAYED_RATIO_FOR_COUNT
+  const minimumPlayedRatio =
+    getSettingsState().countAsPlayedConfig.minimumPlayedPercent / 100
+  const minimumPlayedSeconds = resolvedDuration * minimumPlayedRatio
   if (positionSeconds < minimumPlayedSeconds) {
     return
   }

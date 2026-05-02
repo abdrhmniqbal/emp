@@ -15,6 +15,7 @@ import {
 import type {
   AudioPlaybackConfig,
   AppUpdateConfig,
+  CountAsPlayedConfig,
   CrossfadeConfig,
   FolderFilterConfig,
   IndexerScanConfig,
@@ -62,6 +63,9 @@ const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
   mode: "off",
   customMinimumSeconds: 180,
 }
+const DEFAULT_COUNT_AS_PLAYED_CONFIG: CountAsPlayedConfig = {
+  minimumPlayedPercent: 15,
+}
 
 const DEFAULT_SPLIT_MULTIPLE_VALUE_CONFIG: SplitMultipleValueConfig = {
   artistSplitSymbols: [";", "/", "&", ",", "ft.", "feat."],
@@ -80,6 +84,7 @@ interface SettingsState {
   folderFilterConfig: FolderFilterConfig
   loggingConfig: LoggingConfig
   trackDurationFilterConfig: TrackDurationFilterConfig
+  countAsPlayedConfig: CountAsPlayedConfig
   splitMultipleValueConfig: SplitMultipleValueConfig
 }
 
@@ -93,6 +98,7 @@ export const useSettingsStore = create<SettingsState>(() => ({
   folderFilterConfig: DEFAULT_FOLDER_FILTER_CONFIG,
   loggingConfig: DEFAULT_LOGGING_CONFIG,
   trackDurationFilterConfig: DEFAULT_TRACK_DURATION_FILTER,
+  countAsPlayedConfig: DEFAULT_COUNT_AS_PLAYED_CONFIG,
   splitMultipleValueConfig: DEFAULT_SPLIT_MULTIPLE_VALUE_CONFIG,
 }))
 
@@ -130,6 +136,10 @@ export function getDefaultFolderFilterConfig() {
 
 export function getDefaultTrackDurationFilterConfig() {
   return DEFAULT_TRACK_DURATION_FILTER
+}
+
+export function getDefaultCountAsPlayedConfig() {
+  return DEFAULT_COUNT_AS_PLAYED_CONFIG
 }
 
 export function getSettingsState() {

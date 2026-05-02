@@ -2,7 +2,7 @@
  * Purpose: Defines settings route names and local settings configuration shapes.
  * Caller: Settings routes, settings screens, settings store, localization, and settings persistence modules.
  * Dependencies: Localization language types.
- * Main Functions: SettingsRouteName, SettingsRouteDefinition, IndexerScanConfig, CrossfadeConfig, AudioPlaybackConfig, AppUpdateConfig.
+ * Main Functions: SettingsRouteName, SettingsRouteDefinition, IndexerScanConfig, CountAsPlayedConfig, CrossfadeConfig, AudioPlaybackConfig, AppUpdateConfig.
  * Side Effects: None.
  */
 
@@ -68,6 +68,10 @@ export type TrackDurationFilterMode =
 export interface TrackDurationFilterConfig {
   mode: TrackDurationFilterMode
   customMinimumSeconds: number
+}
+
+export interface CountAsPlayedConfig {
+  minimumPlayedPercent: number
 }
 
 export interface CrossfadeConfig {
