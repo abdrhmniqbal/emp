@@ -47,6 +47,22 @@
       "paused": "Pengindeksan pustaka dijeda"
     }
   },
+  "updates": {
+    "sheetTitle": "Update available",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "What's new",
+    "downloadAndInstall": "Download & install",
+    "dontRemind": "Don't remind",
+    "later": "Later",
+    "previewRelease": "Preview release",
+    "noReleaseNotes": "No release notes provided.",
+    "notification": {
+      "channelName": "App Updates",
+      "channelDescription": "Notifications for new Startune Music releases.",
+      "title": "Update available",
+      "body": "{{currentVersion}} -> {{newVersion}}"
+    }
+  },
   "home": {
     "recentlyPlayed": "Baru Diputar",
     "topTracks": "Lagu Teratas",
@@ -108,8 +124,10 @@
       "playCount": "Jumlah Putar",
       "dateAdded": "Tanggal Ditambahkan",
       "addedToPlaylist": "Ditambahkan ke Playlist",
+      "addedToFavorites": "Added to Favorites",
       "filename": "Nama File",
       "name": "Nama",
+      "type": "Type",
       "numberOfTracks": "Jumlah Lagu",
       "numberOfFiles": "Jumlah File"
     },
@@ -238,6 +256,7 @@
       "endOfCurrentTrackDescription": "Hentikan pemutaran otomatis saat lagu yang sedang diputar selesai.",
       "customTime": "Waktu Kustom",
       "customTimeDescription": "Pilih jam tepat untuk menghentikan pemutaran.",
+      "customTimeDescriptionUntil": "Stop playback at {{value}}.",
       "customTimeValueLabel": "Waktu",
       "customTimeValue": "{{value}}",
       "setCustomTime": "Atur Waktu Kustom",
@@ -275,6 +294,10 @@
         "title": "Tampilan",
         "description": "Tema, bahasa, dan preferensi visual."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "Audio",
         "description": "Transisi pemutaran dan perilaku audio."
@@ -294,6 +317,9 @@
       "about": {
         "title": "Tentang",
         "description": "Informasi aplikasi dan detail build."
+      },
+      "whatsNew": {
+        "title": "What's New"
       },
       "language": {
         "title": "Bahasa",
@@ -317,6 +343,7 @@
     },
     "appearance": {
       "languageDescription": "Bahasa saat ini: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "Terang",
         "dark": "Gelap",
@@ -368,8 +395,11 @@
       "folderFiltersDescription": "Izinkan atau blokir folder tertentu.",
       "trackDurationFilter": "Filter Durasi Lagu",
       "autoScan": "Pindai Otomatis",
-      "autoScanEnabled": "Pindai ulang saat aplikasi dibuka dan saat file berubah.",
-      "autoScanDisabled": "Pindai manual saat diperlukan.",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "Indeks Ulang Pustaka",
       "reindexInProgress": "Pengindeksan sedang berjalan...",
       "reindexDescription": "Pindai ulang semua lagu, termasuk file yang tidak berubah.",
@@ -401,6 +431,32 @@
       "reindexLaterAction": "Tidak, nanti"
     },
     "audio": {
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "Resume",
+        "audioFocus": "Audio Focus",
+        "crossfade": "Crossfade"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
       "crossfade": "Crossfade",
       "crossfadeEnabled": "Padukan perpindahan antar lagu saat pemutaran.",
       "crossfadeDisabled": "Putar setiap lagu dengan transisi bersih.",
@@ -408,6 +464,9 @@
       "durationHint": "Pilih berapa lama lagu berikutnya menimpa lagu saat ini."
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "Notifikasi Pengindeks",
       "indexerNotificationsEnabled": "Tampilkan notifikasi sistem saat pengindeksan.",
       "indexerNotificationsDisabled": "Sembunyikan notifikasi pengindeksan dari panel sistem."
@@ -442,6 +501,12 @@
       "extraDescription": "Semuanya, termasuk diagnostik dan peringatan yang dapat dipulihkan."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "Ekstra: catat debug, info, peringatan, dan error.",
       "logMinimalDescription": "Minimal: catat hanya log kritis dan error.",
       "shareCrashLogs": "Bagikan log crash",
@@ -453,6 +518,9 @@
       "openSystemSettings": "Buka pengaturan sistem.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "Buka panduan baterai dan proses latar belakang sesuai perangkat.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "Atur ulang riwayat dengar?",
       "resetDialogDescription": "Ini akan menghapus baru diputar dan mengatur ulang statistik lagu teratas. File musik, playlist, dan favorit kamu tetap tidak berubah.",
       "logsReadyTitle": "Log siap dibagikan",
@@ -468,7 +536,23 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "Kode sumber proyek."
+      "repositoryDescription": "Kode sumber proyek.",
+      "checkForUpdates": "Check for updates",
+      "checkForUpdatesDescription": "Look for a newer Startune Music release.",
+      "checkingForUpdates": "Checking for a new release...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "What's New",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Open Source Licenses",
+      "openSourceLicensesDescription": "Third-party packages and license texts.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "License text unavailable."
     }
   }
 }
