@@ -101,6 +101,28 @@ function getTimedMarkupLineText(line: TimedMarkupLine) {
   return line.words.map((word) => word.text).join("")
 }
 
+function getTimedMarkupDisplayText(text: string) {
+  return text.trim().replace(/ /g, "\u00A0")
+}
+
+function getTimedMarkupWordGroups(line: TimedMarkupLine) {
+  const groups: TimedMarkupLine["words"][] = []
+
+  for (const word of line.words) {
+    const startsNewWord = /^\s/.test(word.text)
+    const currentGroup = groups[groups.length - 1]
+
+    if (!currentGroup || startsNewWord) {
+      groups.push([word])
+      continue
+    }
+
+    currentGroup.push(word)
+  }
+
+  return groups
+}
+
 function hasWordLevelTiming(line: TimedMarkupLine) {
   if (line.words.length < 2) {
     return false
@@ -182,7 +204,7 @@ const TimedMarkupWordSpan: React.FC<{
   const lineHeight = (lineActive ? 36 : 28) * fontScale
   const fontWeight = lineActive ? "700" : "600"
 
-  const displayText = text.replace(/ /g, "\u00A0")
+  const displayText = getTimedMarkupDisplayText(text)
   const wordProgressSv = useDerivedValue(() => {
     const wordDuration = Math.max(end - begin, 0.001)
     const currentTime = currentTimeSv.value
@@ -284,7 +306,11 @@ const TimedMarkupLineRow: React.FC<{
     (event: LayoutChangeEvent) => onLayoutLine(line.id, event.nativeEvent.layout.y),
     [line.id, onLayoutLine]
   )
-  const lineText = React.useMemo(() => getTimedMarkupLineText(line), [line])
+  const lineText = React.useMemo(
+    () => getTimedMarkupLineText(line).trim(),
+    [line]
+  )
+  const wordGroups = React.useMemo(() => getTimedMarkupWordGroups(line), [line])
   const canRenderWordProgress = isActive && hasWordLevelTiming(line)
   const textColor = isActive
     ? "rgba(255,255,255,0.96)"
@@ -302,18 +328,31 @@ const TimedMarkupLineRow: React.FC<{
       onLayout={handleLayout}
     >
       {canRenderWordProgress ? (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {line.words.map((word) => (
-            <TimedMarkupWordSpan
-              key={`${line.id}-${word.begin}-${word.end}-${word.text}`}
-              text={word.text}
-              begin={word.begin}
-              end={word.end}
-              currentTimeSv={currentTimeSv}
-              lineActive={isActive}
-              linePast={isPast}
-              fontScale={fontScale}
-            />
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            columnGap: Math.max(4, 6 * fontScale),
+          }}
+        >
+          {wordGroups.map((group) => (
+            <View
+              key={`${line.id}-${group[0]?.begin ?? 0}-${group.map((word) => word.text).join("")}`}
+              style={{ flexDirection: "row" }}
+            >
+              {group.map((word) => (
+                <TimedMarkupWordSpan
+                  key={`${line.id}-${word.begin}-${word.end}-${word.text}`}
+                  text={word.text}
+                  begin={word.begin}
+                  end={word.end}
+                  currentTimeSv={currentTimeSv}
+                  lineActive={isActive}
+                  linePast={isPast}
+                  fontScale={fontScale}
+                />
+              ))}
+            </View>
           ))}
         </View>
       ) : (
@@ -580,7 +619,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   const timedMarkupStaticLines = hasTimedMarkupLyrics
     ? timedMarkupLines.map((line) => ({
         id: line.id,
-        text: line.words.map((w) => w.text).join(""),
+        text: line.words.map((w) => w.text).join("").trim(),
         isSpacer: false,
       }))
     : []
