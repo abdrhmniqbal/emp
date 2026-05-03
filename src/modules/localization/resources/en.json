@@ -256,6 +256,7 @@
       "endOfCurrentTrackDescription": "Automatically stop playback when the current track finishes.",
       "customTime": "Custom Time",
       "customTimeDescription": "Pick an exact clock time to stop playback.",
+      "customTimeDescriptionUntil": "Stop playback at {{value}}.",
       "customTimeValueLabel": "Time",
       "customTimeValue": "{{value}}",
       "setCustomTime": "Set Custom Time",
