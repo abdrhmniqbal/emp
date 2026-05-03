@@ -47,6 +47,22 @@
       "paused": "Indexation de la bibliothèque suspendue"
     }
   },
+  "updates": {
+    "sheetTitle": "Update available",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "What's new",
+    "downloadAndInstall": "Download & install",
+    "dontRemind": "Don't remind",
+    "later": "Later",
+    "previewRelease": "Preview release",
+    "noReleaseNotes": "No release notes provided.",
+    "notification": {
+      "channelName": "App Updates",
+      "channelDescription": "Notifications for new Startune Music releases.",
+      "title": "Update available",
+      "body": "{{currentVersion}} -> {{newVersion}}"
+    }
+  },
   "home": {
     "recentlyPlayed": "Joué récemment",
     "topTracks": "Meilleurs morceaux",
@@ -108,8 +124,10 @@
       "playCount": "Nombre de lectures",
       "dateAdded": "Date d'ajout",
       "addedToPlaylist": "Ajouté à la liste de lecture",
+      "addedToFavorites": "Added to Favorites",
       "filename": "Nom du fichier",
       "name": "Nom",
+      "type": "Type",
       "numberOfTracks": "Nombre de pistes",
       "numberOfFiles": "Nombre de fichiers"
     },
@@ -223,6 +241,33 @@
       "goToArtist": "Aller à l'artiste",
       "goToAlbum": "Aller à l'album"
     },
+    "sleepTimer": {
+      "title": "Sleep Timer",
+      "off": "Off",
+      "timer": "Timer",
+      "timerDescription": "Automatically stop playback after a set number of minutes.",
+      "timerValue": "Minutes",
+      "timerValueMinutes": "{{value}} min",
+      "playCount": "Play Count",
+      "playCountDescription": "Automatically stop playback after this many tracks finish playing.",
+      "playCountValueLabel": "Tracks",
+      "playCountValue": "{{value}} tracks",
+      "endOfCurrentTrack": "End of Current Track",
+      "endOfCurrentTrackDescription": "Automatically stop playback when the current track finishes.",
+      "customTime": "Custom Time",
+      "customTimeDescription": "Pick an exact clock time to stop playback.",
+      "customTimeDescriptionUntil": "Stop playback at {{value}}.",
+      "customTimeValueLabel": "Time",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Set Custom Time",
+      "clearCustomTime": "Clear Custom Time",
+      "hour": "Hour",
+      "minute": "Minute",
+      "enable": "Enable",
+      "enabled": "Enabled",
+      "cancelTimer": "Cancel Timer",
+      "close": "Close"
+    },
     "karaokeOn": "Karaoké activé",
     "karaokeOff": "Karaoké désactivé",
     "selectArtistTitle": "Choisir l'artiste",
@@ -249,6 +294,10 @@
         "title": "Apparence",
         "description": "Thème, langue et préférences visuelles."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "Audio",
         "description": "Transitions de lecture et comportement audio."
@@ -268,6 +317,9 @@
       "about": {
         "title": "À propos",
         "description": "Informations sur l'application et détails de construction."
+      },
+      "whatsNew": {
+        "title": "What's New"
       },
       "language": {
         "title": "Langue",
@@ -291,6 +343,7 @@
     },
     "appearance": {
       "languageDescription": "Langue actuelle : {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "Lumière",
         "dark": "Sombre",
@@ -342,8 +395,11 @@
       "folderFiltersDescription": "Liste blanche ou liste noire de dossiers spécifiques.",
       "trackDurationFilter": "Filtre de durée de piste",
       "autoScan": "Analyse automatique",
-      "autoScanEnabled": "Effectuez une nouvelle analyse au lancement de l'application et lorsque les fichiers changent.",
-      "autoScanDisabled": "Numérisez manuellement si nécessaire.",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "Réindexer la bibliothèque",
       "reindexInProgress": "Indexation en cours...",
       "reindexDescription": "Analysez à nouveau toutes les pistes, y compris les fichiers inchangés.",
@@ -375,6 +431,32 @@
       "reindexLaterAction": "Non, plus tard"
     },
     "audio": {
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "Resume",
+        "audioFocus": "Audio Focus",
+        "crossfade": "Crossfade"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
       "crossfade": "Fondu enchaîné",
       "crossfadeEnabled": "Mélangez les chansons pendant la lecture.",
       "crossfadeDisabled": "Jouez chaque chanson avec une transition claire.",
@@ -382,6 +464,9 @@
       "durationHint": "Choisissez la durée pendant laquelle la piste suivante chevauche la piste actuelle."
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "Notifications de l'indexeur",
       "indexerNotificationsEnabled": "Afficher les notifications système lors de l'indexation.",
       "indexerNotificationsDisabled": "Masquez les notifications d’indexation dans votre barre d’état système."
@@ -416,6 +501,12 @@
       "extraDescription": "Tout, y compris les diagnostics et les avertissements récupérables."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "Extra : capturez le débogage, les informations, les avertissements et les erreurs.",
       "logMinimalDescription": "Minimal : capturez uniquement les journaux critiques et d’erreurs.",
       "shareCrashLogs": "Partager les journaux de crash",
@@ -427,6 +518,9 @@
       "openSystemSettings": "Ouvrez les paramètres système.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "Ouvrir la batterie spécifique à l'appareil et guider le processus en arrière-plan.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "Réinitialiser l'historique d'écoute ?",
       "resetDialogDescription": "Cela effacera les morceaux récemment joués et réinitialisera les statistiques des meilleurs morceaux. Vos fichiers musicaux, listes de lecture et favoris resteront inchangés.",
       "logsReadyTitle": "Journaux prêts à partager",
@@ -442,7 +536,23 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "Code source du projet."
+      "repositoryDescription": "Code source du projet.",
+      "checkForUpdates": "Check for updates",
+      "checkForUpdatesDescription": "Look for a newer Startune Music release.",
+      "checkingForUpdates": "Checking for a new release...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "What's New",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Open Source Licenses",
+      "openSourceLicensesDescription": "Third-party packages and license texts.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "License text unavailable."
     }
   }
 }
