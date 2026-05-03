@@ -47,6 +47,22 @@
       "paused": "库索引已暂停"
     }
   },
+  "updates": {
+    "sheetTitle": "Update available",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "What's new",
+    "downloadAndInstall": "Download & install",
+    "dontRemind": "Don't remind",
+    "later": "Later",
+    "previewRelease": "Preview release",
+    "noReleaseNotes": "No release notes provided.",
+    "notification": {
+      "channelName": "App Updates",
+      "channelDescription": "Notifications for new Startune Music releases.",
+      "title": "Update available",
+      "body": "{{currentVersion}} -> {{newVersion}}"
+    }
+  },
   "home": {
     "recentlyPlayed": "最近玩过",
     "topTracks": "热门曲目",
@@ -108,8 +124,10 @@
       "playCount": "播放次数",
       "dateAdded": "添加日期",
       "addedToPlaylist": "已添加到播放列表",
+      "addedToFavorites": "Added to Favorites",
       "filename": "文件名",
       "name": "名称",
+      "type": "Type",
       "numberOfTracks": "曲目数量",
       "numberOfFiles": "文件数量"
     },
@@ -223,6 +241,33 @@
       "goToArtist": "前往艺术家",
       "goToAlbum": "前往相册"
     },
+    "sleepTimer": {
+      "title": "Sleep Timer",
+      "off": "Off",
+      "timer": "Timer",
+      "timerDescription": "Automatically stop playback after a set number of minutes.",
+      "timerValue": "Minutes",
+      "timerValueMinutes": "{{value}} min",
+      "playCount": "Play Count",
+      "playCountDescription": "Automatically stop playback after this many tracks finish playing.",
+      "playCountValueLabel": "Tracks",
+      "playCountValue": "{{value}} tracks",
+      "endOfCurrentTrack": "End of Current Track",
+      "endOfCurrentTrackDescription": "Automatically stop playback when the current track finishes.",
+      "customTime": "Custom Time",
+      "customTimeDescription": "Pick an exact clock time to stop playback.",
+      "customTimeDescriptionUntil": "Stop playback at {{value}}.",
+      "customTimeValueLabel": "Time",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Set Custom Time",
+      "clearCustomTime": "Clear Custom Time",
+      "hour": "Hour",
+      "minute": "Minute",
+      "enable": "Enable",
+      "enabled": "Enabled",
+      "cancelTimer": "Cancel Timer",
+      "close": "Close"
+    },
     "karaokeOn": "卡拉 OK 开启",
     "karaokeOff": "卡拉 OK 关闭",
     "selectArtistTitle": "选择艺术家",
@@ -249,6 +294,10 @@
         "title": "外观",
         "description": "主题、语言和视觉偏好。"
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "音频",
         "description": "播放过渡和音频行为。"
@@ -268,6 +317,9 @@
       "about": {
         "title": "关于",
         "description": "应用程序信息和构建详细信息。"
+      },
+      "whatsNew": {
+        "title": "What's New"
       },
       "language": {
         "title": "语言",
@@ -291,6 +343,7 @@
     },
     "appearance": {
       "languageDescription": "当前语言：{{language}}。",
+      "systemSuffix": "(System)",
       "options": {
         "light": "光",
         "dark": "黑暗",
@@ -342,8 +395,11 @@
       "folderFiltersDescription": "将特定文件夹列入白名单或黑名单。",
       "trackDurationFilter": "曲目持续时间过滤器",
       "autoScan": "自动扫描",
-      "autoScanEnabled": "在应用程序启动时和文件更改时重新扫描。",
-      "autoScanDisabled": "需要时手动扫描。",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "重建索引库",
       "reindexInProgress": "索引编制中...",
       "reindexDescription": "重新扫描所有曲目，包括未更改的文件。",
@@ -375,6 +431,32 @@
       "reindexLaterAction": "不，稍后"
     },
     "audio": {
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "Resume",
+        "audioFocus": "Audio Focus",
+        "crossfade": "Crossfade"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
       "crossfade": "交叉淡入淡出",
       "crossfadeEnabled": "播放期间歌曲之间的混合。",
       "crossfadeDisabled": "以清晰的过渡播放每首歌曲。",
@@ -382,6 +464,9 @@
       "durationHint": "选择下一首曲目与当前曲目重叠的时间长度。"
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "索引器通知",
       "indexerNotificationsEnabled": "索引时显示系统通知。",
       "indexerNotificationsDisabled": "隐藏系统托盘中的索引通知。"
@@ -416,6 +501,12 @@
       "extraDescription": "一切，包括诊断和可恢复的警告。"
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "额外：捕获调试、信息、警告和错误。",
       "logMinimalDescription": "最小：仅捕获关键日志和错误日志。",
       "shareCrashLogs": "分享崩溃日志",
@@ -427,6 +518,9 @@
       "openSystemSettings": "打开系统设置。",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "打开设备特定的电池和后台进程指南。",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "重置收听历史记录？",
       "resetDialogDescription": "这将清除最近播放的内容并重置热门曲目统计数据。您的音乐文件、播放列表和收藏夹将保持不变。",
       "logsReadyTitle": "日志可供共享",
@@ -442,7 +536,23 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "项目源代码。"
+      "repositoryDescription": "项目源代码。",
+      "checkForUpdates": "Check for updates",
+      "checkForUpdatesDescription": "Look for a newer Startune Music release.",
+      "checkingForUpdates": "Checking for a new release...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "What's New",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Open Source Licenses",
+      "openSourceLicensesDescription": "Third-party packages and license texts.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "License text unavailable."
     }
   }
 }
