@@ -47,6 +47,22 @@
       "paused": "도서관 색인생성이 일시중지되었습니다."
     }
   },
+  "updates": {
+    "sheetTitle": "Update available",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "What's new",
+    "downloadAndInstall": "Download & install",
+    "dontRemind": "Don't remind",
+    "later": "Later",
+    "previewRelease": "Preview release",
+    "noReleaseNotes": "No release notes provided.",
+    "notification": {
+      "channelName": "App Updates",
+      "channelDescription": "Notifications for new Startune Music releases.",
+      "title": "Update available",
+      "body": "{{currentVersion}} -> {{newVersion}}"
+    }
+  },
   "home": {
     "recentlyPlayed": "최근 플레이한 게임",
     "topTracks": "인기 트랙",
@@ -108,8 +124,10 @@
       "playCount": "플레이 횟수",
       "dateAdded": "추가된 날짜",
       "addedToPlaylist": "재생목록에 추가됨",
+      "addedToFavorites": "Added to Favorites",
       "filename": "파일 이름",
       "name": "이름",
+      "type": "Type",
       "numberOfTracks": "트랙 수",
       "numberOfFiles": "파일 수"
     },
@@ -223,6 +241,33 @@
       "goToArtist": "아티스트로 이동",
       "goToAlbum": "앨범으로 이동"
     },
+    "sleepTimer": {
+      "title": "Sleep Timer",
+      "off": "Off",
+      "timer": "Timer",
+      "timerDescription": "Automatically stop playback after a set number of minutes.",
+      "timerValue": "Minutes",
+      "timerValueMinutes": "{{value}} min",
+      "playCount": "Play Count",
+      "playCountDescription": "Automatically stop playback after this many tracks finish playing.",
+      "playCountValueLabel": "Tracks",
+      "playCountValue": "{{value}} tracks",
+      "endOfCurrentTrack": "End of Current Track",
+      "endOfCurrentTrackDescription": "Automatically stop playback when the current track finishes.",
+      "customTime": "Custom Time",
+      "customTimeDescription": "Pick an exact clock time to stop playback.",
+      "customTimeDescriptionUntil": "Stop playback at {{value}}.",
+      "customTimeValueLabel": "Time",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Set Custom Time",
+      "clearCustomTime": "Clear Custom Time",
+      "hour": "Hour",
+      "minute": "Minute",
+      "enable": "Enable",
+      "enabled": "Enabled",
+      "cancelTimer": "Cancel Timer",
+      "close": "Close"
+    },
     "karaokeOn": "가라오케온",
     "karaokeOff": "노래방 끄기",
     "selectArtistTitle": "아티스트 선택",
@@ -249,6 +294,10 @@
         "title": "외관",
         "description": "테마, 언어 및 시각적 기본 설정."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "오디오",
         "description": "재생 전환 및 오디오 동작."
@@ -268,6 +317,9 @@
       "about": {
         "title": "소개",
         "description": "앱 정보 및 빌드 세부정보"
+      },
+      "whatsNew": {
+        "title": "What's New"
       },
       "language": {
         "title": "언어",
@@ -291,6 +343,7 @@
     },
     "appearance": {
       "languageDescription": "현재 언어: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "빛",
         "dark": "어둠",
@@ -342,8 +395,11 @@
       "folderFiltersDescription": "특정 폴더를 화이트리스트 또는 블랙리스트에 추가합니다.",
       "trackDurationFilter": "추적 기간 필터",
       "autoScan": "자동 스캔",
-      "autoScanEnabled": "앱 실행 시 및 파일 변경 시 다시 검사합니다.",
-      "autoScanDisabled": "필요할 때 수동으로 스캔하세요.",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "라이브러리 재색인",
       "reindexInProgress": "색인 생성 중...",
       "reindexDescription": "변경되지 않은 파일을 포함하여 모든 트랙을 다시 스캔합니다.",
@@ -375,6 +431,32 @@
       "reindexLaterAction": "아니요, 나중에"
     },
     "audio": {
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "Resume",
+        "audioFocus": "Audio Focus",
+        "crossfade": "Crossfade"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
       "crossfade": "크로스페이드",
       "crossfadeEnabled": "재생 중에 노래를 혼합합니다.",
       "crossfadeDisabled": "깨끗한 전환으로 각 노래를 재생합니다.",
@@ -382,6 +464,9 @@
       "durationHint": "다음 트랙이 현재 트랙과 겹치는 시간을 선택합니다."
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "인덱서 알림",
       "indexerNotificationsEnabled": "인덱싱하는 동안 시스템 알림을 표시합니다.",
       "indexerNotificationsDisabled": "시스템 트레이에서 색인 생성 알림을 숨깁니다."
@@ -416,6 +501,12 @@
       "extraDescription": "진단 및 복구 가능한 경고를 포함한 모든 것."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "추가: 디버그, 정보, 경고 및 오류를 캡처합니다.",
       "logMinimalDescription": "최소: 중요한 로그와 오류 로그만 캡처합니다.",
       "shareCrashLogs": "충돌 로그 공유",
@@ -427,6 +518,9 @@
       "openSystemSettings": "시스템 설정을 엽니다.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "장치별 배터리 및 백그라운드 프로세스 지침을 엽니다.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "청취 기록을 재설정하시겠습니까?",
       "resetDialogDescription": "최근 재생된 내용이 삭제되고 상위 트랙 통계가 재설정됩니다. 음악 파일, 재생 목록 및 즐겨찾기는 변경되지 않습니다.",
       "logsReadyTitle": "공유할 준비가 된 로그",
@@ -442,7 +536,23 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "프로젝트 소스 코드."
+      "repositoryDescription": "프로젝트 소스 코드.",
+      "checkForUpdates": "Check for updates",
+      "checkForUpdatesDescription": "Look for a newer Startune Music release.",
+      "checkingForUpdates": "Checking for a new release...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "What's New",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Open Source Licenses",
+      "openSourceLicensesDescription": "Third-party packages and license texts.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "License text unavailable."
     }
   }
 }
