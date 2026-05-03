@@ -1,7 +1,7 @@
 # Purpose: Manually attaches CHANGELOG.md notes to an existing GitHub release.
 # Caller: GitHub Actions workflow_dispatch.
-# Dependencies: actions/checkout, GitHub CLI, jq, git tags, GITHUB_TOKEN contents write permission.
-# Main Functions: Extract requested tag section from CHANGELOG.md, build release-body.md, locate release ID, update release body through GitHub API.
+# Dependencies: actions/checkout, GitHub CLI, jq, CHANGELOG.md, GITHUB_TOKEN contents write permission.
+# Main Functions: Extract requested tag section from CHANGELOG.md, derive previous version from changelog order, build release-body.md, locate release ID, update release body through GitHub API.
 # Side Effects: Updates the GitHub Release body for the requested tag.
 
 name: Release Notes
@@ -22,14 +22,10 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout release tag
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: refs/tags/${{ inputs.release_tag }}
-
-      - name: Fetch tags
-        run: git fetch --force --tags origin
 
       - name: Build release notes from changelog
         env:
@@ -43,26 +39,27 @@ jobs:
           fi
 
           RELEASE_VERSION="${RELEASE_TAG#v}"
-          PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${RELEASE_TAG}^" 2>/dev/null || true)"
-
-          if [ -n "${PREVIOUS_TAG}" ]; then
-            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${RELEASE_TAG}"
-          else
-            COMPARE_URL=""
-          fi
 
           awk \
             -v version="${RELEASE_VERSION}" \
             -v tag="${RELEASE_TAG}" '
-              /^##[[:space:]]+\[/ {
-                if (capture) {
-                  exit
-                }
+              function normalize_heading(value) {
+                normalized = value
+                sub(/^v/, "", normalized)
+                return normalized
+              }
 
+              /^##[[:space:]]+\[/ {
                 heading = $0
                 sub(/^##[[:space:]]+\[/, "", heading)
                 sub(/\].*$/, "", heading)
-                capture = (heading == version || heading == tag)
+
+                if (capture) {
+                  print heading > "previous-version.txt"
+                  exit
+                }
+
+                capture = (heading == version || heading == tag || normalize_heading(heading) == version)
                 next
               }
 
@@ -74,6 +71,18 @@ jobs:
           if [ ! -s changelog-section.md ]; then
             echo "No CHANGELOG.md section found for ${RELEASE_TAG}"
             exit 1
+          fi
+
+          PREVIOUS_VERSION=""
+          if [ -f previous-version.txt ]; then
+            PREVIOUS_VERSION="$(tr -d '\r' < previous-version.txt | xargs)"
+          fi
+
+          if [ -n "${PREVIOUS_VERSION}" ]; then
+            PREVIOUS_TAG="v${PREVIOUS_VERSION#v}"
+            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${RELEASE_TAG}"
+          else
+            COMPARE_URL=""
           fi
 
           {
