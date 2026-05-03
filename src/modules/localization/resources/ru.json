@@ -47,6 +47,22 @@
       "paused": "Индексирование библиотеки приостановлено"
     }
   },
+  "updates": {
+    "sheetTitle": "Update available",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "What's new",
+    "downloadAndInstall": "Download & install",
+    "dontRemind": "Don't remind",
+    "later": "Later",
+    "previewRelease": "Preview release",
+    "noReleaseNotes": "No release notes provided.",
+    "notification": {
+      "channelName": "App Updates",
+      "channelDescription": "Notifications for new Startune Music releases.",
+      "title": "Update available",
+      "body": "{{currentVersion}} -> {{newVersion}}"
+    }
+  },
   "home": {
     "recentlyPlayed": "Недавно играл",
     "topTracks": "Лучшие треки",
@@ -108,8 +124,10 @@
       "playCount": "Количество игр",
       "dateAdded": "Дата добавления",
       "addedToPlaylist": "Добавлено в плейлист",
+      "addedToFavorites": "Added to Favorites",
       "filename": "Имя файла",
       "name": "Имя",
+      "type": "Type",
       "numberOfTracks": "Количество дорожек",
       "numberOfFiles": "Количество файлов"
     },
@@ -223,6 +241,33 @@
       "goToArtist": "Перейти к исполнителю",
       "goToAlbum": "Перейти в альбом"
     },
+    "sleepTimer": {
+      "title": "Sleep Timer",
+      "off": "Off",
+      "timer": "Timer",
+      "timerDescription": "Automatically stop playback after a set number of minutes.",
+      "timerValue": "Minutes",
+      "timerValueMinutes": "{{value}} min",
+      "playCount": "Play Count",
+      "playCountDescription": "Automatically stop playback after this many tracks finish playing.",
+      "playCountValueLabel": "Tracks",
+      "playCountValue": "{{value}} tracks",
+      "endOfCurrentTrack": "End of Current Track",
+      "endOfCurrentTrackDescription": "Automatically stop playback when the current track finishes.",
+      "customTime": "Custom Time",
+      "customTimeDescription": "Pick an exact clock time to stop playback.",
+      "customTimeDescriptionUntil": "Stop playback at {{value}}.",
+      "customTimeValueLabel": "Time",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Set Custom Time",
+      "clearCustomTime": "Clear Custom Time",
+      "hour": "Hour",
+      "minute": "Minute",
+      "enable": "Enable",
+      "enabled": "Enabled",
+      "cancelTimer": "Cancel Timer",
+      "close": "Close"
+    },
     "karaokeOn": "Караоке включено",
     "karaokeOff": "Караоке выключено",
     "selectArtistTitle": "Выбрать исполнителя",
@@ -249,6 +294,10 @@
         "title": "Внешний вид",
         "description": "Тема, язык и визуальные предпочтения."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "Аудио",
         "description": "Переходы воспроизведения и поведение звука."
@@ -268,6 +317,9 @@
       "about": {
         "title": "О",
         "description": "Информация о приложении и детали сборки."
+      },
+      "whatsNew": {
+        "title": "What's New"
       },
       "language": {
         "title": "Язык",
@@ -291,6 +343,7 @@
     },
     "appearance": {
       "languageDescription": "Текущий язык: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "Свет",
         "dark": "Темный",
@@ -342,8 +395,11 @@
       "folderFiltersDescription": "Белый или черный список определенных папок.",
       "trackDurationFilter": "Фильтр длительности трека",
       "autoScan": "Автоматическое сканирование",
-      "autoScanEnabled": "Повторное сканирование при запуске приложения и при изменении файлов.",
-      "autoScanDisabled": "При необходимости сканируйте вручную.",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "Библиотека Рейндекса",
       "reindexInProgress": "Идет индексирование...",
       "reindexDescription": "Пересканировать все треки, включая неизмененные файлы.",
@@ -375,6 +431,32 @@
       "reindexLaterAction": "Нет, позже"
     },
     "audio": {
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "Resume",
+        "audioFocus": "Audio Focus",
+        "crossfade": "Crossfade"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
       "crossfade": "Кроссфейд",
       "crossfadeEnabled": "Смешивайте песни во время воспроизведения.",
       "crossfadeDisabled": "Воспроизведите каждую песню с чистым переходом.",
@@ -382,6 +464,9 @@
       "durationHint": "Выберите, как долго следующий трек будет перекрываться с текущим."
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "Уведомления индексатора",
       "indexerNotificationsEnabled": "Показывать системные уведомления во время индексирования.",
       "indexerNotificationsDisabled": "Скройте уведомления об индексировании на панели задач."
@@ -416,6 +501,12 @@
       "extraDescription": "Всё, включая диагностику и устранимые предупреждения."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "Дополнительно: захват отладки, информации, предупреждений и ошибок.",
       "logMinimalDescription": "Минимальный: записывайте только критические журналы и журналы ошибок.",
       "shareCrashLogs": "Делитесь журналами сбоев",
@@ -427,6 +518,9 @@
       "openSystemSettings": "Откройте настройки системы.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "Откройте руководство по работе батареи и фоновым процессам для конкретного устройства.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "Сбросить историю прослушивания?",
       "resetDialogDescription": "Это очистит недавно сыгранные и сбросит статистику лучших треков. Ваши музыкальные файлы, плейлисты и избранное останутся неизменными.",
       "logsReadyTitle": "Логи готовы поделиться",
@@ -442,7 +536,23 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "Исходный код проекта."
+      "repositoryDescription": "Исходный код проекта.",
+      "checkForUpdates": "Check for updates",
+      "checkForUpdatesDescription": "Look for a newer Startune Music release.",
+      "checkingForUpdates": "Checking for a new release...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "What's New",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Open Source Licenses",
+      "openSourceLicensesDescription": "Third-party packages and license texts.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "License text unavailable."
     }
   }
 }
