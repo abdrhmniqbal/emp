@@ -2,7 +2,7 @@
  * Purpose: Checks GitHub releases for newer app versions and schedules update notifications.
  * Caller: App update prompt runtime.
  * Dependencies: Expo notifications runtime, settings app-update config, localization, logging, app version metadata.
- * Main Functions: checkForAppUpdate(), listReleaseNotesUntilCurrent(), notifyAppUpdateAvailable(), getCurrentAppVersion().
+ * Main Functions: checkForAppUpdate(), getChangelogReleaseNotesUntilCurrent(), notifyAppUpdateAvailable(), getCurrentAppVersion().
  * Side Effects: Performs GitHub API fetches, requests notification permission, schedules OS notifications.
  */
 
@@ -24,8 +24,6 @@ const GITHUB_RELEASES_URL =
   "https://api.github.com/repos/abdrhmniqbal/startune-music/releases"
 const CHANGELOG_RAW_URL =
   "https://raw.githubusercontent.com/abdrhmniqbal/startune-music/master/CHANGELOG.md"
-const CHANGELOG_WEB_URL =
-  "https://github.com/abdrhmniqbal/startune-music/blob/master/CHANGELOG.md"
 const UPDATE_NOTIFICATION_CHANNEL_ID = "app-updates"
 const UPDATE_NOTIFICATION_ID = "app-update-available"
 const APK_ASSET_PATTERN = /\.apk$/i
@@ -46,9 +44,7 @@ export interface AppReleaseNote {
   version: string
   releaseName: string
   body: string
-  htmlUrl: string
   prerelease: boolean
-  publishedAt: string
 }
 
 interface GitHubReleaseAsset {
@@ -265,7 +261,6 @@ function parseChangelogReleaseNotes(markdown: string, currentVersion: string) {
     headingStart: number
     headingLength: number
     version: string
-    publishedAt: string
   }> = []
 
   let match: RegExpExecArray | null
@@ -274,7 +269,6 @@ function parseChangelogReleaseNotes(markdown: string, currentVersion: string) {
       headingStart: match.index,
       headingLength: match[0]?.length ?? 0,
       version: (match[1] ?? "").trim(),
-      publishedAt: (match[2] ?? "").trim(),
     })
   }
 
@@ -296,9 +290,7 @@ function parseChangelogReleaseNotes(markdown: string, currentVersion: string) {
         version,
         releaseName: version,
         body,
-        htmlUrl: CHANGELOG_WEB_URL,
         prerelease: normalizeVersion(version).includes("-"),
-        publishedAt: entry.publishedAt,
       } satisfies AppReleaseNote
     })
     .filter((release): release is AppReleaseNote => release !== null)
@@ -362,11 +354,10 @@ export async function checkForAppUpdate({
   }
 }
 
-export async function listReleaseNotesUntilCurrent({
+export async function getChangelogReleaseNotesUntilCurrent({
   currentVersion,
 }: {
   currentVersion: string
-  includePrereleases: boolean
 }): Promise<AppReleaseNote[]> {
   if (!currentVersion) {
     return []
@@ -448,7 +439,6 @@ export async function notifyAppUpdateAvailable(
         }),
         data: {
           source: "app-update",
-          route: "/settings/about",
           version: update.newVersion,
         },
       },

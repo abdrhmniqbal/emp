@@ -1,25 +1,22 @@
-# Purpose: Generates categorized GitHub release notes and patches them onto an existing release draft.
-# Caller: .github/workflows/release-apk.yml reusable workflow job.
+# Purpose: Manually attaches CHANGELOG.md notes to an existing GitHub release.
+# Caller: GitHub Actions workflow_dispatch.
 # Dependencies: actions/checkout, GitHub CLI, jq, git tags, GITHUB_TOKEN contents write permission.
-# Main Functions: Resolve previous tag, build release-body.md, locate release ID, update release body through GitHub API.
+# Main Functions: Extract requested tag section from CHANGELOG.md, build release-body.md, locate release ID, update release body through GitHub API.
 # Side Effects: Updates the GitHub Release body for the requested tag.
 
 name: Release Notes
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       release_tag:
         description: "Release tag (example: v1.2.3 or v1.2.3-rc.1)"
         required: true
         type: string
-    secrets:
-      token:
-        required: true
 
 jobs:
-  generate-release-notes:
-    name: Generate and Attach Release Notes
+  attach-release-notes:
+    name: Attach Release Notes
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -34,141 +31,68 @@ jobs:
       - name: Fetch tags
         run: git fetch --force --tags origin
 
-      - name: Generate release notes
+      - name: Build release notes from changelog
         env:
-          GH_TOKEN: ${{ secrets.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
 
-          NOREPLY_EMAIL_PATTERN='^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$'
-          CONVENTIONAL_COMMIT_PATTERN='^(feat|fix|perf|refactor|docs|style|test|chore|ci|build)(\([^)]+\))?(!)?:[[:space:]]+(.+)$'
-
-          if [[ "${RELEASE_TAG}" == *-* ]]; then
-            PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${RELEASE_TAG}^" 2>/dev/null || true)"
-          else
-            PREVIOUS_TAG="$(
-              git tag --merged "${RELEASE_TAG}^" --sort=-version:refname 2>/dev/null \
-                | awk '
-                    /^v[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }
-                  ' \
-                || true
-            )"
+          if [ ! -f CHANGELOG.md ]; then
+            echo "CHANGELOG.md was not found"
+            exit 1
           fi
 
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${RELEASE_TAG}^" 2>/dev/null || true)"
+
           if [ -n "${PREVIOUS_TAG}" ]; then
-            RANGE="${PREVIOUS_TAG}..${RELEASE_TAG}"
             COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${RELEASE_TAG}"
           else
-            RANGE="${RELEASE_TAG}"
             COMPARE_URL=""
           fi
 
-          FEATURES_FILE="$(mktemp)"
-          CHANGES_FILE="$(mktemp)"
-          FIXES_FILE="$(mktemp)"
-          NOTES_PATH="release-body.md"
+          awk \
+            -v version="${RELEASE_VERSION}" \
+            -v tag="${RELEASE_TAG}" '
+              /^##[[:space:]]+\[/ {
+                if (capture) {
+                  exit
+                }
 
-          resolve_author_ref() {
-            local commit_sha="$1"
-            local commit_author_name="$2"
-            local commit_author_email="$3"
+                heading = $0
+                sub(/^##[[:space:]]+\[/, "", heading)
+                sub(/\].*$/, "", heading)
+                capture = (heading == version || heading == tag)
+                next
+              }
 
-            if [[ "${commit_author_email}" =~ ${NOREPLY_EMAIL_PATTERN} ]]; then
-              echo "@${BASH_REMATCH[2]}"
-              return
-            fi
+              capture {
+                print
+              }
+            ' CHANGELOG.md > changelog-section.md
 
-            if [[ "${commit_author_name}" =~ ^@ ]]; then
-              echo "${commit_author_name}"
-              return
-            fi
-
-            local api_login
-            api_login="$(
-              gh api "repos/${GITHUB_REPOSITORY}/commits/${commit_sha}" --jq '.author.login // empty' 2>/dev/null || true
-            )"
-
-            if [ -n "${api_login}" ]; then
-              echo "@${api_login}"
-              return
-            fi
-
-            echo "${commit_author_name}"
-          }
-
-          to_sentence_case() {
-            local value="$1"
-
-            if [ -z "${value}" ]; then
-              echo "${value}"
-              return
-            fi
-
-            local first_char="${value:0:1}"
-            local rest="${value:1}"
-            echo "${first_char^^}${rest}"
-          }
-
-          while IFS=$'\t' read -r sha subject author_name author_email; do
-            if [ -z "${sha}" ]; then
-              continue
-            fi
-
-            if [[ ! "${subject}" =~ ${CONVENTIONAL_COMMIT_PATTERN} ]]; then
-              continue
-            fi
-
-            commit_type="${BASH_REMATCH[1]}"
-            clean_subject="$(to_sentence_case "${BASH_REMATCH[4]}")"
-            author_ref="$(resolve_author_ref "${sha}" "${author_name}" "${author_email}")"
-
-            case "${commit_type}" in
-              feat)
-                printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FEATURES_FILE}"
-                ;;
-              fix)
-                printf -- '- Fix %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FIXES_FILE}"
-                ;;
-              *)
-                printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${CHANGES_FILE}"
-                ;;
-            esac
-          done < <(git log --no-merges --pretty=format:'%H%x09%s%x09%an%x09%ae' "${RANGE}")
+          if [ ! -s changelog-section.md ]; then
+            echo "No CHANGELOG.md section found for ${RELEASE_TAG}"
+            exit 1
+          fi
 
           {
             echo "Check out the [past release notes](https://github.com/${GITHUB_REPOSITORY}/releases) if you're upgrading from an earlier version."
             echo
-
-            if [ -s "${FEATURES_FILE}" ]; then
-              echo "## ✨ New Features"
-              cat "${FEATURES_FILE}"
-              echo
-            fi
-
-            if [ -s "${CHANGES_FILE}" ]; then
-              echo "## ⚙️ Changes"
-              cat "${CHANGES_FILE}"
-              echo
-            fi
-
-            if [ -s "${FIXES_FILE}" ]; then
-              echo "## 🧩 Fixes"
-              cat "${FIXES_FILE}"
-              echo
-            fi
+            cat changelog-section.md
+            echo
 
             if [ -n "${COMPARE_URL}" ]; then
               echo "**Full Changelog**:"
               echo "${COMPARE_URL}"
             fi
-          } > "${NOTES_PATH}"
+          } > release-body.md
 
-          echo "RELEASE_BODY_PATH=${NOTES_PATH}" >> "${GITHUB_ENV}"
+          echo "RELEASE_BODY_PATH=release-body.md" >> "${GITHUB_ENV}"
 
-      - name: Attach notes to release draft
+      - name: Attach notes to release
         env:
-          GH_TOKEN: ${{ secrets.token }}
+          GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
@@ -205,9 +129,8 @@ jobs:
             --arg name "${RELEASE_TAG}" \
             --arg tag_name "${RELEASE_TAG}" \
             --rawfile body "${RELEASE_BODY_PATH}" \
-            --argjson draft true \
             --argjson prerelease "${PRERELEASE}" \
-            '{name: $name, tag_name: $tag_name, body: $body, draft: $draft, prerelease: $prerelease}' \
+            '{name: $name, tag_name: $tag_name, body: $body, prerelease: $prerelease}' \
             > release-update.json
 
           gh api \

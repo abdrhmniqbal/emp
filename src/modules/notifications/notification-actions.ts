@@ -1,9 +1,9 @@
 /**
- * Purpose: Resolves notification response intents into indexer actions or app routes.
+ * Purpose: Resolves notification response intents into indexer actions, update prompts, or app routes.
  * Caller: Notification runtime.
- * Dependencies: Expo notifications constants and indexer services.
+ * Dependencies: Expo notifications constants, indexer services, and update prompt runtime.
  * Main Functions: handleNotificationAction(), getNotificationRoute()
- * Side Effects: May pause, resume, or cancel indexing.
+ * Side Effects: May pause, resume, or cancel indexing, or open the update prompt.
  */
 
 import * as Notifications from "expo-notifications"
@@ -18,11 +18,20 @@ import {
   pauseIndexing,
   resumeIndexing,
 } from "@/modules/indexer/indexer.service"
+import { openLatestAppUpdatePrompt } from "@/modules/updates/app-update.runtime"
 
 export function handleNotificationAction(
   response: Notifications.NotificationResponse
 ) {
   const source = response.notification.request.content.data?.source
+  if (source === "app-update") {
+    if (response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+      void openLatestAppUpdatePrompt()
+    }
+
+    return true
+  }
+
   if (
     source !== "indexer-progress" ||
     response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER

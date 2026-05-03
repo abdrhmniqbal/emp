@@ -2,7 +2,7 @@
  * Purpose: Runs the first-open app update check and opens the shared update prompt.
  * Caller: Root layout after bootstrap completes.
  * Dependencies: App update service, settings persistence, update prompt store, logging.
- * Main Functions: checkStartupAppUpdate()
+ * Main Functions: checkStartupAppUpdate(), openLatestAppUpdatePrompt()
  * Side Effects: Fetches GitHub releases, schedules notifications, mutates prompt state.
  */
 
@@ -44,4 +44,16 @@ export function checkStartupAppUpdate() {
   })
 
   return startupCheckPromise
+}
+
+export async function openLatestAppUpdatePrompt() {
+  const settings = await ensureAppUpdateConfigLoaded()
+  const update = await checkForAppUpdate({
+    currentVersion: getCurrentAppVersion(),
+    settings,
+  })
+
+  if (update) {
+    openAppUpdatePrompt(update)
+  }
 }
