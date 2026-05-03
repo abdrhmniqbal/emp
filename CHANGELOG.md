@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file.
 
+## [v3.0.0] - 2026-05-03
+
+### ✨ New Features
+
+- Help Translate entry in About settings with Crowdin integration groundwork. (@abdrhmniqbal)
+
+### ⚙️ Changes
+
+- Simplified What's New experience and aligned release-note sourcing with GitHub Releases and repository `CHANGELOG.md`. (@abdrhmniqbal)
+- Refined player and sleep timer layouts for better spacing, stability, and clearer timer state messaging. (@abdrhmniqbal)
+- Improved lyrics rendering for timed karaoke markup and wrapped word handling. (@abdrhmniqbal)
+- Prepared translation resources and workflow structure for Crowdin-based community localization. (@abdrhmniqbal)
+
+### 🧩 Fixes
+
+- Fixed karaoke wrapping issues that could show leading spaces or split joined lyric fragments incorrectly. (@abdrhmniqbal)
+- Fixed custom sleep timer selection behavior so the chosen time is only applied after confirmation. (@abdrhmniqbal)
+- Fixed update notification behavior so tapping it opens the latest version popup correctly. (@abdrhmniqbal)
+- Fixed release-note workflow issues around changelog-driven content generation for manual releases. (@abdrhmniqbal)
+
 ## [v0.3.0-rc.5] - 2026-05-02
 
 ### ✨ New Features
