@@ -11,11 +11,50 @@
     "seeMore": "もっと見る",
     "unknown": "不明"
   },
+  "term": {
+    "track": "曲",
+    "tracks": "曲",
+    "item": "項目",
+    "items": "項目",
+    "minuteShort": "分",
+    "trackLabel": "曲",
+    "tracksLabel": "曲",
+    "albumLabel": "アルバム",
+    "albumsLabel": "アルバム",
+    "artistLabel": "アーティスト",
+    "artistsLabel": "アーティスト",
+    "playlistLabel": "プレイリスト",
+    "playlistsLabel": "プレイリスト",
+    "folderLabel": "フォルダー",
+    "foldersLabel": "フォルダー",
+    "genreLabel": "ジャンル",
+    "genresLabel": "ジャンル",
+    "playCountLabel": "再生回数",
+    "durationLabel": "長さ",
+    "libraryLabel": "ライブラリ",
+    "whatsNewLabel": "新機能",
+    "updateAvailable": "アップデートがあります",
+    "crossfadeLabel": "クロスフェード",
+    "splitMultipleValuesLabel": "複数値の分割",
+    "artistSplitModeLabel": "アーティスト分割",
+    "trackDurationFilterLabel": "曲の長さフィルター",
+    "resumeAction": "再開",
+    "yearLabel": "年",
+    "nameLabel": "名前",
+    "noLabel": "なし",
+    "favoritesLabel": "お気に入り",
+    "lyricsLabel": "歌詞",
+    "searchLabel": "検索",
+    "foundLabel": "見つかりません",
+    "selectedLabel": "選択中",
+    "playingFromLabel": "再生元",
+    "fileLabel": "ファイル"
+  },
   "navigation": {
     "tabs": {
       "home": "ホーム",
       "search": "検索",
-      "library": "図書館"
+      "library": "$t(term.libraryLabel)"
     }
   },
   "database": {
@@ -29,22 +68,42 @@
     "cleanup": "掃除中...",
     "complete": "ライブラリが更新されました",
     "paused": "一時停止中",
-    "tracksIndexed": "{{count}} トラックがインデックス付けされました",
+    "tracksIndexed": "{{count}}$t(term.tracks)をインデックスしました",
+    "tracksIndexed_one": "{{count}}$t(term.track)をインデックスしました",
+    "tracksIndexed_other": "{{count}}$t(term.tracks)をインデックスしました",
     "notification": {
       "channelName": "ライブラリのインデックス作成",
       "channelDescription": "音楽ライブラリのインデックス作成の進行状況を表示します",
       "pause": "一時停止",
-      "resume": "再開",
-      "cancel": "キャンセル",
+      "resume": "$t(term.resumeAction)",
+      "cancel": "$t(common.cancel)",
       "indexingLibrary": "音楽ライブラリのインデックス作成",
       "preparingScan": "ライブラリスキャンを準備しています...",
       "scanningFiles": "音楽ファイルをスキャンする",
       "processingMetadata": "音楽メタデータの処理",
       "complete": "ライブラリのインデックス作成が完了しました",
-      "tracksUpdated": "{{count}} トラックが更新されました",
+      "tracksUpdated": "{{count}}$t(term.tracks)を更新しました",
+      "tracksUpdated_one": "{{count}}$t(term.track)を更新しました",
+      "tracksUpdated_other": "{{count}}$t(term.tracks)を更新しました",
       "failed": "ライブラリのインデックス作成に失敗しました",
       "tapToReopen": "タップしてアプリを再度開き、もう一度試してください",
       "paused": "ライブラリのインデックス作成が一時停止されました"
+    }
+  },
+  "updates": {
+    "sheetTitle": "$t(term.updateAvailable)",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "新機能",
+    "downloadAndInstall": "ダウンロードしてインストール",
+    "dontRemind": "通知しない",
+    "later": "あとで",
+    "previewRelease": "プレビュー版",
+    "noReleaseNotes": "リリースノートはありません。",
+    "notification": {
+      "channelName": "アプリのアップデート",
+      "channelDescription": "Startune Music の新しいリリース通知。",
+      "title": "$t(term.updateAvailable)",
+      "body": "$t(updates.versionChange)"
     }
   },
   "home": {
@@ -68,10 +127,10 @@
   "search": {
     "tabs": {
       "all": "すべて",
-      "track": "トラック",
-      "album": "アルバム",
-      "artist": "アーティスト",
-      "playlist": "プレイリスト"
+      "track": "$t(term.trackLabel)",
+      "album": "$t(term.albumLabel)",
+      "artist": "$t(term.artistLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "openSearch": "検索を開く",
     "landingPlaceholder": "トラック、アーティスト、アルバムを検索...",
@@ -85,31 +144,35 @@
     }
   },
   "library": {
-    "tracks": "トラック",
-    "albums": "アルバム",
+    "tracks": "$t(term.tracksLabel)",
+    "albums": "$t(term.albumsLabel)",
     "featuredOn": "Featured On",
-    "artists": "アーティスト",
-    "genres": "ジャンル",
-    "genre": "ジャンル",
-    "playlists": "プレイリスト",
-    "folders": "フォルダー",
+    "artists": "$t(term.artistsLabel)",
+    "genres": "$t(term.genresLabel)",
+    "genre": "$t(term.genreLabel)",
+    "playlists": "$t(term.playlistsLabel)",
+    "folders": "$t(term.foldersLabel)",
     "favorites": "お気に入り",
-    "items": "{{count}} アイテム",
+    "items": "{{count}} $t(term.items)",
+    "items_one": "{{count}} $t(term.item)",
+    "items_other": "{{count}} $t(term.items)",
     "sort": "並べ替え",
     "sortBy": "並べ替え基準",
     "allTracks": "すべてのトラック",
-    "name": "名前",
+    "name": "$t(term.nameLabel)",
     "sortOption": {
       "trackNumber": "トラック番号",
       "title": "タイトル",
-      "artist": "アーティスト",
-      "album": "アルバム",
-      "year": "年",
-      "playCount": "再生回数",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "year": "$t(term.yearLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "dateAdded": "追加日",
       "addedToPlaylist": "プレイリストに追加されました",
+      "addedToFavorites": "Added to Favorites",
       "filename": "ファイル名",
-      "name": "名前",
+      "name": "$t(term.nameLabel)",
+      "type": "Type",
       "numberOfTracks": "トラック数",
       "numberOfFiles": "ファイル数"
     },
@@ -120,44 +183,42 @@
     "genreAlbumsUnavailable": "{{genre}} で利用可能なアルバムはありません",
     "genreTopTracksMessage": "{{genre}} の音楽を再生して、トップ トラックを確認してください。",
     "genreTopTracksLongMessage": "{{genre}} の音楽を再生すると、よく再生されたトラックがここに表示されます。",
-    "unknownArtist": "不明なアーティスト",
-    "unknownAlbum": "未知のアルバム",
-    "unknownFile": "不明なファイル",
-    "unknownTrack": "未知のトラック",
+    "unknownArtist": "$t(common.unknown) $t(term.artistLabel)",
+    "unknownAlbum": "$t(common.unknown) $t(term.albumLabel)",
+    "unknownFile": "$t(common.unknown) $t(term.fileLabel)",
+    "unknownTrack": "$t(common.unknown) $t(term.trackLabel)",
     "count": {
-      "track": "{{count}} トラック",
-      "track_one": "{{count}} トラック",
-      "track_other": "{{count}} トラック",
-      "track_plural": "{{count}} トラック",
-      "item": "{{count}} アイテム",
-      "item_one": "{{count}} アイテム",
-      "item_other": "{{count}} アイテム",
-      "item_plural": "{{count}} アイテム"
+      "track": "{{count}} $t(term.track)",
+      "track_one": "{{count}} $t(term.track)",
+      "track_other": "{{count}} $t(term.tracks)",
+      "item": "{{count}} $t(term.item)",
+      "item_one": "{{count}} $t(term.item)",
+      "item_other": "{{count}} $t(term.items)"
     },
     "favoriteType": {
-      "track": "トラック",
-      "artist": "アーティスト",
-      "album": "アルバム",
-      "playlist": "プレイリスト"
+      "track": "$t(term.trackLabel)",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "empty": {
-      "albumsTitle": "アルバムがありません",
+      "albumsTitle": "$t(term.noLabel) $t(term.albumsLabel)",
       "albumsFoundTitle": "アルバムが見つかりませんでした",
       "albumsMessage": "ライブラリに追加したアルバムがここに表示されます。",
-      "artistsTitle": "アーティストがいません",
+      "artistsTitle": "$t(term.noLabel) $t(term.artistsLabel)",
       "artistsMessage": "音楽ライブラリのアーティストがここに表示されます。",
-      "favoritesTitle": "お気に入りがありません",
+      "favoritesTitle": "$t(term.noLabel) $t(term.favoritesLabel)",
       "favoritesMessage": "お気に入りのトラック、アーティスト、アルバムがここに表示されます。",
-      "foldersTitle": "フォルダーがありません",
+      "foldersTitle": "$t(term.noLabel) $t(term.foldersLabel)",
       "foldersMessage": "追加した音楽フォルダーがここに表示されます。",
       "genresFoundTitle": "ジャンルが見つかりません",
-      "tracksTitle": "トラックがありません",
+      "tracksTitle": "$t(term.noLabel) $t(term.tracksLabel)",
       "tracksFoundTitle": "トラックが見つかりません",
       "tracksSelectedTitle": "トラックが選択されていません",
       "tracksMessage": "ライブラリに追加したトラックがここに表示されます。",
-      "lyricsTitle": "歌詞なし",
+      "lyricsTitle": "$t(term.noLabel) $t(term.lyricsLabel)",
       "lyricsMessage": "このトラックにはまだ歌詞が埋め込まれていません。",
-      "playlistsTitle": "プレイリストがありません",
+      "playlistsTitle": "$t(term.noLabel) $t(term.playlistsLabel)",
       "playlistsFoundTitle": "プレイリストが見つかりません",
       "playlistsMessage": "最初のプレイリストを作成して音楽を整理します。",
       "playlistsFoundMessage": "最初のプレイリストを作成してトラックを整理します。",
@@ -166,7 +227,7 @@
   },
   "playlist": {
     "newPlaylist": "新しいプレイリスト",
-    "playlist": "プレイリスト",
+    "playlist": "$t(term.playlistLabel)",
     "createPlaylist": "プレイリストの作成",
     "saveQueueToPlaylist": "キューをプレイリストに保存",
     "editPlaylist": "プレイリストの編集",
@@ -178,7 +239,9 @@
     "addTracks": "トラックを追加する",
     "searchPlaceholder": "プレイリストを検索...",
     "searchTracksPlaceholder": "トラックを検索...",
-    "selected": "{{count}} 選択されました",
+    "selected": "{{count}} $t(term.selectedLabel)",
+    "selected_one": "{{count}} $t(term.selectedLabel)",
+    "selected_other": "{{count}} $t(term.selectedLabel)",
     "apply": "申し込む",
     "applyWithCount": "適用する ({{count}})",
     "clearSelection": "選択をクリア",
@@ -196,13 +259,13 @@
       "quality": "品質",
       "codec": "コーデック",
       "format": "フォーマット",
-      "artist": "アーティスト",
-      "album": "アルバム",
-      "genre": "ジャンル",
-      "year": "年",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "genre": "$t(term.genreLabel)",
+      "year": "$t(term.yearLabel)",
       "trackDisc": "トラック/ディスク",
-      "duration": "期間",
-      "playCount": "再生回数",
+      "duration": "$t(term.durationLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "lastPlayed": "最後にプレイした時間",
       "file": "ファイル"
     },
@@ -223,20 +286,51 @@
       "goToArtist": "アーティストに移動",
       "goToAlbum": "アルバムに移動"
     },
+    "sleepTimer": {
+      "title": "スリープタイマー",
+      "off": "オフ",
+      "timer": "タイマー",
+      "timerDescription": "指定した分数のあとに自動で再生を停止します。",
+      "timerValue": "分",
+      "timerValueMinutes": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_one": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_other": "{{count}} $t(term.minuteShort)",
+      "playCount": "$t(term.playCountLabel)",
+      "playCountDescription": "指定した曲数の再生が終わったら停止します。",
+      "playCountValueLabel": "$t(term.tracksLabel)",
+      "playCountValue": "{{count}} $t(term.tracks)",
+      "playCountValue_one": "{{count}} $t(term.track)",
+      "playCountValue_other": "{{count}} $t(term.tracks)",
+      "endOfCurrentTrack": "現在の曲の終わり",
+      "endOfCurrentTrackDescription": "現在の曲が終わったら再生を停止します。",
+      "customTime": "指定時刻",
+      "customTimeDescription": "再生を停止する時刻を選びます。",
+      "customTimeDescriptionUntil": "{{value}} に再生を停止します。",
+      "customTimeValueLabel": "時刻",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "時刻を設定",
+      "clearCustomTime": "時刻をクリア",
+      "hour": "時",
+      "minute": "分",
+      "enable": "オンにする",
+      "enabled": "オン",
+      "cancelTimer": "タイマーを解除",
+      "close": "閉じる"
+    },
     "karaokeOn": "カラオケオン",
     "karaokeOff": "カラオケオフ",
     "selectArtistTitle": "アーティストを選択",
     "selectGenreTitle": "ジャンルを選ぶ",
     "playingFrom": {
-      "default": "再生中",
-      "album": "アルバムから再生中",
-      "artist": "アーティストから再生中",
-      "playlist": "プレイリストから再生中",
-      "genre": "ジャンルから再生中",
-      "search": "検索から再生中",
-      "favorites": "お気に入りから再生中",
-      "folder": "フォルダーから再生中",
-      "trackList": "トラックから再生中",
+      "default": "$t(term.playingFromLabel)",
+      "album": "$t(term.playingFromLabel) $t(term.albumLabel)",
+      "artist": "$t(term.playingFromLabel) $t(term.artistLabel)",
+      "playlist": "$t(term.playingFromLabel) $t(term.playlistLabel)",
+      "genre": "$t(term.playingFromLabel) $t(term.genreLabel)",
+      "search": "$t(term.playingFromLabel) $t(term.searchLabel)",
+      "favorites": "$t(term.playingFromLabel) $t(term.favoritesLabel)",
+      "folder": "$t(term.playingFromLabel) $t(term.folderLabel)",
+      "trackList": "$t(term.playingFromLabel) $t(term.tracksLabel)",
       "external": "ファイルから再生中"
     }
   },
@@ -249,6 +343,10 @@
         "title": "外観",
         "description": "テーマ、言語、ビジュアル設定。"
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "オーディオ",
         "description": "再生トランジションとオーディオの動作。"
@@ -258,7 +356,7 @@
         "description": "通知動作とアラート。"
       },
       "library": {
-        "title": "図書館",
+        "title": "$t(term.libraryLabel)",
         "description": "スキャン、フィルター、インデックス作成の動作。"
       },
       "advanced": {
@@ -269,6 +367,9 @@
         "title": "について",
         "description": "アプリの情報とビルドの詳細。"
       },
+      "whatsNew": {
+        "title": "$t(term.whatsNewLabel)"
+      },
       "language": {
         "title": "言語",
         "description": "アプリの表示言語を選択します。"
@@ -277,20 +378,21 @@
         "title": "フォルダーフィルター"
       },
       "trackDurationFilter": {
-        "title": "トラック継続時間フィルター"
+        "title": "$t(term.trackDurationFilterLabel)"
       },
       "logLevel": {
         "title": "ログレベル"
       },
       "splitMultipleValues": {
-        "title": "複数の値を分割する"
+        "title": "$t(term.splitMultipleValuesLabel)"
       },
       "artistSplitMode": {
-        "title": "アーティスト分割モード"
+        "title": "$t(term.artistSplitModeLabel)"
       }
     },
     "appearance": {
       "languageDescription": "現在の言語: {{language}}。",
+      "systemSuffix": "(System)",
       "options": {
         "light": "ライト",
         "dark": "暗い",
@@ -331,7 +433,7 @@
       "filterMode": "フィルターモード",
       "filterModeDescription": "選択したフォルダーを許可するか非表示にするかを選択します。",
       "addNewFolder": "新しいフォルダーを追加",
-      "folders": "フォルダー",
+      "folders": "$t(term.foldersLabel)",
       "noFoldersAdded": "フォルダは追加されていません",
       "noFoldersAddedMessage": "1 つ以上のフォルダーを追加し、フィルターを適用します。",
       "applyFilter": "フィルターを適用する",
@@ -340,24 +442,27 @@
       "whitelist": "ホワイトリスト",
       "blacklist": "ブラックリスト",
       "folderFiltersDescription": "特定のフォルダーをホワイトリストまたはブラックリストに登録します。",
-      "trackDurationFilter": "トラック継続時間フィルター",
+      "trackDurationFilter": "$t(term.trackDurationFilterLabel)",
       "autoScan": "自動スキャン",
-      "autoScanEnabled": "アプリの起動時とファイルが変更されたときに再スキャンします。",
-      "autoScanDisabled": "必要に応じて手動でスキャンします。",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "ライブラリの再インデックス",
       "reindexInProgress": "インデックス作成中...",
       "reindexDescription": "未変更のファイルを含むすべてのトラックを再スキャンします。",
       "reindexDialogTitle": "ライブラリの再インデックスを強制しますか?",
       "reindexDialogDescription": "これにより、すでにインデックスが作成されているファイルや変更されていないファイルも含め、すべての音楽ファイルが再スキャンされます。通常のインデックス作成よりも時間がかかる場合があります。",
       "reindexAction": "インデックスの再作成",
-      "splitMultipleValues": "複数の値を分割する",
+      "splitMultipleValues": "$t(term.splitMultipleValuesLabel)",
       "splitMultipleValuesSummary": "モード: {{mode}} · アーティスト: {{artistSymbols}} · ジャンル: {{genreSymbols}}",
       "artistSplitSymbols": "アーティスト分割シンボル",
       "artistSplitSymbolsDescription": "アーティストとアルバム アーティストのメタデータを分割するために使用されるシンボル。値は自動的にトリミングされます。",
       "unsplitArtists": "分割されていないアーティスト",
       "unsplitArtistsDescription": "このリスト内のアーティストは、分割シンボルが含まれている場合でもそのまま残ります。",
       "unsplitArtistsPlaceholder": "/ の付いたアーティスト、& が付いたアーティスト",
-      "artistSplitMode": "アーティスト分割モード",
+      "artistSplitMode": "$t(term.artistSplitModeLabel)",
       "artistSplitModeSplit": "分割値",
       "artistSplitModeSplitDescription": "検出された各アーティストを別の名前として表示します。",
       "artistSplitModeOriginal": "オリジナル文字列",
@@ -375,13 +480,42 @@
       "reindexLaterAction": "いや、後で"
     },
     "audio": {
-      "crossfade": "クロスフェード",
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "$t(term.resumeAction)",
+        "audioFocus": "Audio Focus",
+        "crossfade": "$t(term.crossfadeLabel)"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
+      "crossfade": "$t(term.crossfadeLabel)",
       "crossfadeEnabled": "再生中に曲間をブレンドします。",
       "crossfadeDisabled": "各曲をきれいなトランジションで再生します。",
-      "duration": "期間",
+      "duration": "$t(term.durationLabel)",
       "durationHint": "次のトラックが現在のトラックと重なる時間を選択します。"
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "インデクサーの通知",
       "indexerNotificationsEnabled": "インデックス作成中にシステム通知を表示します。",
       "indexerNotificationsDisabled": "インデックス作成の通知をシステム トレイから非表示にします。"
@@ -416,6 +550,12 @@
       "extraDescription": "診断や回復可能な警告を含むすべて。"
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "追加: デバッグ、情報、警告、エラーをキャプチャします。",
       "logMinimalDescription": "最小限: 重要なログとエラー ログのみをキャプチャします。",
       "shareCrashLogs": "クラッシュログを共有する",
@@ -427,6 +567,9 @@
       "openSystemSettings": "システム設定を開きます。",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "デバイス固有のバッテリーとバックグラウンド プロセスのガイダンスを開きます。",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "視聴履歴をリセットしますか?",
       "resetDialogDescription": "これにより、最近プレイしたものがクリアされ、トップトラックの統計がリセットされます。音楽ファイル、プレイリスト、お気に入りは変更されません。",
       "logsReadyTitle": "ログを共有する準備ができました",
@@ -442,7 +585,25 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "プロジェクトのソースコード。"
+      "repositoryDescription": "プロジェクトのソースコード。",
+      "helpTranslate": "翻訳に協力",
+      "helpTranslateDescription": "Crowdin で翻訳に参加できます。",
+      "checkForUpdates": "アップデートを確認",
+      "checkForUpdatesDescription": "Startune Music の新しいリリースを確認します。",
+      "checkingForUpdates": "新しいリリースを確認中...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "$t(term.whatsNewLabel)",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "オープンソースライセンス",
+      "openSourceLicensesDescription": "サードパーティパッケージとライセンス文。",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "ライセンス文は利用できません。"
     }
   }
 }

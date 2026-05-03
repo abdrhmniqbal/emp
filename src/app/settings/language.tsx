@@ -24,8 +24,33 @@ export default function LanguageSettingsScreen() {
   const theme = useThemeColors()
   const { t } = useTranslation()
   const languageCode = useSettingsStore((state) => state.languageCode)
-  const languageOptions = getLanguageOptions()
   const deviceLanguageCode = getDeviceLanguageCode()
+
+  function getSortedLanguageOptions(selectedLanguageCode: string) {
+    const options = [...getLanguageOptions()]
+    const collator = new Intl.Collator(undefined, {
+      sensitivity: "base",
+      usage: "sort",
+    })
+
+    const sortedOptions = options.sort((left, right) =>
+      collator.compare(t(left.labelKey), t(right.labelKey))
+    )
+    const selectedIndex = sortedOptions.findIndex(
+      (option) => option.code === selectedLanguageCode
+    )
+
+    if (selectedIndex <= 0) {
+      return sortedOptions
+    }
+
+    const [selectedOption] = sortedOptions.splice(selectedIndex, 1)
+    return selectedOption ? [selectedOption, ...sortedOptions] : sortedOptions
+  }
+
+  const [languageOptions] = React.useState(() => {
+    return getSortedLanguageOptions(languageCode)
+  })
 
   function getLanguageLabel(optionCode: string, labelKey: string) {
     const label = t(labelKey)
@@ -41,7 +66,7 @@ export default function LanguageSettingsScreen() {
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       <View className="gap-5 px-4 py-4">
-        <ListGroup >
+        <ListGroup>
           {languageOptions.map((option, index) => (
             <React.Fragment key={option.code}>
               {index > 0 && <Separator className="mx-4" />}

@@ -11,11 +11,50 @@
     "seeMore": "और देखें",
     "unknown": "अज्ञात"
   },
+  "term": {
+    "track": "गाना",
+    "tracks": "गाने",
+    "item": "आइटम",
+    "items": "आइटम",
+    "minuteShort": "मिनट",
+    "trackLabel": "गाना",
+    "tracksLabel": "गाने",
+    "albumLabel": "एल्बम",
+    "albumsLabel": "एल्बम",
+    "artistLabel": "कलाकार",
+    "artistsLabel": "कलाकार",
+    "playlistLabel": "प्लेलिस्ट",
+    "playlistsLabel": "प्लेलिस्ट",
+    "folderLabel": "फ़ोल्डर",
+    "foldersLabel": "फ़ोल्डर",
+    "genreLabel": "शैली",
+    "genresLabel": "शैलियाँ",
+    "playCountLabel": "चलाए गए",
+    "durationLabel": "अवधि",
+    "libraryLabel": "लाइब्रेरी",
+    "whatsNewLabel": "नया क्या है",
+    "updateAvailable": "अपडेट उपलब्ध है",
+    "crossfadeLabel": "क्रॉसफेड",
+    "splitMultipleValuesLabel": "कई मान अलग करें",
+    "artistSplitModeLabel": "कलाकार अलग करने का मोड",
+    "trackDurationFilterLabel": "गाने की अवधि फ़िल्टर",
+    "resumeAction": "जारी रखें",
+    "yearLabel": "साल",
+    "nameLabel": "नाम",
+    "noLabel": "कोई",
+    "favoritesLabel": "पसंदीदा",
+    "lyricsLabel": "गीत",
+    "searchLabel": "खोज",
+    "foundLabel": "मिला",
+    "selectedLabel": "चयनित",
+    "playingFromLabel": "यहां से चल रहा है",
+    "fileLabel": "फ़ाइल"
+  },
   "navigation": {
     "tabs": {
       "home": "होम",
       "search": "खोजें",
-      "library": "लाइब्रेरी"
+      "library": "$t(term.libraryLabel)"
     }
   },
   "database": {
@@ -29,22 +68,42 @@
     "cleanup": "सफ़ाई हो रही है...",
     "complete": "लाइब्रेरी अपडेट की गई",
     "paused": "रुका हुआ",
-    "tracksIndexed": "{{count}} ट्रैक अनुक्रमित",
+    "tracksIndexed": "{{count}} $t(term.tracks) इंडेक्स हुए",
+    "tracksIndexed_one": "{{count}} $t(term.track) इंडेक्स हुआ",
+    "tracksIndexed_other": "{{count}} $t(term.tracks) इंडेक्स हुए",
     "notification": {
       "channelName": "लाइब्रेरी इंडेक्सिंग",
       "channelDescription": "संगीत लाइब्रेरी अनुक्रमण प्रगति दिखाता है",
       "pause": "विराम",
-      "resume": "जारी रखें",
-      "cancel": "रद्द करें",
+      "resume": "$t(term.resumeAction)",
+      "cancel": "$t(common.cancel)",
       "indexingLibrary": "संगीत पुस्तकालय का अनुक्रमण",
       "preparingScan": "आपकी लाइब्रेरी स्कैन तैयार की जा रही है...",
       "scanningFiles": "संगीत फ़ाइलें स्कैन करना",
       "processingMetadata": "संगीत मेटाडेटा संसाधित करना",
       "complete": "लाइब्रेरी अनुक्रमण पूर्ण",
-      "tracksUpdated": "{{count}} ट्रैक अपडेट किए गए",
+      "tracksUpdated": "{{count}} $t(term.tracks) अपडेट हुए",
+      "tracksUpdated_one": "{{count}} $t(term.track) अपडेट हुआ",
+      "tracksUpdated_other": "{{count}} $t(term.tracks) अपडेट हुए",
       "failed": "लाइब्रेरी अनुक्रमण विफल रहा",
       "tapToReopen": "ऐप को दोबारा खोलने के लिए टैप करें और पुनः प्रयास करें",
       "paused": "लाइब्रेरी अनुक्रमणिका रोक दी गई"
+    }
+  },
+  "updates": {
+    "sheetTitle": "$t(term.updateAvailable)",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "नया क्या है",
+    "downloadAndInstall": "डाउनलोड और इंस्टॉल करें",
+    "dontRemind": "फिर याद न दिलाएं",
+    "later": "बाद में",
+    "previewRelease": "प्रीव्यू रिलीज़",
+    "noReleaseNotes": "रिलीज़ नोट उपलब्ध नहीं हैं।",
+    "notification": {
+      "channelName": "ऐप अपडेट",
+      "channelDescription": "Startune Music के नए रिलीज़ की सूचनाएं।",
+      "title": "$t(term.updateAvailable)",
+      "body": "$t(updates.versionChange)"
     }
   },
   "home": {
@@ -68,10 +127,10 @@
   "search": {
     "tabs": {
       "all": "सब",
-      "track": "ट्रैक",
-      "album": "एलबम",
-      "artist": "कलाकार",
-      "playlist": "प्लेलिस्ट"
+      "track": "$t(term.trackLabel)",
+      "album": "$t(term.albumLabel)",
+      "artist": "$t(term.artistLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "openSearch": "खोज खोलें",
     "landingPlaceholder": "ट्रैक, कलाकार, एल्बम खोजें...",
@@ -85,31 +144,35 @@
     }
   },
   "library": {
-    "tracks": "ट्रैक",
-    "albums": "एलबम",
+    "tracks": "$t(term.tracksLabel)",
+    "albums": "$t(term.albumsLabel)",
     "featuredOn": "Featured On",
-    "artists": "कलाकार",
-    "genres": "शैलियाँ",
-    "genre": "शैली",
-    "playlists": "प्लेलिस्ट",
-    "folders": "फ़ोल्डर",
+    "artists": "$t(term.artistsLabel)",
+    "genres": "$t(term.genresLabel)",
+    "genre": "$t(term.genreLabel)",
+    "playlists": "$t(term.playlistsLabel)",
+    "folders": "$t(term.foldersLabel)",
     "favorites": "पसंदीदा",
-    "items": "{{count}} आइटम",
+    "items": "{{count}} $t(term.items)",
+    "items_one": "{{count}} $t(term.item)",
+    "items_other": "{{count}} $t(term.items)",
     "sort": "क्रमबद्ध करें",
     "sortBy": "क्रमबद्ध करें",
     "allTracks": "सभी ट्रैक",
-    "name": "नाम",
+    "name": "$t(term.nameLabel)",
     "sortOption": {
       "trackNumber": "ट्रैक नंबर",
       "title": "शीर्षक",
-      "artist": "कलाकार",
-      "album": "एलबम",
-      "year": "वर्ष",
-      "playCount": "गिनती खेलें",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "year": "$t(term.yearLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "dateAdded": "तिथि जोड़ी गई",
       "addedToPlaylist": "प्लेलिस्ट में जोड़ा गया",
+      "addedToFavorites": "Added to Favorites",
       "filename": "फ़ाइलनाम",
-      "name": "नाम",
+      "name": "$t(term.nameLabel)",
+      "type": "Type",
       "numberOfTracks": "ट्रैक की संख्या",
       "numberOfFiles": "फाइलों की संख्या"
     },
@@ -120,44 +183,42 @@
     "genreAlbumsUnavailable": "{{genre}} में कोई एल्बम उपलब्ध नहीं है",
     "genreTopTracksMessage": "शीर्ष ट्रैक देखने के लिए कुछ {{genre}} संगीत बजाएं!",
     "genreTopTracksLongMessage": "यहां अपने सर्वाधिक बजाए गए ट्रैक देखने के लिए कुछ {{genre}} संगीत चलाएं!",
-    "unknownArtist": "अज्ञात कलाकार",
-    "unknownAlbum": "अज्ञात एल्बम",
-    "unknownFile": "अज्ञात फ़ाइल",
-    "unknownTrack": "अज्ञात ट्रैक",
+    "unknownArtist": "$t(common.unknown) $t(term.artistLabel)",
+    "unknownAlbum": "$t(common.unknown) $t(term.albumLabel)",
+    "unknownFile": "$t(common.unknown) $t(term.fileLabel)",
+    "unknownTrack": "$t(common.unknown) $t(term.trackLabel)",
     "count": {
-      "track": "{{count}} ट्रैक",
-      "track_one": "{{count}} ट्रैक",
-      "track_other": "{{count}} ट्रैक",
-      "track_plural": "{{count}} ट्रैक",
-      "item": "{{count}} आइटम",
-      "item_one": "{{count}} आइटम",
-      "item_other": "{{count}} आइटम",
-      "item_plural": "{{count}} आइटम"
+      "track": "{{count}} $t(term.track)",
+      "track_one": "{{count}} $t(term.track)",
+      "track_other": "{{count}} $t(term.tracks)",
+      "item": "{{count}} $t(term.item)",
+      "item_one": "{{count}} $t(term.item)",
+      "item_other": "{{count}} $t(term.items)"
     },
     "favoriteType": {
-      "track": "ट्रैक",
-      "artist": "कलाकार",
-      "album": "एलबम",
-      "playlist": "प्लेलिस्ट"
+      "track": "$t(term.trackLabel)",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "empty": {
-      "albumsTitle": "कोई एल्बम नहीं",
+      "albumsTitle": "$t(term.noLabel) $t(term.albumsLabel)",
       "albumsFoundTitle": "कोई एल्बम नहीं मिला",
       "albumsMessage": "आपके द्वारा अपनी लाइब्रेरी में जोड़े गए एल्बम यहां दिखाई देंगे।",
-      "artistsTitle": "कोई कलाकार नहीं",
+      "artistsTitle": "$t(term.noLabel) $t(term.artistsLabel)",
       "artistsMessage": "आपकी संगीत लाइब्रेरी के कलाकार यहां दिखाई देंगे.",
-      "favoritesTitle": "कोई पसंदीदा नहीं",
+      "favoritesTitle": "$t(term.noLabel) $t(term.favoritesLabel)",
       "favoritesMessage": "आपके पसंदीदा ट्रैक, कलाकार और एल्बम यहां दिखाई देंगे।",
-      "foldersTitle": "कोई फ़ोल्डर नहीं",
+      "foldersTitle": "$t(term.noLabel) $t(term.foldersLabel)",
       "foldersMessage": "आपके द्वारा जोड़े गए संगीत फ़ोल्डर यहां दिखाई देंगे.",
       "genresFoundTitle": "कोई शैलियाँ नहीं मिलीं",
-      "tracksTitle": "कोई ट्रैक नहीं",
+      "tracksTitle": "$t(term.noLabel) $t(term.tracksLabel)",
       "tracksFoundTitle": "कोई ट्रैक नहीं मिला",
       "tracksSelectedTitle": "कोई ट्रैक चयनित नहीं",
       "tracksMessage": "आपके द्वारा अपनी लाइब्रेरी में जोड़े गए ट्रैक यहां दिखाई देंगे।",
-      "lyricsTitle": "कोई गीत नहीं",
+      "lyricsTitle": "$t(term.noLabel) $t(term.lyricsLabel)",
       "lyricsMessage": "इस ट्रैक में अभी तक एम्बेडेड गीत नहीं हैं।",
-      "playlistsTitle": "कोई प्लेलिस्ट नहीं",
+      "playlistsTitle": "$t(term.noLabel) $t(term.playlistsLabel)",
       "playlistsFoundTitle": "कोई प्लेलिस्ट नहीं मिली",
       "playlistsMessage": "अपने संगीत को व्यवस्थित करने के लिए अपनी पहली प्लेलिस्ट बनाएं।",
       "playlistsFoundMessage": "ट्रैक व्यवस्थित करने के लिए अपनी पहली प्लेलिस्ट बनाएं।",
@@ -166,7 +227,7 @@
   },
   "playlist": {
     "newPlaylist": "नई प्लेलिस्ट",
-    "playlist": "प्लेलिस्ट",
+    "playlist": "$t(term.playlistLabel)",
     "createPlaylist": "प्लेलिस्ट बनाएं",
     "saveQueueToPlaylist": "कतार को प्लेलिस्ट में सहेजें",
     "editPlaylist": "प्लेलिस्ट संपादित करें",
@@ -178,7 +239,9 @@
     "addTracks": "ट्रैक जोड़ें",
     "searchPlaceholder": "प्लेलिस्ट खोजें...",
     "searchTracksPlaceholder": "ट्रैक खोजें...",
-    "selected": "{{count}} चयनित",
+    "selected": "{{count}} $t(term.selectedLabel)",
+    "selected_one": "{{count}} $t(term.selectedLabel)",
+    "selected_other": "{{count}} $t(term.selectedLabel)",
     "apply": "आवेदन करें",
     "applyWithCount": "लागू करें ({{count}})",
     "clearSelection": "स्पष्ट चयन",
@@ -196,13 +259,13 @@
       "quality": "गुणवत्ता",
       "codec": "कोडेक",
       "format": "प्रारूप",
-      "artist": "कलाकार",
-      "album": "एलबम",
-      "genre": "शैली",
-      "year": "वर्ष",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "genre": "$t(term.genreLabel)",
+      "year": "$t(term.yearLabel)",
       "trackDisc": "ट्रैक/डिस्क",
-      "duration": "अवधि",
-      "playCount": "गिनती खेलें",
+      "duration": "$t(term.durationLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "lastPlayed": "अंतिम बार खेला गया",
       "file": "फ़ाइल"
     },
@@ -223,20 +286,51 @@
       "goToArtist": "कलाकार के पास जाएँ",
       "goToAlbum": "एल्बम पर जाएँ"
     },
+    "sleepTimer": {
+      "title": "स्लीप टाइमर",
+      "off": "बंद",
+      "timer": "टाइमर",
+      "timerDescription": "कुछ मिनटों बाद अपने आप प्लेबैक रोकें।",
+      "timerValue": "मिनट",
+      "timerValueMinutes": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_one": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_other": "{{count}} $t(term.minuteShort)",
+      "playCount": "$t(term.playCountLabel)",
+      "playCountDescription": "इतने गाने खत्म होने के बाद प्लेबैक रोकें।",
+      "playCountValueLabel": "$t(term.tracksLabel)",
+      "playCountValue": "{{count}} $t(term.tracks)",
+      "playCountValue_one": "{{count}} $t(term.track)",
+      "playCountValue_other": "{{count}} $t(term.tracks)",
+      "endOfCurrentTrack": "मौजूदा गाने का अंत",
+      "endOfCurrentTrackDescription": "मौजूदा गाना खत्म होने पर प्लेबैक रोकें।",
+      "customTime": "कस्टम समय",
+      "customTimeDescription": "प्लेबैक रोकने का सही समय चुनें।",
+      "customTimeDescriptionUntil": "{{value}} पर प्लेबैक रोकें।",
+      "customTimeValueLabel": "समय",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "समय सेट करें",
+      "clearCustomTime": "समय हटाएं",
+      "hour": "घंटा",
+      "minute": "मिनट",
+      "enable": "चालू करें",
+      "enabled": "चालू",
+      "cancelTimer": "टाइमर रद्द करें",
+      "close": "बंद करें"
+    },
     "karaokeOn": "कराओके चालू",
     "karaokeOff": "कराओके बंद",
     "selectArtistTitle": "कलाकार चुनें",
     "selectGenreTitle": "शैली चुनें",
     "playingFrom": {
-      "default": "से चल रहा है",
-      "album": "एल्बम से चल रहा है",
-      "artist": "कलाकार से चल रहा है",
-      "playlist": "प्लेलिस्ट से चल रहा है",
-      "genre": "शैली से चल रहा है",
-      "search": "खोज से चल रहा है",
-      "favorites": "पसंदीदा से चल रहा है",
-      "folder": "फ़ोल्डर से चल रहा है",
-      "trackList": "ट्रैक से चल रहा है",
+      "default": "$t(term.playingFromLabel)",
+      "album": "$t(term.playingFromLabel) $t(term.albumLabel)",
+      "artist": "$t(term.playingFromLabel) $t(term.artistLabel)",
+      "playlist": "$t(term.playingFromLabel) $t(term.playlistLabel)",
+      "genre": "$t(term.playingFromLabel) $t(term.genreLabel)",
+      "search": "$t(term.playingFromLabel) $t(term.searchLabel)",
+      "favorites": "$t(term.playingFromLabel) $t(term.favoritesLabel)",
+      "folder": "$t(term.playingFromLabel) $t(term.folderLabel)",
+      "trackList": "$t(term.playingFromLabel) $t(term.tracksLabel)",
       "external": "फ़ाइल से चल रहा है"
     }
   },
@@ -249,6 +343,10 @@
         "title": "दिखावट",
         "description": "थीम, भाषा और दृश्य प्राथमिकताएँ।"
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "ऑडियो",
         "description": "प्लेबैक संक्रमण और ऑडियो व्यवहार।"
@@ -258,7 +356,7 @@
         "description": "अधिसूचना व्यवहार और अलर्ट."
       },
       "library": {
-        "title": "पुस्तकालय",
+        "title": "$t(term.libraryLabel)",
         "description": "स्कैनिंग, फ़िल्टर और अनुक्रमण व्यवहार।"
       },
       "advanced": {
@@ -269,6 +367,9 @@
         "title": "के बारे में",
         "description": "ऐप की जानकारी और निर्माण विवरण।"
       },
+      "whatsNew": {
+        "title": "$t(term.whatsNewLabel)"
+      },
       "language": {
         "title": "भाषा",
         "description": "ऐप प्रदर्शन भाषा चुनें."
@@ -277,20 +378,21 @@
         "title": "फ़ोल्डर फ़िल्टर"
       },
       "trackDurationFilter": {
-        "title": "ट्रैक अवधि फ़िल्टर"
+        "title": "$t(term.trackDurationFilterLabel)"
       },
       "logLevel": {
         "title": "लॉग स्तर"
       },
       "splitMultipleValues": {
-        "title": "अनेक मानों को विभाजित करें"
+        "title": "$t(term.splitMultipleValuesLabel)"
       },
       "artistSplitMode": {
-        "title": "कलाकार विभाजन मोड"
+        "title": "$t(term.artistSplitModeLabel)"
       }
     },
     "appearance": {
       "languageDescription": "वर्तमान भाषा: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "रोशनी",
         "dark": "अंधेरा",
@@ -331,7 +433,7 @@
       "filterMode": "फ़िल्टर मोड",
       "filterModeDescription": "चुनें कि चयनित फ़ोल्डरों को अनुमति दी जानी चाहिए या छिपा दी जानी चाहिए।",
       "addNewFolder": "नया फ़ोल्डर जोड़ें",
-      "folders": "फ़ोल्डर",
+      "folders": "$t(term.foldersLabel)",
       "noFoldersAdded": "कोई फ़ोल्डर नहीं जोड़ा गया",
       "noFoldersAddedMessage": "एक या अधिक फ़ोल्डर जोड़ें, फिर फ़िल्टर लागू करें।",
       "applyFilter": "फ़िल्टर लागू करें",
@@ -340,24 +442,27 @@
       "whitelist": "श्वेतसूची",
       "blacklist": "काली सूची",
       "folderFiltersDescription": "विशिष्ट फ़ोल्डरों को श्वेतसूची या कालीसूची में डालें।",
-      "trackDurationFilter": "ट्रैक अवधि फ़िल्टर",
+      "trackDurationFilter": "$t(term.trackDurationFilterLabel)",
       "autoScan": "ऑटो स्कैन",
-      "autoScanEnabled": "ऐप लॉन्च होने पर और फ़ाइलें बदलने पर पुनः स्कैन करें।",
-      "autoScanDisabled": "जरूरत पड़ने पर मैन्युअल रूप से स्कैन करें।",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "रीइंडेक्स लाइब्रेरी",
       "reindexInProgress": "अनुक्रमणिका प्रगति पर है...",
       "reindexDescription": "अपरिवर्तित फ़ाइलों सहित सभी ट्रैक को पुनः स्कैन करें।",
       "reindexDialogTitle": "रीइंडेक्स लाइब्रेरी को बाध्य करें?",
       "reindexDialogDescription": "यह पहले से अनुक्रमित और अपरिवर्तित फ़ाइलों सहित सभी संगीत फ़ाइलों को फिर से स्कैन करेगा। इसमें सामान्य अनुक्रमण से अधिक समय लग सकता है.",
       "reindexAction": "पुनः अनुक्रमणिका",
-      "splitMultipleValues": "अनेक मानों को विभाजित करें",
+      "splitMultipleValues": "$t(term.splitMultipleValuesLabel)",
       "splitMultipleValuesSummary": "मोड: {{mode}} · कलाकार: {{artistSymbols}} · शैली: {{genreSymbols}}",
       "artistSplitSymbols": "कलाकार विभाजित प्रतीक",
       "artistSplitSymbolsDescription": "कलाकारों और एल्बम कलाकारों के मेटाडेटा को विभाजित करने के लिए उपयोग किए जाने वाले प्रतीक। मान स्वचालित रूप से काट दिए जाते हैं.",
       "unsplitArtists": "अनस्प्लिट कलाकार",
       "unsplitArtistsDescription": "इस सूची में कलाकार विभाजित प्रतीक होने पर भी बरकरार रहते हैं।",
       "unsplitArtistsPlaceholder": "कलाकार के साथ /, कलाकार के साथ &",
-      "artistSplitMode": "आर्टिस्ट स्प्लिट मोड",
+      "artistSplitMode": "$t(term.artistSplitModeLabel)",
       "artistSplitModeSplit": "मूल्यों को विभाजित करें",
       "artistSplitModeSplitDescription": "प्रत्येक पहचाने गए कलाकार को एक अलग नाम के रूप में दिखाएं।",
       "artistSplitModeOriginal": "मूल तार",
@@ -375,13 +480,42 @@
       "reindexLaterAction": "नहीं, बाद में"
     },
     "audio": {
-      "crossfade": "क्रॉसफ़ेड",
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "$t(term.resumeAction)",
+        "audioFocus": "Audio Focus",
+        "crossfade": "$t(term.crossfadeLabel)"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
+      "crossfade": "$t(term.crossfadeLabel)",
       "crossfadeEnabled": "प्लेबैक के दौरान गानों के बीच मिश्रण करें।",
       "crossfadeDisabled": "प्रत्येक गीत को स्वच्छ परिवर्तन के साथ बजाएं।",
-      "duration": "अवधि",
+      "duration": "$t(term.durationLabel)",
       "durationHint": "चुनें कि अगला ट्रैक वर्तमान ट्रैक के साथ कितनी देर तक ओवरलैप होता है।"
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "अनुक्रमणिका सूचनाएं",
       "indexerNotificationsEnabled": "अनुक्रमणित करते समय सिस्टम सूचनाएं दिखाएं।",
       "indexerNotificationsDisabled": "अपने सिस्टम ट्रे से अनुक्रमण सूचनाएं छुपाएं।"
@@ -416,6 +550,12 @@
       "extraDescription": "निदान और पुनर्प्राप्ति योग्य चेतावनियों सहित सब कुछ।"
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "अतिरिक्त: डिबग, जानकारी, चेतावनियाँ और त्रुटियाँ कैप्चर करें।",
       "logMinimalDescription": "न्यूनतम: केवल महत्वपूर्ण और त्रुटि लॉग कैप्चर करें।",
       "shareCrashLogs": "क्रैश लॉग साझा करें",
@@ -427,6 +567,9 @@
       "openSystemSettings": "सिस्टम सेटिंग्स खोलें.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "डिवाइस-विशिष्ट बैटरी और पृष्ठभूमि प्रक्रिया मार्गदर्शन खोलें।",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "सुनने का इतिहास रीसेट करें?",
       "resetDialogDescription": "यह हाल ही में खेले गए को साफ़ कर देगा और टॉप-ट्रैक आँकड़े रीसेट कर देगा। आपकी संगीत फ़ाइलें, प्लेलिस्ट और पसंदीदा अपरिवर्तित रहेंगे।",
       "logsReadyTitle": "लॉग साझा करने के लिए तैयार हैं",
@@ -442,7 +585,25 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "प्रोजेक्ट स्रोत कोड."
+      "repositoryDescription": "प्रोजेक्ट स्रोत कोड.",
+      "helpTranslate": "अनुवाद में मदद करें",
+      "helpTranslateDescription": "Crowdin पर अनुवाद में योगदान दें।",
+      "checkForUpdates": "अपडेट जांचें",
+      "checkForUpdatesDescription": "Startune Music का नया रिलीज़ खोजें।",
+      "checkingForUpdates": "नया रिलीज़ जांच रहे हैं...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "$t(term.whatsNewLabel)",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "ओपन सोर्स लाइसेंस",
+      "openSourceLicensesDescription": "थर्ड-पार्टी पैकेज और लाइसेंस टेक्स्ट।",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "लाइसेंस टेक्स्ट उपलब्ध नहीं है।"
     }
   }
 }

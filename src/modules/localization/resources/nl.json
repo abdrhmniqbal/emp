@@ -11,11 +11,50 @@
     "seeMore": "Zie meer",
     "unknown": "Onbekend"
   },
+  "term": {
+    "track": "nummer",
+    "tracks": "nummers",
+    "item": "item",
+    "items": "items",
+    "minuteShort": "min",
+    "trackLabel": "Nummer",
+    "tracksLabel": "Nummers",
+    "albumLabel": "Album",
+    "albumsLabel": "Albums",
+    "artistLabel": "Artiest",
+    "artistsLabel": "Artiesten",
+    "playlistLabel": "Afspeellijst",
+    "playlistsLabel": "Afspeellijsten",
+    "folderLabel": "Map",
+    "foldersLabel": "Mappen",
+    "genreLabel": "Genre",
+    "genresLabel": "Genres",
+    "playCountLabel": "Afspeelbeurten",
+    "durationLabel": "Duur",
+    "libraryLabel": "Bibliotheek",
+    "whatsNewLabel": "Wat is nieuw",
+    "updateAvailable": "Update beschikbaar",
+    "crossfadeLabel": "Crossfade",
+    "splitMultipleValuesLabel": "Meerdere waarden splitsen",
+    "artistSplitModeLabel": "Artiesten splitsen",
+    "trackDurationFilterLabel": "Duurfilter",
+    "resumeAction": "Hervatten",
+    "yearLabel": "Jaar",
+    "nameLabel": "Naam",
+    "noLabel": "Geen",
+    "favoritesLabel": "Favorieten",
+    "lyricsLabel": "Songteksten",
+    "searchLabel": "Zoeken",
+    "foundLabel": "gevonden",
+    "selectedLabel": "geselecteerd",
+    "playingFromLabel": "Afspelen vanuit",
+    "fileLabel": "Bestand"
+  },
   "navigation": {
     "tabs": {
       "home": "Home",
       "search": "Zoeken",
-      "library": "Bibliotheek"
+      "library": "$t(term.libraryLabel)"
     }
   },
   "database": {
@@ -29,22 +68,42 @@
     "cleanup": "Opruimen...",
     "complete": "Bibliotheek bijgewerkt",
     "paused": "Gepauzeerd",
-    "tracksIndexed": "{{count}} nummers geïndexeerd",
+    "tracksIndexed": "{{count}} $t(term.tracks) geïndexeerd",
+    "tracksIndexed_one": "{{count}} $t(term.track) geïndexeerd",
+    "tracksIndexed_other": "{{count}} $t(term.tracks) geïndexeerd",
     "notification": {
       "channelName": "Indexering van bibliotheken",
       "channelDescription": "Toont de voortgang van het indexeren van de muziekbibliotheek",
       "pause": "Pauze",
-      "resume": "Hervatten",
-      "cancel": "Annuleer",
+      "resume": "$t(term.resumeAction)",
+      "cancel": "$t(common.cancel)",
       "indexingLibrary": "Indexeren van muziekbibliotheek",
       "preparingScan": "Uw bibliotheekscan voorbereiden...",
       "scanningFiles": "Muziekbestanden scannen",
       "processingMetadata": "Verwerken van muziekmetadata",
       "complete": "Indexering van bibliotheek voltooid",
-      "tracksUpdated": "{{count}} nummers bijgewerkt",
+      "tracksUpdated": "{{count}} $t(term.tracks) bijgewerkt",
+      "tracksUpdated_one": "{{count}} $t(term.track) bijgewerkt",
+      "tracksUpdated_other": "{{count}} $t(term.tracks) bijgewerkt",
       "failed": "Indexering van bibliotheek is mislukt",
       "tapToReopen": "Tik om de app opnieuw te openen en probeer het opnieuw",
       "paused": "Het indexeren van de bibliotheek is onderbroken"
+    }
+  },
+  "updates": {
+    "sheetTitle": "$t(term.updateAvailable)",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "Wat is nieuw",
+    "downloadAndInstall": "Downloaden en installeren",
+    "dontRemind": "Niet herinneren",
+    "later": "Later",
+    "previewRelease": "Previewversie",
+    "noReleaseNotes": "Geen release-opmerkingen beschikbaar.",
+    "notification": {
+      "channelName": "App-updates",
+      "channelDescription": "Meldingen voor nieuwe Startune Music-versies.",
+      "title": "$t(term.updateAvailable)",
+      "body": "$t(updates.versionChange)"
     }
   },
   "home": {
@@ -68,10 +127,10 @@
   "search": {
     "tabs": {
       "all": "Allemaal",
-      "track": "Nummer",
-      "album": "Album",
-      "artist": "Artiest",
-      "playlist": "Afspeellijst"
+      "track": "$t(term.trackLabel)",
+      "album": "$t(term.albumLabel)",
+      "artist": "$t(term.artistLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "openSearch": "Zoeken openen",
     "landingPlaceholder": "Zoeken naar nummers, artiesten, albums...",
@@ -85,31 +144,35 @@
     }
   },
   "library": {
-    "tracks": "Nummers",
-    "albums": "Albums",
+    "tracks": "$t(term.tracksLabel)",
+    "albums": "$t(term.albumsLabel)",
     "featuredOn": "Featured On",
-    "artists": "Artiesten",
-    "genres": "Genres",
-    "genre": "Genre",
-    "playlists": "Afspeellijsten",
-    "folders": "Mappen",
+    "artists": "$t(term.artistsLabel)",
+    "genres": "$t(term.genresLabel)",
+    "genre": "$t(term.genreLabel)",
+    "playlists": "$t(term.playlistsLabel)",
+    "folders": "$t(term.foldersLabel)",
     "favorites": "Favorieten",
-    "items": "{{count}}-artikelen",
+    "items": "{{count}} $t(term.items)",
+    "items_one": "{{count}} $t(term.item)",
+    "items_other": "{{count}} $t(term.items)",
     "sort": "Sorteren",
     "sortBy": "Sorteer op",
     "allTracks": "Alle nummers",
-    "name": "Naam",
+    "name": "$t(term.nameLabel)",
     "sortOption": {
       "trackNumber": "Tracknummer",
       "title": "Titel",
-      "artist": "Artiest",
-      "album": "Album",
-      "year": "Jaar",
-      "playCount": "Speel tellen",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "year": "$t(term.yearLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "dateAdded": "Datum toegevoegd",
       "addedToPlaylist": "Toegevoegd aan afspeellijst",
+      "addedToFavorites": "Added to Favorites",
       "filename": "Bestandsnaam",
-      "name": "Naam",
+      "name": "$t(term.nameLabel)",
+      "type": "Type",
       "numberOfTracks": "Aantal nummers",
       "numberOfFiles": "Aantal bestanden"
     },
@@ -120,44 +183,42 @@
     "genreAlbumsUnavailable": "Er zijn geen albums beschikbaar in {{genre}}",
     "genreTopTracksMessage": "Speel wat {{genre}}-muziek om topnummers te zien!",
     "genreTopTracksLongMessage": "Speel wat {{genre}}-muziek om hier je meest gespeelde nummers te zien!",
-    "unknownArtist": "Onbekende artiest",
-    "unknownAlbum": "Onbekend album",
-    "unknownFile": "Onbekend bestand",
-    "unknownTrack": "Onbekend nummer",
+    "unknownArtist": "$t(common.unknown) $t(term.artistLabel)",
+    "unknownAlbum": "$t(common.unknown) $t(term.albumLabel)",
+    "unknownFile": "$t(common.unknown) $t(term.fileLabel)",
+    "unknownTrack": "$t(common.unknown) $t(term.trackLabel)",
     "count": {
-      "track": "{{count}}-nummer",
-      "track_one": "{{count}}-nummer",
-      "track_other": "{{count}} nummers",
-      "track_plural": "{{count}} nummers",
-      "item": "{{count}}-artikel",
-      "item_one": "{{count}}-artikel",
-      "item_other": "{{count}}-artikelen",
-      "item_plural": "{{count}}-artikelen"
+      "track": "{{count}} $t(term.track)",
+      "track_one": "{{count}} $t(term.track)",
+      "track_other": "{{count}} $t(term.tracks)",
+      "item": "{{count}} $t(term.item)",
+      "item_one": "{{count}} $t(term.item)",
+      "item_other": "{{count}} $t(term.items)"
     },
     "favoriteType": {
-      "track": "Nummer",
-      "artist": "Artiest",
-      "album": "Album",
-      "playlist": "Afspeellijst"
+      "track": "$t(term.trackLabel)",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "empty": {
-      "albumsTitle": "Geen albums",
+      "albumsTitle": "$t(term.noLabel) $t(term.albumsLabel)",
       "albumsFoundTitle": "Geen albums gevonden",
       "albumsMessage": "Albums die u aan uw bibliotheek toevoegt, worden hier weergegeven.",
-      "artistsTitle": "Geen artiesten",
+      "artistsTitle": "$t(term.noLabel) $t(term.artistsLabel)",
       "artistsMessage": "Artiesten uit je muziekbibliotheek verschijnen hier.",
-      "favoritesTitle": "Geen favorieten",
+      "favoritesTitle": "$t(term.noLabel) $t(term.favoritesLabel)",
       "favoritesMessage": "Je favoriete nummers, artiesten en albums verschijnen hier.",
-      "foldersTitle": "Geen mappen",
+      "foldersTitle": "$t(term.noLabel) $t(term.foldersLabel)",
       "foldersMessage": "Muziekmappen die u toevoegt, worden hier weergegeven.",
       "genresFoundTitle": "Geen genres gevonden",
-      "tracksTitle": "Geen nummers",
+      "tracksTitle": "$t(term.noLabel) $t(term.tracksLabel)",
       "tracksFoundTitle": "Geen nummers gevonden",
       "tracksSelectedTitle": "Geen nummers geselecteerd",
       "tracksMessage": "Nummers die je aan je bibliotheek toevoegt, verschijnen hier.",
-      "lyricsTitle": "Geen songteksten",
+      "lyricsTitle": "$t(term.noLabel) $t(term.lyricsLabel)",
       "lyricsMessage": "Dit nummer heeft nog geen ingesloten songteksten.",
-      "playlistsTitle": "Geen afspeellijsten",
+      "playlistsTitle": "$t(term.noLabel) $t(term.playlistsLabel)",
       "playlistsFoundTitle": "Geen afspeellijsten gevonden",
       "playlistsMessage": "Maak uw eerste afspeellijst om uw muziek te ordenen.",
       "playlistsFoundMessage": "Maak je eerste afspeellijst om nummers te ordenen.",
@@ -166,7 +227,7 @@
   },
   "playlist": {
     "newPlaylist": "Nieuwe afspeellijst",
-    "playlist": "Afspeellijst",
+    "playlist": "$t(term.playlistLabel)",
     "createPlaylist": "Maak een afspeellijst",
     "saveQueueToPlaylist": "Wachtrij opslaan als afspeellijst",
     "editPlaylist": "Bewerk afspeellijst",
@@ -178,7 +239,9 @@
     "addTracks": "Voeg nummers toe",
     "searchPlaceholder": "Zoek afspeellijsten...",
     "searchTracksPlaceholder": "Nummers zoeken...",
-    "selected": "{{count}} geselecteerd",
+    "selected": "{{count}} $t(term.selectedLabel)",
+    "selected_one": "{{count}} $t(term.selectedLabel)",
+    "selected_other": "{{count}} $t(term.selectedLabel)",
     "apply": "Toepassen",
     "applyWithCount": "Toepassen ({{count}})",
     "clearSelection": "Duidelijke selectie",
@@ -196,13 +259,13 @@
       "quality": "Kwaliteit",
       "codec": "Codec",
       "format": "Formaat",
-      "artist": "Artiest",
-      "album": "Album",
-      "genre": "Genre",
-      "year": "Jaar",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "genre": "$t(term.genreLabel)",
+      "year": "$t(term.yearLabel)",
       "trackDisc": "Nummer / schijf",
-      "duration": "Duur",
-      "playCount": "Speel tellen",
+      "duration": "$t(term.durationLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "lastPlayed": "Laatst gespeeld",
       "file": "Bestand"
     },
@@ -223,20 +286,51 @@
       "goToArtist": "Ga naar Artiest",
       "goToAlbum": "Ga naar Album"
     },
+    "sleepTimer": {
+      "title": "Slaaptimer",
+      "off": "Uit",
+      "timer": "Timer",
+      "timerDescription": "Stop automatisch na een aantal minuten.",
+      "timerValue": "Minuten",
+      "timerValueMinutes": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_one": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_other": "{{count}} $t(term.minuteShort)",
+      "playCount": "$t(term.playCountLabel)",
+      "playCountDescription": "Stop nadat dit aantal nummers is afgespeeld.",
+      "playCountValueLabel": "$t(term.tracksLabel)",
+      "playCountValue": "{{count}} $t(term.tracks)",
+      "playCountValue_one": "{{count}} $t(term.track)",
+      "playCountValue_other": "{{count}} $t(term.tracks)",
+      "endOfCurrentTrack": "Einde van huidig nummer",
+      "endOfCurrentTrackDescription": "Stop wanneer het huidige nummer eindigt.",
+      "customTime": "Aangepaste tijd",
+      "customTimeDescription": "Kies een exacte tijd om te stoppen.",
+      "customTimeDescriptionUntil": "Stop afspelen om {{value}}.",
+      "customTimeValueLabel": "Tijd",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Tijd instellen",
+      "clearCustomTime": "Tijd wissen",
+      "hour": "Uur",
+      "minute": "Minuut",
+      "enable": "Inschakelen",
+      "enabled": "Ingeschakeld",
+      "cancelTimer": "Timer annuleren",
+      "close": "Sluiten"
+    },
     "karaokeOn": "Karaoke aan",
     "karaokeOff": "Karaoke uit",
     "selectArtistTitle": "Kies artiest",
     "selectGenreTitle": "Kies genre",
     "playingFrom": {
-      "default": "Afspelen vanaf",
-      "album": "Afspelen vanaf Album",
-      "artist": "Afspelen vanaf Artiest",
-      "playlist": "Afspelen vanaf Playlist",
-      "genre": "Afspelen vanaf Genre",
-      "search": "Afspelen vanaf Zoeken",
-      "favorites": "Afspelen vanaf Favorieten",
-      "folder": "Afspelen vanaf Map",
-      "trackList": "Afspelen vanaf Nummers",
+      "default": "$t(term.playingFromLabel)",
+      "album": "$t(term.playingFromLabel) $t(term.albumLabel)",
+      "artist": "$t(term.playingFromLabel) $t(term.artistLabel)",
+      "playlist": "$t(term.playingFromLabel) $t(term.playlistLabel)",
+      "genre": "$t(term.playingFromLabel) $t(term.genreLabel)",
+      "search": "$t(term.playingFromLabel) $t(term.searchLabel)",
+      "favorites": "$t(term.playingFromLabel) $t(term.favoritesLabel)",
+      "folder": "$t(term.playingFromLabel) $t(term.folderLabel)",
+      "trackList": "$t(term.playingFromLabel) $t(term.tracksLabel)",
       "external": "Afspelen vanaf Bestand"
     }
   },
@@ -249,6 +343,10 @@
         "title": "Uiterlijk",
         "description": "Thema-, taal- en visuele voorkeuren."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "Audio",
         "description": "Afspeelovergangen en audiogedrag."
@@ -258,7 +356,7 @@
         "description": "Meldingsgedrag en waarschuwingen."
       },
       "library": {
-        "title": "Bibliotheek",
+        "title": "$t(term.libraryLabel)",
         "description": "Scan-, filter- en indexeringsgedrag."
       },
       "advanced": {
@@ -269,6 +367,9 @@
         "title": "Over",
         "description": "App-informatie en builddetails."
       },
+      "whatsNew": {
+        "title": "$t(term.whatsNewLabel)"
+      },
       "language": {
         "title": "Taal",
         "description": "Kies de weergavetaal van de app."
@@ -277,20 +378,21 @@
         "title": "Mapfilters"
       },
       "trackDurationFilter": {
-        "title": "Trackduurfilter"
+        "title": "$t(term.trackDurationFilterLabel)"
       },
       "logLevel": {
         "title": "Logniveau"
       },
       "splitMultipleValues": {
-        "title": "Meerdere waarden splitsen"
+        "title": "$t(term.splitMultipleValuesLabel)"
       },
       "artistSplitMode": {
-        "title": "Artiest splitsingsmodus"
+        "title": "$t(term.artistSplitModeLabel)"
       }
     },
     "appearance": {
       "languageDescription": "Huidige taal: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "Licht",
         "dark": "Donker",
@@ -331,7 +433,7 @@
       "filterMode": "Filtermodus",
       "filterModeDescription": "Kies of geselecteerde mappen moeten worden toegestaan of verborgen.",
       "addNewFolder": "Nieuwe map toevoegen",
-      "folders": "Mappen",
+      "folders": "$t(term.foldersLabel)",
       "noFoldersAdded": "Geen mappen toegevoegd",
       "noFoldersAddedMessage": "Voeg een of meer mappen toe en pas vervolgens het filter toe.",
       "applyFilter": "Filter toepassen",
@@ -340,24 +442,27 @@
       "whitelist": "Witte lijst",
       "blacklist": "Zwarte lijst",
       "folderFiltersDescription": "Specifieke mappen op de witte of zwarte lijst zetten.",
-      "trackDurationFilter": "Trackduurfilter",
+      "trackDurationFilter": "$t(term.trackDurationFilterLabel)",
       "autoScan": "Automatisch scannen",
-      "autoScanEnabled": "Scan opnieuw bij het starten van de app en wanneer bestanden veranderen.",
-      "autoScanDisabled": "Handmatig scannen wanneer dat nodig is.",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "Bibliotheek opnieuw indexeren",
       "reindexInProgress": "Indexering wordt uitgevoerd...",
       "reindexDescription": "Scan alle nummers opnieuw, inclusief ongewijzigde bestanden.",
       "reindexDialogTitle": "Bibliotheek opnieuw indexeren?",
       "reindexDialogDescription": "Hierdoor worden alle muziekbestanden opnieuw gescand, inclusief reeds geïndexeerde en ongewijzigde bestanden. Het kan langer duren dan normaal indexeren.",
       "reindexAction": "Opnieuw indexeren",
-      "splitMultipleValues": "Meerdere waarden splitsen",
+      "splitMultipleValues": "$t(term.splitMultipleValuesLabel)",
       "splitMultipleValuesSummary": "Modus: {{mode}} · Artiest: {{artistSymbols}} · Genre: {{genreSymbols}}",
       "artistSplitSymbols": "Artist gesplitste symbolen",
       "artistSplitSymbolsDescription": "Symbolen die worden gebruikt om de metagegevens van artiesten en albumartiesten te splitsen. Waarden worden automatisch bijgesneden.",
       "unsplitArtists": "Ongesplitste artiesten",
       "unsplitArtistsDescription": "Artiesten in deze lijst blijven intact, zelfs als ze gesplitste symbolen bevatten.",
       "unsplitArtistsPlaceholder": "Artiest met /, Artiest met &",
-      "artistSplitMode": "Splitsmodus voor artiesten",
+      "artistSplitMode": "$t(term.artistSplitModeLabel)",
       "artistSplitModeSplit": "Waarden splitsen",
       "artistSplitModeSplitDescription": "Toon elke gedetecteerde artiest als een aparte naam.",
       "artistSplitModeOriginal": "Originele snaren",
@@ -375,13 +480,42 @@
       "reindexLaterAction": "Nee, later"
     },
     "audio": {
-      "crossfade": "Crossfaden",
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "$t(term.resumeAction)",
+        "audioFocus": "Audio Focus",
+        "crossfade": "$t(term.crossfadeLabel)"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
+      "crossfade": "$t(term.crossfadeLabel)",
       "crossfadeEnabled": "Meng tussen nummers tijdens het afspelen.",
       "crossfadeDisabled": "Speel elk nummer met een zuivere overgang.",
-      "duration": "Duur",
+      "duration": "$t(term.durationLabel)",
       "durationHint": "Kies hoe lang het volgende nummer het huidige overlapt."
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "Indexer-meldingen",
       "indexerNotificationsEnabled": "Toon systeemmeldingen tijdens het indexeren.",
       "indexerNotificationsDisabled": "Verberg indexeringsmeldingen in uw systeemvak."
@@ -416,6 +550,12 @@
       "extraDescription": "Alles, inclusief diagnostiek en herstelbare waarschuwingen."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "Extra: leg foutopsporing, informatie, waarschuwingen en fouten vast.",
       "logMinimalDescription": "Minimaal: leg alleen kritieke en foutlogboeken vast.",
       "shareCrashLogs": "Deel crashlogboeken",
@@ -427,6 +567,9 @@
       "openSystemSettings": "Systeeminstellingen openen.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "Open apparaatspecifieke batterij- en achtergrondprocesbegeleiding.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "Luistergeschiedenis resetten?",
       "resetDialogDescription": "Hiermee worden recent gespeelde nummers gewist en de statistieken van de bovenste nummers gereset. Je muziekbestanden, afspeellijsten en favorieten blijven ongewijzigd.",
       "logsReadyTitle": "Logboeken klaar om te delen",
@@ -442,7 +585,25 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "Projectbroncode."
+      "repositoryDescription": "Projectbroncode.",
+      "helpTranslate": "Help vertalen",
+      "helpTranslateDescription": "Draag vertalingen bij op Crowdin.",
+      "checkForUpdates": "Controleren op updates",
+      "checkForUpdatesDescription": "Zoek naar een nieuwere Startune Music-versie.",
+      "checkingForUpdates": "Nieuwe versie controleren...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "$t(term.whatsNewLabel)",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Open-sourcelicenties",
+      "openSourceLicensesDescription": "Pakketten van derden en licentieteksten.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "Licentietekst niet beschikbaar."
     }
   }
 }

@@ -11,11 +11,50 @@
     "seeMore": "Посмотреть больше",
     "unknown": "Неизвестно"
   },
+  "term": {
+    "track": "трек",
+    "tracks": "треков",
+    "item": "элемент",
+    "items": "элементов",
+    "minuteShort": "мин",
+    "trackLabel": "Трек",
+    "tracksLabel": "Треки",
+    "albumLabel": "Альбом",
+    "albumsLabel": "Альбомы",
+    "artistLabel": "Исполнитель",
+    "artistsLabel": "Исполнители",
+    "playlistLabel": "Плейлист",
+    "playlistsLabel": "Плейлисты",
+    "folderLabel": "Папка",
+    "foldersLabel": "Папки",
+    "genreLabel": "Жанр",
+    "genresLabel": "Жанры",
+    "playCountLabel": "Прослушивания",
+    "durationLabel": "Длительность",
+    "libraryLabel": "Библиотека",
+    "whatsNewLabel": "Что нового",
+    "updateAvailable": "Доступно обновление",
+    "crossfadeLabel": "Кроссфейд",
+    "splitMultipleValuesLabel": "Разделять значения",
+    "artistSplitModeLabel": "Режим исполнителей",
+    "trackDurationFilterLabel": "Фильтр длительности",
+    "resumeAction": "Продолжить",
+    "yearLabel": "Год",
+    "nameLabel": "Название",
+    "noLabel": "Нет",
+    "favoritesLabel": "Избранное",
+    "lyricsLabel": "Тексты",
+    "searchLabel": "Поиск",
+    "foundLabel": "найдено",
+    "selectedLabel": "выбрано",
+    "playingFromLabel": "Источник воспроизведения",
+    "fileLabel": "Файл"
+  },
   "navigation": {
     "tabs": {
       "home": "Главная",
       "search": "Поиск",
-      "library": "Библиотека"
+      "library": "$t(term.libraryLabel)"
     }
   },
   "database": {
@@ -29,22 +68,42 @@
     "cleanup": "Уборка...",
     "complete": "Библиотека обновлена",
     "paused": "Приостановлено",
-    "tracksIndexed": "{{count}} треки проиндексированы",
+    "tracksIndexed": "{{count}} $t(term.tracks) проиндексировано",
+    "tracksIndexed_one": "{{count}} $t(term.track) проиндексирован",
+    "tracksIndexed_other": "{{count}} $t(term.tracks) проиндексировано",
     "notification": {
       "channelName": "Индексирование библиотеки",
       "channelDescription": "Показывает прогресс индексирования музыкальной библиотеки.",
       "pause": "Пауза",
-      "resume": "Резюме",
-      "cancel": "Отмена",
+      "resume": "$t(term.resumeAction)",
+      "cancel": "$t(common.cancel)",
       "indexingLibrary": "Индексирование музыкальной библиотеки",
       "preparingScan": "Подготовка сканирования библиотеки...",
       "scanningFiles": "Сканирование музыкальных файлов",
       "processingMetadata": "Обработка музыкальных метаданных",
       "complete": "Индексирование библиотеки завершено",
-      "tracksUpdated": "Треки {{count}} обновлены.",
+      "tracksUpdated": "{{count}} $t(term.tracks) обновлено",
+      "tracksUpdated_one": "{{count}} $t(term.track) обновлен",
+      "tracksUpdated_other": "{{count}} $t(term.tracks) обновлено",
       "failed": "Индексация библиотеки не удалась",
       "tapToReopen": "Нажмите, чтобы снова открыть приложение и повторите попытку.",
       "paused": "Индексирование библиотеки приостановлено"
+    }
+  },
+  "updates": {
+    "sheetTitle": "$t(term.updateAvailable)",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "Что нового",
+    "downloadAndInstall": "Скачать и установить",
+    "dontRemind": "Не напоминать",
+    "later": "Позже",
+    "previewRelease": "Предварительная версия",
+    "noReleaseNotes": "Описание версии не добавлено.",
+    "notification": {
+      "channelName": "Обновления приложения",
+      "channelDescription": "Уведомления о новых версиях Startune Music.",
+      "title": "$t(term.updateAvailable)",
+      "body": "$t(updates.versionChange)"
     }
   },
   "home": {
@@ -68,10 +127,10 @@
   "search": {
     "tabs": {
       "all": "Все",
-      "track": "Трек",
-      "album": "Альбом",
-      "artist": "Художник",
-      "playlist": "Плейлист"
+      "track": "$t(term.trackLabel)",
+      "album": "$t(term.albumLabel)",
+      "artist": "$t(term.artistLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "openSearch": "Открыть поиск",
     "landingPlaceholder": "Поиск треков, исполнителей, альбомов...",
@@ -85,31 +144,35 @@
     }
   },
   "library": {
-    "tracks": "Треки",
-    "albums": "Альбомы",
+    "tracks": "$t(term.tracksLabel)",
+    "albums": "$t(term.albumsLabel)",
     "featuredOn": "Featured On",
-    "artists": "Художники",
-    "genres": "Жанры",
-    "genre": "Жанр",
-    "playlists": "Плейлисты",
-    "folders": "Папки",
+    "artists": "$t(term.artistsLabel)",
+    "genres": "$t(term.genresLabel)",
+    "genre": "$t(term.genreLabel)",
+    "playlists": "$t(term.playlistsLabel)",
+    "folders": "$t(term.foldersLabel)",
     "favorites": "Избранное",
-    "items": "{{count}} Предметы",
+    "items": "{{count}} $t(term.items)",
+    "items_one": "{{count}} $t(term.item)",
+    "items_other": "{{count}} $t(term.items)",
     "sort": "Сортировать",
     "sortBy": "Сортировать по",
     "allTracks": "Все треки",
-    "name": "Имя",
+    "name": "$t(term.nameLabel)",
     "sortOption": {
       "trackNumber": "Номер трека",
       "title": "Название",
-      "artist": "Художник",
-      "album": "Альбом",
-      "year": "Год",
-      "playCount": "Количество игр",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "year": "$t(term.yearLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "dateAdded": "Дата добавления",
       "addedToPlaylist": "Добавлено в плейлист",
+      "addedToFavorites": "Added to Favorites",
       "filename": "Имя файла",
-      "name": "Имя",
+      "name": "$t(term.nameLabel)",
+      "type": "Type",
       "numberOfTracks": "Количество дорожек",
       "numberOfFiles": "Количество файлов"
     },
@@ -120,44 +183,42 @@
     "genreAlbumsUnavailable": "В {{genre}} нет альбомов.",
     "genreTopTracksMessage": "Включите музыку {{genre}}, чтобы увидеть лучшие треки!",
     "genreTopTracksLongMessage": "Включите музыку {{genre}} и увидите здесь свои самые популярные треки!",
-    "unknownArtist": "Неизвестный исполнитель",
-    "unknownAlbum": "Неизвестный альбом",
-    "unknownFile": "Неизвестный файл",
-    "unknownTrack": "Неизвестный трек",
+    "unknownArtist": "$t(common.unknown) $t(term.artistLabel)",
+    "unknownAlbum": "$t(common.unknown) $t(term.albumLabel)",
+    "unknownFile": "$t(common.unknown) $t(term.fileLabel)",
+    "unknownTrack": "$t(common.unknown) $t(term.trackLabel)",
     "count": {
-      "track": "{{count}} трек",
-      "track_one": "{{count}} трек",
-      "track_other": "{{count}} треки",
-      "track_plural": "{{count}} треки",
-      "item": "{{count}} предмет",
-      "item_one": "{{count}} предмет",
-      "item_other": "{{count}} предметов",
-      "item_plural": "{{count}} предметов"
+      "track": "{{count}} $t(term.track)",
+      "track_one": "{{count}} $t(term.track)",
+      "track_other": "{{count}} $t(term.tracks)",
+      "item": "{{count}} $t(term.item)",
+      "item_one": "{{count}} $t(term.item)",
+      "item_other": "{{count}} $t(term.items)"
     },
     "favoriteType": {
-      "track": "Трек",
-      "artist": "Художник",
-      "album": "Альбом",
-      "playlist": "Плейлист"
+      "track": "$t(term.trackLabel)",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "empty": {
-      "albumsTitle": "Нет альбомов",
+      "albumsTitle": "$t(term.noLabel) $t(term.albumsLabel)",
       "albumsFoundTitle": "Альбомы не найдены",
       "albumsMessage": "Здесь появятся альбомы, которые вы добавите в свою библиотеку.",
-      "artistsTitle": "Нет художников",
+      "artistsTitle": "$t(term.noLabel) $t(term.artistsLabel)",
       "artistsMessage": "Здесь появятся исполнители из вашей музыкальной библиотеки.",
-      "favoritesTitle": "Нет Избранного",
+      "favoritesTitle": "$t(term.noLabel) $t(term.favoritesLabel)",
       "favoritesMessage": "Здесь появятся ваши любимые треки, исполнители и альбомы.",
-      "foldersTitle": "Нет папок",
+      "foldersTitle": "$t(term.noLabel) $t(term.foldersLabel)",
       "foldersMessage": "Здесь появятся добавленные вами музыкальные папки.",
       "genresFoundTitle": "Жанры не найдены",
-      "tracksTitle": "Нет треков",
+      "tracksTitle": "$t(term.noLabel) $t(term.tracksLabel)",
       "tracksFoundTitle": "Треков не найдено",
       "tracksSelectedTitle": "Треки не выбраны",
       "tracksMessage": "Здесь появятся треки, которые вы добавите в свою библиотеку.",
-      "lyricsTitle": "Нет текстов",
+      "lyricsTitle": "$t(term.noLabel) $t(term.lyricsLabel)",
       "lyricsMessage": "В этот трек еще не встроен текст.",
-      "playlistsTitle": "Нет плейлистов",
+      "playlistsTitle": "$t(term.noLabel) $t(term.playlistsLabel)",
       "playlistsFoundTitle": "Плейлисты не найдены",
       "playlistsMessage": "Создайте свой первый плейлист, чтобы систематизировать свою музыку.",
       "playlistsFoundMessage": "Создайте свой первый плейлист для систематизации треков.",
@@ -166,7 +227,7 @@
   },
   "playlist": {
     "newPlaylist": "Новый плейлист",
-    "playlist": "Плейлист",
+    "playlist": "$t(term.playlistLabel)",
     "createPlaylist": "Создать плейлист",
     "saveQueueToPlaylist": "Сохранить очередь в плейлист",
     "editPlaylist": "Редактировать плейлист",
@@ -178,7 +239,9 @@
     "addTracks": "Добавить треки",
     "searchPlaceholder": "Поиск плейлистов...",
     "searchTracksPlaceholder": "Искать треки...",
-    "selected": "{{count}} выбрано",
+    "selected": "{{count}} $t(term.selectedLabel)",
+    "selected_one": "{{count}} $t(term.selectedLabel)",
+    "selected_other": "{{count}} $t(term.selectedLabel)",
     "apply": "Применить",
     "applyWithCount": "Применить ({{count}})",
     "clearSelection": "Очистить выбор",
@@ -196,13 +259,13 @@
       "quality": "Качество",
       "codec": "Кодек",
       "format": "Формат",
-      "artist": "Художник",
-      "album": "Альбом",
-      "genre": "Жанр",
-      "year": "Год",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "genre": "$t(term.genreLabel)",
+      "year": "$t(term.yearLabel)",
       "trackDisc": "Трек/Диск",
-      "duration": "Продолжительность",
-      "playCount": "Количество игр",
+      "duration": "$t(term.durationLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "lastPlayed": "Последняя игра",
       "file": "Файл"
     },
@@ -223,20 +286,51 @@
       "goToArtist": "Перейти к исполнителю",
       "goToAlbum": "Перейти в альбом"
     },
+    "sleepTimer": {
+      "title": "Таймер сна",
+      "off": "Выкл.",
+      "timer": "Таймер",
+      "timerDescription": "Автоматически остановить воспроизведение через несколько минут.",
+      "timerValue": "Минуты",
+      "timerValueMinutes": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_one": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_other": "{{count}} $t(term.minuteShort)",
+      "playCount": "$t(term.playCountLabel)",
+      "playCountDescription": "Остановить воспроизведение после выбранного числа треков.",
+      "playCountValueLabel": "$t(term.tracksLabel)",
+      "playCountValue": "{{count}} $t(term.tracks)",
+      "playCountValue_one": "{{count}} $t(term.track)",
+      "playCountValue_other": "{{count}} $t(term.tracks)",
+      "endOfCurrentTrack": "Конец текущего трека",
+      "endOfCurrentTrackDescription": "Остановить воспроизведение, когда текущий трек закончится.",
+      "customTime": "Свое время",
+      "customTimeDescription": "Выберите точное время остановки.",
+      "customTimeDescriptionUntil": "Остановить воспроизведение в {{value}}.",
+      "customTimeValueLabel": "Время",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Задать время",
+      "clearCustomTime": "Очистить время",
+      "hour": "Час",
+      "minute": "Минута",
+      "enable": "Включить",
+      "enabled": "Включено",
+      "cancelTimer": "Отменить таймер",
+      "close": "Закрыть"
+    },
     "karaokeOn": "Караоке включено",
     "karaokeOff": "Караоке выключено",
     "selectArtistTitle": "Выбрать исполнителя",
     "selectGenreTitle": "Выберите жанр",
     "playingFrom": {
-      "default": "Играет из",
-      "album": "Играет из альбома",
-      "artist": "Играет от исполнителя",
-      "playlist": "Играет из плейлиста",
-      "genre": "Играет из жанра",
-      "search": "Играет из поиска",
-      "favorites": "Играет из избранного",
-      "folder": "Играет из папки",
-      "trackList": "Играет из треков",
+      "default": "$t(term.playingFromLabel)",
+      "album": "$t(term.playingFromLabel) $t(term.albumLabel)",
+      "artist": "$t(term.playingFromLabel) $t(term.artistLabel)",
+      "playlist": "$t(term.playingFromLabel) $t(term.playlistLabel)",
+      "genre": "$t(term.playingFromLabel) $t(term.genreLabel)",
+      "search": "$t(term.playingFromLabel) $t(term.searchLabel)",
+      "favorites": "$t(term.playingFromLabel) $t(term.favoritesLabel)",
+      "folder": "$t(term.playingFromLabel) $t(term.folderLabel)",
+      "trackList": "$t(term.playingFromLabel) $t(term.tracksLabel)",
       "external": "Играет из файла"
     }
   },
@@ -249,6 +343,10 @@
         "title": "Внешний вид",
         "description": "Тема, язык и визуальные предпочтения."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "Аудио",
         "description": "Переходы воспроизведения и поведение звука."
@@ -258,7 +356,7 @@
         "description": "Поведение уведомлений и оповещения."
       },
       "library": {
-        "title": "Библиотека",
+        "title": "$t(term.libraryLabel)",
         "description": "Сканирование, фильтры и поведение индексации."
       },
       "advanced": {
@@ -269,6 +367,9 @@
         "title": "О",
         "description": "Информация о приложении и детали сборки."
       },
+      "whatsNew": {
+        "title": "$t(term.whatsNewLabel)"
+      },
       "language": {
         "title": "Язык",
         "description": "Выберите язык отображения приложения."
@@ -277,20 +378,21 @@
         "title": "Фильтры папок"
       },
       "trackDurationFilter": {
-        "title": "Фильтр длительности трека"
+        "title": "$t(term.trackDurationFilterLabel)"
       },
       "logLevel": {
         "title": "Уровень журнала"
       },
       "splitMultipleValues": {
-        "title": "Разделить несколько значений"
+        "title": "$t(term.splitMultipleValuesLabel)"
       },
       "artistSplitMode": {
-        "title": "Режим разделения исполнителей"
+        "title": "$t(term.artistSplitModeLabel)"
       }
     },
     "appearance": {
       "languageDescription": "Текущий язык: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "Свет",
         "dark": "Темный",
@@ -331,7 +433,7 @@
       "filterMode": "Режим фильтра",
       "filterModeDescription": "Выберите, следует ли разрешить или скрыть выбранные папки.",
       "addNewFolder": "Добавить новую папку",
-      "folders": "Папки",
+      "folders": "$t(term.foldersLabel)",
       "noFoldersAdded": "Папки не добавлены",
       "noFoldersAddedMessage": "Добавьте одну или несколько папок, затем примените фильтр.",
       "applyFilter": "Применить фильтр",
@@ -340,24 +442,27 @@
       "whitelist": "Белый список",
       "blacklist": "Черный список",
       "folderFiltersDescription": "Белый или черный список определенных папок.",
-      "trackDurationFilter": "Фильтр длительности трека",
+      "trackDurationFilter": "$t(term.trackDurationFilterLabel)",
       "autoScan": "Автоматическое сканирование",
-      "autoScanEnabled": "Повторное сканирование при запуске приложения и при изменении файлов.",
-      "autoScanDisabled": "При необходимости сканируйте вручную.",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "Библиотека Рейндекса",
       "reindexInProgress": "Идет индексирование...",
       "reindexDescription": "Пересканировать все треки, включая неизмененные файлы.",
       "reindexDialogTitle": "Принудительно переиндексировать библиотеку?",
       "reindexDialogDescription": "Это приведет к повторному сканированию всех музыкальных файлов, включая уже проиндексированные и неизмененные файлы. Это может занять больше времени, чем обычное индексирование.",
       "reindexAction": "Переиндексация",
-      "splitMultipleValues": "Разделить несколько значений",
+      "splitMultipleValues": "$t(term.splitMultipleValuesLabel)",
       "splitMultipleValuesSummary": "Режим: {{mode}} · Исполнитель: {{artistSymbols}} · Жанр: {{genreSymbols}}",
       "artistSplitSymbols": "Символы разделения художников",
       "artistSplitSymbolsDescription": "Символы, используемые для разделения метаданных исполнителей и исполнителей альбомов. Значения обрезаются автоматически.",
       "unsplitArtists": "Неразделенные художники",
       "unsplitArtistsDescription": "Исполнители в этом списке остаются нетронутыми, даже если они содержат разделенные символы.",
       "unsplitArtistsPlaceholder": "Художник с /, Художник с &",
-      "artistSplitMode": "Режим разделения исполнителей",
+      "artistSplitMode": "$t(term.artistSplitModeLabel)",
       "artistSplitModeSplit": "Разделить значения",
       "artistSplitModeSplitDescription": "Показывать каждого обнаруженного исполнителя как отдельное имя.",
       "artistSplitModeOriginal": "Оригинальные струны",
@@ -375,13 +480,42 @@
       "reindexLaterAction": "Нет, позже"
     },
     "audio": {
-      "crossfade": "Кроссфейд",
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "$t(term.resumeAction)",
+        "audioFocus": "Audio Focus",
+        "crossfade": "$t(term.crossfadeLabel)"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
+      "crossfade": "$t(term.crossfadeLabel)",
       "crossfadeEnabled": "Смешивайте песни во время воспроизведения.",
       "crossfadeDisabled": "Воспроизведите каждую песню с чистым переходом.",
-      "duration": "Продолжительность",
+      "duration": "$t(term.durationLabel)",
       "durationHint": "Выберите, как долго следующий трек будет перекрываться с текущим."
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "Уведомления индексатора",
       "indexerNotificationsEnabled": "Показывать системные уведомления во время индексирования.",
       "indexerNotificationsDisabled": "Скройте уведомления об индексировании на панели задач."
@@ -416,6 +550,12 @@
       "extraDescription": "Всё, включая диагностику и устранимые предупреждения."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "Дополнительно: захват отладки, информации, предупреждений и ошибок.",
       "logMinimalDescription": "Минимальный: записывайте только критические журналы и журналы ошибок.",
       "shareCrashLogs": "Делитесь журналами сбоев",
@@ -427,6 +567,9 @@
       "openSystemSettings": "Откройте настройки системы.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "Откройте руководство по работе батареи и фоновым процессам для конкретного устройства.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "Сбросить историю прослушивания?",
       "resetDialogDescription": "Это очистит недавно сыгранные и сбросит статистику лучших треков. Ваши музыкальные файлы, плейлисты и избранное останутся неизменными.",
       "logsReadyTitle": "Логи готовы поделиться",
@@ -442,7 +585,25 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "Исходный код проекта."
+      "repositoryDescription": "Исходный код проекта.",
+      "helpTranslate": "Помочь с переводом",
+      "helpTranslateDescription": "Помогите перевести приложение на Crowdin.",
+      "checkForUpdates": "Проверить обновления",
+      "checkForUpdatesDescription": "Проверить, есть ли новая версия Startune Music.",
+      "checkingForUpdates": "Проверяем новую версию...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "$t(term.whatsNewLabel)",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Лицензии open source",
+      "openSourceLicensesDescription": "Сторонние пакеты и тексты лицензий.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "Текст лицензии недоступен."
     }
   }
 }

@@ -30,6 +30,7 @@ export default function AboutSettingsScreen() {
   const appName = Constants.expoConfig?.name || "Startune Music"
   const version = getCurrentAppVersion()
   const repositoryUrl = "https://github.com/abdrhmniqbal/startune-music"
+  const crowdinUrl = "https://crowdin.com/project/startune-music/"
 
   function showToast(title: string, description: string) {
     toast.show({
@@ -144,6 +145,22 @@ export default function AboutSettingsScreen() {
               </ListGroup.ItemTitle>
               <ListGroup.ItemDescription>
                 {t("settings.about.repositoryDescription")}
+              </ListGroup.ItemDescription>
+            </ListGroup.ItemContent>
+            <ListGroup.ItemSuffix />
+          </ListGroup.Item>
+          <Separator className="mx-4" />
+          <ListGroup.Item
+            onPress={() => {
+              void Linking.openURL(crowdinUrl)
+            }}
+          >
+            <ListGroup.ItemContent>
+              <ListGroup.ItemTitle>
+                {t("settings.about.helpTranslate")}
+              </ListGroup.ItemTitle>
+              <ListGroup.ItemDescription>
+                {t("settings.about.helpTranslateDescription")}
               </ListGroup.ItemDescription>
             </ListGroup.ItemContent>
             <ListGroup.ItemSuffix />

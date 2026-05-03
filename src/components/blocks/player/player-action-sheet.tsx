@@ -98,11 +98,11 @@ function getSleepTimerSummary(
   clockMinute: number | null
 ) {
   if (mode === "minutes" && minutes > 0) {
-    return t("player.sleepTimer.timerValueMinutes", { value: minutes })
+    return t("player.sleepTimer.timerValueMinutes", { count: minutes })
   }
 
   if (mode === "playCount" && playCount > 0) {
-    return t("player.sleepTimer.playCountValue", { value: playCount })
+    return t("player.sleepTimer.playCountValue", { count: playCount })
   }
 
   if (mode === "trackEnd") {
@@ -666,7 +666,7 @@ export function PlayerActionSheet({
                     <Text className="text-sm text-muted">
                       {timerMinutes > 0
                         ? t("player.sleepTimer.timerValueMinutes", {
-                            value: timerMinutes,
+                            count: timerMinutes,
                           })
                         : t("player.sleepTimer.off")}
                     </Text>
@@ -716,7 +716,7 @@ export function PlayerActionSheet({
                     <Text className="text-sm text-muted">
                       {playCount > 0
                         ? t("player.sleepTimer.playCountValue", {
-                            value: playCount,
+                            count: playCount,
                           })
                         : t("player.sleepTimer.off")}
                     </Text>

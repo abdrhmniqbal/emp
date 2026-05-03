@@ -11,11 +11,50 @@
     "seeMore": "Vedi di più",
     "unknown": "Sconosciuto"
   },
+  "term": {
+    "track": "brano",
+    "tracks": "brani",
+    "item": "elemento",
+    "items": "elementi",
+    "minuteShort": "min",
+    "trackLabel": "Brano",
+    "tracksLabel": "Brani",
+    "albumLabel": "Album",
+    "albumsLabel": "Album",
+    "artistLabel": "Artista",
+    "artistsLabel": "Artisti",
+    "playlistLabel": "Playlist",
+    "playlistsLabel": "Playlist",
+    "folderLabel": "Cartella",
+    "foldersLabel": "Cartelle",
+    "genreLabel": "Genere",
+    "genresLabel": "Generi",
+    "playCountLabel": "Riproduzioni",
+    "durationLabel": "Durata",
+    "libraryLabel": "Libreria",
+    "whatsNewLabel": "Novità",
+    "updateAvailable": "Aggiornamento disponibile",
+    "crossfadeLabel": "Dissolvenza incrociata",
+    "splitMultipleValuesLabel": "Dividi valori multipli",
+    "artistSplitModeLabel": "Modalità artisti",
+    "trackDurationFilterLabel": "Filtro durata",
+    "resumeAction": "Riprendi",
+    "yearLabel": "Anno",
+    "nameLabel": "Nome",
+    "noLabel": "Nessun",
+    "favoritesLabel": "Preferiti",
+    "lyricsLabel": "Testi",
+    "searchLabel": "Ricerca",
+    "foundLabel": "trovati",
+    "selectedLabel": "selezionato",
+    "playingFromLabel": "Riproduzione da",
+    "fileLabel": "File"
+  },
   "navigation": {
     "tabs": {
       "home": "Casa",
       "search": "Cerca",
-      "library": "Biblioteca"
+      "library": "$t(term.libraryLabel)"
     }
   },
   "database": {
@@ -29,22 +68,42 @@
     "cleanup": "Ripulire...",
     "complete": "Libreria aggiornata",
     "paused": "In pausa",
-    "tracksIndexed": "{{count}} tracce indicizzate",
+    "tracksIndexed": "{{count}} $t(term.tracks) indicizzati",
+    "tracksIndexed_one": "{{count}} $t(term.track) indicizzato",
+    "tracksIndexed_other": "{{count}} $t(term.tracks) indicizzati",
     "notification": {
       "channelName": "Indicizzazione della biblioteca",
       "channelDescription": "Mostra l'avanzamento dell'indicizzazione della libreria musicale",
       "pause": "Pausa",
-      "resume": "Riprendi",
-      "cancel": "Annulla",
+      "resume": "$t(term.resumeAction)",
+      "cancel": "$t(common.cancel)",
       "indexingLibrary": "Indicizzazione della libreria musicale",
       "preparingScan": "Preparazione della scansione della libreria...",
       "scanningFiles": "Scansione di file musicali",
       "processingMetadata": "Elaborazione dei metadati musicali",
       "complete": "Indicizzazione della libreria completata",
-      "tracksUpdated": "Tracce {{count}} aggiornate",
+      "tracksUpdated": "{{count}} $t(term.tracks) aggiornati",
+      "tracksUpdated_one": "{{count}} $t(term.track) aggiornato",
+      "tracksUpdated_other": "{{count}} $t(term.tracks) aggiornati",
       "failed": "Indicizzazione della libreria non riuscita",
       "tapToReopen": "Tocca per riaprire l'app e riprova",
       "paused": "Indicizzazione della libreria sospesa"
+    }
+  },
+  "updates": {
+    "sheetTitle": "$t(term.updateAvailable)",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "Novità",
+    "downloadAndInstall": "Scarica e installa",
+    "dontRemind": "Non ricordare",
+    "later": "Più tardi",
+    "previewRelease": "Versione di anteprima",
+    "noReleaseNotes": "Nessuna nota di rilascio.",
+    "notification": {
+      "channelName": "Aggiornamenti app",
+      "channelDescription": "Notifiche per le nuove versioni di Startune Music.",
+      "title": "$t(term.updateAvailable)",
+      "body": "$t(updates.versionChange)"
     }
   },
   "home": {
@@ -68,10 +127,10 @@
   "search": {
     "tabs": {
       "all": "Tutto",
-      "track": "Traccia",
-      "album": "Album",
-      "artist": "Artista",
-      "playlist": "Playlist"
+      "track": "$t(term.trackLabel)",
+      "album": "$t(term.albumLabel)",
+      "artist": "$t(term.artistLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "openSearch": "Apri la ricerca",
     "landingPlaceholder": "Cerca brani, artisti, album...",
@@ -85,31 +144,35 @@
     }
   },
   "library": {
-    "tracks": "Tracce",
-    "albums": "Album",
+    "tracks": "$t(term.tracksLabel)",
+    "albums": "$t(term.albumsLabel)",
     "featuredOn": "Featured On",
-    "artists": "Artisti",
-    "genres": "Generi",
-    "genre": "Genere",
-    "playlists": "Playlist",
-    "folders": "Cartelle",
+    "artists": "$t(term.artistsLabel)",
+    "genres": "$t(term.genresLabel)",
+    "genre": "$t(term.genreLabel)",
+    "playlists": "$t(term.playlistsLabel)",
+    "folders": "$t(term.foldersLabel)",
     "favorites": "Preferiti",
-    "items": "{{count}} Articoli",
+    "items": "{{count}} $t(term.items)",
+    "items_one": "{{count}} $t(term.item)",
+    "items_other": "{{count}} $t(term.items)",
     "sort": "Ordina",
     "sortBy": "Ordina per",
     "allTracks": "Tutte le tracce",
-    "name": "Nome",
+    "name": "$t(term.nameLabel)",
     "sortOption": {
       "trackNumber": "Numero della traccia",
       "title": "Titolo",
-      "artist": "Artista",
-      "album": "Album",
-      "year": "Anno",
-      "playCount": "Gioca a Conte",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "year": "$t(term.yearLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "dateAdded": "Data aggiunta",
       "addedToPlaylist": "Aggiunto alla playlist",
+      "addedToFavorites": "Added to Favorites",
       "filename": "Nome file",
-      "name": "Nome",
+      "name": "$t(term.nameLabel)",
+      "type": "Type",
       "numberOfTracks": "Numero di tracce",
       "numberOfFiles": "Numero di file"
     },
@@ -120,44 +183,42 @@
     "genreAlbumsUnavailable": "Nessun album disponibile in {{genre}}",
     "genreTopTracksMessage": "Riproduci un po' di musica {{genre}} per vedere i brani migliori!",
     "genreTopTracksLongMessage": "Riproduci un po' di musica {{genre}} per vedere i tuoi brani più ascoltati qui!",
-    "unknownArtist": "Artista sconosciuto",
-    "unknownAlbum": "Album sconosciuto",
-    "unknownFile": "File sconosciuto",
-    "unknownTrack": "Traccia sconosciuta",
+    "unknownArtist": "$t(common.unknown) $t(term.artistLabel)",
+    "unknownAlbum": "$t(common.unknown) $t(term.albumLabel)",
+    "unknownFile": "$t(common.unknown) $t(term.fileLabel)",
+    "unknownTrack": "$t(common.unknown) $t(term.trackLabel)",
     "count": {
-      "track": "Traccia {{count}}",
-      "track_one": "Traccia {{count}}",
-      "track_other": "Tracce {{count}}",
-      "track_plural": "Tracce {{count}}",
-      "item": "Articolo {{count}}",
-      "item_one": "Articolo {{count}}",
-      "item_other": "{{count}} articoli",
-      "item_plural": "{{count}} articoli"
+      "track": "{{count}} $t(term.track)",
+      "track_one": "{{count}} $t(term.track)",
+      "track_other": "{{count}} $t(term.tracks)",
+      "item": "{{count}} $t(term.item)",
+      "item_one": "{{count}} $t(term.item)",
+      "item_other": "{{count}} $t(term.items)"
     },
     "favoriteType": {
-      "track": "Traccia",
-      "artist": "Artista",
-      "album": "Album",
-      "playlist": "Playlist"
+      "track": "$t(term.trackLabel)",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "playlist": "$t(term.playlistLabel)"
     },
     "empty": {
-      "albumsTitle": "Nessun album",
+      "albumsTitle": "$t(term.noLabel) $t(term.albumsLabel)",
       "albumsFoundTitle": "Nessun album trovato",
       "albumsMessage": "Gli album che aggiungi alla tua libreria verranno visualizzati qui.",
-      "artistsTitle": "Nessun artista",
+      "artistsTitle": "$t(term.noLabel) $t(term.artistsLabel)",
       "artistsMessage": "Gli artisti della tua libreria musicale appariranno qui.",
-      "favoritesTitle": "Nessun preferito",
+      "favoritesTitle": "$t(term.noLabel) $t(term.favoritesLabel)",
       "favoritesMessage": "I tuoi brani, artisti e album preferiti verranno visualizzati qui.",
-      "foldersTitle": "Nessuna cartella",
+      "foldersTitle": "$t(term.noLabel) $t(term.foldersLabel)",
       "foldersMessage": "Le cartelle musicali aggiunte verranno visualizzate qui.",
       "genresFoundTitle": "Nessun genere trovato",
-      "tracksTitle": "Nessuna traccia",
+      "tracksTitle": "$t(term.noLabel) $t(term.tracksLabel)",
       "tracksFoundTitle": "Nessuna traccia trovata",
       "tracksSelectedTitle": "Nessuna traccia selezionata",
       "tracksMessage": "I brani che aggiungi alla tua libreria verranno visualizzati qui.",
-      "lyricsTitle": "Nessun testo",
+      "lyricsTitle": "$t(term.noLabel) $t(term.lyricsLabel)",
       "lyricsMessage": "Questa traccia non ha ancora testi incorporati.",
-      "playlistsTitle": "Nessuna playlist",
+      "playlistsTitle": "$t(term.noLabel) $t(term.playlistsLabel)",
       "playlistsFoundTitle": "Nessuna playlist trovata",
       "playlistsMessage": "Crea la tua prima playlist per organizzare la tua musica.",
       "playlistsFoundMessage": "Crea la tua prima playlist per organizzare le tracce.",
@@ -166,7 +227,7 @@
   },
   "playlist": {
     "newPlaylist": "Nuova playlist",
-    "playlist": "Playlist",
+    "playlist": "$t(term.playlistLabel)",
     "createPlaylist": "Crea playlist",
     "saveQueueToPlaylist": "Salva coda come playlist",
     "editPlaylist": "Modifica playlist",
@@ -178,7 +239,9 @@
     "addTracks": "Aggiungi tracce",
     "searchPlaceholder": "Cerca playlist...",
     "searchTracksPlaceholder": "Cerca tracce...",
-    "selected": "{{count}} selezionato",
+    "selected": "{{count}} $t(term.selectedLabel)",
+    "selected_one": "{{count}} $t(term.selectedLabel)",
+    "selected_other": "{{count}} $t(term.selectedLabel)",
     "apply": "Applicare",
     "applyWithCount": "Applica ({{count}})",
     "clearSelection": "Cancella selezione",
@@ -196,13 +259,13 @@
       "quality": "Qualità",
       "codec": "Codec",
       "format": "Formato",
-      "artist": "Artista",
-      "album": "Album",
-      "genre": "Genere",
-      "year": "Anno",
+      "artist": "$t(term.artistLabel)",
+      "album": "$t(term.albumLabel)",
+      "genre": "$t(term.genreLabel)",
+      "year": "$t(term.yearLabel)",
       "trackDisc": "Traccia/Disco",
-      "duration": "Durata",
-      "playCount": "Gioca a Conte",
+      "duration": "$t(term.durationLabel)",
+      "playCount": "$t(term.playCountLabel)",
       "lastPlayed": "Ultimo giocato",
       "file": "Archivio"
     },
@@ -223,20 +286,51 @@
       "goToArtist": "Vai ad Artista",
       "goToAlbum": "Vai all'Album"
     },
+    "sleepTimer": {
+      "title": "Timer sonno",
+      "off": "Disattivato",
+      "timer": "Timer",
+      "timerDescription": "Ferma automaticamente la riproduzione dopo alcuni minuti.",
+      "timerValue": "Minuti",
+      "timerValueMinutes": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_one": "{{count}} $t(term.minuteShort)",
+      "timerValueMinutes_other": "{{count}} $t(term.minuteShort)",
+      "playCount": "$t(term.playCountLabel)",
+      "playCountDescription": "Ferma la riproduzione dopo questo numero di brani completati.",
+      "playCountValueLabel": "$t(term.tracksLabel)",
+      "playCountValue": "{{count}} $t(term.tracks)",
+      "playCountValue_one": "{{count}} $t(term.track)",
+      "playCountValue_other": "{{count}} $t(term.tracks)",
+      "endOfCurrentTrack": "Fine del brano attuale",
+      "endOfCurrentTrackDescription": "Ferma la riproduzione alla fine del brano attuale.",
+      "customTime": "Ora personalizzata",
+      "customTimeDescription": "Scegli l’ora esatta per fermare la riproduzione.",
+      "customTimeDescriptionUntil": "Ferma la riproduzione alle {{value}}.",
+      "customTimeValueLabel": "Ora",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Imposta ora",
+      "clearCustomTime": "Cancella ora",
+      "hour": "Ora",
+      "minute": "Minuto",
+      "enable": "Attiva",
+      "enabled": "Attivo",
+      "cancelTimer": "Annulla timer",
+      "close": "Chiudi"
+    },
     "karaokeOn": "Karaoke acceso",
     "karaokeOff": "Karaoke spento",
     "selectArtistTitle": "Scegli artista",
     "selectGenreTitle": "Scegli il genere",
     "playingFrom": {
-      "default": "Riproduzione da",
-      "album": "Riproduzione da Album",
-      "artist": "Riproduzione da Artista",
-      "playlist": "Riproduzione da Playlist",
-      "genre": "Riproduzione da Genere",
-      "search": "Riproduzione da Ricerca",
-      "favorites": "Riproduzione da Preferiti",
-      "folder": "Riproduzione da Cartella",
-      "trackList": "Riproduzione da Brani",
+      "default": "$t(term.playingFromLabel)",
+      "album": "$t(term.playingFromLabel) $t(term.albumLabel)",
+      "artist": "$t(term.playingFromLabel) $t(term.artistLabel)",
+      "playlist": "$t(term.playingFromLabel) $t(term.playlistLabel)",
+      "genre": "$t(term.playingFromLabel) $t(term.genreLabel)",
+      "search": "$t(term.playingFromLabel) $t(term.searchLabel)",
+      "favorites": "$t(term.playingFromLabel) $t(term.favoritesLabel)",
+      "folder": "$t(term.playingFromLabel) $t(term.folderLabel)",
+      "trackList": "$t(term.playingFromLabel) $t(term.tracksLabel)",
       "external": "Riproduzione da File"
     }
   },
@@ -249,6 +343,10 @@
         "title": "Aspetto",
         "description": "Tema, lingua e preferenze visive."
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "Audio",
         "description": "Transizioni di riproduzione e comportamento audio."
@@ -258,7 +356,7 @@
         "description": "Comportamento delle notifiche e avvisi."
       },
       "library": {
-        "title": "Biblioteca",
+        "title": "$t(term.libraryLabel)",
         "description": "Scansione, filtri e comportamento di indicizzazione."
       },
       "advanced": {
@@ -269,6 +367,9 @@
         "title": "Circa",
         "description": "Informazioni sull'app e dettagli sulla build."
       },
+      "whatsNew": {
+        "title": "$t(term.whatsNewLabel)"
+      },
       "language": {
         "title": "Lingua",
         "description": "Scegli la lingua di visualizzazione dell'app."
@@ -277,20 +378,21 @@
         "title": "Filtri delle cartelle"
       },
       "trackDurationFilter": {
-        "title": "Filtro durata traccia"
+        "title": "$t(term.trackDurationFilterLabel)"
       },
       "logLevel": {
         "title": "Livello di registro"
       },
       "splitMultipleValues": {
-        "title": "Dividere più valori"
+        "title": "$t(term.splitMultipleValuesLabel)"
       },
       "artistSplitMode": {
-        "title": "Modalità divisione artisti"
+        "title": "$t(term.artistSplitModeLabel)"
       }
     },
     "appearance": {
       "languageDescription": "Lingua corrente: {{language}}.",
+      "systemSuffix": "(System)",
       "options": {
         "light": "Luce",
         "dark": "Buio",
@@ -331,7 +433,7 @@
       "filterMode": "Modalità filtro",
       "filterModeDescription": "Scegli se le cartelle selezionate devono essere consentite o nascoste.",
       "addNewFolder": "Aggiungi nuova cartella",
-      "folders": "Cartelle",
+      "folders": "$t(term.foldersLabel)",
       "noFoldersAdded": "Nessuna cartella aggiunta",
       "noFoldersAddedMessage": "Aggiungi una o più cartelle, quindi applica il filtro.",
       "applyFilter": "Applica filtro",
@@ -340,24 +442,27 @@
       "whitelist": "Lista bianca",
       "blacklist": "Lista nera",
       "folderFiltersDescription": "Cartelle specifiche nella whitelist o nella blacklist.",
-      "trackDurationFilter": "Filtro durata traccia",
+      "trackDurationFilter": "$t(term.trackDurationFilterLabel)",
       "autoScan": "Scansione automatica",
-      "autoScanEnabled": "Eseguire nuovamente la scansione all'avvio dell'app e quando i file cambiano.",
-      "autoScanDisabled": "Scansiona manualmente quando necessario.",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "Reindicizzare la libreria",
       "reindexInProgress": "Indicizzazione in corso...",
       "reindexDescription": "Eseguire nuovamente la scansione di tutte le tracce, compresi i file non modificati.",
       "reindexDialogTitle": "Forzare la reindicizzazione della libreria?",
       "reindexDialogDescription": "Ciò effettuerà nuovamente la scansione di tutti i file musicali, inclusi i file già indicizzati e non modificati. Potrebbe richiedere più tempo del normale indicizzazione.",
       "reindexAction": "Reindicizzare",
-      "splitMultipleValues": "Dividere più valori",
+      "splitMultipleValues": "$t(term.splitMultipleValuesLabel)",
       "splitMultipleValuesSummary": "Modalità: {{mode}} · Artista: {{artistSymbols}} · Genere: {{genreSymbols}}",
       "artistSplitSymbols": "Simboli divisi dell'artista",
       "artistSplitSymbolsDescription": "Simboli utilizzati per dividere gli artisti e i metadati degli artisti degli album. I valori vengono ritagliati automaticamente.",
       "unsplitArtists": "Artisti non suddivisi",
       "unsplitArtistsDescription": "Gli artisti in questo elenco rimangono intatti anche quando contengono simboli divisi.",
       "unsplitArtistsPlaceholder": "Artista con /, Artista con &",
-      "artistSplitMode": "Modalità suddivisione artista",
+      "artistSplitMode": "$t(term.artistSplitModeLabel)",
       "artistSplitModeSplit": "Valori divisi",
       "artistSplitModeSplitDescription": "Mostra ogni artista rilevato come un nome separato.",
       "artistSplitModeOriginal": "Corde originali",
@@ -375,13 +480,42 @@
       "reindexLaterAction": "No, più tardi"
     },
     "audio": {
-      "crossfade": "Dissolvenza incrociata",
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "$t(term.resumeAction)",
+        "audioFocus": "Audio Focus",
+        "crossfade": "$t(term.crossfadeLabel)"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
+      "crossfade": "$t(term.crossfadeLabel)",
       "crossfadeEnabled": "Miscela tra i brani durante la riproduzione.",
       "crossfadeDisabled": "Riproduci ogni brano con una transizione pulita.",
-      "duration": "Durata",
+      "duration": "$t(term.durationLabel)",
       "durationHint": "Scegli per quanto tempo la traccia successiva si sovrappone a quella corrente."
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "Notifiche dell'indicizzatore",
       "indexerNotificationsEnabled": "Mostra le notifiche di sistema durante l'indicizzazione.",
       "indexerNotificationsDisabled": "Nascondi le notifiche di indicizzazione dalla barra delle applicazioni."
@@ -416,6 +550,12 @@
       "extraDescription": "Tutto, inclusa la diagnostica e gli avvisi recuperabili."
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "Extra: cattura debug, informazioni, avvisi ed errori.",
       "logMinimalDescription": "Minimo: acquisisci solo i log critici ed errori.",
       "shareCrashLogs": "Condividi i registri degli arresti anomali",
@@ -427,6 +567,9 @@
       "openSystemSettings": "Apri le impostazioni di sistema.",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "Apri la batteria specifica del dispositivo e la guida al processo in background.",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "Reimpostare la cronologia di ascolto?",
       "resetDialogDescription": "Ciò cancellerà i giochi riprodotti di recente e ripristinerà le statistiche della traccia principale. I tuoi file musicali, playlist e preferiti rimarranno invariati.",
       "logsReadyTitle": "Registri pronti per essere condivisi",
@@ -442,7 +585,25 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "Codice sorgente del progetto."
+      "repositoryDescription": "Codice sorgente del progetto.",
+      "helpTranslate": "Aiuta a tradurre",
+      "helpTranslateDescription": "Contribuisci alle traduzioni su Crowdin.",
+      "checkForUpdates": "Controlla aggiornamenti",
+      "checkForUpdatesDescription": "Cerca una nuova versione di Startune Music.",
+      "checkingForUpdates": "Controllo nuova versione...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "$t(term.whatsNewLabel)",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Licenze open source",
+      "openSourceLicensesDescription": "Pacchetti di terze parti e testi delle licenze.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "Testo licenza non disponibile."
     }
   }
 }
