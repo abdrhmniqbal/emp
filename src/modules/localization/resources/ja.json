@@ -47,6 +47,22 @@
       "paused": "ライブラリのインデックス作成が一時停止されました"
     }
   },
+  "updates": {
+    "sheetTitle": "Update available",
+    "versionChange": "{{currentVersion}} -> {{newVersion}}",
+    "whatsNew": "What's new",
+    "downloadAndInstall": "Download & install",
+    "dontRemind": "Don't remind",
+    "later": "Later",
+    "previewRelease": "Preview release",
+    "noReleaseNotes": "No release notes provided.",
+    "notification": {
+      "channelName": "App Updates",
+      "channelDescription": "Notifications for new Startune Music releases.",
+      "title": "Update available",
+      "body": "{{currentVersion}} -> {{newVersion}}"
+    }
+  },
   "home": {
     "recentlyPlayed": "最近プレイした曲",
     "topTracks": "トップトラック",
@@ -108,8 +124,10 @@
       "playCount": "再生回数",
       "dateAdded": "追加日",
       "addedToPlaylist": "プレイリストに追加されました",
+      "addedToFavorites": "Added to Favorites",
       "filename": "ファイル名",
       "name": "名前",
+      "type": "Type",
       "numberOfTracks": "トラック数",
       "numberOfFiles": "ファイル数"
     },
@@ -223,6 +241,33 @@
       "goToArtist": "アーティストに移動",
       "goToAlbum": "アルバムに移動"
     },
+    "sleepTimer": {
+      "title": "Sleep Timer",
+      "off": "Off",
+      "timer": "Timer",
+      "timerDescription": "Automatically stop playback after a set number of minutes.",
+      "timerValue": "Minutes",
+      "timerValueMinutes": "{{value}} min",
+      "playCount": "Play Count",
+      "playCountDescription": "Automatically stop playback after this many tracks finish playing.",
+      "playCountValueLabel": "Tracks",
+      "playCountValue": "{{value}} tracks",
+      "endOfCurrentTrack": "End of Current Track",
+      "endOfCurrentTrackDescription": "Automatically stop playback when the current track finishes.",
+      "customTime": "Custom Time",
+      "customTimeDescription": "Pick an exact clock time to stop playback.",
+      "customTimeDescriptionUntil": "Stop playback at {{value}}.",
+      "customTimeValueLabel": "Time",
+      "customTimeValue": "{{value}}",
+      "setCustomTime": "Set Custom Time",
+      "clearCustomTime": "Clear Custom Time",
+      "hour": "Hour",
+      "minute": "Minute",
+      "enable": "Enable",
+      "enabled": "Enabled",
+      "cancelTimer": "Cancel Timer",
+      "close": "Close"
+    },
     "karaokeOn": "カラオケオン",
     "karaokeOff": "カラオケオフ",
     "selectArtistTitle": "アーティストを選択",
@@ -249,6 +294,10 @@
         "title": "外観",
         "description": "テーマ、言語、ビジュアル設定。"
       },
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose the app theme mode (Light, Dark, or System)."
+      },
       "audio": {
         "title": "オーディオ",
         "description": "再生トランジションとオーディオの動作。"
@@ -268,6 +317,9 @@
       "about": {
         "title": "について",
         "description": "アプリの情報とビルドの詳細。"
+      },
+      "whatsNew": {
+        "title": "What's New"
       },
       "language": {
         "title": "言語",
@@ -291,6 +343,7 @@
     },
     "appearance": {
       "languageDescription": "現在の言語: {{language}}。",
+      "systemSuffix": "(System)",
       "options": {
         "light": "ライト",
         "dark": "暗い",
@@ -342,8 +395,11 @@
       "folderFiltersDescription": "特定のフォルダーをホワイトリストまたはブラックリストに登録します。",
       "trackDurationFilter": "トラック継続時間フィルター",
       "autoScan": "自動スキャン",
-      "autoScanEnabled": "アプリの起動時とファイルが変更されたときに再スキャンします。",
-      "autoScanDisabled": "必要に応じて手動でスキャンします。",
+      "autoScanDescription": "Enable automatic storage scans. When disabled, only manual reindex is available.",
+      "rescanImmediately": "Rescan Immediately",
+      "rescanImmediatelyDescription": "Scan as soon as storage changes. Tracks appear faster, but bulk file uploads may trigger more rescans.",
+      "initialScan": "Initial Scan",
+      "initialScanDescription": "Run a quick scan when the app starts for the first time in a fresh app process.",
       "reindexLibrary": "ライブラリの再インデックス",
       "reindexInProgress": "インデックス作成中...",
       "reindexDescription": "未変更のファイルを含むすべてのトラックを再スキャンします。",
@@ -375,6 +431,32 @@
       "reindexLaterAction": "いや、後で"
     },
     "audio": {
+      "sections": {
+        "transitions": "Transitions",
+        "resume": "Resume",
+        "audioFocus": "Audio Focus",
+        "crossfade": "Crossfade"
+      },
+      "fadePlayPauseStop": "Fade Play/Pause/Stop",
+      "fadePlayPauseStopDescription": "Smooth volume changes when playback starts, pauses, or stops.",
+      "fadeOnSeek": "Fade on Seek",
+      "fadeOnSeekDescription": "Briefly fade around manual seek changes.",
+      "resumeAfterCall": "Resume After Call",
+      "resumeAfterCallDescription": "Resume playback after hang up if the call paused it.",
+      "resumeOnStart": "Resume on Start",
+      "resumeOnStartDescription": "Resume the previous paused track when the app starts.",
+      "resumeOnReopen": "Resume on Reopen",
+      "resumeOnReopenDescription": "Resume the paused track when the running app is opened again.",
+      "resumeOnFocusGain": "Resume on Focus Gain",
+      "resumeOnFocusGainDescription": "Resume after the app gets audio focus back.",
+      "shortAudioFocusChange": "Short Audio Focus Change",
+      "shortAudioFocusChangeDescription": "Temporarily pause for notifications, navigation, and other short interruptions.",
+      "pauseInCall": "Pause in Call",
+      "pauseInCallDescription": "Pause when a phone call interrupts playback.",
+      "duckVolume": "Duck Volume",
+      "duckVolumeDescription": "Lower volume for short interruptions when the output allows it.",
+      "permanentAudioFocusChange": "Permanent Audio Focus Change",
+      "permanentAudioFocusChangeDescription": "Pause when another app takes audio focus permanently.",
       "crossfade": "クロスフェード",
       "crossfadeEnabled": "再生中に曲間をブレンドします。",
       "crossfadeDisabled": "各曲をきれいなトランジションで再生します。",
@@ -382,6 +464,9 @@
       "durationHint": "次のトラックが現在のトラックと重なる時間を選択します。"
     },
     "notifications": {
+      "appUpdateNotifications": "New version updates",
+      "appUpdateNotificationsEnabled": "Notify when a new app release is available.",
+      "appUpdateNotificationsDisabled": "App update notifications are disabled.",
       "indexerNotifications": "インデクサーの通知",
       "indexerNotificationsEnabled": "インデックス作成中にシステム通知を表示します。",
       "indexerNotificationsDisabled": "インデックス作成の通知をシステム トレイから非表示にします。"
@@ -416,6 +501,12 @@
       "extraDescription": "診断や回復可能な警告を含むすべて。"
     },
     "advanced": {
+      "sections": {
+        "logs": "Logs",
+        "history": "History",
+        "background": "Background",
+        "updates": "Updates"
+      },
       "logExtraDescription": "追加: デバッグ、情報、警告、エラーをキャプチャします。",
       "logMinimalDescription": "最小限: 重要なログとエラー ログのみをキャプチャします。",
       "shareCrashLogs": "クラッシュログを共有する",
@@ -427,6 +518,9 @@
       "openSystemSettings": "システム設定を開きます。",
       "dontKillMyApp": "Don't Kill My App!",
       "dontKillMyAppDescription": "デバイス固有のバッテリーとバックグラウンド プロセスのガイダンスを開きます。",
+      "joinPreviewReleases": "Join preview releases",
+      "joinPreviewReleasesEnabled": "Preview releases are included in update checks.",
+      "joinPreviewReleasesDisabled": "Only stable releases are included in update checks.",
       "resetDialogTitle": "視聴履歴をリセットしますか?",
       "resetDialogDescription": "これにより、最近プレイしたものがクリアされ、トップトラックの統計がリセットされます。音楽ファイル、プレイリスト、お気に入りは変更されません。",
       "logsReadyTitle": "ログを共有する準備ができました",
@@ -442,7 +536,23 @@
     },
     "about": {
       "github": "GitHub",
-      "repositoryDescription": "プロジェクトのソースコード。"
+      "repositoryDescription": "プロジェクトのソースコード。",
+      "checkForUpdates": "Check for updates",
+      "checkForUpdatesDescription": "Look for a newer Startune Music release.",
+      "checkingForUpdates": "Checking for a new release...",
+      "updateCheckUpToDateTitle": "You're up to date",
+      "updateCheckUpToDateDescription": "This app version is the newest available release.",
+      "updateCheckFailedTitle": "Unable to check updates",
+      "updateCheckFailedDescription": "Check your connection and try again.",
+      "whatsNew": "What's New",
+      "whatsNewDescription": "Release notes up to your installed version.",
+      "whatsNewCurrentVersion": "Showing release notes through v{{version}}.",
+      "whatsNewLoading": "Loading release notes...",
+      "whatsNewEmpty": "No release notes found for this version.",
+      "openSourceLicenses": "Open Source Licenses",
+      "openSourceLicensesDescription": "Third-party packages and license texts.",
+      "openSourceLicensesEmpty": "No generated licenses yet. Run generate:licenses script.",
+      "licenseTextUnavailable": "License text unavailable."
     }
   }
 }
